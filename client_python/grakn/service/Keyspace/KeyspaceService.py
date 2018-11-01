@@ -17,28 +17,26 @@
 # under the License.
 #
 
-import unittest
-import grakn
+import grpc
+from protocol.keyspace.Keyspace_pb2_grpc import KeyspaceServiceStub
+import protocol.keyspace.Keyspace_pb2 as keyspace_messages
 
-client = grakn.Grakn("localhost:48555")
+class KeyspaceService(object):
 
-class test_Keyspace(unittest.TestCase):
+    def __init__(self, uri, credentials):
 
-   def test_retrieve_delete(self):
-       """ Test retrieving and deleting a specific keyspace """
+        self.uri = uri
+        self.credentials = credentials
+        self._channel = grpc.insecure_channel(uri)
+        self.stub = KeyspaceServiceStub(self._channel)
 
-       session = client.session(keyspace="keyspacetest")
-       tx = session.transaction(grakn.TxType.WRITE)
-       tx.close()
+    def retrieve(self):
+        retrieve_request = keyspace_messages.Keyspace.Retrieve.Req()
+        response = self.stub.retrieve(retrieve_request)
+        return list(response.names)
 
-       keyspaces = client.keyspaces().retrieve()
-       self.assertGreater(len(keyspaces), 0)
-       self.assertTrue('keyspacetest' in keyspaces)
-
-       client.keyspaces().delete('keyspacetest')
-       post_delete_keyspaces = client.keyspaces().retrieve()
-       self.assertFalse('keyspacetest' in post_delete_keyspaces)
-
-       session.close()
-       #client.keyspaces().delete("keyspacetest")
-
+    def delete(self, keyspace):
+        delete_request = keyspace_messages.Keyspace.Delete.Req()
+        delete_request.name = keyspace
+        self.stub.delete(delete_request)
+        return
