@@ -41,12 +41,6 @@ commands:
             echo "Executing $CMD"
             $CMD
 
-  rpm_install:
-    steps:
-      - run:
-          name: Install rpm (for rpmbuild)
-          command: sudo apt update && sudo apt install rpm -y
-
 jobs:
   client-python:
     machine: true
