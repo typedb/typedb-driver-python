@@ -1,10 +1,9 @@
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-# TODO(vmax): replace with upstream once graknlabs/grakn#4836 is merged
 git_repository(
     name = "graknlabs_grakn",
-    remote = "https://github.com/vmax/grakn",
-    commit = "c3f3b15632496a450b18947954de0a9c740654aa"
+    remote = "https://github.com/graknlabs/grakn",
+    commit = "0566ed8aabf7ffeeb8437def7a1c9e8105da2a3d"
 )
 
 load("@graknlabs_grakn//dependencies/pip:dependencies.bzl", "python_dependencies")
