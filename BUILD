@@ -17,6 +17,8 @@
 #
 
 
+exports_files(["requirements.txt"])
+
 load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
 load("@pypi_dependencies//:requirements.bzl", "requirement")
 load("@pypi_deployment_dependencies//:requirements.bzl", deployment_requirement = "requirement")
@@ -26,19 +28,19 @@ load("@graknlabs_bazel_distribution//pip:rules.bzl", "deploy_pip")
 py_library(
     name = "client_python",
     srcs = [
-        "//client_python/grakn:__init__.py",
-        "//client_python/grakn:service/Keyspace/KeyspaceService.py",
-        "//client_python/grakn:service/Session/TransactionService.py",
-        "//client_python/grakn:service/Session/util/enums.py",
-        "//client_python/grakn:service/Session/util/RequestBuilder.py",
-        "//client_python/grakn:service/Session/util/ResponseReader.py",
-        "//client_python/grakn:service/Session/Concept/ConceptFactory.py",
-        "//client_python/grakn:service/Session/Concept/BaseTypeMapping.py",
-        "//client_python/grakn:service/Session/Concept/Concept.py",
-        "//client_python/grakn:exception/GraknError.py",
+        "//grakn:__init__.py",
+        "//grakn:service/Keyspace/KeyspaceService.py",
+        "//grakn:service/Session/TransactionService.py",
+        "//grakn:service/Session/util/enums.py",
+        "//grakn:service/Session/util/RequestBuilder.py",
+        "//grakn:service/Session/util/ResponseReader.py",
+        "//grakn:service/Session/Concept/ConceptFactory.py",
+        "//grakn:service/Session/Concept/BaseTypeMapping.py",
+        "//grakn:service/Session/Concept/Concept.py",
+        "//grakn:exception/GraknError.py",
     ],
     deps = [
-        "//client_python/grakn:protocol_python",
+        "//grakn:protocol_python",
         requirement("protobuf"),
         requirement("grpcio"),
         requirement("six"),
@@ -75,7 +77,7 @@ deploy_pip(
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     deployment_properties = "//:deployment.properties",
     description = "A Python client for Grakn.",
-    long_description_file = "//client_python:README.md",
+    long_description_file = "//:README.md",
     deps = [
         deployment_requirement("twine"),
         deployment_requirement("setuptools"),

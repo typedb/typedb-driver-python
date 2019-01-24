@@ -1,5 +1,7 @@
 # Grakn Client Python
 
+[![CircleCI](https://circleci.com/gh/graknlabs/client-python/tree/master.svg?style=shield)](https://circleci.com/gh/graknlabs/client-python/tree/master)
+
 ## Dependencies
 Before installing the Python `grakn` package, make sure the following dependencies are installed.
 

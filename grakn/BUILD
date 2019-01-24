@@ -19,10 +19,10 @@ exports_files([
 python_grpc_compile(
     name = "rpc_raw",
     deps = [
-        "//protocol/session:session-proto",
-        "//protocol/session:answer-proto",
-        "//protocol/session:concept-proto",
-        "//protocol/keyspace:keyspace-proto",
+        "@graknlabs_grakn//protocol/session:session-proto",
+        "@graknlabs_grakn//protocol/session:answer-proto",
+        "@graknlabs_grakn//protocol/session:concept-proto",
+        "@graknlabs_grakn//protocol/keyspace:keyspace-proto",
     ],
      visibility = ["//visibility:public"]
 )
