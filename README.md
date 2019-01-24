@@ -1,4 +1,4 @@
-# Grakn Client Python
+# Grakn Client for Python
 
 [![CircleCI](https://circleci.com/gh/graknlabs/client-python/tree/master.svg?style=shield)](https://circleci.com/gh/graknlabs/client-python/tree/master)
 
