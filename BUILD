@@ -45,7 +45,8 @@ py_library(
         requirement("grpcio"),
         requirement("six"),
         requirement("enum34"),
-    ]
+    ],
+    visibility =["//visibility:public"]
 )
 
 deploy_pip(
