@@ -1,18 +1,21 @@
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
-    name = "graknlabs_grakn",
+    name = "graknlabs_grakn_core",
     remote = "https://github.com/graknlabs/grakn",
-    commit = "7d2f7dd5c831bde2edadadea2bca16ac4648b76f"
+    commit = "ed3702bec5fd8bf761303cd5fe088b0cc1b6f7f8"
 )
 
-load("@graknlabs_grakn//dependencies/pip:dependencies.bzl", "python_dependencies")
-python_dependencies()
+git_repository(
+    name = "io_bazel_rules_python",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+    commit = "e6399b601e2f72f74e5aa635993d69166784dde1",
+)
 
 load("@io_bazel_rules_python//python:pip.bzl", "pip_repositories", "pip_import")
 pip_repositories()
 
-load("@graknlabs_grakn//dependencies/compilers:dependencies.bzl", "grpc_dependencies")
+load("@graknlabs_grakn_core//dependencies/compilers:dependencies.bzl", "grpc_dependencies")
 grpc_dependencies()
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", com_github_grpc_grpc_bazel_grpc_deps = "grpc_deps")
@@ -25,7 +28,7 @@ python_grpc_compile()
 git_repository(
     name="graknlabs_bazel_distribution",
     remote="https://github.com/graknlabs/bazel-distribution",
-    commit="df751d03b1fcbb69ed11dd1e7265020144d7233b"
+    commit="90344d523a7d552dcd35da8931da172490855fac"
 )
 
 pip_import(
@@ -53,14 +56,14 @@ git_repository(
 load("@com_github_google_bazel_common//:workspace_defs.bzl", "google_common_workspace_rules")
 google_common_workspace_rules()
 
-load("@graknlabs_grakn//dependencies/maven:dependencies.bzl", maven_dependencies_for_build = "maven_dependencies")
+load("@graknlabs_grakn_core//dependencies/maven:dependencies.bzl", maven_dependencies_for_build = "maven_dependencies")
 maven_dependencies_for_build()
 
-load("@graknlabs_grakn//dependencies/maven:dependencies.bzl", maven_dependencies_for_build = "maven_dependencies")
+load("@graknlabs_grakn_core//dependencies/maven:dependencies.bzl", maven_dependencies_for_build = "maven_dependencies")
 maven_dependencies_for_build()
 
 # Load ANTLR dependencies for Bazel
-load("@graknlabs_grakn//dependencies/compilers:dependencies.bzl", "antlr_dependencies")
+load("@graknlabs_grakn_core//dependencies/compilers:dependencies.bzl", "antlr_dependencies")
 antlr_dependencies()
 
 # Load ANTLR dependencies for ANTLR programs
