@@ -76,7 +76,7 @@ deploy_pip(
     license = "Apache-2.0",
     install_requires=['grpcio==1.16.0', 'protobuf==3.6.1', 'six==1.11.0', 'enum34==1.1.6'],
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
-    deployment_properties = "//:deployment.properties",
+    deployment_properties = "@graknlabs_grakn_core//:deployment.properties",
     description = "A Python client for Grakn.",
     long_description_file = "//:README.md",
     deps = [
