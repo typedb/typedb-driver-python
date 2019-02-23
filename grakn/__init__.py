@@ -18,6 +18,8 @@
 #
 
 import grpc
+
+from grakn.service.Session.util.RequestBuilder import RequestBuilder
 from grakn.service.Session.util.enums import TxType, DataType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
@@ -46,6 +48,12 @@ class Session(object):
 
     def __init__(self, uri, keyspace, credentials):
 
+        if not isinstance(uri, str):
+            raise TypeError('expected string for uri')
+
+        if not isinstance(keyspace, str):
+            raise TypeError('expected string for keyspace')
+
         self.keyspace = keyspace
         self.uri = uri
         self.credentials = credentials
@@ -53,6 +61,13 @@ class Session(object):
         self._channel = grpc.insecure_channel(uri)
         self._stub = SessionServiceStub(self._channel)
         self._closed = False
+
+        try:
+            open_session_response = self._stub.open(RequestBuilder.open_session(keyspace))
+            self.session_id = open_session_response.sessionId
+        except Exception:
+            raise GraknError('could not obtain sessionId for keyspace "{}"'.format(keyspace))
+
     __init__.__annotations__ = {'uri': str, 'keyspace': str}
 
     def transaction(self, tx_type):
@@ -68,11 +83,13 @@ class Session(object):
             raise GraknError("Session is closed")
 
         # create a transaction service which hides GRPC usage
-        transaction_service = TransactionService(self.keyspace, tx_type, self.credentials, self._stub.transaction)
+        transaction_service = TransactionService(self.session_id, tx_type, self.credentials, self._stub.transaction)
         return Transaction(transaction_service)
 
     def close(self):
         """ Close this keyspace session """
+        close_session_req = RequestBuilder.close_session(self.session_id)
+        self._stub.close(close_session_req)
         self._closed = True
         self._channel.close()
     
