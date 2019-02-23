@@ -40,9 +40,9 @@ class RequestBuilder(object):
 
     # --- Top level functionality ---
     @staticmethod
-    def open_tx(keyspace, tx_type, credentials):
+    def open_tx(session_id, tx_type, credentials):
         open_request = transaction_messages.Transaction.Open.Req()
-        open_request.keyspace = keyspace
+        open_request.sessionId = session_id
         open_request.type = tx_type.value
         if credentials is not None:
             open_request.username = credentials['username']
@@ -51,6 +51,18 @@ class RequestBuilder(object):
         transaction_req = transaction_messages.Transaction.Req()
         transaction_req.open_req.CopyFrom(open_request)
         return transaction_req
+
+    @staticmethod
+    def open_session(keyspace):
+        open_session_request = transaction_messages.Session.Open.Req()
+        open_session_request.Keyspace = keyspace
+        return open_session_request
+
+    @staticmethod
+    def close_session(session_id):
+        close_session_request = transaction_messages.Session.Close.Req()
+        close_session_request.sessionId = session_id
+        return close_session_request
 
     @staticmethod
     def query(query, infer=True):

@@ -28,15 +28,15 @@ from grakn.exception.GraknError import GraknError
 
 class TransactionService(object):
 
-    def __init__(self, keyspace, tx_type, credentials, transaction_endpoint):
-        self.keyspace = keyspace
+    def __init__(self, session_id, tx_type, credentials, transaction_endpoint):
+        self.session_id = session_id
         self.tx_type = tx_type.value
         self.credentials = credentials
 
         self._communicator = Communicator(transaction_endpoint)
 
         # open the transaction with an 'open' message
-        open_req = RequestBuilder.open_tx(keyspace, tx_type, credentials)
+        open_req = RequestBuilder.open_tx(session_id, tx_type, credentials)
         self._communicator.send(open_req)
     __init__.__annotations__ = {'tx_type': enums.TxType}
 
