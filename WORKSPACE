@@ -3,7 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "graknlabs_grakn_core",
     remote = "https://github.com/graknlabs/grakn",
-    commit = "80a9d8f01cb2fe642b9c29d0c550987dee3feb67"
+    commit = "ec41e803e3a12696cec731ad6071c26e90cea926"
 )
 
 git_repository(
@@ -28,7 +28,7 @@ python_grpc_compile()
 git_repository(
     name="graknlabs_bazel_distribution",
     remote="https://github.com/graknlabs/bazel-distribution",
-    commit="90344d523a7d552dcd35da8931da172490855fac"
+    commit="18d774e16187bd4148fe36842b68bafa46017d6f"
 )
 
 pip_import(

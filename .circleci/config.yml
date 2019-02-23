@@ -54,8 +54,20 @@ jobs:
       - run: nohup bazel-genfiles/dist/grakn-core-all/grakn server start
       - run: bazel test //:test_integration --test_output=streamed
 
+  test-repo-deploy:
+    machine: true
+    working_directory: ~/grakn
+    steps:
+      - checkout
+      - bazel_install
+      - run: bazel run //:deploy-pip -- test $TEST_REPO_USERNAME $TEST_REPO_PASSWORD
+
 workflows:
   version: 2
   grakn-client-python-ci:
     jobs:
       - client-python
+      - test-repo-deploy:
+          filters:
+            branches:
+              only: master
