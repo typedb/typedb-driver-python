@@ -117,7 +117,7 @@ class test_grakn_Base(test_Base):
                          "person sub entity, has age, has gender, plays parent, plays child, plays mother, plays son; "
                          "age sub attribute, datatype long; "
                          "gender sub attribute, datatype string; "
-                         "parentship sub relationship, relates parent, relates child, relates mother, relates son;")
+                         "parentship sub relation, relates parent, relates child, relates mother, relates son;")
             except GraknError as ce:
                 print(ce)
     
@@ -190,7 +190,7 @@ class test_Transaction(test_grakn_Base):
     @staticmethod
     def _build_parentship(tx):
         """ Helper to set up some state to test answers in a tx/keyspace """
-        parentship_type = tx.put_relationship_type("parentship")
+        parentship_type = tx.put_relation_type("parentship")
         parentship = parentship_type.create()
         parent_role = tx.put_role("parent")
         child_role = tx.put_role("child")
@@ -373,11 +373,11 @@ class test_Transaction(test_grakn_Base):
         self.assertTrue(dog_entity_type.is_entity_type())
 
             
-    def test_put_relationship_type(self):
-        """ Test putting a schema relationship type """
-        marriage_type = self.tx.put_relationship_type('marriage')
+    def test_put_relation_type(self):
+        """ Test putting a schema relation type """
+        marriage_type = self.tx.put_relation_type('marriage')
         self.assertTrue(marriage_type.is_schema_concept())
-        self.assertTrue(marriage_type.is_relationship_type())
+        self.assertTrue(marriage_type.is_relation_type())
 
     def test_put_attribute_type(self):
         """ Test putting a new attribtue type in schema """
@@ -394,7 +394,7 @@ class test_Transaction(test_grakn_Base):
     def test_put_rule(self):
         """ Test adding a rule for genderized parentship"""
 
-        # create a role which creates a trivial "ancestor" relationship
+        # create a role which creates a trivial "ancestor" relation
         label = "genderizedparentship"
         when = "{ (parent: $p, child: $c) isa parentship; $p has gender 'female'; $c has gender 'male'; };"
         then = "{ (mother: $p, son: $c) isa parentship; };"

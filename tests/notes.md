@@ -22,7 +22,7 @@ SessionTest():
 
 -- setup --
 * define simple schema
-* insert a couple of entities/attributes/relationships
+* insert a couple of entities/attributes/relations
 
 
 TransactionTest():

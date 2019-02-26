@@ -18,19 +18,19 @@
 #
 
 from grakn.service.Session.Concept import BaseTypeMapping
-from grakn.service.Session.Concept.Concept import EntityType, RelationshipType, AttributeType, Role, Rule, Entity, Relationship, Attribute, Type
+from grakn.service.Session.Concept.Concept import EntityType, RelationType, AttributeType, Role, Rule, Entity, Relation, Attribute, Type
 
 
 # map names to ConceptHierarchy types
 name_to_object = {
     BaseTypeMapping.META_TYPE: Type,
     BaseTypeMapping.ENTITY_TYPE: EntityType,
-    BaseTypeMapping.RELATIONSHIP_TYPE: RelationshipType,
+    BaseTypeMapping.RELATION_TYPE: RelationType,
     BaseTypeMapping.ATTRIBUTE_TYPE: AttributeType,
     BaseTypeMapping.ROLE: Role,
     BaseTypeMapping.RULE: Rule,
     BaseTypeMapping.ENTITY: Entity,
-    BaseTypeMapping.RELATIONSHIP: Relationship,
+    BaseTypeMapping.RELATION: Relation,
     BaseTypeMapping.ATTRIBUTE: Attribute
 }
 

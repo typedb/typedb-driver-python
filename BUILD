@@ -51,7 +51,7 @@ py_library(
 
 deploy_pip(
     name = "deploy-pip",
-    package_name = "grakn",
+    package_name = "grakn-client",
     version_file = "//:VERSION",
     classifiers = [
         "Programming Language :: Python",

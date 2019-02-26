@@ -166,10 +166,10 @@ class Transaction(object):
         return self._tx_service.put_entity_type(label)
     put_entity_type.__annotations__ = {'label': str}
 
-    def put_relationship_type(self, label):
-        """ Define a new relationship type with the given label """
-        return self._tx_service.put_relationship_type(label)
-    put_relationship_type.__annotations__ = {'label': str}
+    def put_relation_type(self, label):
+        """ Define a new relation type with the given label """
+        return self._tx_service.put_relation_type(label)
+    put_relation_type.__annotations__ = {'label': str}
 
     def put_attribute_type(self, label, data_type):
         """ Define a new attribute type with the given label and data type 
