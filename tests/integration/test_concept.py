@@ -48,7 +48,7 @@ class test_concept_Base(test_Base):
                      "person sub entity, has age, has gender, plays parent, plays child, plays mother, plays son; "
                      "age sub attribute, datatype long; "
                      "gender sub attribute, datatype string; "
-                     "parentship sub relationship, relates parent, relates child, relates mother, relates son;")
+                     "parentship sub relation, relates parent, relates child, relates mother, relates son;")
         except GraknError as ce: 
             print(ce)
 
@@ -102,19 +102,19 @@ class test_Concept(test_concept_Base):
         car = car_type.create()
         self.assertTrue(car.is_entity())
         self.assertFalse(car.is_attribute())
-        self.assertFalse(car.is_relationship())
+        self.assertFalse(car.is_relation())
 
-        rel_type = self.tx.put_relationship_type("owner")
+        rel_type = self.tx.put_relation_type("owner")
         owner = rel_type.create()
         self.assertFalse(owner.is_entity())
         self.assertFalse(owner.is_attribute())
-        self.assertTrue(owner.is_relationship())
+        self.assertTrue(owner.is_relation())
 
         attr_type = self.tx.put_attribute_type("age", grakn.DataType.LONG)
         age = attr_type.create(50)
         self.assertFalse(age.is_entity())
         self.assertTrue(age.is_attribute())
-        self.assertFalse(age.is_relationship())
+        self.assertFalse(age.is_relation())
 
 class test_SchemaConcept(test_concept_Base):
     """ Test methods available on all SchemaConcepts """
@@ -346,26 +346,26 @@ class test_AttributeType(test_concept_Base):
         self.assertEqual(regex, "(good|bad)-dog")
 
 
-class test_RelationshipType(test_concept_Base):
+class test_RelationType(test_concept_Base):
 
     def test_create(self):
-        rel_type = self.tx.put_relationship_type("owner")
+        rel_type = self.tx.put_relation_type("owner")
         rel = rel_type.create()
-        self.assertTrue(rel.is_relationship())
-        self.assertTrue(rel_type.is_relationship_type())
+        self.assertTrue(rel.is_relation())
+        self.assertTrue(rel_type.is_relation_type())
 
     def test_relates(self):
-        """ Test get/relate/unrelate roles for a relationship type """
-        ownership = self.tx.put_relationship_type("ownership")
+        """ Test get/relate/unrelate roles for a relation type """
+        ownership = self.tx.put_relation_type("ownership")
         role_owner = self.tx.put_role("owner")
         role_owned = self.tx.put_role("owned")
 
         with self.subTest(i=0):
-            # currently no roles in the new relationship
+            # currently no roles in the new relation
             roles = list(ownership.roles())
             self.assertEqual(len(roles), 0)
         with self.subTest(i=1):
-            # set roles in relationship
+            # set roles in relation
             ownership.relates(role_owner)
             ownership.relates(role_owned)
             roles = list(ownership.roles())
@@ -399,17 +399,17 @@ class test_Rule(test_concept_Base):
 
 class test_Role(test_concept_Base):
 
-    def test_relationships(self):
-        """ Test retrieving relationships of a role """
+    def test_relations(self):
+        """ Test retrieving relations of a role """
         # parent role, parentship already exist
         result = self.tx.query("match $x type parent; get;").collect_concepts()
         parent_role = result[0]
         self.assertEqual(parent_role.base_type, "ROLE")
 
-        relationships = list(parent_role.relationships())
-        self.assertEqual(len(relationships), 1)
-        self.assertEqual(relationships[0].base_type, "RELATIONSHIP_TYPE")
-        self.assertEqual(relationships[0].label(), "parentship")
+        relations = list(parent_role.relations())
+        self.assertEqual(len(relations), 1)
+        self.assertEqual(relations[0].base_type, "RELATION_TYPE")
+        self.assertEqual(relations[0].label(), "parentship")
 
     def test_players(self):
         """ Test retrieving entity types playing this role """
@@ -437,48 +437,48 @@ class test_Thing(test_concept_Base):
         self.assertEqual(p_type.id, person_type.id) # same schema concept 
         self.assertTrue(p_type.is_type())
 
-    def test_relationships(self):
-        """ Test retrieve relationships narrowed optionally by roles """
-        # create a first relationship
-        sibling_type = self.tx.put_relationship_type('sibling')
+    def test_relations(self):
+        """ Test retrieve relations narrowed optionally by roles """
+        # create a first relation
+        sibling_type = self.tx.put_relation_type('sibling')
         brother_role = self.tx.put_role("brother")
         sibling_type.relates(brother_role)
         person = self.tx.get_schema_concept("person")
 
-        # create a second relationship
-        ownership_type = self.tx.put_relationship_type("ownership")
+        # create a second relation
+        ownership_type = self.tx.put_relation_type("ownership")
         owner_role = self.tx.put_role("owner")
         ownership_type.relates(owner_role)
         person.plays(owner_role)
        
-        # connect entities/relationship instances
+        # connect entities/relation instances
         sibling = sibling_type.create()
         ownership = ownership_type.create()
         son = person.create()
         sibling.assign(brother_role, son) # assign son to sibling rel
         ownership.assign(owner_role, son) # attach son to owner rel 
 
-        # retrieve all relationships
-        rels = list(son.relationships()) 
+        # retrieve all relations
+        rels = list(son.relations())
         self.assertEqual(len(rels), 2)
         rel_ids = [rel.id for rel in rels]
         self.assertTrue(sibling.id in rel_ids and ownership.id in rel_ids)
         
 
         # retrieve filtered by only the owner role
-        filtered_rels = list(son.relationships(owner_role))
+        filtered_rels = list(son.relations(owner_role))
         self.assertEqual(len(filtered_rels), 1)
         self.assertEqual(filtered_rels[0].id, ownership.id)
     
     def test_roles(self):
-        # create a relationship
-        ownership_type = self.tx.put_relationship_type("ownership")
+        # create a relation
+        ownership_type = self.tx.put_relation_type("ownership")
         owner_role = self.tx.put_role("owner")
         ownership_type.relates(owner_role)
         person_type = self.tx.get_schema_concept("person")
         person_type.plays(owner_role)
        
-        # connect entities/relationship instances
+        # connect entities/relation instances
         ownership = ownership_type.create()
         person = person_type.create()
         ownership.assign(owner_role, person) # attach son to owner rel 
@@ -621,7 +621,7 @@ class test_Attribute(test_concept_Base):
         self.assertTrue(person.id in labels and animal.id in labels)
 
 
-class test_Relationship(test_concept_Base):
+class test_Relation(test_concept_Base):
 
     def test_role_players_2_roles_1_player(self):
         """ Test role_players_map and role_players with 2 roles and 1 player each """

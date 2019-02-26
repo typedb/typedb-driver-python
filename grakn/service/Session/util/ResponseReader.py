@@ -69,8 +69,8 @@ class ResponseReader(object):
         return ConceptFactory.create_concept(tx_service, grpc_put_entity_type.entityType) 
 
     @staticmethod
-    def put_relationship_type(tx_service, grpc_put_relationship_type):
-        return ConceptFactory.create_concept(tx_service, grpc_put_relationship_type.relationType)
+    def put_relation_type(tx_service, grpc_put_relation_type):
+        return ConceptFactory.create_concept(tx_service, grpc_put_relation_type.relationType)
 
     @staticmethod
     def put_attribute_type(tx_service, grpc_put_attribute_type):

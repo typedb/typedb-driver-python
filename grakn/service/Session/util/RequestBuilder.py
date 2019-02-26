@@ -118,8 +118,7 @@ class RequestBuilder(object):
         return transaction_req
 
     @staticmethod
-    def put_relationship_type(label):
-        # NOTE: Relation vs relationship
+    def put_relation_type(label):
         put_relation_type_req = transaction_messages.Transaction.PutRelationType.Req()
         put_relation_type_req.label = label
         transaction_req = transaction_messages.Transaction.Req()
@@ -582,7 +581,7 @@ class RequestBuilder(object):
                 return concept_method_req
         
         class Relation(object):
-            """ Generates Relation (aka Relationship) method messages """
+            """ Generates Relation method messages """
 
             @staticmethod
             def role_players_map():

@@ -62,10 +62,10 @@ class Concept(object):
         return isinstance(self, EntityType)
     is_entity_type.__annotations__ = {'return': bool}
 
-    def is_relationship_type(self):
-        """ Check if this concept is a RelationshipType concept """
-        return isinstance(self, RelationshipType)
-    is_relationship_type.__annotations__ = {'return': bool}
+    def is_relation_type(self):
+        """ Check if this concept is a RelationType concept """
+        return isinstance(self, RelationType)
+    is_relation_type.__annotations__ = {'return': bool}
 
     def is_role(self):
         """ Check if this concept is a Role """
@@ -87,10 +87,10 @@ class Concept(object):
         return isinstance(self, Entity)
     is_entity.__annotations__ = {'return': bool}
 
-    def is_relationship(self):
-        """ Check if this concept is a Relationship concept """
-        return isinstance(self, Relationship)
-    is_relationship.__annotations__ = {'return': bool}
+    def is_relation(self):
+        """ Check if this concept is a Relation concept """
+        return isinstance(self, Relation)
+    is_relation.__annotations__ = {'return': bool}
 
 
 class SchemaConcept(Concept):
@@ -351,20 +351,17 @@ class AttributeType(Type):
     regex.__annotations__ = {'pattern': str}
 
 
-class RelationshipType(Type):
-
-    # NOTE: `relation` not `relationship` used in RequestBuilder already 
-    
+class RelationType(Type):
     def create(self):
-        """ Create an instance of a relationship with this type """
+        """ Create an instance of a relation with this type """
         create_rel_inst_req = RequestBuilder.ConceptMethod.RelationType.create()
         method_response = self._tx_service.run_concept_method(self.id, create_rel_inst_req)
-        grpc_relationship_concept = method_response.relationType_create_res.relation
+        grpc_relation_concept = method_response.relationType_create_res.relation
         from grakn.service.Session.Concept import ConceptFactory
-        return ConceptFactory.create_concept(self._tx_service, grpc_relationship_concept)
+        return ConceptFactory.create_concept(self._tx_service, grpc_relation_concept)
         
     def roles(self):
-        """ Retrieve roles in this relationship schema type """
+        """ Retrieve roles in this relation schema type """
         get_roles = RequestBuilder.ConceptMethod.RelationType.roles()
         method_response = self._tx_service.run_concept_method(self.id, get_roles)
         from grakn.service.Session.util import ResponseReader
@@ -379,13 +376,13 @@ class RelationshipType(Type):
         
 
     def relates(self, role):
-        """ Set a role in this relationship schema type """
+        """ Set a role in this relation schema type """
         relates_req = RequestBuilder.ConceptMethod.RelationType.relates(role)
         method_response = self._tx_service.run_concept_method(self.id, relates_req)
         return self       
 
     def unrelate(self, role):
-        """ Remove a role in this relationship schema type """
+        """ Remove a role in this relation schema type """
         unrelate_req = RequestBuilder.ConceptMethod.RelationType.unrelate(role)
         method_response = self._tx_service.run_concept_method(self.id, unrelate_req)
         return self
@@ -420,9 +417,8 @@ class Rule(SchemaConcept):
 
 class Role(SchemaConcept):
 
-    def relationships(self):
-        """ Retrieve relationships that this role participates in, as an iterator """
-        # NOTE: relations vs relationships here
+    def relations(self):
+        """ Retrieve relations that this role participates in, as an iterator """
         relations_req = RequestBuilder.ConceptMethod.Role.relations()
         method_response = self._tx_service.run_concept_method(self.id, relations_req)
         from grakn.service.Session.util import ResponseReader
@@ -464,9 +460,8 @@ class Thing(Concept):
         from grakn.service.Session.Concept import ConceptFactory
         return ConceptFactory.create_concept(self._tx_service, method_response.thing_type_res.type)
 
-    def relationships(self, *roles):
-        """ Get iterator this Thing's relationships, filtered to the optionally provided roles """
-        # NOTE `relations` rather than `relationships`
+    def relations(self, *roles):
+        """ Get iterator this Thing's relations, filtered to the optionally provided roles """
         relations_req = RequestBuilder.ConceptMethod.Thing.relations(roles)
         method_response = self._tx_service.run_concept_method(self.id, relations_req)
         from grakn.service.Session.util import ResponseReader
@@ -558,12 +553,11 @@ class Attribute(Thing):
                     ConceptFactory.create_concept(tx_service, iter_res.conceptMethod_iter_res.attribute_owners_iter_res.thing)
                )
 
-class Relationship(Thing):
 
-    # NOTE `relation` has replaced `relationship` in ResponseBuilder
+class Relation(Thing):
 
     def role_players_map(self):
-        """ Retrieve dictionary {role : set(players)} for this relationship """ 
+        """ Retrieve dictionary {role : set(players)} for this relation """
         role_players_map_req = RequestBuilder.ConceptMethod.Relation.role_players_map()
         method_response = self._tx_service.run_concept_method(self.id, role_players_map_req)
 
@@ -616,13 +610,13 @@ class Relationship(Thing):
 
 
     def assign(self, role, thing):
-        """ Assign an entity to a role on this relationship instance """
+        """ Assign an entity to a role on this relation instance """
         assign_req = RequestBuilder.ConceptMethod.Relation.assign(role, thing)
         method_response = self._tx_service.run_concept_method(self.id, assign_req)
         return self
 
     def unassign(self, role, thing):
-        """ Un-assign an entity from a role on this relationship instance """
+        """ Un-assign an entity from a role on this relation instance """
         unassign_req = RequestBuilder.ConceptMethod.Relation.unassign(role, thing)
         method_response = self._tx_service.run_concept_method(self.id, unassign_req)
         return self

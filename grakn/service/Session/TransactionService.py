@@ -86,11 +86,11 @@ class TransactionService(object):
         return ResponseReader.ResponseReader.put_entity_type(self, response.putEntityType_res)
     put_entity_type.__annotations__ = {'label': str}
 
-    def put_relationship_type(self, label):
-        request = RequestBuilder.put_relationship_type(label)
+    def put_relation_type(self, label):
+        request = RequestBuilder.put_relation_type(label)
         response = self._communicator.send(request)
-        return ResponseReader.ResponseReader.put_relationship_type(self, response.putRelationType_res)
-    put_relationship_type.__annotations__ = {'label': str}
+        return ResponseReader.ResponseReader.put_relation_type(self, response.putRelationType_res)
+    put_relation_type.__annotations__ = {'label': str}
 
     def put_attribute_type(self, label, data_type):
         request = RequestBuilder.put_attribute_type(label, data_type)
