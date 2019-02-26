@@ -3,7 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "graknlabs_grakn_core",
     remote = "https://github.com/graknlabs/grakn",
-    commit = "c80b4d644aec10895171c2083ed0378b506b01f0"
+    commit = "2091602fbcca45823d2bc3d5062ce7cdb6b25b89"
 )
 
 git_repository(
