@@ -26,6 +26,12 @@ python_grpc_compile()
 
 
 git_repository(
+    name = "graknlabs_grabl",
+    remote = "https://github.com/graknlabs/grabl",
+    commit = "5294d9831fec8e246e73f6afb5f7bcd9cd8364da",
+)
+
+git_repository(
     name="graknlabs_bazel_distribution",
     remote="https://github.com/graknlabs/bazel-distribution",
     commit="6298bcf46c0ae8b1b5c9bd5138e10be38a3a9bc3"
