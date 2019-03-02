@@ -62,6 +62,27 @@ jobs:
       - bazel_install
       - run: bazel run //:deploy-pip -- test $TEST_REPO_USERNAME $TEST_REPO_PASSWORD
 
+  approve-release:
+    machine: true
+    steps:
+      - checkout
+      - run: bazel run @graknlabs_grabl//sync:approve-release
+
+  deploy-pypi:
+    machine: true
+    working_directory: ~/grakn
+    steps:
+      - checkout
+      - bazel_install
+      - bazel_add_rbe_credential
+      - run: bazel run //:deploy-pip -- pypi $PYPI_REPO_USERNAME $PYPI_REPO_PASSWORD
+
+  release-cleanup:
+    machine: true
+    steps:
+      - checkout
+      - run: git push --delete origin grakn-client-python-release-branch
+
 workflows:
   version: 2
   grakn-client-python-ci:
@@ -71,3 +92,28 @@ workflows:
           filters:
             branches:
               only: master
+          requires:
+            - client-python
+      - approve-release:
+          filters:
+            branches:
+              only: master
+          requires:
+            - client-python
+
+  # the 'grakn-client-python-release' workflow is triggered by the creation of 'grakn-client-python-release-branch' branch in graknlabs/grakn
+  # it consists of jobs which:
+  # - publishes client-python to PyPI
+  # - cleans up the 'grakn-client-python-release-branch' branch which was created by the approve-release job
+  grakn-client-python-release:
+    jobs:
+      - deploy-pypi:
+          filters:
+            branches:
+              only: grakn-client-python-release-branch
+      - release-cleanup:
+          requires:
+            - deploy-pypi
+          filters:
+            branches:
+              only: grakn-client-python-release-branch
