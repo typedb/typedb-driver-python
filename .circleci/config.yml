@@ -113,7 +113,7 @@ workflows:
               only: master
           requires:
             - build
-            - client-python
+            - test
 
   # the 'grakn-client-python-release' workflow is triggered by the creation of 'client-python-release-branch' branch in graknlabs/grakn
   # it consists of jobs which:
