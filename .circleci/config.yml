@@ -42,7 +42,17 @@ commands:
             $CMD
 
 jobs:
-  client-python:
+  build:
+    machine: true
+    working_directory: ~/grakn
+    steps:
+      - checkout
+      - bazel_install
+      - bazel_add_rbe_credential
+      - bazel:
+          command: bazel build //...
+
+  test:
     machine: true
     working_directory: ~/grakn
     steps:
@@ -82,39 +92,42 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: git push --delete origin grakn-client-python-release-branch
+      - run: git push --delete origin client-python-release-branch
 
 workflows:
   version: 2
-  grakn-client-python-ci:
+  client-python:
     jobs:
-      - client-python
+      - build
+      - test
       - test-repo-deploy:
           filters:
             branches:
               only: master
           requires:
-            - client-python
+            - build
+            - test
       - release-approval:
           filters:
             branches:
               only: master
           requires:
-            - client-python
+            - build
+            - test
 
-  # the 'grakn-client-python-release' workflow is triggered by the creation of 'grakn-client-python-release-branch' branch in graknlabs/grakn
+  # the 'grakn-client-python-release' workflow is triggered by the creation of 'client-python-release-branch' branch in graknlabs/grakn
   # it consists of jobs which:
   # - publishes client-python to PyPI
-  # - cleans up the 'grakn-client-python-release-branch' branch which was created by the release-approval job
-  grakn-client-python-release:
+  # - cleans up the 'client-python-release-branch' branch which was created by the release-approval job
+  client-python-release:
     jobs:
       - deploy-pypi:
           filters:
             branches:
-              only: grakn-client-python-release-branch
+              only: client-python-release-branch
       - release-cleanup:
           requires:
             - deploy-pypi
           filters:
             branches:
-              only: grakn-client-python-release-branch
+              only: client-python-release-branch
