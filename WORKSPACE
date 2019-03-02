@@ -28,7 +28,7 @@ python_grpc_compile()
 git_repository(
     name="graknlabs_bazel_distribution",
     remote="https://github.com/graknlabs/bazel-distribution",
-    commit="3fff34b151afabaee5af7ffb35ed99e52747c932"
+    commit="6298bcf46c0ae8b1b5c9bd5138e10be38a3a9bc3"
 )
 
 pip_import(
@@ -65,6 +65,10 @@ maven_dependencies_for_build()
 # Load Graql dependencies
 load("@graknlabs_grakn_core//dependencies/git:dependencies.bzl", "graknlabs_graql")
 graknlabs_graql()
+
+# Load client-java dependencies
+load("@graknlabs_grakn_core//dependencies/git:dependencies.bzl", "graknlabs_client_java")
+graknlabs_client_java()
 
 # Load ANTLR dependencies for Bazel
 load("@graknlabs_graql//dependencies/compilers:dependencies.bzl", "antlr_dependencies")
