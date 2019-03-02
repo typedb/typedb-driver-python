@@ -66,7 +66,7 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: bazel run @graknlabs_grabl//sync:approve-release
+      - run: bazel run @graknlabs_grabl//ci:approve-release
 
   deploy-pypi:
     machine: true

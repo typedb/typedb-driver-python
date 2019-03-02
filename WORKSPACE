@@ -28,7 +28,7 @@ python_grpc_compile()
 git_repository(
     name = "graknlabs_grabl",
     remote = "https://github.com/graknlabs/grabl",
-    commit = "87d2cd9256f16fb85a39514c881cdb1b6632f344",
+    commit = "5294d9831fec8e246e73f6afb5f7bcd9cd8364da",
 )
 
 git_repository(
