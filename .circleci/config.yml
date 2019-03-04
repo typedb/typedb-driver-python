@@ -72,6 +72,17 @@ jobs:
       - bazel_install
       - run: bazel run //:deploy-pip -- test $TEST_REPO_USERNAME $TEST_REPO_PASSWORD
 
+  dependency-update:
+    machine: true
+    steps:
+      - checkout
+      - bazel_install
+      - run:
+          name: Sync docs:development dependency to the latest Grakn Client Python version
+          command: |
+            bazel run @graknlabs_grabl//sync:dependency-update -- --dependency client-python:master \
+              --user docs:development
+
   release-approval:
     machine: true
     steps:
@@ -101,6 +112,13 @@ workflows:
       - build
       - test
       - test-repo-deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build
+            - test
+      - dependency-update:
           filters:
             branches:
               only: master
