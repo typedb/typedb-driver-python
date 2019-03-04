@@ -79,6 +79,9 @@ git_repository(
  commit="550f0490798a4e4b6c5ff8cac3b6f5c2a5e81e21",
 )
 
+load("@graknlabs_grakn_core//dependencies/tools:dependencies.bzl", "tools_dependencies")
+tools_dependencies()
+
 load("@com_github_google_bazel_common//:workspace_defs.bzl", "google_common_workspace_rules")
 google_common_workspace_rules()
 
