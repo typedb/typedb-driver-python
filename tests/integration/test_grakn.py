@@ -93,6 +93,7 @@ class test_grakn_PreDbSetup(test_Base):
 
 
 inst = grakn.Grakn('localhost:48555')
+inst.keyspaces().delete('testkeyspace')
 session = inst.session('testkeyspace')
 
 class test_grakn_Base(test_Base):
