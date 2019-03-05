@@ -44,7 +44,7 @@ py_library(
         requirement("protobuf"),
         requirement("grpcio"),
         requirement("six"),
-        requirement("enum34"),
+        requirement("enum_compat"),
     ],
     visibility =["//visibility:public"]
 )
@@ -74,7 +74,7 @@ deploy_pip(
     author = "Grakn Labs",
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
-    install_requires=['grpcio==1.16.0', 'protobuf==3.6.1', 'six==1.11.0', 'enum34==1.1.6'],
+    install_requires=['grpcio==1.16.0', 'protobuf==3.6.1', 'six==1.11.0', 'enum-compat==0.0.2'],
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     deployment_properties = "@graknlabs_grakn_core//:deployment.properties",
     description = "A Python client for Grakn.",
