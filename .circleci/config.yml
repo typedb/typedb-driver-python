@@ -72,7 +72,7 @@ jobs:
       - run:
           name: Sync docs:development dependency to the latest Grakn Client Python version
           command: |
-            bazel run @graknlabs_grabl//sync:dependency-update -- --dependency client-python:master \
+            bazel run @graknlabs_build_tools//ci:sync-dependencies -- --dependency client-python:master \
               --user docs:development
 
   release-approval:
@@ -80,7 +80,7 @@ jobs:
     steps:
       - checkout
       - bazel_install
-      - run: bazel run @graknlabs_grabl//ci:release-approval
+      - run: bazel run @graknlabs_build_tools//ci:release-approval
 
   deploy-pypi:
     machine: true
