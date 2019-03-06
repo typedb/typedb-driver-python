@@ -20,13 +20,14 @@
 import unittest
 import grakn
 import datetime
+import uuid
 from grakn.exception.GraknError import GraknError
 
 
 from tests.integration.base import test_Base
 
-inst = grakn.Grakn("localhost:48555")
-session = inst.session("testkeyspace")
+client = None
+session = None
 
 class test_concept_Base(test_Base):
     """ Sets up DB for use in tests """
@@ -36,8 +37,15 @@ class test_concept_Base(test_Base):
         """ Make sure we have some sort of schema and data in DB, only done once """
         super(test_concept_Base, cls).setUpClass()
 
+        global client, session
+
+        # TODO this is not neat - this is basically emulating a constructor/destructor operation using globals
+
+        client = grakn.GraknClient("localhost:48555")
+        keyspace = "test_" + str(uuid.uuid4()).replace("-", "_")[:8]
+        session = client.session(keyspace)
         # temp tx to set up DB, don"t save it
-        tx = session.transaction(grakn.TxType.WRITE)
+        tx = session.transaction().write()
         try:
             # define parentship roles to test agains
             tx.query("define "
@@ -57,8 +65,19 @@ class test_concept_Base(test_Base):
             tx.query("insert $x isa person, has age 20;")
         tx.commit()
 
+    @classmethod
+    def tearDownClass(cls):
+        super(test_concept_Base, cls).tearDownClass()
+        print("Closing session")
+        global session, client
+        session.close()
+        # clear the test keyspace
+        client.keyspaces().delete(session.keyspace)
+        client.close()
+
     def setUp(self):
-        self.tx = session.transaction(grakn.TxType.WRITE)
+        global session
+        self.tx = session.transaction().write()
 
     def tearDown(self):
         self.tx.close()
@@ -325,12 +344,12 @@ class test_AttributeType(test_concept_Base):
         john = name.create("john")
         
         with self.subTest(i=0):
-            # retrieve existing attr inst
+            # retrieve existing attr client
             retrieved_john = name.attribute("john")
             self.assertEqual(retrieved_john.value(), john.value())
             self.assertTrue(retrieved_john.is_attribute())
         with self.subTest(i=1):
-            # retrieve nonexistant attr inst
+            # retrieve nonexistant attr client
             retrieved_none = name.attribute("nobody")
             self.assertIsNone(retrieved_none)
 

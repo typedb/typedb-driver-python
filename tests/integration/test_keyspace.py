@@ -29,8 +29,9 @@ class test_Keyspace(test_Base):
        """ Test retrieving and deleting a specific keyspace """
 
        session = client.session(keyspace="keyspacetest")
-       tx = session.transaction(grakn.TxType.WRITE)
+       tx = session.transaction().write()
        tx.close()
+       session.close()
 
        keyspaces = client.keyspaces().retrieve()
        self.assertGreater(len(keyspaces), 0)
@@ -40,8 +41,6 @@ class test_Keyspace(test_Base):
        post_delete_keyspaces = client.keyspaces().retrieve()
        self.assertFalse('keyspacetest' in post_delete_keyspaces)
 
-       session.close()
-       #client.keyspaces().delete("keyspacetest")
 
 
 if __name__ == "__main__":
