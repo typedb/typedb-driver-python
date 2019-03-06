@@ -45,11 +45,13 @@ load("@stackb_rules_proto//python:deps.bzl", "python_grpc_compile")
 python_grpc_compile()
 
 
+
 git_repository(
-    name = "graknlabs_grabl",
-    remote = "https://github.com/graknlabs/grabl",
-    commit = "ad79f87f869d25694fe11196e16be42a80e95d14",
+    name = "graknlabs_build_tools",
+    remote = "https://github.com/graknlabs/build-tools",
+    commit = "20dd9604bf28a2b3af7a550227c0f74aa5564dd1",
 )
+
 
 git_repository(
     name="graknlabs_bazel_distribution",
