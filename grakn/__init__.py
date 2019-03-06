@@ -20,33 +20,38 @@
 import grpc
 
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
-from grakn.service.Session.util.enums import TxType, DataType
+from grakn.service.Session.util.enums import TxType as _TxType
+from grakn.service.Session.util.enums import DataType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
 from grakn.rpc.protocol.session.Session_pb2_grpc import SessionServiceStub
 from grakn.exception.GraknError import GraknError
 
-class Grakn(object):
+class GraknClient(object):
     """ A client/representation of a Grakn instance"""
 
     def __init__(self, uri, credentials=None):
         self.uri = uri
-        self._keyspace_service = KeyspaceService(self.uri, credentials)
         self.credentials = credentials
+        self._channel = grpc.insecure_channel(uri)
+        self._keyspace_service = KeyspaceService(self.uri, self._channel)
 
     def session(self, keyspace):
         """ Open a session for a specific  keyspace. Can be used as `with Grakn('localhost:48555').session(keyspace='test') as session: ... ` or as normal assignment"""
-        return Session(self.uri, keyspace, self.credentials)
+        return Session(self.uri, keyspace, self._channel, self.credentials)
     session.__annotations__ = {'keyspace': str}
 
     def keyspaces(self):
         return self._keyspace_service
 
+    def close(self):
+        self._channel.close()
+
 
 class Session(object):
     """ A session for a Grakn instance and a specific keyspace """
 
-    def __init__(self, uri, keyspace, credentials):
+    def __init__(self, uri, keyspace, channel, credentials):
 
         if not isinstance(uri, str):
             raise TypeError('expected string for uri')
@@ -58,41 +63,31 @@ class Session(object):
         self.uri = uri
         self.credentials = credentials
 
-        self._channel = grpc.insecure_channel(uri)
-        self._stub = SessionServiceStub(self._channel)
+        self._stub = SessionServiceStub(channel)
         self._closed = False
 
         try:
             open_session_response = self._stub.open(RequestBuilder.open_session(keyspace))
             self.session_id = open_session_response.sessionId
         except Exception:
-            raise GraknError('could not obtain sessionId for keyspace "{}"'.format(keyspace))
+            raise GraknError('Could not obtain sessionId for keyspace "{}"'.format(keyspace))
 
     __init__.__annotations__ = {'uri': str, 'keyspace': str}
 
-    def transaction(self, tx_type):
-        """ Open a transaction to Grakn on this keyspace
-
-        Can be used as `with session.transaction(grakn.TxType.READ) as tx: ...`
-        Don't forget to commit within the `with`!
-        Alternatively you can still do `tx = session.transaction(...); ...; tx.close()`
-
-        :param grakn.TxType tx_type: The type of transaction to open as indicated by the tx_type enum
-        """
+    def transaction(self):
+        """ Build a read or write transaction to Grakn on this keyspace (ie. session.transaction().read() or .write()) """
         if self._closed:
             raise GraknError("Session is closed")
 
         # create a transaction service which hides GRPC usage
-        transaction_service = TransactionService(self.session_id, tx_type, self.credentials, self._stub.transaction)
-        return Transaction(transaction_service)
+        return TransactionBuilder(self.session_id, self.credentials, self._stub.transaction)
 
     def close(self):
         """ Close this keyspace session """
         close_session_req = RequestBuilder.close_session(self.session_id)
         self._stub.close(close_session_req)
         self._closed = True
-        self._channel.close()
-    
+
     def __enter__(self):
         return self
 
@@ -104,6 +99,20 @@ class Session(object):
         else:
             #print("Closing Session due to exception: {0} \n traceback: \n {1}".format(type, tb))
             return False
+
+class TransactionBuilder(object):
+    def __init__(self, session_id, credentials, transaction_rpc_constructor):
+        self._session_id = session_id
+        self._credentials = credentials
+        self._transaction_rpc_constructor = transaction_rpc_constructor
+
+    def read(self):
+        transaction_service = TransactionService(self._session_id, _TxType.READ, self._credentials, self._transaction_rpc_constructor)
+        return Transaction(transaction_service)
+
+    def write(self):
+        transaction_service = TransactionService(self._session_id, _TxType.WRITE, self._credentials, self._transaction_rpc_constructor)
+        return Transaction(transaction_service)
 
 
 class Transaction(object):

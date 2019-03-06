@@ -17,18 +17,14 @@
 # under the License.
 #
 
-import grpc
 from grakn.rpc.protocol.keyspace.Keyspace_pb2_grpc import KeyspaceServiceStub
 import grakn.rpc.protocol.keyspace.Keyspace_pb2 as keyspace_messages
 
 class KeyspaceService(object):
 
-    def __init__(self, uri, credentials):
-
+    def __init__(self, uri, channel):
         self.uri = uri
-        self.credentials = credentials
-        self._channel = grpc.insecure_channel(uri)
-        self.stub = KeyspaceServiceStub(self._channel)
+        self.stub = KeyspaceServiceStub(channel)
 
     def retrieve(self):
         retrieve_request = keyspace_messages.Keyspace.Retrieve.Req()
