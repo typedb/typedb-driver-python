@@ -21,17 +21,30 @@ import unittest
 import grakn
 from tests.integration.base import test_Base
 
-client = grakn.Grakn("localhost:48555")
+client = None
+session = None
 
 class test_Keyspace(test_Base):
+    @classmethod
+    def setUpClass(cls):
+        super(test_Keyspace, cls).setUpClass()
+        global client, session
+        client = grakn.GraknClient("localhost:48555")
+        session = client.session("keyspacetest")
 
-   def test_retrieve_delete(self):
+    @classmethod
+    def tearDownClass(cls):
+        super(test_Keyspace, cls).tearDownClass()
+        global client, session
+        session.close()
+        client.keyspaces().delete(session.keyspace)
+        client.close()
+
+    def test_retrieve_delete(self):
        """ Test retrieving and deleting a specific keyspace """
 
-       session = client.session(keyspace="keyspacetest")
        tx = session.transaction().write()
        tx.close()
-       session.close()
 
        keyspaces = client.keyspaces().retrieve()
        self.assertGreater(len(keyspaces), 0)

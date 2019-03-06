@@ -68,7 +68,6 @@ class test_concept_Base(test_Base):
     @classmethod
     def tearDownClass(cls):
         super(test_concept_Base, cls).tearDownClass()
-        print("Closing session")
         global session, client
         session.close()
         # clear the test keyspace
