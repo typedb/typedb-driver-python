@@ -51,3 +51,7 @@ class test_Base(TestCase):
             print 'Patching unittest.TestCase.subTest for PY2'
             curse(datetime, 'timestamp', _datetime_to_timestamp)
             curse(TestCase, 'subTest', DummyContextManager)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(test_Base, cls).tearDownClass()
