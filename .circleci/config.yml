@@ -1,45 +1,36 @@
 version: 2.1
 commands:
-  bazel_install:
+  install-bazel:
     steps:
       - run:
-          name: Bazel - Install
+          name: Install bazel and RBE credential
           command: |
+            # Install bazel
             curl -OL https://github.com/bazelbuild/bazel/releases/download/0.20.0/bazel-0.20.0-installer-linux-x86_64.sh
             chmod +x bazel-0.20.0-installer-linux-x86_64.sh
             sudo ./bazel-0.20.0-installer-linux-x86_64.sh
 
-  bazel_add_rbe_credential:
-    steps:
-      - run:
-          name: Bazel - Add RBE Credential
-          command: |
-            if [[ -n "$BAZEL_RBE_CREDENTIAL" ]]; then
-              BAZEL_RBE_CREDENTIAL_LOCATION=~/.config/gcloud/application_default_credentials.json
-              echo "An RBE credential is found and will be saved to $BAZEL_RBE_CREDENTIAL_LOCATION. Bazel will be executed with RBE support."
-              mkdir -p ~/.config/gcloud/
-              echo $BAZEL_RBE_CREDENTIAL > "$BAZEL_RBE_CREDENTIAL_LOCATION"
-            else
-              echo "No RBE credential found. Bazel will be executed locally without RBE support."
-            fi
+            # Install RBE credential
+            bazel run @graknlabs_build_tools//ci:install-bazel-rbe-credential
 
-  bazel:
+  run-bazel-rbe:
     parameters:
       command:
         type: string
     steps:
       - run:
-          name: Bazel - Execute
           command: |
-            if [[ -f ~/.config/gcloud/application_default_credentials.json ]]; then
-              echo "Bazel will be executed with RBE support. This means the build is remotely executed and the cache will be re-used by subsequent CI jobs."
-              CMD="<< parameters.command >> --config=rbe"
-            else
-              echo "Bazel will be executed locally (without RBE support)."
-              CMD="<< parameters.command >>"
-            fi
-            echo "Executing $CMD"
-            $CMD
+            bazel run @graknlabs_build_tools//ci:run-bazel-rbe << parameters.command >>
+
+  run-grakn-server:
+    steps:
+      - run:
+          name: Grakn Server - Start
+          command: |
+            bazel build @graknlabs_grakn_core//:assemble-linux-targz
+            mkdir dist
+            tar -xvzf bazel-bin/external/graknlabs_grakn_core/assemble-linux-targz.tar.gz -C ./dist/
+            nohup ./dist/grakn-core-all-linux/grakn server start
 
 jobs:
   build:
@@ -47,9 +38,8 @@ jobs:
     working_directory: ~/grakn
     steps:
       - checkout
-      - bazel_install
-      - bazel_add_rbe_credential
-      - bazel:
+      - install-bazel
+      - run-bazel-rbe:
           command: bazel build //...
 
   test:
@@ -57,18 +47,15 @@ jobs:
     working_directory: ~/grakn
     steps:
       - checkout
-      - bazel_install
-      - bazel_add_rbe_credential
-      - run: bazel build @graknlabs_grakn_core//:distribution
-      - run: unzip bazel-genfiles/external/graknlabs_grakn_core/grakn-core-all.zip -d bazel-genfiles/dist/
-      - run: nohup bazel-genfiles/dist/grakn-core-all/grakn server start
+      - install-bazel
+      - run-grakn-server
       - run: bazel test //:test_integration --test_output=streamed
 
-  dependency-update:
+  sync-dependencies:
     machine: true
     steps:
       - checkout
-      - bazel_install
+      - install-bazel
       - run:
           name: Sync docs:development dependency to the latest client-python:master
           command: |
@@ -78,16 +65,15 @@ jobs:
     machine: true
     steps:
       - checkout
-      - bazel_install
+      - install-bazel
       - run: bazel run @graknlabs_build_tools//ci:release-approval
 
-  deploy-pypi:
+  release-pypi:
     machine: true
     working_directory: ~/grakn
     steps:
       - checkout
-      - bazel_install
-      - bazel_add_rbe_credential
+      - install-bazel
       - run: bazel run //:deploy-pip -- pypi $PYPI_REPO_USERNAME $PYPI_REPO_PASSWORD
 
   release-cleanup:
@@ -102,7 +88,7 @@ workflows:
     jobs:
       - build
       - test
-      - dependency-update:
+      - sync-dependencies:
           filters:
             branches:
               only: master
@@ -123,13 +109,13 @@ workflows:
   # - cleans up the 'client-python-release-branch' branch which was created by the release-approval job
   client-python-release:
     jobs:
-      - deploy-pypi:
+      - release-pypi:
           filters:
             branches:
               only: client-python-release-branch
       - release-cleanup:
           requires:
-            - deploy-pypi
+            - release-pypi
           filters:
             branches:
               only: client-python-release-branch
