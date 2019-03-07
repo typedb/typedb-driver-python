@@ -16,7 +16,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-
 exports_files(["requirements.txt"])
 
 load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
