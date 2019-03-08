@@ -66,7 +66,7 @@ jobs:
           bazel run //:deploy-pip -- test $REPO_GRAKN_AI_USER $REPO_GRAKN_AI_PASSWORD
     - run-grakn-server
     - run:
-        name: Run test-deployment
+        name: Run test-deployment for client-python
         command: |
           # need to manipulate version file here, replacing SNAPSHOT with the commit SHA
           sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
@@ -125,13 +125,13 @@ workflows:
           requires:
             - build
             - test
+            - test-deployment
       - release-approval:
           filters:
             branches:
               only: master
           requires:
-            - build
-            - test
+            - sync-dependencies
 
   # the 'grakn-client-python-release' workflow is triggered by the creation of 'client-python-release-branch' branch in graknlabs/grakn
   # it consists of jobs which:
