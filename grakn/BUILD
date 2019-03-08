@@ -5,6 +5,7 @@ load("@graknlabs_bazel_distribution//pip:rules.bzl", "py_replace_imports")
 
 exports_files([
     "__init__.py",
+    "client.py",
     "service/Keyspace/KeyspaceService.py",
     "service/Session/TransactionService.py",
     "service/Session/util/enums.py",

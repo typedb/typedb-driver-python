@@ -1,5 +1,5 @@
 from unittest import TestCase
-import grakn
+from grakn.client import GraknClient
 
 
 
@@ -7,7 +7,7 @@ class PythonApplicationTest(TestCase):
     """ Very basic tests to ensure no error occur when performing simple operations with the test grakn-client distribution"""
 
     def test_define_schema(self):
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         session = client.session("define_schema")
         with session.transaction().write() as tx:
             tx.query("define person sub entity, has name; name sub attribute, datatype string;")
@@ -16,7 +16,7 @@ class PythonApplicationTest(TestCase):
         client.close()
 
     def test_match_query(self):
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         session = client.session("define_schema")
         with session.transaction().read() as tx:
             tx.query("match $s sub thing; get;")
@@ -25,7 +25,7 @@ class PythonApplicationTest(TestCase):
 
 
     def test_insert_query(self):
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         session = client.session("define_schema")
         with session.transaction().write() as tx:
             tx.query("define person sub entity, has name; name sub attribute, datatype string;")

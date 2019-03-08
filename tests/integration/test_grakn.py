@@ -20,6 +20,7 @@
 import unittest
 import uuid
 import grakn
+from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
 from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup
 
@@ -32,18 +33,27 @@ class test_client_PreDbSetup(test_Base):
     # --- Test grakn client instantiation for one URI ---
     def test_client_init_valid(self):
         """ Test valid URI """
-        a_inst = grakn.GraknClient('localhost:48555')
-        self.assertIsInstance(a_inst, grakn.GraknClient)
+        a_inst = GraknClient('localhost:48555')
+        self.assertIsInstance(a_inst, GraknClient)
+
+    def test_client_with_statement(self):
+        """ Test that client is compatible with using `with` """
+        with GraknClient("localhost:48555") as client:
+            with client.session("testing") as session:
+                with session.transaction().read() as tx:
+                    tx.query("match $x sub thing; get;")
+
+
 
     def test_client_init_invalid_uri(self):
         """ Test invalid URI """
         with self.assertRaises(GraknError):
-            a_inst = grakn.GraknClient('localhost:1000')
+            a_inst = GraknClient('localhost:1000')
             a_session = a_inst.session('testkeyspace')
             a_session.transaction().read()
 
         with self.assertRaises(GraknError):
-            a_inst = grakn.GraknClient('localhost:1000')
+            a_inst = GraknClient('localhost:1000')
             with a_inst.session("test") as s:
                 with s.transaction().read() as tx:
                     pass
@@ -52,28 +62,28 @@ class test_client_PreDbSetup(test_Base):
     # --- Test client session for different keyspaces ---
     def test_client_session_valid_keyspace(self):
         """ Test OK uri and keyspace """
-        a_inst = grakn.GraknClient('localhost:48555')
+        a_inst = GraknClient('localhost:48555')
         a_session = a_inst.session('test')
-        self.assertIsInstance(a_session, grakn.Session)
+        self.assertIsInstance(a_session, grakn.client.Session)
         tx = a_session.transaction().read() # won't fail until opening a transaction
 
         # test the `with` statement
         with a_inst.session('test') as session:
-            self.assertIsInstance(session, grakn.Session)
+            self.assertIsInstance(session, grakn.client.Session)
             tx = a_session.transaction().read() # won't fail until opening a transaction
 
     def test_client_session_invalid_keyspace(self):
-        client = grakn.GraknClient('localhost:48555')
+        client = GraknClient('localhost:48555')
         with self.assertRaises(TypeError):
             a_session = client.session(123)
             tx = a_session.transaction().read() # won't fail until opening a transaction
-        inst2 = grakn.GraknClient('localhost:48555')
+        inst2 = GraknClient('localhost:48555')
         with self.assertRaises(GraknError):
             a_session = inst2.session('')
             tx = a_session.transaction().read() # won't fail until opening a transaction
 
     def test_client_session_close(self):
-        client = grakn.GraknClient('localhost:48555')
+        client = GraknClient('localhost:48555')
         a_session = client.session('test')
         a_session.close()
         with self.assertRaises(GraknError):
@@ -81,13 +91,13 @@ class test_client_PreDbSetup(test_Base):
 
     # --- Test grakn session transactions that are pre-DB setup ---
     def test_client_tx_valid_enum(self):
-        client = grakn.GraknClient('localhost:48555')
+        client = GraknClient('localhost:48555')
         a_session = client.session('test')
         tx = a_session.transaction().read()
-        self.assertIsInstance(tx, grakn.Transaction)
+        self.assertIsInstance(tx, grakn.client.Transaction)
 
     def test_client_tx_invalid_enum(self):
-        client = grakn.GraknClient('localhost:48555')
+        client = GraknClient('localhost:48555')
         a_session = client.session('test')
         with self.assertRaises(Exception):
             a_session.transaction('foo')
@@ -106,7 +116,7 @@ class test_client_Base(test_Base):
         super(test_client_Base, cls).setUpClass()
 
         global client, session
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         keyspace = "test_" + str(uuid.uuid4()).replace("-", "_")[:8]
         session = client.session(keyspace)
 
@@ -361,12 +371,12 @@ class test_Transaction(test_client_Base):
         """ Retrieve attribute instances by value """
         with self.subTest(i=0):
             # test retrieving multiple concepts
-            firstname_attr_type = self.tx.put_attribute_type("firstname", grakn.DataType.STRING)
-            middlename_attr_type = self.tx.put_attribute_type("middlename", grakn.DataType.STRING)
+            firstname_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
+            middlename_attr_type = self.tx.put_attribute_type("middlename", DataType.STRING)
             firstname = firstname_attr_type.create("Billie")
             middlename = middlename_attr_type.create("Billie")
     
-            attr_concepts = self.tx.get_attributes_by_value("Billie", grakn.DataType.STRING)
+            attr_concepts = self.tx.get_attributes_by_value("Billie", DataType.STRING)
             attr_concepts = list(attr_concepts) # collect iterator
             self.assertEqual(len(attr_concepts), 2, msg="Do not have 2 first name attrs")
     
@@ -376,7 +386,7 @@ class test_Transaction(test_client_Base):
         with self.subTest(i=1):
             # test retrieving no concepts
             # because we have no "Jean" attributes
-            jean_attrs = list(self.tx.get_attributes_by_value("Jean", grakn.DataType.STRING))
+            jean_attrs = list(self.tx.get_attributes_by_value("Jean", DataType.STRING))
             self.assertEqual(len(jean_attrs), 0)
 
     # --- test schema modification ---
@@ -395,7 +405,7 @@ class test_Transaction(test_client_Base):
 
     def test_put_attribute_type(self):
         """ Test putting a new attribtue type in schema """
-        birthdate = self.tx.put_attribute_type("surname", grakn.DataType.DATE)
+        birthdate = self.tx.put_attribute_type("surname", DataType.DATE)
         self.assertTrue(birthdate.is_schema_concept())
         self.assertTrue(birthdate.is_attribute_type())
 

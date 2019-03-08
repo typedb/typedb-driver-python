@@ -28,6 +28,7 @@ py_library(
     name = "client_python",
     srcs = [
         "//grakn:__init__.py",
+        "//grakn:client.py",
         "//grakn:service/Keyspace/KeyspaceService.py",
         "//grakn:service/Session/TransactionService.py",
         "//grakn:service/Session/util/enums.py",
