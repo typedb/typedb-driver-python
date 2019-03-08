@@ -36,6 +36,15 @@ class test_client_PreDbSetup(test_Base):
         a_inst = GraknClient('localhost:48555')
         self.assertIsInstance(a_inst, GraknClient)
 
+    def test_client_with_statement(self):
+        """ Test that client is compatible with using `with` """
+        with GraknClient("localhost:48555") as client:
+            with client.session("testing") as session:
+                with session.transaction().read() as tx:
+                    tx.query("match $x sub thing; get;")
+
+
+
     def test_client_init_invalid_uri(self):
         """ Test invalid URI """
         with self.assertRaises(GraknError):
