@@ -57,18 +57,21 @@ jobs:
     steps:
     - checkout
     - install-bazel
+    - run: sudo apt-get update
+    - run: sudo apt-get install python-pip
     - run:
         name: Deploy to test repository
         command: |
-          echo $(cat VERSION)-$CIRCLE_SHA1 > VERSION
-          echo VERSION=$(cat VERSION)
-          bazel run //:deploy-pip -- test user pass
+          bazel run //:deploy-pip -- test $REPO_GRAKN_AI_USER $REPO_GRAKN_AI_PASSWORD
+    - run-grakn-server
     - run:
         name: Run test-deployment
         command: |
           sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
           cat tests/deployment/requirements.txt
-#          cd tests/deployment/ && python -m unittest test.py
+          # just a simple test using python2 (though code should be python3 compatible too)
+          pip install -r tests/deployment/requirements.txt
+          cd tests/deployment/ && python -m unittest tests/deployment/test.py
 
   sync-dependencies:
     machine: true
