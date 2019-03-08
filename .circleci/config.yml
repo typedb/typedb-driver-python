@@ -110,7 +110,7 @@ workflows:
     jobs:
       - build
       - test
-      - deployment-test
+      - test-deployment
       - sync-dependencies:
           filters:
             branches:
