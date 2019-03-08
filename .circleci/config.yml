@@ -75,7 +75,7 @@ jobs:
           cat tests/deployment/requirements.txt
           # just a simple test using python2 (though code should be python3 compatible too)
           pip install -r tests/deployment/requirements.txt
-          cd tests/deployment/ && python -m unittest tests/deployment/test.py
+          cd tests/deployment/ && python -m unittest test
 
   sync-dependencies:
     machine: true
