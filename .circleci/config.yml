@@ -62,11 +62,15 @@ jobs:
     - run:
         name: Deploy to test repository
         command: |
+          # deploy-pip automatically appends commit so we don't need to manipulate version file here
           bazel run //:deploy-pip -- test $REPO_GRAKN_AI_USER $REPO_GRAKN_AI_PASSWORD
     - run-grakn-server
     - run:
         name: Run test-deployment
         command: |
+          # need to manipulate version file here, replacing SNAPSHOT with the commit SHA
+          sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
+          # Insert the this updated version into the requirements.txt
           sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
           cat tests/deployment/requirements.txt
           # just a simple test using python2 (though code should be python3 compatible too)
