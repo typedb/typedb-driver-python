@@ -18,5 +18,3 @@
 #
 
 from grakn import client
-from grakn.service.Session.util.enums import DataType
-

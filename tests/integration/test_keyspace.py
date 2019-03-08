@@ -18,7 +18,7 @@
 #
 
 import unittest
-import grakn
+from grakn.client import GraknClient
 from tests.integration.base import test_Base
 
 client = None
@@ -29,7 +29,7 @@ class test_Keyspace(test_Base):
     def setUpClass(cls):
         super(test_Keyspace, cls).setUpClass()
         global client, session
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         session = client.session("keyspacetest")
 
     @classmethod

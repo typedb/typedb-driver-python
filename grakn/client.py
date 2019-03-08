@@ -1,7 +1,9 @@
 import grpc
 
+from grakn.service.Session.util.enums import DataType   # user-facing DataType enum
+
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
-from grakn.service.Session.util.enums import TxType
+from grakn.service.Session.util.enums import TxType as _TxType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
 from grakn.rpc.protocol.session.Session_pb2_grpc import SessionServiceStub
@@ -98,11 +100,11 @@ class TransactionBuilder(object):
         self._transaction_rpc_constructor = transaction_rpc_constructor
 
     def read(self):
-        transaction_service = TransactionService(self._session_id, TxType.READ, self._credentials, self._transaction_rpc_constructor)
+        transaction_service = TransactionService(self._session_id, _TxType.READ, self._credentials, self._transaction_rpc_constructor)
         return Transaction(transaction_service)
 
     def write(self):
-        transaction_service = TransactionService(self._session_id, TxType.WRITE, self._credentials, self._transaction_rpc_constructor)
+        transaction_service = TransactionService(self._session_id, _TxType.WRITE, self._credentials, self._transaction_rpc_constructor)
         return Transaction(transaction_service)
 
 

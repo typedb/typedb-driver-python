@@ -18,7 +18,7 @@
 #
 
 import unittest
-import grakn
+from grakn.client import GraknClient, DataType
 import datetime
 import uuid
 from grakn.exception.GraknError import GraknError
@@ -41,7 +41,7 @@ class test_concept_Base(test_Base):
 
         # TODO this is not neat - this is basically emulating a constructor/destructor operation using globals
 
-        client = grakn.GraknClient("localhost:48555")
+        client = GraknClient("localhost:48555")
         keyspace = "test_" + str(uuid.uuid4()).replace("-", "_")[:8]
         session = client.session(keyspace)
         # temp tx to set up DB, don"t save it
@@ -128,7 +128,7 @@ class test_Concept(test_concept_Base):
         self.assertFalse(owner.is_attribute())
         self.assertTrue(owner.is_relation())
 
-        attr_type = self.tx.put_attribute_type("age", grakn.DataType.LONG)
+        attr_type = self.tx.put_attribute_type("age", DataType.LONG)
         age = attr_type.create(50)
         self.assertFalse(age.is_entity())
         self.assertTrue(age.is_attribute())
@@ -247,7 +247,7 @@ class test_Type(test_concept_Base):
     def test_attributes_methods(self):
         """ Test get/set/delete attributes """
         person = self.tx.get_schema_concept("person")
-        haircolor_attr = self.tx.put_attribute_type("haircolor", grakn.DataType.STRING)
+        haircolor_attr = self.tx.put_attribute_type("haircolor", DataType.STRING)
         with self.subTest(i=0):
             # get attrs
             current_attrs = person.attributes()
@@ -279,7 +279,7 @@ class test_Type(test_concept_Base):
     def test_key(self):
         """ Test get/set/delete key on Type """
         person_type = self.tx.get_schema_concept("person")
-        name_attr_type = self.tx.put_attribute_type('name', grakn.DataType.STRING)
+        name_attr_type = self.tx.put_attribute_type('name', DataType.STRING)
 
         with self.subTest(i=0):
             # check current keys
@@ -310,36 +310,36 @@ class test_EntityType(test_concept_Base):
 class test_AttributeType(test_concept_Base):
 
     def test_create(self):
-        str_attr_type = self.tx.put_attribute_type("firstname", grakn.DataType.STRING)
+        str_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
         john = str_attr_type.create("john")
         self.assertTrue(john.is_attribute())
         self.assertEqual(john.value(), "john")
 
-        bool_attr_type = self.tx.put_attribute_type("employed", grakn.DataType.BOOLEAN)
+        bool_attr_type = self.tx.put_attribute_type("employed", DataType.BOOLEAN)
         employed = bool_attr_type.create(True)
         self.assertEqual(employed.value(), True)
 
-        double_attr_type = self.tx.put_attribute_type("length", grakn.DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
         one = double_attr_type.create(1.0)
         self.assertEqual(one.value(), 1.0)
 
     def test_data_type(self):
-        str_attr_type = self.tx.put_attribute_type("firstname", grakn.DataType.STRING)
-        self.assertEqual(str_attr_type.data_type(), grakn.DataType.STRING)
+        str_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
+        self.assertEqual(str_attr_type.data_type(), DataType.STRING)
 
-        bool_attr_type = self.tx.put_attribute_type("employed", grakn.DataType.BOOLEAN)
-        self.assertEqual(bool_attr_type.data_type(), grakn.DataType.BOOLEAN)
+        bool_attr_type = self.tx.put_attribute_type("employed", DataType.BOOLEAN)
+        self.assertEqual(bool_attr_type.data_type(), DataType.BOOLEAN)
 
-        double_attr_type = self.tx.put_attribute_type("length", grakn.DataType.DOUBLE)
-        self.assertEqual(double_attr_type.data_type(), grakn.DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
+        self.assertEqual(double_attr_type.data_type(), DataType.DOUBLE)
 
-        long_attr_type = self.tx.put_attribute_type("randomint", grakn.DataType.LONG)
-        self.assertEqual(long_attr_type.data_type(), grakn.DataType.LONG)
+        long_attr_type = self.tx.put_attribute_type("randomint", DataType.LONG)
+        self.assertEqual(long_attr_type.data_type(), DataType.LONG)
 
     def test_attribute(self):
         """ Test retrieve attribute instances """
 
-        name = self.tx.put_attribute_type("name", grakn.DataType.STRING)
+        name = self.tx.put_attribute_type("name", DataType.STRING)
         john = name.create("john")
         
         with self.subTest(i=0):
@@ -354,7 +354,7 @@ class test_AttributeType(test_concept_Base):
 
     def test_regex(self):
         """ Test get/set regex """
-        attr_type = self.tx.put_attribute_type("dogbadness", grakn.DataType.STRING)
+        attr_type = self.tx.put_attribute_type("dogbadness", DataType.STRING)
 
         empty_regex = attr_type.regex()
         self.assertEqual(len(empty_regex), 0, msg="Unset regex does not have length 0")
@@ -509,7 +509,7 @@ class test_Thing(test_concept_Base):
     def test_has_unhas_attributes(self):
         """ Test has/unhas/get attributes """
         person_type = self.tx.get_schema_concept("person")
-        name_attr_type = self.tx.put_attribute_type("name", grakn.DataType.STRING)
+        name_attr_type = self.tx.put_attribute_type("name", DataType.STRING)
         person_type.has(name_attr_type)
         person = person_type.create()
         attr_john = name_attr_type.create("john")
@@ -526,9 +526,9 @@ class test_Thing(test_concept_Base):
     def test_attributes(self):
         """ Test retrieve attrs optionally narrowed by types """
         person_type = self.tx.get_schema_concept("person")
-        name_attr = self.tx.put_attribute_type("name", grakn.DataType.STRING)
-        foo_attr = self.tx.put_attribute_type("foo", grakn.DataType.BOOLEAN)
-        bar_attr = self.tx.put_attribute_type("bar", grakn.DataType.LONG)
+        name_attr = self.tx.put_attribute_type("name", DataType.STRING)
+        foo_attr = self.tx.put_attribute_type("foo", DataType.BOOLEAN)
+        bar_attr = self.tx.put_attribute_type("bar", DataType.LONG)
         
         person_type.has(name_attr)
         person_type.has(foo_attr)
@@ -559,8 +559,8 @@ class test_Thing(test_concept_Base):
     def test_keys(self):
         """ Test retrieving keys optionally filtered by attribute types """
         person_type = self.tx.get_schema_concept("person")
-        name_type = self.tx.put_attribute_type("name", grakn.DataType.STRING)
-        surname_type = self.tx.put_attribute_type("surname", grakn.DataType.STRING)
+        name_type = self.tx.put_attribute_type("name", DataType.STRING)
+        surname_type = self.tx.put_attribute_type("surname", DataType.STRING)
         person_type.key(name_type)
         person_type.has(surname_type)
         
@@ -586,12 +586,12 @@ class test_Attribute(test_concept_Base):
 
     def test_value(self):
         """ Get attribute value """
-        double_attr_type = self.tx.put_attribute_type("length", grakn.DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
         double = double_attr_type.create(43.1)
         self.assertEqual(double.value(), 43.1)
 
     def test_get_date_value(self):
-        date_type = self.tx.put_attribute_type("birthdate", grakn.DataType.DATE)
+        date_type = self.tx.put_attribute_type("birthdate", DataType.DATE)
         person_type = self.tx.get_schema_concept("person")
         person_type.has(date_type)
         concepts = self.tx.query("insert $x isa person, has birthdate 2018-08-06;").collect_concepts()
@@ -609,7 +609,7 @@ class test_Attribute(test_concept_Base):
 
 
     def test_set_date_value(self):
-        date_type = self.tx.put_attribute_type("birthdate", grakn.DataType.DATE)
+        date_type = self.tx.put_attribute_type("birthdate", DataType.DATE)
         test_date = datetime.datetime(year=2018, month=6, day=6)
         date_attr_inst = date_type.create(test_date)
         value = date_attr_inst.value() # retrieve from server
@@ -622,7 +622,7 @@ class test_Attribute(test_concept_Base):
         """ Test retrieving entities that have an attribute """
         person_type = self.tx.get_schema_concept("person")
         animal_type = self.tx.put_entity_type("animal")
-        name_type = self.tx.put_attribute_type("name", grakn.DataType.STRING)
+        name_type = self.tx.put_attribute_type("name", DataType.STRING)
         person_type.has(name_type)
         animal_type.has(name_type)
 
