@@ -3,7 +3,7 @@ commands:
   install-bazel:
     steps:
       - run:
-          name: Install bazel and RBE credential
+          name: Install Bazel and RBE credential
           command: |
             # Install bazel
             curl -OL https://github.com/bazelbuild/bazel/releases/download/0.20.0/bazel-0.20.0-installer-linux-x86_64.sh
@@ -18,19 +18,14 @@ commands:
       command:
         type: string
     steps:
-      - run:
-          command: |
-            bazel run @graknlabs_build_tools//ci:run-bazel-rbe << parameters.command >>
+      - run: bazel run @graknlabs_build_tools//ci:run-bazel-rbe << parameters.command >>
 
   run-grakn-server:
     steps:
-      - run:
-          name: Grakn Server - Start
-          command: |
-            bazel build @graknlabs_grakn_core//:assemble-linux-targz
-            mkdir dist
-            tar -xvzf bazel-genfiles/external/graknlabs_grakn_core/grakn-core-all-linux.tar.gz -C ./dist/
-            nohup ./dist/grakn-core-all-linux/grakn server start
+      - run-bazel-rbe:
+          command: bazel build @graknlabs_grakn_core//:assemble-linux-targz
+      - run: mkdir dist && tar -xvzf bazel-genfiles/external/graknlabs_grakn_core/grakn-core-all-linux.tar.gz -C ./dist/
+      - run: nohup ./dist/grakn-core-all-linux/grakn server start
 
 jobs:
   build:
@@ -108,16 +103,22 @@ jobs:
       - checkout
       - run: git push --delete origin client-python-release-branch
 
-
-
-
 workflows:
   version: 2
   client-python:
     jobs:
-      - build
-      - test
-      - test-deployment
+      - build:
+          filters:
+            branches:
+              ignore: client-python-release-branch
+      - test:
+          filters:
+            branches:
+              ignore: client-python-release-branch
+      - test-deployment:
+          filters:
+            branches:
+              ignore: client-python-release-branch
       - sync-dependencies:
           filters:
             branches:
@@ -133,7 +134,7 @@ workflows:
           requires:
             - sync-dependencies
 
-  # the 'grakn-client-python-release' workflow is triggered by the creation of 'client-python-release-branch' branch in graknlabs/grakn
+  # the 'client-python-release' workflow is triggered by the creation of 'client-python-release-branch' branch in graknlabs/grakn
   # it consists of jobs which:
   # - publishes client-python to PyPI
   # - cleans up the 'client-python-release-branch' branch which was created by the release-approval job
