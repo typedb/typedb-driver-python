@@ -19,9 +19,13 @@
 exports_files(["requirements.txt"])
 
 load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
-load("@pypi_dependencies//:requirements.bzl", "requirement")
-load("@pypi_deployment_dependencies//:requirements.bzl", deployment_requirement = "requirement")
+
+load("@graknlabs_client_python_pip//:requirements.bzl",
+       graknlabs_client_python_requirement = "requirement")
+
 load("@graknlabs_bazel_distribution//pip:rules.bzl", "deploy_pip")
+load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
+       graknlabs_bazel_distribution_requirement = "requirement")
 
 
 py_library(
@@ -41,10 +45,10 @@ py_library(
     ],
     deps = [
         "//grakn:protocol_python",
-        requirement("protobuf"),
-        requirement("grpcio"),
-        requirement("six"),
-        requirement("enum_compat"),
+        graknlabs_client_python_requirement("protobuf"),
+        graknlabs_client_python_requirement("grpcio"),
+        graknlabs_client_python_requirement("six"),
+        graknlabs_client_python_requirement("enum_compat"),
     ],
     visibility =["//visibility:public"]
 )
@@ -80,22 +84,22 @@ deploy_pip(
     description = "A Python client for Grakn.",
     long_description_file = "//:README.md",
     deps = [
-        deployment_requirement("twine"),
-        deployment_requirement("setuptools"),
-        deployment_requirement("wheel"),
-        deployment_requirement("requests"),
-        deployment_requirement("urllib3"),
-        deployment_requirement("chardet"),
-        deployment_requirement("certifi"),
-        deployment_requirement("idna"),
-        deployment_requirement("tqdm"),
-        deployment_requirement("requests_toolbelt"),
-        deployment_requirement("pkginfo"),
-        deployment_requirement("readme_renderer"),
-        deployment_requirement("Pygments"),
-        deployment_requirement("docutils"),
-        deployment_requirement("bleach"),
-        deployment_requirement("webencodings")
+        graknlabs_bazel_distribution_requirement("twine"),
+        graknlabs_bazel_distribution_requirement("setuptools"),
+        graknlabs_bazel_distribution_requirement("wheel"),
+        graknlabs_bazel_distribution_requirement("requests"),
+        graknlabs_bazel_distribution_requirement("urllib3"),
+        graknlabs_bazel_distribution_requirement("chardet"),
+        graknlabs_bazel_distribution_requirement("certifi"),
+        graknlabs_bazel_distribution_requirement("idna"),
+        graknlabs_bazel_distribution_requirement("tqdm"),
+        graknlabs_bazel_distribution_requirement("requests_toolbelt"),
+        graknlabs_bazel_distribution_requirement("pkginfo"),
+        graknlabs_bazel_distribution_requirement("readme_renderer"),
+        graknlabs_bazel_distribution_requirement("Pygments"),
+        graknlabs_bazel_distribution_requirement("docutils"),
+        graknlabs_bazel_distribution_requirement("bleach"),
+        graknlabs_bazel_distribution_requirement("webencodings")
     ],
     target = ":client_python"
 )
@@ -109,7 +113,7 @@ py_test(
     ],
     deps = [
         ":client_python",
-        requirement("forbiddenfruit")
+        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     imports = ["."]
 )
@@ -122,7 +126,7 @@ py_test(
     ],
     deps = [
         ":client_python",
-        requirement("forbiddenfruit")
+        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     imports = ["."]
 )
@@ -135,7 +139,7 @@ py_test(
     ],
     deps = [
         ":client_python",
-        requirement("forbiddenfruit")
+        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     imports = ["."]
 )

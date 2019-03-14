@@ -97,8 +97,8 @@ jobs:
       - install-bazel
       - run: |
           bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
-          --source client-python:master \
-          --targets docs:development
+          --source client-python@$CIRCLE_SHA1 \
+          --targets docs:development examples:development
 
   release-approval:
     machine: true
