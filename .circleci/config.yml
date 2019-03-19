@@ -18,25 +18,19 @@
 
 version: 2.1
 commands:
-  install-bazel:
+  install-bazel-linux-rbe:
     steps:
-      - run:
-          name: Install Bazel and RBE credential
-          command: |
-            # Install bazel
-            curl -OL https://github.com/bazelbuild/bazel/releases/download/0.20.0/bazel-0.20.0-installer-linux-x86_64.sh
-            chmod +x bazel-0.20.0-installer-linux-x86_64.sh
-            sudo ./bazel-0.20.0-installer-linux-x86_64.sh
-
-            # Install RBE credential
-            bazel run @graknlabs_build_tools//ci:install-bazel-rbe-credential
+      - run: curl -OL https://raw.githubusercontent.com/graknlabs/build-tools/master/ci/install-bazel-linux.sh
+      - run: bash ./install-bazel-linux.sh && rm ./install-bazel-linux.sh
+      - run: curl -OL https://raw.githubusercontent.com/graknlabs/build-tools/master/ci/install-bazel-rbe.sh
+      - run: bash ./install-bazel-rbe.sh && rm ./install-bazel-rbe.sh
 
   run-bazel-rbe:
     parameters:
       command:
         type: string
     steps:
-      - run: bazel run @graknlabs_build_tools//ci:run-bazel-rbe << parameters.command >>
+      - run: bazel run @graknlabs_build_tools//ci:run-bazel-rbe -- << parameters.command >>
 
   run-grakn-server:
     steps:
@@ -48,53 +42,50 @@ commands:
 jobs:
   build:
     machine: true
-    working_directory: ~/grakn
+    working_directory: ~/client-python
     steps:
+      - install-bazel-linux-rbe
       - checkout
-      - install-bazel
       - run-bazel-rbe:
           command: bazel build //...
 
   test:
     machine: true
-    working_directory: ~/grakn
+    working_directory: ~/client-python
     steps:
+      - install-bazel-linux-rbe
       - checkout
-      - install-bazel
       - run-grakn-server
       - run: bazel test //:test_integration --test_output=streamed
 
   test-deployment:
     machine: true
-    working_directory: ~/grakn
+    working_directory: ~/client-python
     steps:
-    - checkout
-    - install-bazel
-    - run: sudo apt-get update
-    - run: sudo apt-get install python-pip
-    - run:
-        name: Deploy to test repository
-        command: |
-          # deploy-pip automatically appends commit so we don't need to manipulate version file here
-          bazel run //:deploy-pip -- test $REPO_GRAKN_USERNAME $REPO_GRAKN_PASSWORD
-    - run-grakn-server
-    - run:
-        name: Run test-deployment for client-python
-        command: |
-          # need to manipulate version file here, replacing SNAPSHOT with the commit SHA
-          sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
-          # Insert the this updated version into the requirements.txt
-          sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
-          cat tests/deployment/requirements.txt
-          # just a simple test using python2 (though code should be python3 compatible too)
-          pip install -r tests/deployment/requirements.txt
-          cd tests/deployment/ && python -m unittest test
+      - install-bazel-linux-rbe
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install python-pip
+      - run: bazel run //:deploy-pip -- test $REPO_GRAKN_USERNAME $REPO_GRAKN_PASSWORD
+      - run-grakn-server
+      - run:
+          name: Run test-deployment for client-python
+          command: |
+            # need to manipulate version file here, replacing SNAPSHOT with the commit SHA
+            sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
+            # Insert the this updated version into the requirements.txt
+            sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
+            cat tests/deployment/requirements.txt
+            # just a simple test using python2 (though code should be python3 compatible too)
+            pip install -r tests/deployment/requirements.txt
+            cd tests/deployment/ && python -m unittest test
 
   sync-dependencies:
     machine: true
+    working_directory: ~/client-python
     steps:
+      - install-bazel-linux-rbe
       - checkout
-      - install-bazel
       - run: |
           bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
           --source client-python@$CIRCLE_SHA1 \
@@ -102,17 +93,18 @@ jobs:
 
   release-approval:
     machine: true
+    working_directory: ~/client-python
     steps:
+      - install-bazel-linux-rbe
       - checkout
-      - install-bazel
       - run: bazel run @graknlabs_build_tools//ci:release-approval
 
   release-pypi:
     machine: true
-    working_directory: ~/grakn
+    working_directory: ~/client-python
     steps:
+      - install-bazel-linux-rbe
       - checkout
-      - install-bazel
       - run: bazel run //:deploy-pip -- pypi $PYPI_REPO_USERNAME $REPO_PYPI_PASSWORD
 
   release-cleanup:
