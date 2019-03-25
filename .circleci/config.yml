@@ -66,7 +66,7 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
-      - run: bazel run //:deploy-pip -- test $REPO_GRAKN_USERNAME $REPO_GRAKN_PASSWORD
+      - run: DEPLOYMENT_REPO_TYPE=test DEPLOYMENT_USERNAME=$REPO_GRAKN_USERNAME DEPLOYMENT_PASSWORD=$REPO_GRAKN_PASSWORD bazel run //:deploy-pip
       - run-grakn-server
       - run:
           name: Run test-deployment for client-python
