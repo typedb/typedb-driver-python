@@ -99,13 +99,21 @@ jobs:
       - checkout
       - run: bazel run @graknlabs_build_tools//ci:release-approval
 
+  release-github:
+    machine: true
+    working_directory: ~/client-python
+    steps:
+      - install-bazel-linux-rbe
+      - checkout
+      - run: bazel run //:deploy-github
+
   release-pypi:
     machine: true
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: bazel run //:deploy-pip -- pypi $PYPI_REPO_USERNAME $REPO_PYPI_PASSWORD
+      - run: bazel run //:deploy-pip -- test $PYPI_REPO_USERNAME $REPO_PYPI_PASSWORD
 
   release-cleanup:
     machine: true
@@ -145,7 +153,20 @@ workflows:
 
   client-python-release:
     jobs:
+      - release-github:
+          filters:
+            branches:
+              only: client-python-release-branch
+      - release-deployment-approval:
+          type: approval
+          requires:
+            - release-github
+          filters:
+            branches:
+              only: client-python-release-branch
       - release-pypi:
+          requires:
+            - release-deployment-approval
           filters:
             branches:
               only: client-python-release-branch
