@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-exports_files(["requirements.txt"])
+exports_files(["requirements.txt", "deployment.properties", "RELEASE_TEMPLATE.md"])
 
 load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
 
@@ -26,6 +26,8 @@ load("@graknlabs_client_python_pip//:requirements.bzl",
 load("@graknlabs_bazel_distribution//pip:rules.bzl", "deploy_pip")
 load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
        graknlabs_bazel_distribution_requirement = "requirement")
+
+load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
 
 
 py_library(
@@ -104,6 +106,14 @@ deploy_pip(
     target = ":client_python"
 )
 
+
+deploy_github(
+    name = "deploy-github",
+    targets = [],
+    release_description = "//:RELEASE_TEMPLATE.md",
+    deployment_properties = "//:deployment.properties",
+    version_file = "//:VERSION"
+)
 
 py_test(
     name = "test_concept",
