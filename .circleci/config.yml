@@ -157,7 +157,7 @@ workflows:
           filters:
             branches:
               only: client-python-release-branch
-      - release-approval:
+      - release-deployment-approval:
           type: approval
           requires:
             - release-github
@@ -166,7 +166,7 @@ workflows:
               only: client-python-release-branch
       - release-pypi:
           requires:
-            - release-approval
+            - release-deployment-approval
           filters:
             branches:
               only: client-python-release-branch
