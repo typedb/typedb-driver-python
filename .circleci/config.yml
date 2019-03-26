@@ -99,7 +99,7 @@ jobs:
       - checkout
       - run: bazel run @graknlabs_build_tools//ci:release-approval
 
-  release-github:
+  deploy-github:
     machine: true
     working_directory: ~/client-python
     steps:
@@ -107,7 +107,7 @@ jobs:
       - checkout
       - run: bazel run //:deploy-github
 
-  release-pypi:
+  deploy-pypi:
     machine: true
     working_directory: ~/client-python
     steps:
@@ -153,26 +153,26 @@ workflows:
 
   client-python-release:
     jobs:
-      - release-github:
+      - deploy-github:
           filters:
             branches:
               only: client-python-release-branch
-      - release-deployment-approval:
+      - deploy-approval:
           type: approval
           requires:
-            - release-github
+            - deploy-github
           filters:
             branches:
               only: client-python-release-branch
-      - release-pypi:
+      - deploy-pypi:
           requires:
-            - release-deployment-approval
+            - deploy-approval
           filters:
             branches:
               only: client-python-release-branch
       - release-cleanup:
           requires:
-            - release-pypi
+            - deploy-pypi
           filters:
             branches:
               only: client-python-release-branch
