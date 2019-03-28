@@ -58,6 +58,17 @@ jobs:
       - run-grakn-server
       - run: bazel test //:test_integration --test_output=streamed
 
+  deploy-pip-snapshot:
+    machine: true
+    working_directory: ~/client-python
+    steps:
+      - install-bazel-linux-rbe
+      - checkout
+      - run: |
+          export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
+          export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
+          bazel run //:deploy-pip -- snapshot
+
   test-deployment:
     machine: true
     working_directory: ~/client-python
@@ -66,17 +77,13 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
-      - run: DEPLOYMENT_REPO_TYPE=test DEPLOYMENT_USERNAME=$REPO_GRAKN_USERNAME DEPLOYMENT_PASSWORD=$REPO_GRAKN_PASSWORD bazel run //:deploy-pip
       - run-grakn-server
       - run:
           name: Run test-deployment for client-python
           command: |
-            # need to manipulate version file here, replacing SNAPSHOT with the commit SHA
             sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
-            # Insert the this updated version into the requirements.txt
             sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
             cat tests/deployment/requirements.txt
-            # just a simple test using python2 (though code should be python3 compatible too)
             pip install -r tests/deployment/requirements.txt
             cd tests/deployment/ && python -m unittest test
 
@@ -107,13 +114,16 @@ jobs:
       - checkout
       - run: bazel run //:deploy-github
 
-  deploy-pypi:
+  deploy-pip-release:
     machine: true
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: bazel run //:deploy-pip -- test $PYPI_REPO_USERNAME $REPO_PYPI_PASSWORD
+      - run: |
+          export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
+          export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
+          bazel run //:deploy-pip -- release
 
   release-cleanup:
     machine: true
@@ -132,17 +142,24 @@ workflows:
           filters:
             branches:
               ignore: client-python-release-branch
-      - test-deployment:
-          filters:
-            branches:
-              ignore: client-python-release-branch
-      - sync-dependencies:
+      - deploy-pip-snapshot:
           filters:
             branches:
               only: master
           requires:
             - build
             - test
+      - test-deployment:
+          filters:
+            branches:
+              only: master
+          requires:
+            - deploy-pip-snapshot
+      - sync-dependencies:
+          filters:
+            branches:
+              only: master
+          requires:
             - test-deployment
       - release-approval:
           filters:
@@ -164,7 +181,7 @@ workflows:
           filters:
             branches:
               only: client-python-release-branch
-      - deploy-pypi:
+      - deploy-pip-release:
           requires:
             - deploy-approval
           filters:
@@ -172,7 +189,7 @@ workflows:
               only: client-python-release-branch
       - release-cleanup:
           requires:
-            - deploy-pypi
+            - deploy-pip-release
           filters:
             branches:
               only: client-python-release-branch
