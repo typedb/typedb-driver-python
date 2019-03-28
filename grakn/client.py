@@ -62,8 +62,8 @@ class Session(object):
         try:
             open_session_response = self._stub.open(RequestBuilder.open_session(keyspace))
             self.session_id = open_session_response.sessionId
-        except Exception:
-            raise GraknError('Could not obtain sessionId for keyspace "{}"'.format(keyspace))
+        except Exception as e:
+            raise GraknError('Could not obtain sessionId for keyspace "{0}", stems from: {1}'.format(keyspace, e))
 
     __init__.__annotations__ = {'uri': str, 'keyspace': str}
 
