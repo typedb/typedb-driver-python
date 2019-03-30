@@ -83,7 +83,7 @@ deploy_pip(
     install_requires=['grpcio==1.16.0', 'protobuf==3.6.1', 'six==1.11.0', 'enum-compat==0.0.2'],
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     deployment_properties = "@graknlabs_build_tools//:deployment.properties",
-    description = "A Python client for Grakn.",
+    description = "Grakn Client for Python",
     long_description_file = "//:README.md",
     deps = [
         graknlabs_bazel_distribution_requirement("twine"),
