@@ -81,7 +81,7 @@ jobs:
       - run:
           name: Run test-deployment for client-python
           command: |
-            sed -i -e "s/SNAPSHOT/$CIRCLE_SHA1/g" VERSION
+            echo -n "$(cat VERSION)-$CIRCLE_SHA1" > VERSION
             sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
             cat tests/deployment/requirements.txt
             pip install -r tests/deployment/requirements.txt
