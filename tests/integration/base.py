@@ -61,11 +61,6 @@ class GraknServer(object):
     def __init__(self):
         self.__unpacked_dir = None
 
-    def _unpack(self):
-        self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
-        with ZipFile(GraknServer.DISTRIBUTION_LOCATION) as zf:
-            zf.extractall(self.__unpacked_dir)
-
     def __enter__(self):
         if not self.__unpacked_dir:
             self._unpack()
@@ -78,6 +73,11 @@ class GraknServer(object):
             'grakn', 'server', 'stop'
         ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
         shutil.rmtree(self.__unpacked_dir)
+
+    def _unpack(self):
+        self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
+        with ZipFile(GraknServer.DISTRIBUTION_LOCATION) as zf:
+            zf.extractall(self.__unpacked_dir)
 
 
 class test_Base(TestCase):
