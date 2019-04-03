@@ -57,7 +57,7 @@ jobs:
       - checkout
       - run-grakn-server
       - run-bazel-rbe:
-          command: bazel test //:test_integration --test_output=streamed --spawn_strategy=local
+          command: bazel test //:test_integration --test_output=streamed
 
   deploy-pip-snapshot:
     machine: true
