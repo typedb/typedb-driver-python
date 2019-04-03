@@ -56,7 +56,8 @@ jobs:
       - install-bazel-linux-rbe
       - checkout
       - run-grakn-server
-      - run: bazel test //:test_integration --test_output=streamed
+      - run-bazel-rbe:
+          command: bazel test //:test_integration --test_output=streamed --spawn_strategy=local
 
   deploy-pip-snapshot:
     machine: true

@@ -24,7 +24,7 @@ from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
 from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup
 
-from tests.integration.base import test_Base
+from tests.integration.base import test_Base, GraknDistribution
 
 
 class test_client_PreDbSetup(test_Base):
@@ -426,6 +426,8 @@ class test_Transaction(test_client_Base):
         rule = self.tx.put_rule(label, when, then)
         self.assertTrue(rule.is_rule())
         self.assertEqual(rule.label(), label)
-        
+
+
 if __name__ == "__main__":
-    unittest.main()
+    with GraknDistribution():
+        unittest.main(verbosity=2)

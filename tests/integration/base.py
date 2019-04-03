@@ -21,7 +21,13 @@ from unittest import TestCase
 from datetime import datetime
 from forbiddenfruit import curse
 
+import os
+import shutil
 import six
+import subprocess as sp
+import tempfile
+import zipfile
+
 
 class DummyContextManager(object):
     def __init__(self, *args, **kwargs):
@@ -32,6 +38,56 @@ class DummyContextManager(object):
 
     def __exit__(self, *args, **kwargs):
         pass
+
+
+class ZipFile(zipfile.ZipFile):
+    def extract(self, member, path=None, pwd=None):
+        if not isinstance(member, zipfile.ZipInfo):
+            member = self.getinfo(member)
+
+        if path is None:
+            path = os.getcwd()
+
+        ret_val = self._extract_member(member, path, pwd)
+        attr = member.external_attr >> 16
+        os.chmod(ret_val, attr)
+        return ret_val
+
+
+class GraknDistribution(object):
+    DISTRIBUTION_LOCATION = 'external/graknlabs_grakn_core/grakn-core-all-mac.zip'
+    DISTRIBUTION_ROOT_DIR = 'grakn-core-all-mac'
+
+    def __init__(self):
+        self.__unpacked_dir = None
+
+    def _unpack(self):
+        self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
+        with ZipFile(GraknDistribution.DISTRIBUTION_LOCATION) as zf:
+            zf.extractall(self.__unpacked_dir)
+
+    @property
+    def __grakn_root_directory(self):
+        return os.path.join(self.__unpacked_dir, GraknDistribution.DISTRIBUTION_ROOT_DIR)
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop()
+
+    def start(self):
+        if not self.__unpacked_dir:
+            self._unpack()
+        sp.check_call([
+            'grakn', 'server', 'start'
+        ], cwd=self.__grakn_root_directory)
+
+    def stop(self):
+        sp.check_call([
+            'grakn', 'server', 'stop'
+        ], cwd=self.__grakn_root_directory)
+        shutil.rmtree(self.__unpacked_dir)
 
 
 class test_Base(TestCase):
