@@ -54,7 +54,7 @@ class ZipFile(zipfile.ZipFile):
         return ret_val
 
 
-class GraknDistribution(object):
+class GraknServer(object):
     DISTRIBUTION_LOCATION = 'external/graknlabs_grakn_core/grakn-core-all-mac.zip'
     DISTRIBUTION_ROOT_DIR = 'grakn-core-all-mac'
 
@@ -63,30 +63,20 @@ class GraknDistribution(object):
 
     def _unpack(self):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
-        with ZipFile(GraknDistribution.DISTRIBUTION_LOCATION) as zf:
+        with ZipFile(GraknServer.DISTRIBUTION_LOCATION) as zf:
             zf.extractall(self.__unpacked_dir)
 
-    @property
-    def __grakn_root_directory(self):
-        return os.path.join(self.__unpacked_dir, GraknDistribution.DISTRIBUTION_ROOT_DIR)
-
     def __enter__(self):
-        self.start()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop()
-
-    def start(self):
         if not self.__unpacked_dir:
             self._unpack()
         sp.check_call([
             'grakn', 'server', 'start'
-        ], cwd=self.__grakn_root_directory)
+        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
 
-    def stop(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         sp.check_call([
             'grakn', 'server', 'stop'
-        ], cwd=self.__grakn_root_directory)
+        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
         shutil.rmtree(self.__unpacked_dir)
 
 

@@ -24,7 +24,7 @@ import uuid
 from grakn.exception.GraknError import GraknError
 
 
-from tests.integration.base import test_Base, GraknDistribution
+from tests.integration.base import test_Base, GraknServer
 
 client = None
 session = None
@@ -758,5 +758,5 @@ class test_Relation(test_concept_Base):
 
 
 if __name__ == "__main__":
-    with GraknDistribution():
+    with GraknServer():
         unittest.main(verbosity=2)

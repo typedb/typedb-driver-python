@@ -19,7 +19,7 @@
 
 import unittest
 from grakn.client import GraknClient
-from tests.integration.base import test_Base, GraknDistribution
+from tests.integration.base import test_Base, GraknServer
 
 client = None
 session = None
@@ -56,5 +56,5 @@ class test_Keyspace(test_Base):
 
 
 if __name__ == "__main__":
-    with GraknDistribution():
+    with GraknServer():
         unittest.main(verbosity=2)
