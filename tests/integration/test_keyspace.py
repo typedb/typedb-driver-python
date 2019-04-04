@@ -19,7 +19,7 @@
 
 import unittest
 from grakn.client import GraknClient
-from tests.integration.base import test_Base
+from tests.integration.base import test_Base, GraknServer
 
 client = None
 session = None
@@ -55,6 +55,6 @@ class test_Keyspace(test_Base):
        self.assertFalse('keyspacetest' in post_delete_keyspaces)
 
 
-
 if __name__ == "__main__":
-    unittest.main()
+    with GraknServer():
+        unittest.main(verbosity=2)

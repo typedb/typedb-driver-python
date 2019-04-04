@@ -24,7 +24,7 @@ from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
 from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup
 
-from tests.integration.base import test_Base
+from tests.integration.base import test_Base, GraknServer
 
 
 class test_client_PreDbSetup(test_Base):
@@ -35,6 +35,7 @@ class test_client_PreDbSetup(test_Base):
         """ Test valid URI """
         a_inst = GraknClient('localhost:48555')
         self.assertIsInstance(a_inst, GraknClient)
+        a_inst.close()
 
     def test_client_with_statement(self):
         """ Test that client is compatible with using `with` """
@@ -57,6 +58,7 @@ class test_client_PreDbSetup(test_Base):
             with a_inst.session("test") as s:
                 with s.transaction().read() as tx:
                     pass
+            a_inst.close()
 
 
     # --- Test client session for different keyspaces ---
@@ -65,12 +67,17 @@ class test_client_PreDbSetup(test_Base):
         a_inst = GraknClient('localhost:48555')
         a_session = a_inst.session('test')
         self.assertIsInstance(a_session, grakn.client.Session)
-        tx = a_session.transaction().read() # won't fail until opening a transaction
+        tx = a_session.transaction().read()
+        tx.close()
+        a_session.close()
 
         # test the `with` statement
         with a_inst.session('test') as session:
             self.assertIsInstance(session, grakn.client.Session)
-            tx = a_session.transaction().read() # won't fail until opening a transaction
+            tx = session.transaction().read()
+            tx.close()
+
+        a_inst.close()
 
     def test_client_session_invalid_keyspace(self):
         client = GraknClient('localhost:48555')
@@ -81,6 +88,7 @@ class test_client_PreDbSetup(test_Base):
         with self.assertRaises(GraknError):
             a_session = inst2.session('')
             tx = a_session.transaction().read() # won't fail until opening a transaction
+        client.close()
 
     def test_client_session_close(self):
         client = GraknClient('localhost:48555')
@@ -88,6 +96,7 @@ class test_client_PreDbSetup(test_Base):
         a_session.close()
         with self.assertRaises(GraknError):
             a_session.transaction().read()
+        client.close()
 
     # --- Test grakn session transactions that are pre-DB setup ---
     def test_client_tx_valid_enum(self):
@@ -95,13 +104,14 @@ class test_client_PreDbSetup(test_Base):
         a_session = client.session('test')
         tx = a_session.transaction().read()
         self.assertIsInstance(tx, grakn.client.Transaction)
+        client.close()
 
     def test_client_tx_invalid_enum(self):
         client = GraknClient('localhost:48555')
         a_session = client.session('test')
         with self.assertRaises(Exception):
             a_session.transaction('foo')
-
+        client.close()
 
 
 client = None
@@ -426,6 +436,8 @@ class test_Transaction(test_client_Base):
         rule = self.tx.put_rule(label, when, then)
         self.assertTrue(rule.is_rule())
         self.assertEqual(rule.label(), label)
-        
+
+
 if __name__ == "__main__":
-    unittest.main()
+    with GraknServer():
+        unittest.main(verbosity=2)

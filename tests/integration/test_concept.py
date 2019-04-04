@@ -24,7 +24,7 @@ import uuid
 from grakn.exception.GraknError import GraknError
 
 
-from tests.integration.base import test_Base
+from tests.integration.base import test_Base, GraknServer
 
 client = None
 session = None
@@ -756,10 +756,7 @@ class test_Relation(test_concept_Base):
         double_filter_role_players = list(parentship.role_players(child_role, parent_role))
         self.assertEqual(len(double_filter_role_players), 2)
 
-        
 
-    
 if __name__ == "__main__":
-    unittest.main()
-
-    
+    with GraknServer():
+        unittest.main(verbosity=2)
