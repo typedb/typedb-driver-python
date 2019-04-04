@@ -62,18 +62,21 @@ class test_client_PreDbSetup(test_Base):
 
 
     # --- Test client session for different keyspaces ---
-    @unittest.skip('does not close tx which causes hanging')
     def test_client_session_valid_keyspace(self):
         """ Test OK uri and keyspace """
         a_inst = GraknClient('localhost:48555')
         a_session = a_inst.session('test')
         self.assertIsInstance(a_session, grakn.client.Session)
-        tx = a_session.transaction().read() # won't fail until opening a transaction
+        tx = a_session.transaction().read()
+        tx.close()
+        a_session.close()
 
         # test the `with` statement
         with a_inst.session('test') as session:
             self.assertIsInstance(session, grakn.client.Session)
-            tx = a_session.transaction().read() # won't fail until opening a transaction
+            tx = a_session.transaction().read()
+
+        a_inst.close()
 
     def test_client_session_invalid_keyspace(self):
         client = GraknClient('localhost:48555')
