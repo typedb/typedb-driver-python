@@ -74,7 +74,8 @@ class test_client_PreDbSetup(test_Base):
         # test the `with` statement
         with a_inst.session('test') as session:
             self.assertIsInstance(session, grakn.client.Session)
-            tx = a_session.transaction().read()
+            tx = session.transaction().read()
+            tx.close()
 
         a_inst.close()
 
