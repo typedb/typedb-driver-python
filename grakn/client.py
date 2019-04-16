@@ -60,7 +60,7 @@ class Session(object):
         self._closed = False
 
         try:
-            open_session_response = self._stub.open(RequestBuilder.open_session(keyspace))
+            open_session_response = self._stub.open(RequestBuilder.open_session(keyspace, self.credentials))
             self.session_id = open_session_response.sessionId
         except Exception as e:
             raise GraknError('Could not obtain sessionId for keyspace "{0}", stems from: {1}'.format(keyspace, e))
@@ -73,7 +73,7 @@ class Session(object):
             raise GraknError("Session is closed")
 
         # create a transaction service which hides GRPC usage
-        return TransactionBuilder(self.session_id, self.credentials, self._stub.transaction)
+        return TransactionBuilder(self.session_id, self._stub.transaction)
 
     def close(self):
         """ Close this keyspace session """
@@ -94,17 +94,16 @@ class Session(object):
             return False
 
 class TransactionBuilder(object):
-    def __init__(self, session_id, credentials, transaction_rpc_constructor):
+    def __init__(self, session_id, transaction_rpc_constructor):
         self._session_id = session_id
-        self._credentials = credentials
         self._transaction_rpc_constructor = transaction_rpc_constructor
 
     def read(self):
-        transaction_service = TransactionService(self._session_id, _TxType.READ, self._credentials, self._transaction_rpc_constructor)
+        transaction_service = TransactionService(self._session_id, _TxType.READ, self._transaction_rpc_constructor)
         return Transaction(transaction_service)
 
     def write(self):
-        transaction_service = TransactionService(self._session_id, _TxType.WRITE, self._credentials, self._transaction_rpc_constructor)
+        transaction_service = TransactionService(self._session_id, _TxType.WRITE, self._transaction_rpc_constructor)
         return Transaction(transaction_service)
 
 

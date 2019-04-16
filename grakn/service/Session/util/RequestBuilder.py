@@ -40,22 +40,22 @@ class RequestBuilder(object):
 
     # --- Top level functionality ---
     @staticmethod
-    def open_tx(session_id, tx_type, credentials):
+    def open_tx(session_id, tx_type):
         open_request = transaction_messages.Transaction.Open.Req()
         open_request.sessionId = session_id
         open_request.type = tx_type.value
-        if credentials is not None:
-            open_request.username = credentials['username']
-            open_request.password = credentials['password']
 
         transaction_req = transaction_messages.Transaction.Req()
         transaction_req.open_req.CopyFrom(open_request)
         return transaction_req
 
     @staticmethod
-    def open_session(keyspace):
+    def open_session(keyspace, credentials):
         open_session_request = transaction_messages.Session.Open.Req()
         open_session_request.Keyspace = keyspace
+        if credentials is not None:
+            open_session_request.username = credentials['username']
+            open_session_request.password = credentials['password']
         return open_session_request
 
     @staticmethod
