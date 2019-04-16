@@ -151,14 +151,14 @@ workflows:
       - deploy-pip-snapshot:
           filters:
             branches:
-              only: kgms-1.5 # TODO: revert
+              only: kgms-1.5.1 # TODO: revert
           requires:
             - build
             - test
       - test-deployment:
           filters:
             branches:
-              only: kgms-1.5 # TODO: revert
+              only: kgms-1.5.1 # TODO: revert
           requires:
             - deploy-pip-snapshot
       - sync-dependencies:
