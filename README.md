@@ -14,3 +14,29 @@ To learn about the methods available for executing queries and retrieving their 
 
 ## Concept API
 To learn about the methods available on the concepts retrieved as the answers to Graql queries, refer to [Grakn > Concept API > Overview](http://dev.grakn.ai/docs/concept-api/overview)
+
+## Install Grakn Client for Python through Pip
+```
+pip install grakn-client
+```
+If multiple Python versions are available, you may wish to use
+```
+pip3 install grakn-client
+```
+
+In your python program, import GraknClient:
+```
+from grakn.client import GraknClient
+```
+
+## Build Grakn Client for Python from Source
+
+> Note: You don't need to compile Grakn Client from source if you just want to use it in your code. See the _"Install Grakn Client for Python"_ section above.
+
+1. Make sure you have the following dependencies installed on your machine:
+    - [Bazel](https://docs.bazel.build/versions/master/install.html)
+
+2. Build the Python library:
+   ```
+   bazel build //:client_python
+   ```
