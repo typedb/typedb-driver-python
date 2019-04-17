@@ -28,15 +28,3 @@ In your python program, import GraknClient:
 ```
 from grakn.client import GraknClient
 ```
-
-## Build Grakn Client for Python from Source
-
-> Note: You don't need to compile Grakn Client from source if you just want to use it in your code. See the _"Install Grakn Client for Python"_ section above.
-
-1. Make sure you have the following dependencies installed on your machine:
-    - [Bazel](https://docs.bazel.build/versions/master/install.html)
-
-2. Build the Python library:
-   ```
-   bazel build //:client_python
-   ```
