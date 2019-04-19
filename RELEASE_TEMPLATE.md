@@ -1,9 +1,15 @@
-# Grakn Client Python
+PyPI package: https://pypi.org/project/grakn-client
+Documentation: https://dev.grakn.ai/docs/client-api/python
 
-{ Please add the release notes here }
+### Distribution
 
-To install it, run `pip install grakn-client`.
+Available through https://pypi.org
+```
+pip install grakn-client
+```
+Or you can upgrade your local installation with:
+```
+pip install -U grakn-client
+```
 
-To upgrade it, run `pip install -U grakn-client`.
-
-Refer to [docs](https://dev.grakn.ai/docs/client-api/python#installation) if needed.
+{ Release notes to be written }
