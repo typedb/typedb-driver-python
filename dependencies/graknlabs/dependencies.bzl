@@ -26,7 +26,6 @@ def graknlabs_build_tools():
     )
 
 def graknlabs_grakn_core():
-    # TODO: revert to graknlabs
     git_repository(
         name = "graknlabs_grakn_core",
         remote = "https://github.com/graknlabs/grakn",
