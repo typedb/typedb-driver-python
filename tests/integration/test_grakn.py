@@ -246,7 +246,7 @@ class test_Transaction(test_client_Base):
         tx = local_session.transaction().write()
         parentship_map = test_Transaction._build_parentship(tx) # this closes the tx
         tx = local_session.transaction().write()
-        result = tx.query('compute path from "{0}", to "{1}";'.format(parentship_map['parent'], parentship_map['child']))
+        result = tx.query('compute path from {0}, to {1};'.format(parentship_map['parent'], parentship_map['child']))
         answer = next(result)
         self.assertIsInstance(answer, ConceptList)
         self.assertEqual(len(answer.list()), 3)
