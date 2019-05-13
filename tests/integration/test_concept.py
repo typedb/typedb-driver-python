@@ -77,10 +77,11 @@ class test_concept_Base(test_Base):
     def setUp(self):
         global session
         self.tx = session.transaction().write()
+        # functions called by `addCleanup` are reliably called independent of test pass or failure
+        self.addCleanup(self.cleanupTransaction, self.tx)
 
-    def tearDown(self):
-        self.tx.close()
-
+    def cleanupTransaction(self, tx):
+        tx.close()
 
 
 class test_Concept(test_concept_Base):
@@ -111,10 +112,12 @@ class test_Concept(test_concept_Base):
         none_car = self.tx.get_concept(car.id)
         self.assertIsNone(none_car)
 
-        with self.assertRaises(GraknError):
+        with self.assertRaises(GraknError) as context:
             car.delete()
 
-    
+        self.assertTrue("FAILED_PRECONDITION" in str(context.exception))
+
+
     def test_is_each_schema_type(self):
         car_type = self.tx.put_entity_type("car")
         car = car_type.create()
