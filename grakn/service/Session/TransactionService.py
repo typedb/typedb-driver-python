@@ -156,7 +156,6 @@ class Communicator(six.Iterator):
             response = next(self._response_iterator)
         except Exception as e: # specialize into different gRPC exceptions?
             # on any GRPC exception, close the stream
-            self.close()
             raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, request))
 
         if response is None:
@@ -165,11 +164,10 @@ class Communicator(six.Iterator):
         return response
 
     def close(self):
-        with self._queue.mutex: # probably don't even need the mutex
-            self._queue.queue.clear()
-        self._queue.put(None)
-        self._closed = True
-
-        # force the next() call on gRPC so that onCompleted() is called correctly on the server
-        for empty in self._response_iterator:
-            pass
+        if not self._closed:
+            with self._queue.mutex: # probably don't even need the mutex
+                self._queue.queue.clear()
+            self._queue.put(None)
+            self._closed = True
+            for empty in self._response_iterator:
+                pass

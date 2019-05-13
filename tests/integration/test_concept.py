@@ -114,7 +114,7 @@ class test_Concept(test_concept_Base):
         none_car = self.tx.get_concept(car.id)
         self.assertIsNone(none_car)
 
-        with self.assertRaises(GraknError):
+        with self.assertRaises(GraknError) as context:
             car.delete()
 
     
