@@ -163,10 +163,8 @@ class test_client_Base(test_Base):
     def setUp(self):
         global session
         self.tx = session.transaction().write()
-        self.addCleanup(self.cleanupTransaction, self.tx)     # ensure tx closed even on test failure
-
-    def tearDown(self):
-        self.tx.close()
+        # functions called by `addCleanup` are reliably called independent of test pass or failure
+        self.addCleanup(self.cleanupTransaction, self.tx)
 
     def cleanupTransaction(self, tx):
         tx.close()
