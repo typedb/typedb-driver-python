@@ -169,3 +169,7 @@ class Communicator(six.Iterator):
             self._queue.queue.clear()
         self._queue.put(None)
         self._closed = True
+
+        # force the next() call on gRPC so that onCompleted() is called correctly on the server
+        for empty in self._response_iterator:
+            pass
