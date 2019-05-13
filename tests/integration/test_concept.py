@@ -117,7 +117,9 @@ class test_Concept(test_concept_Base):
         with self.assertRaises(GraknError) as context:
             car.delete()
 
-    
+        self.assertTrue("FAILED_PRECONDITION" in str(context.exception))
+
+
     def test_is_each_schema_type(self):
         car_type = self.tx.put_entity_type("car")
         car = car_type.create()
