@@ -62,17 +62,19 @@ class GraknServer(object):
         self.__unpacked_dir = None
 
     def __enter__(self):
-        if not self.__unpacked_dir:
-            self._unpack()
-        sp.check_call([
-            'grakn', 'server', 'start'
-        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
+        # if not self.__unpacked_dir:
+        #     self._unpack()
+        # sp.check_call([
+        #     'grakn', 'server', 'start'
+        # ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
+        pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        sp.check_call([
-            'grakn', 'server', 'stop'
-        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
-        shutil.rmtree(self.__unpacked_dir)
+        # sp.check_call([
+        #     'grakn', 'server', 'stop'
+        # ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
+        # shutil.rmtree(self.__unpacked_dir)
+        pass
 
     def _unpack(self):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
