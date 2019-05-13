@@ -77,12 +77,12 @@ class test_concept_Base(test_Base):
     def setUp(self):
         global session
         self.tx = session.transaction().write()
-        self.addCleanup(self.cleanupTransaction, [self.tx])     # ensure tx closed even on test failure
+        self.addCleanup(self.cleanupTransaction, self.tx)     # ensure tx closed even on test failure
 
     def tearDown(self):
         self.tx.close()
 
-    def cleanupTransaction(cls, tx):
+    def cleanupTransaction(self, tx):
         tx.close()
 
 
