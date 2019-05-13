@@ -171,6 +171,7 @@ class Communicator(six.Iterator):
             self._queue.put(None)
             self._closed = True
             # force exhaust the iterator so `onCompleted()` is called on the server
-            # note: next() was throwing an error sometimes, but would be preferable to a loop
-            for empty in self._response_iterator:
+            try:
+                next(self._response_iterator)
+            except StopIteration:
                 pass
