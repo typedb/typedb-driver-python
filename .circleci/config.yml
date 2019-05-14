@@ -88,7 +88,7 @@ jobs:
             pip install -r tests/deployment/requirements.txt
             cd tests/deployment/ && python -m unittest test
 
-  sync-dependencies:
+  sync-dependencies-snapshot:
     machine: true
     working_directory: ~/client-python
     steps:
@@ -132,6 +132,18 @@ jobs:
           export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
           bazel run //:deploy-pip -- release
 
+  sync-dependencies-release:
+    machine: true
+    working_directory: ~/client-python
+    steps:
+      - install-bazel-linux-rbe
+      - checkout
+      - run: |
+          export SYNC_DEPENDENCIES_TOKEN=$REPO_GITHUB_TOKEN_GRABL
+          bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
+          --source client-python@$(cat VERSION) \
+          --targets docs:master examples:master
+
   release-cleanup:
     machine: true
     steps:
@@ -162,7 +174,7 @@ workflows:
               only: master
           requires:
             - deploy-pip-snapshot
-      - sync-dependencies:
+      - sync-dependencies-snapshot:
           filters:
             branches:
               only: master
@@ -173,7 +185,7 @@ workflows:
             branches:
               only: master
           requires:
-            - sync-dependencies
+            - sync-dependencies-snapshot
 
   client-python-release:
     jobs:
@@ -183,20 +195,26 @@ workflows:
               only: client-python-release-branch
       - deploy-approval:
           type: approval
+          filters:
+            branches:
+              only: client-python-release-branch
           requires:
             - deploy-github
+      - deploy-pip-release:
           filters:
             branches:
               only: client-python-release-branch
-      - deploy-pip-release:
           requires:
             - deploy-approval
+      - sync-dependencies-release:
           filters:
             branches:
               only: client-python-release-branch
-      - release-cleanup:
           requires:
             - deploy-pip-release
+      - release-cleanup:
           filters:
             branches:
               only: client-python-release-branch
+          requires:
+            - sync-dependencies-release
