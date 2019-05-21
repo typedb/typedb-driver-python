@@ -12,4 +12,4 @@ Or you can upgrade your local installation with:
 pip install -U grakn-client
 ```
 
-{ Release notes to be written }
+{ release notes }
