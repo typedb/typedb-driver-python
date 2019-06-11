@@ -147,16 +147,6 @@ class Answer(object):
     def explanation(self):
         return self._explanation
 
-    def explanations(self):
-        if self._explanation is None:
-            return None
-        
-        explanations = set()
-        for concept_map in self._explanation.get_answers():
-            recursive_explanation_set = concept_map.explanations()
-            explanations = explanations.union(recursive_explanation_set)
-        return explanations
-
 class AnswerGroup(Answer):
 
     def __init__(self, owner_concept, answer_list, explanation):
