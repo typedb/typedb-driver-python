@@ -37,7 +37,6 @@ class test_Keyspace(test_Base):
         super(test_Keyspace, cls).tearDownClass()
         global client, session
         session.close()
-        client.keyspaces().delete(session.keyspace)
         client.close()
 
     def test_retrieve_delete(self):

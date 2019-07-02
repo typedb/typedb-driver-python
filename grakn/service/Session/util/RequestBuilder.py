@@ -18,8 +18,8 @@
 #
 from datetime import datetime
 
-import grakn.rpc.protocol.session.Session_pb2 as transaction_messages
-import grakn.rpc.protocol.session.Concept_pb2 as concept_messages
+import session.Session_pb2 as transaction_messages
+import session.Concept_pb2 as concept_messages
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import BaseTypeMapping
 
