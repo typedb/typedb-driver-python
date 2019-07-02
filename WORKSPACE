@@ -88,26 +88,6 @@ com_github_grpc_grpc_deps = "grpc_deps")
 com_github_grpc_grpc_deps()
 
 
-load("@stackb_rules_proto//python:deps.bzl", "python_grpc_library")
-python_grpc_library()
-
-pip_import(
-    name = "protobuf_py_deps",
-    requirements = "@stackb_rules_proto//python/requirements:protobuf.txt",
-)
-
-load("@protobuf_py_deps//:requirements.bzl", protobuf_pip_install = "pip_install")
-protobuf_pip_install()
-
-pip_import(
-    name = "grpc_py_deps",
-    requirements = "@stackb_rules_proto//python:requirements.txt",
-)
-
-load("@grpc_py_deps//:requirements.bzl", grpc_pip_install = "pip_install")
-grpc_pip_install()
-
-
 ################################
 # Load Grakn Core dependencies #
 ################################
