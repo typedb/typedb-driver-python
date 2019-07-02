@@ -23,9 +23,10 @@ workspace(name = "graknlabs_client_python")
 # Grakn Labs dependencies #
 ###########################
 
-load("//dependencies/graknlabs:dependencies.bzl", "graknlabs_grakn_core", "graknlabs_build_tools")
+load("//dependencies/graknlabs:dependencies.bzl", "graknlabs_grakn_core", "graknlabs_build_tools", "graknlabs_protocol")
 graknlabs_grakn_core()
 graknlabs_build_tools()
+graknlabs_protocol()
 
 load("@graknlabs_build_tools//distribution:dependencies.bzl", "graknlabs_bazel_distribution")
 graknlabs_bazel_distribution()
@@ -86,8 +87,25 @@ load("@com_github_grpc_grpc//bazel:grpc_deps.bzl",
 com_github_grpc_grpc_deps = "grpc_deps")
 com_github_grpc_grpc_deps()
 
-load("@stackb_rules_proto//python:deps.bzl", "python_grpc_compile")
-python_grpc_compile()
+
+load("@stackb_rules_proto//python:deps.bzl", "python_grpc_library")
+python_grpc_library()
+
+pip_import(
+    name = "protobuf_py_deps",
+    requirements = "@stackb_rules_proto//python/requirements:protobuf.txt",
+)
+
+load("@protobuf_py_deps//:requirements.bzl", protobuf_pip_install = "pip_install")
+protobuf_pip_install()
+
+pip_import(
+    name = "grpc_py_deps",
+    requirements = "@stackb_rules_proto//python:requirements.txt",
+)
+
+load("@grpc_py_deps//:requirements.bzl", grpc_pip_install = "pip_install")
+grpc_pip_install()
 
 
 ################################

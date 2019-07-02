@@ -17,7 +17,7 @@
 # under the License.
 #
 
-import grakn.rpc.protocol.session.Concept_pb2 as ConceptMessages
+import session.Concept_pb2 as ConceptMessages
 
 
 # base type constant names 
