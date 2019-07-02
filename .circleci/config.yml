@@ -66,6 +66,7 @@ jobs:
       - install-bazel-linux-rbe
       - checkout
       - run: |
+          echo -n "$(cat VERSION)-$CIRCLE_SHA1" > VERSION
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
           bazel run //:deploy-pip -- snapshot
