@@ -17,8 +17,8 @@
 # under the License.
 #
 
-from keyspace.Keyspace_pb2_grpc import KeyspaceServiceStub
-import keyspace.Keyspace_pb2 as keyspace_messages
+from grakn_protocol.keyspace.Keyspace_pb2_grpc import KeyspaceServiceStub
+import grakn_protocol.keyspace.Keyspace_pb2 as keyspace_messages
 
 class KeyspaceService(object):
 

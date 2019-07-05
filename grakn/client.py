@@ -6,7 +6,7 @@ from grakn.service.Session.util.RequestBuilder import RequestBuilder
 from grakn.service.Session.util.enums import TxType as _TxType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
-from session.Session_pb2_grpc import SessionServiceStub
+from grakn_protocol.session.Session_pb2_grpc import SessionServiceStub
 from grakn.exception.GraknError import GraknError
 
 class GraknClient(object):

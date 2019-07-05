@@ -17,7 +17,7 @@
 # under the License.
 #
 
-import session.Concept_pb2 as ConceptMessages
+import grakn_protocol.session.Concept_pb2 as ConceptMessages
 
 
 # base type constant names 
