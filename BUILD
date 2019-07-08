@@ -23,7 +23,7 @@ load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
 load("@graknlabs_client_python_pip//:requirements.bzl",
        graknlabs_client_python_requirement = "requirement")
 
-load("@graknlabs_bazel_distribution//pip:rules.bzl", "assemble_pip", "new_deploy_pip")
+load("@graknlabs_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
 load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
        graknlabs_bazel_distribution_requirement = "requirement")
 
@@ -76,7 +76,7 @@ assemble_pip(
 )
 
 
-new_deploy_pip(
+deploy_pip(
     name = "deploy-pip",
     target = ":assemble-pip",
     deployment_properties = "@graknlabs_build_tools//:deployment.properties",
