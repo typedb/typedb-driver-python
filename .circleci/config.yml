@@ -55,7 +55,7 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run-grakn-server
+#      - run-grakn-server
       - run-bazel-rbe:
           command: bazel test //:test_integration --test_output=streamed
 
