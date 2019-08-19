@@ -20,19 +20,27 @@
 from grakn_protocol.keyspace.Keyspace_pb2_grpc import KeyspaceServiceStub
 import grakn_protocol.keyspace.Keyspace_pb2 as keyspace_messages
 
+
 class KeyspaceService(object):
 
-    def __init__(self, uri, channel):
+    def __init__(self, uri, channel, credentials=None):
         self.uri = uri
         self.stub = KeyspaceServiceStub(channel)
+        self.credentials = credentials
 
     def retrieve(self):
         retrieve_request = keyspace_messages.Keyspace.Retrieve.Req()
+        if self.credentials:
+            retrieve_request.username = self.credentials['username']
+            retrieve_request.password = self.credentials['password']
         response = self.stub.retrieve(retrieve_request)
         return list(response.names)
 
     def delete(self, keyspace):
         delete_request = keyspace_messages.Keyspace.Delete.Req()
         delete_request.name = keyspace
+        if self.credentials:
+            delete_request.username = self.credentials['username']
+            delete_request.password = self.credentials['password']
         self.stub.delete(delete_request)
         return
