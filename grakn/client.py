@@ -16,7 +16,7 @@ class GraknClient(object):
         self.uri = uri
         self.credentials = credentials
         self._channel = grpc.insecure_channel(uri)
-        self._keyspace_service = KeyspaceService(self.uri, self._channel)
+        self._keyspace_service = KeyspaceService(self.uri, self._channel, credentials)
 
     def session(self, keyspace):
         """ Open a session for a specific  keyspace. Can be used as `with Grakn('localhost:48555').session(keyspace='test') as session: ... ` or as normal assignment"""
