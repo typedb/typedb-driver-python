@@ -107,7 +107,6 @@ jobs:
       - install-bazel-linux-rbe
       - checkout
       - run: |
-          pip install certifi
           export RELEASE_APPROVAL_USERNAME=$REPO_GITHUB_USERNAME
           export RELEASE_APPROVAL_TOKEN=$REPO_GITHUB_TOKEN
           bazel run @graknlabs_build_tools//ci:release-approval
@@ -119,6 +118,7 @@ jobs:
       - install-bazel-linux-rbe
       - checkout
       - run: |
+          pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
           bazel run @graknlabs_build_tools//ci:release-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
       - run: |
