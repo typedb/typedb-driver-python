@@ -93,9 +93,11 @@ com_github_grpc_grpc_deps()
 ################################
 
 load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl",
-     "graknlabs_graql", "graknlabs_client_java", "graknlabs_benchmark")
+     "graknlabs_graql", "graknlabs_common", "graknlabs_client_java", "graknlabs_console", "graknlabs_benchmark")
 graknlabs_graql()
+graknlabs_common()
 graknlabs_client_java()
+graknlabs_console()
 graknlabs_benchmark()
 
 load("@graknlabs_grakn_core//dependencies/maven:dependencies.bzl",
