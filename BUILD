@@ -103,6 +103,7 @@ py_test(
         graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    python_version = "PY2"
 )
 
 py_test(
@@ -116,6 +117,7 @@ py_test(
         graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    python_version = "PY2"
 )
 
 py_test(
@@ -129,6 +131,7 @@ py_test(
         graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    python_version = "PY2"
 )
 
 test_suite(
