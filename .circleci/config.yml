@@ -204,7 +204,7 @@ workflows:
     jobs:
       - release-validate:
           filters:
-            branch:
+            branches:
               only: client-python-release-branch
       - deploy-github:
           filters:
