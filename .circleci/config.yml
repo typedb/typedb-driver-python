@@ -79,7 +79,6 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
-      - run: pip install --upgrade pip
       - run-grakn-server
       - run:
           name: Run test-deployment for client-python
@@ -87,6 +86,7 @@ jobs:
             echo -n "$(cat VERSION)-$CIRCLE_SHA1" > VERSION
             sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
             cat tests/deployment/requirements.txt
+            pip install --upgrade pip
             pip install -r tests/deployment/requirements.txt
             cd tests/deployment/ && python -m unittest test
 
