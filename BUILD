@@ -46,7 +46,6 @@ py_library(
 assemble_pip(
     name = "assemble-pip",
     target = ":client_python",
-    version_file = "//:VERSION",
     package_name = "grakn-client",
     classifiers = [
         "Programming Language :: Python",
