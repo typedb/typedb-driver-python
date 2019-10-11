@@ -66,10 +66,9 @@ jobs:
       - install-bazel-linux-rbe
       - checkout
       - run: |
-          echo -n "$(cat VERSION)-$CIRCLE_SHA1" > VERSION
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
-          bazel run //:deploy-pip -- snapshot
+          bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
 
   test-deployment:
     machine: true
@@ -83,7 +82,7 @@ jobs:
       - run:
           name: Run test-deployment for client-python
           command: |
-            echo -n "$(cat VERSION)-$CIRCLE_SHA1" > VERSION
+            echo -n "0.0.0-$CIRCLE_SHA1" > VERSION
             sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
             cat tests/deployment/requirements.txt
             pip install --upgrade pip
@@ -145,7 +144,7 @@ jobs:
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
-          bazel run //:deploy-pip -- release
+          bazel run --define version=$(cat VERSION) //:deploy-pip -- release
 
   sync-dependencies-release:
     machine: true
