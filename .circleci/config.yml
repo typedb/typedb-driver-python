@@ -79,6 +79,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
       - run-grakn-server
+      - run: sleep 60
       - run:
           name: Run test-deployment for client-python
           command: |
