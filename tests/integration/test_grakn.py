@@ -194,7 +194,7 @@ class test_Transaction(test_client_Base):
         with self.assertRaises(GraknError):
             # should be closed
             self.tx.query("match $x isa person; get;")
-        self.assertTrue(self.tx.is_closed(), msg="Tx is not closed after invalid syntax")
+        self.assertFalse(self.tx.is_open(), msg="Tx is not closed after invalid syntax")
 
 
     def test_query_tx_already_closed(self):
@@ -202,7 +202,7 @@ class test_Transaction(test_client_Base):
         with self.assertRaises(GraknError) :
             self.tx.query("match $x isa person; get;")
             
-        self.assertTrue(self.tx.is_closed(), msg="Tx is not closed after close()")
+        self.assertFalse(self.tx.is_open(), msg="Tx is not closed after close()")
 
     def test_no_metatype_duplicates(self):
         concepts = self.tx.query("match $x sub entity; get;").collect_concepts()
@@ -337,7 +337,7 @@ class test_Transaction(test_client_Base):
 
     def test_commit_check_tx_closed(self):
         self.tx.commit()
-        self.assertTrue(self.tx.is_closed(), msg="Tx not closed after commit")
+        self.assertFalse(self.tx.is_open(), msg="Tx not closed after commit")
 
     # --- close tests ---
 
@@ -348,7 +348,7 @@ class test_Transaction(test_client_Base):
         with self.assertRaises(Exception):
             self.tx.query("match $x isa person; get;")
 
-        self.assertTrue(self.tx.is_closed(), msg="Tx not closed after tx.close()")
+        self.assertFalse(self.tx.is_open(), msg="Tx not closed after tx.close()")
 
     # --- test get concept ---
     def test_get_concept(self):

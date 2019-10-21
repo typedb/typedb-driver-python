@@ -140,9 +140,9 @@ class Transaction(object):
         """ Close this transaction without committing """
         self._tx_service.close() # close the service
 
-    def is_closed(self):
-        """ Check if this transaction is closed """
-        return self._tx_service.is_closed()
+    def is_open(self):
+        """ Check if this transaction is open"""
+        return not self._tx_service.is_closed()
 
     def get_concept(self, concept_id):
         """ Retrieve a concept by Concept ID (string) """
