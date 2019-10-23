@@ -22,7 +22,7 @@ import uuid
 import grakn
 from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
-from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup
+from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup, Void
 
 from tests.integration.base import test_Base, GraknServer
 
