@@ -317,6 +317,7 @@ class test_Transaction(test_client_Base):
         """ Test `match...delete`, response type should be Void"""
         local_session = client.session("matchdelete_void")
         tx = local_session.transaction().write()
+        tx.query("define person sub entity;")
         result = list(tx.query("insert $x isa person;"))
         inserted_person = result[0].get("x")
         person_id = inserted_person.id()
