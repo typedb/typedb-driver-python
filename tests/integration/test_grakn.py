@@ -313,8 +313,22 @@ class test_Transaction(test_client_Base):
         client.keyspaces().delete("aggregategroup")
 
 
+    def test_delete_returns_void(self):
+        """ Test `match...delete`, response type should be Void"""
+        local_session = client.session("matchdelete_void")
+        tx = local_session.transaction().write()
+        result = list(tx.query("insert $x isa person;"))
+        inserted_person = result[0].get("x")
+        person_id = inserted_person.id()
 
-    # --- test different Answers and their APIs ---
+        void_result = list(tx.query("match $x id {0}; delete $x;".format(person_id)))[0]
+        self.assertEqual(type(void_result), Void)
+        self.assertTrue("success" in void_result.message())
+
+        self.assertTrue(inserted_person.is_deleted())
+        tx.close()
+        local_session.close()
+        client.keyspaces().delete("matchdelete_void")
 
 
 

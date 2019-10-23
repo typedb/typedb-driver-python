@@ -259,9 +259,9 @@ class Void(Answer):
     def __init__(self, message, explanation):
         super(Void, self).__init__(message, explanation)
         self._message = message
-     __init__.__annotations__ = {'explanation': Explanation, 'message': str}
+    __init__.__annotations__ = {'explanation': Explanation, 'message': str}
 
-     def message(self):
+    def message(self):
         """ Get the message on this Void answer type """
         return self._message
 
@@ -349,8 +349,8 @@ class AnswerConverter(object):
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
         return Explanation(query_pattern, native_list_of_concept_maps)
 
-     @staticmethod
-     def _create_void(tx_service, grpc_void):
+    @staticmethod
+    def _create_void(tx_service, grpc_void):
         """ Convert grpc Void message into an object """
         explanation = AnswerConverter._create_explanation(tx_service, grpc_void.explanation)
         return Void(grpc_void.message, explanation)

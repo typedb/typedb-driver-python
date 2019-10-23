@@ -77,6 +77,7 @@ class GraknServer(object):
     def _unpack(self):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
         with ZipFile(GraknServer.DISTRIBUTION_LOCATION) as zf:
+            print(self.__unpacked_dir)
             zf.extractall(self.__unpacked_dir)
 
 
