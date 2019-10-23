@@ -352,8 +352,7 @@ class AnswerConverter(object):
     @staticmethod
     def _create_void(tx_service, grpc_void):
         """ Convert grpc Void message into an object """
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_void.explanation)
-        return Void(grpc_void.message, explanation)
+        return Void(grpc_void.message)
 
     @staticmethod
     def _number_string_to_native(number):
