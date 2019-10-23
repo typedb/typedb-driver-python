@@ -320,7 +320,7 @@ class test_Transaction(test_client_Base):
         tx.query("define person sub entity;")
         result = list(tx.query("insert $x isa person;"))
         inserted_person = result[0].get("x")
-        person_id = inserted_person.id()
+        person_id = inserted_person.id
 
         void_result = list(tx.query("match $x id {0}; delete $x;".format(person_id)))[0]
         self.assertEqual(type(void_result), Void)
