@@ -257,7 +257,7 @@ class Value(Answer):
 
 class Void(Answer):
     def __init__(self, message):
-        super(Void, self).__init__(message, None)
+        super(Void, self).__init__(None)
         self._message = message
     __init__.__annotations__ = {'explanation': Explanation, 'message': str}
 
