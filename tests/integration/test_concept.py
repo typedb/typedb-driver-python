@@ -117,6 +117,18 @@ class test_Concept(test_concept_Base):
 
         self.assertTrue("FAILED_PRECONDITION" in str(context.exception))
 
+    def test_is_deleted(self):
+        car_type = self.tx.put_entity_type("car")
+        car = car_type.create()
+        self.assertFalse(car.is_deleted())
+
+        car.delete()
+        self.assertTrue(car.is_deleted())
+
+        car2 = car_type.create()
+        self.tx.query("match $x isa car; delete $x;")
+        self.assertTrue(car2.is_deleted)
+
 
     def test_is_each_schema_type(self):
         car_type = self.tx.put_entity_type("car")

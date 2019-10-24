@@ -37,6 +37,11 @@ class Concept(object):
         method_response = self._tx_service.run_concept_method(self.id, del_request)
         return
 
+    def is_deleted(self):
+        retrieved = self._tx_service.get_concept(self.id)
+        return retrieved is None
+
+
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """
         return isinstance(self, SchemaConcept)

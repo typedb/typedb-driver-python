@@ -255,6 +255,16 @@ class Value(Answer):
         """ Get as number (float or int) """
         return self._number
 
+class Void(Answer):
+    def __init__(self, message):
+        super(Void, self).__init__(None)
+        self._message = message
+    __init__.__annotations__ = {'explanation': Explanation, 'message': str}
+
+    def message(self):
+        """ Get the message on this Void answer type """
+        return self._message
+
 
 class AnswerConverter(object):
     """ Static methods to convert answers into Answer objects """
@@ -275,6 +285,8 @@ class AnswerConverter(object):
             return AnswerConverter._create_concept_set_measure(tx_service, grpc_answer.conceptSetMeasure)
         elif which_one == 'value':
             return AnswerConverter._create_value(tx_service, grpc_answer.value)
+        elif which_one == 'void':
+            return AnswerConverter._create_void(tx_service, grpc_answer.void)
         else:
             raise GraknError('Unknown gRPC Answer.answer message type: {0}'.format(which_one))
    
@@ -336,6 +348,11 @@ class AnswerConverter(object):
         for grpc_concept_map in grpc_list_of_concept_maps:
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
         return Explanation(query_pattern, native_list_of_concept_maps)
+
+    @staticmethod
+    def _create_void(tx_service, grpc_void):
+        """ Convert grpc Void message into an object """
+        return Void(grpc_void.message)
 
     @staticmethod
     def _number_string_to_native(number):
