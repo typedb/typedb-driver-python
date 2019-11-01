@@ -118,12 +118,8 @@ class ResponseReader(object):
         return ResponseIterator(tx_service, iterator_id, next_iteration_handler)
 
 class Explanation(object):
-    def __init__(self, query_pattern, list_of_concept_maps):
-        self._query_pattern = query_pattern
+    def __init__(self, list_of_concept_maps):
         self._concept_maps_list = list_of_concept_maps
-        
-    def query_pattern(self):
-        return self._query_pattern
 
     def get_answers(self):
         """ Return answers this explanation is dependent on"""
@@ -136,21 +132,15 @@ class Explanation(object):
 class Answer(object):
     """ Top level answer, provides interface """
 
-    def __init__(self, explanation):
-        self._explanation = explanation
-    __init__.__annotations__ = {'explanation': Explanation}
-
     @abc.abstractmethod
     def get(self): 
         pass
 
-    def explanation(self):
-        return self._explanation
 
 class AnswerGroup(Answer):
 
-    def __init__(self, owner_concept, answer_list, explanation):
-        super(AnswerGroup, self).__init__(explanation)
+    def __init__(self, owner_concept, answer_list):
+        super(AnswerGroup, self).__init__()
         self._owner_concept = owner_concept
         self._answer_list = answer_list
 
@@ -167,9 +157,10 @@ class AnswerGroup(Answer):
 
 class ConceptMap(Answer):
 
-    def __init__(self, concept_map, explanations):
-        super(ConceptMap, self).__init__(explanations)
-        self._concept_map = concept_map 
+    def __init__(self, concept_map, query_pattern):
+        super(ConceptMap, self).__init__()
+        self._concept_map = concept_map
+        self._query_pattern = query_pattern
 
     def get(self, var=None):
         """ Get the indicated variable's Concept from the map or this ConceptMap """
@@ -182,7 +173,13 @@ class ConceptMap(Answer):
             return self._concept_map[var]
             """ Return ConceptMap """
             return self
-    
+
+    def query_pattern(self):
+        return self._query_pattern
+
+    def explanation(self):
+        return self._explanation
+
     def map(self):
         """ Get the map from Variable (str) to Concept objects """
         return self._concept_map
@@ -201,10 +198,9 @@ class ConceptMap(Answer):
 
 class ConceptList(Answer):
 
-    def __init__(self, concept_id_list, explanation):
-        super(ConceptList, self).__init__(explanation)
+    def __init__(self, concept_id_list):
+        super(ConceptList, self).__init__()
         self._concept_id_list = concept_id_list
-    __init__.__annotations__ = {'explanation': Explanation}
 
     def get(self):
         """ Get this ConceptList """
@@ -216,10 +212,9 @@ class ConceptList(Answer):
 
 class ConceptSet(Answer):
 
-    def __init__(self, concept_id_set, explanation):
-        super(ConceptSet, self).__init__(explanation)
+    def __init__(self, concept_id_set):
+        super(ConceptSet, self).__init__()
         self._concept_id_set = concept_id_set
-    __init__.__annotations__ = {'explanation': Explanation}
 
     def get(self):
         """ Get this ConceptSet """
@@ -231,10 +226,9 @@ class ConceptSet(Answer):
 
 class ConceptSetMeasure(ConceptSet):
 
-    def __init__(self, concept_id_set, number, explanation):
-        super(ConceptSetMeasure, self).__init__(concept_id_set, explanation)
+    def __init__(self, concept_id_set, number):
+        super(ConceptSetMeasure, self).__init__(concept_id_set)
         self._measurement = number
-    __init__.__annotations__ = {'explanation': Explanation}
 
     def measurement(self):
         return self._measurement
@@ -242,10 +236,9 @@ class ConceptSetMeasure(ConceptSet):
 
 class Value(Answer):
 
-    def __init__(self, number, explanation):
-        super(Value, self).__init__(explanation)
+    def __init__(self, number):
+        super(Value, self).__init__()
         self._number = number
-    __init__.__annotations__ = {'explanation': Explanation}
 
     def get(self):
         """ Get this Value object """
@@ -257,9 +250,9 @@ class Value(Answer):
 
 class Void(Answer):
     def __init__(self, message):
-        super(Void, self).__init__(None)
+        super(Void, self).__init__()
         self._message = message
-    __init__.__annotations__ = {'explanation': Explanation, 'message': str}
+    __init__.__annotations__ = {'message': str}
 
     def message(self):
         """ Get the message on this Void answer type """
@@ -298,9 +291,9 @@ class AnswerConverter(object):
         for (variable, grpc_concept) in var_concept_map.items():
             answer_map[variable] = ConceptFactory.create_concept(tx_service, grpc_concept)
 
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_map_msg.explanation)
-        return ConceptMap(answer_map, explanation)
+        query_pattern = grpc_concept_map_msg.pattern
+
+        return ConceptMap(answer_map, query_pattern)
 
     @staticmethod
     def _create_answer_group(tx_service, grpc_answer_group):
@@ -308,36 +301,28 @@ class AnswerConverter(object):
         owner_concept = ConceptFactory.create_concept(tx_service, grpc_owner_concept)
         grpc_answers = list(grpc_answer_group.answers)
         answer_list = [AnswerConverter.convert(tx_service, grpc_answer) for grpc_answer in grpc_answers]
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_answer_group.explanation)
-        return AnswerGroup(owner_concept, answer_list, explanation)
+        return AnswerGroup(owner_concept, answer_list)
 
     @staticmethod
     def _create_concept_list(tx_service, grpc_concept_list_msg):
         ids_list = list(grpc_concept_list_msg.list.ids)
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_list_msg.explanation)
-        return ConceptList(ids_list, explanation)
+        return ConceptList(ids_list)
 
     @staticmethod
     def _create_concept_set(tx_service, grpc_concept_set_msg):
         ids_set = set(grpc_concept_set_msg.set.ids)
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_set_msg.explanation)
-        return ConceptSet(ids_set, explanation)
+        return ConceptSet(ids_set)
 
     @staticmethod
     def _create_concept_set_measure(tx_service, grpc_concept_set_measure):
         concept_ids = list(grpc_concept_set_measure.set.ids)
         number = grpc_concept_set_measure.measurement.value 
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_set_measure.explanation)
-        return ConceptSetMeasure(concept_ids, AnswerConverter._number_string_to_native(number), explanation)
+        return ConceptSetMeasure(concept_ids, AnswerConverter._number_string_to_native(number))
 
     @staticmethod
     def _create_value(tx_service, grpc_value_msg):
         number = grpc_value_msg.number.value 
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_value_msg.explanation)
-        return Value(AnswerConverter._number_string_to_native(number), explanation)
+        return Value(AnswerConverter._number_string_to_native(number))
 
     @staticmethod
     def _create_explanation(tx_service, grpc_explanation):

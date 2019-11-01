@@ -132,6 +132,20 @@ py_test(
     python_version = "PY2"
 )
 
+py_test(
+    name = "test_answer",
+    srcs = [
+        "tests/integration/base.py",
+        "tests/integration/test_answer.py"
+    ],
+    deps = [
+        ":client_python",
+        graknlabs_client_python_requirement("forbiddenfruit")
+    ],
+    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    python_version = "PY2"
+)
+
 test_suite(
     name = "test_integration",
     tests = [
