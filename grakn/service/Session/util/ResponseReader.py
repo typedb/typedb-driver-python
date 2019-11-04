@@ -117,7 +117,17 @@ class ResponseReader(object):
     def iter_res_to_iterator(tx_service, iterator_id, next_iteration_handler):
         return ResponseIterator(tx_service, iterator_id, next_iteration_handler)
 
+    @staticmethod
+    def create_explanation(tx_service, grpc_explanation_res):
+        """ Convert gRPC explanation response to explanation object """
+        grpc_list_of_concept_maps = grpc_explanation_res.explanation
+        native_list_of_concept_maps = []
+        for grpc_concept_map in grpc_list_of_concept_maps:
+            native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
+        return Explanation(native_list_of_concept_maps)
+
 class Explanation(object):
+
     def __init__(self, list_of_concept_maps):
         self._concept_maps_list = list_of_concept_maps
 
@@ -157,10 +167,12 @@ class AnswerGroup(Answer):
 
 class ConceptMap(Answer):
 
-    def __init__(self, concept_map, query_pattern):
+    def __init__(self, concept_map, query_pattern, has_explanation, tx_service):
         super(ConceptMap, self).__init__()
         self._concept_map = concept_map
+        self._has_explanation = has_explanation
         self._query_pattern = query_pattern
+        self._tx_service = tx_service
 
     def get(self, var=None):
         """ Get the indicated variable's Concept from the map or this ConceptMap """
@@ -177,8 +189,14 @@ class ConceptMap(Answer):
     def query_pattern(self):
         return self._query_pattern
 
+    def has_explanation(self):
+        return self._has_explanation
+
     def explanation(self):
-        return self._explanation
+        if self._has_explanation:
+            return self._tx_service.explanation(self)
+        else:
+            raise GraknError("Explanation not found on concept map: " + str(self))
 
     def map(self):
         """ Get the map from Variable (str) to Concept objects """
@@ -292,8 +310,9 @@ class AnswerConverter(object):
             answer_map[variable] = ConceptFactory.create_concept(tx_service, grpc_concept)
 
         query_pattern = grpc_concept_map_msg.pattern
+        has_explanation = grpc_concept_map_msg.hasExplanation
 
-        return ConceptMap(answer_map, query_pattern)
+        return ConceptMap(answer_map,  query_pattern, has_explanation, tx_service)
 
     @staticmethod
     def _create_answer_group(tx_service, grpc_answer_group):
@@ -323,16 +342,6 @@ class AnswerConverter(object):
     def _create_value(tx_service, grpc_value_msg):
         number = grpc_value_msg.number.value 
         return Value(AnswerConverter._number_string_to_native(number))
-
-    @staticmethod
-    def _create_explanation(tx_service, grpc_explanation):
-        """ Convert grpc Explanation message into object """
-        query_pattern = grpc_explanation.pattern
-        grpc_list_of_concept_maps = grpc_explanation.answers
-        native_list_of_concept_maps = []
-        for grpc_concept_map in grpc_list_of_concept_maps:
-            native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
-        return Explanation(query_pattern, native_list_of_concept_maps)
 
     @staticmethod
     def _create_void(tx_service, grpc_void):

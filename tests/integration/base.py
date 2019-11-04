@@ -64,6 +64,7 @@ class GraknServer(object):
     def __enter__(self):
         if not self.__unpacked_dir:
             self._unpack()
+        print(self.__unpacked_dir)
         sp.check_call([
             'grakn', 'server', 'start'
         ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))

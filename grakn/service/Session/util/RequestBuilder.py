@@ -20,6 +20,7 @@ from datetime import datetime
 
 import grakn_protocol.session.Session_pb2 as transaction_messages
 import grakn_protocol.session.Concept_pb2 as concept_messages
+import grakn_protocol.session.Answer_pb2 as answer_messages
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import BaseTypeMapping
 
@@ -155,6 +156,27 @@ class RequestBuilder(object):
 
 
     # --- internal requests ---
+
+    @staticmethod
+    def explanation(explainable):
+        map = {}
+        for (variable, concept) in explainable.map().items():
+            grpc_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(concept)
+            map[variable] = grpc_concept
+
+        grpc_concept_map = answer_messages.ConceptMap(map=map)
+
+        grpc_concept_map.hasExplanation = explainable.has_explanation()
+        grpc_concept_map.pattern = explainable.query_pattern()
+
+        explanation_req = answer_messages.Explanation.Req()
+        explanation_req.explainable.CopyFrom(grpc_concept_map)
+
+        transaction_req = transaction_messages.Transaction.Req()
+        transaction_req.explanation_req.CopyFrom(explanation_req)
+
+        return transaction_req
+
 
     @staticmethod
     def next_iter(iterator_id):
