@@ -139,18 +139,9 @@ class Explanation(object):
 
 # ----- Different types of answers -----
 
-class Answer(object):
-    """ Top level answer, provides interface """
-
-    @abc.abstractmethod
-    def get(self): 
-        pass
-
-
-class AnswerGroup(Answer):
+class AnswerGroup:
 
     def __init__(self, owner_concept, answer_list):
-        super(AnswerGroup, self).__init__()
         self._owner_concept = owner_concept
         self._answer_list = answer_list
 
@@ -165,10 +156,9 @@ class AnswerGroup(Answer):
 
 
 
-class ConceptMap(Answer):
+class ConceptMap:
 
     def __init__(self, concept_map, query_pattern, has_explanation, tx_service):
-        super(ConceptMap, self).__init__()
         self._concept_map = concept_map
         self._has_explanation = has_explanation
         self._query_pattern = query_pattern
@@ -214,29 +204,19 @@ class ConceptMap(Answer):
         """ Check if the variable map is empty """
         return len(self._concept_map) == 0
 
-class ConceptList(Answer):
+class ConceptList:
 
     def __init__(self, concept_id_list):
-        super(ConceptList, self).__init__()
         self._concept_id_list = concept_id_list
-
-    def get(self):
-        """ Get this ConceptList """
-        return self._concept_id_list
 
     def list(self):
         """ Get the list of concept IDs """
         return self._concept_id_list
 
-class ConceptSet(Answer):
+class ConceptSet:
 
     def __init__(self, concept_id_set):
-        super(ConceptSet, self).__init__()
         self._concept_id_set = concept_id_set
-
-    def get(self):
-        """ Get this ConceptSet """
-        return self
 
     def set(self):
         """ Return the set of Concept IDs within this ConceptSet """
@@ -252,23 +232,17 @@ class ConceptSetMeasure(ConceptSet):
         return self._measurement
 
 
-class Value(Answer):
+class Value:
 
     def __init__(self, number):
-        super(Value, self).__init__()
         self._number = number
-
-    def get(self):
-        """ Get this Value object """
-        return self
 
     def number(self):
         """ Get as number (float or int) """
         return self._number
 
-class Void(Answer):
+class Void:
     def __init__(self, message):
-        super(Void, self).__init__()
         self._message = message
     __init__.__annotations__ = {'message': str}
 
@@ -285,7 +259,7 @@ class AnswerConverter(object):
         which_one = grpc_answer.WhichOneof('answer')
 
         if which_one == 'conceptMap':
-           return AnswerConverter._create_concept_map(tx_service, grpc_answer.conceptMap) 
+            return AnswerConverter._create_concept_map(tx_service, grpc_answer.conceptMap)
         elif which_one == 'answerGroup':
             return AnswerConverter._create_answer_group(tx_service, grpc_answer.answerGroup)
         elif which_one == 'conceptList':
@@ -354,7 +328,6 @@ class AnswerConverter(object):
             return int(number)
         except ValueError:
             return float(number)
-
 
 
 class ResponseIterator(six.Iterator):
