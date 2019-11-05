@@ -186,7 +186,7 @@ class ConceptMap:
         if self._has_explanation:
             return self._tx_service.explanation(self)
         else:
-            raise GraknError("Explanation not found on concept map: " + str(self))
+            raise GraknError("Explanation available on concept map: " + str(self))
 
     def map(self):
         """ Get the map from Variable (str) to Concept objects """
