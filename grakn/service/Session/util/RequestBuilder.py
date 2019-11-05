@@ -160,7 +160,7 @@ class RequestBuilder(object):
     @staticmethod
     def explanation(explainable):
         map = {}
-        for (variable, concept) in explainable.map().items():
+        for variable, concept in explainable.map().items():
             grpc_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(concept)
             map[variable] = grpc_concept
 
