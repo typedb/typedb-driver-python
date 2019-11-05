@@ -22,7 +22,7 @@ import uuid
 import grakn
 from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
-from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup, Void
+from grakn.service.Session.util.ResponseReader import Value
 
 from tests.integration.base import test_Base, GraknServer
 
@@ -210,18 +210,7 @@ class test_Transaction(test_client_Base):
         id_set = set(concepts)
         self.assertEqual(len(id_set), 2) # entity and person, not the same
 
-    def test_compute_count_empty_graph_anwer_Value(self):
-        self.tx.put_entity_type("foo")
-        result = self.tx.query("compute count in foo;")
-        answer = next(result)
-        self.assertIsInstance(answer, Value) # specific type of Answer
-        self.assertEqual(answer.number(), 0)
 
-    def test_aggr_count_empty_graph_anwer_Value(self):
-        result = self.tx.query("match $x sub entity; get $x; count;")
-        answer = next(result)
-        self.assertIsInstance(answer, Value)
-        self.assertEqual(answer.number(), 2)
 
 
 

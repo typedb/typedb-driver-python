@@ -94,8 +94,8 @@ class test_Base(TestCase):
             return int(diff.total_seconds())
 
         if six.PY2:
-            print 'Patching datetime.timestamp for PY2'
-            print 'Patching unittest.TestCase.subTest for PY2'
+            print('Patching datetime.timestamp for PY2')
+            print('Patching unittest.TestCase.subTest for PY2')
             curse(datetime, 'timestamp', _datetime_to_timestamp)
             curse(TestCase, 'subTest', DummyContextManager)
 

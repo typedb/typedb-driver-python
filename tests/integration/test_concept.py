@@ -89,7 +89,6 @@ class test_Concept(test_concept_Base):
 
     def test_delete_schema_types(self):
         car_type = self.tx.put_entity_type("car")
-        
         schema_concept = self.tx.get_schema_concept("car")
         self.assertTrue(schema_concept.is_schema_concept())
         schema_concept.delete()
@@ -622,7 +621,6 @@ class test_Attribute(test_concept_Base):
                 self.assertEqual(date.day, 6)
                 return
 
-
     def test_set_date_value(self):
         date_type = self.tx.put_attribute_type("birthdate", DataType.DATE)
         test_date = datetime.datetime(year=2018, month=6, day=6)
@@ -630,8 +628,6 @@ class test_Attribute(test_concept_Base):
         value = date_attr_inst.value() # retrieve from server
         self.assertIsInstance(value, datetime.datetime)
         self.assertEqual(value.timestamp(), test_date.timestamp())
-
-        
 
     def test_owners(self):
         """ Test retrieving entities that have an attribute """
@@ -681,7 +677,6 @@ class test_Relation(test_concept_Base):
         self.assertEqual(len(role_players), 2)
 
     def test_role_players_1_role_2_players(self):
-
         parentship_type = self.tx.get_schema_concept("parentship")
         person_type = self.tx.get_schema_concept("person")
         parent_role = self.tx.get_schema_concept("parent")
