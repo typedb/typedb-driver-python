@@ -159,12 +159,12 @@ class RequestBuilder(object):
 
     @staticmethod
     def explanation(explainable):
-        map = {}
+        concept_map = {}
         for variable, concept in explainable.map().items():
             grpc_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(concept)
-            map[variable] = grpc_concept
+            concept_map[variable] = grpc_concept
 
-        grpc_concept_map = answer_messages.ConceptMap(map=map)
+        grpc_concept_map = answer_messages.ConceptMap(map=concept_map)
 
         grpc_concept_map.hasExplanation = explainable.has_explanation()
         grpc_concept_map.pattern = explainable.query_pattern()
