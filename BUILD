@@ -142,6 +142,7 @@ py_test(
         ":client_python",
         graknlabs_client_python_requirement("forbiddenfruit")
     ],
+    size = "large",
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
     python_version = "PY2"
 )
