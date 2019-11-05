@@ -155,7 +155,6 @@ class AnswerGroup:
         return self._answer_list
 
 
-
 class ConceptMap:
 
     def __init__(self, concept_map, query_pattern, has_explanation, tx_service):
@@ -173,8 +172,6 @@ class ConceptMap:
                 # TODO specialize exception
                 raise GraknError("Variable {0} is not in the ConceptMap".format(var))
             return self._concept_map[var]
-            """ Return ConceptMap """
-            return self
 
     def query_pattern(self):
         return self._query_pattern
