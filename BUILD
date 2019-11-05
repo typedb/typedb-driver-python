@@ -152,6 +152,7 @@ test_suite(
     tests = [
         ":test_concept",
         ":test_grakn",
-        ":test_keyspace"
+        ":test_keyspace",
+        ":test_answer",
     ]
 )
