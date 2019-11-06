@@ -126,7 +126,7 @@ class ResponseReader(object):
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
         return Explanation(native_list_of_concept_maps)
 
-class Explanation:
+class Explanation(object):
 
     def __init__(self, list_of_concept_maps):
         self._concept_maps_list = list_of_concept_maps
@@ -139,7 +139,7 @@ class Explanation:
 
 # ----- Different types of answers -----
 
-class AnswerGroup:
+class AnswerGroup(object):
 
     def __init__(self, owner_concept, answer_list):
         self._owner_concept = owner_concept
@@ -155,7 +155,7 @@ class AnswerGroup:
         return self._answer_list
 
 
-class ConceptMap:
+class ConceptMap(object):
 
     def __init__(self, concept_map, query_pattern, has_explanation, tx_service):
         self._concept_map = concept_map
@@ -201,7 +201,7 @@ class ConceptMap:
         """ Check if the variable map is empty """
         return len(self._concept_map) == 0
 
-class ConceptList:
+class ConceptList(object):
 
     def __init__(self, concept_id_list):
         self._concept_id_list = concept_id_list
@@ -230,7 +230,7 @@ class ConceptSetMeasure(ConceptSet):
         return self._measurement
 
 
-class Value:
+class Value(object):
 
     def __init__(self, number):
         self._number = number
@@ -240,7 +240,7 @@ class Value:
         """ Get as number (float or int) """
         return self._number
 
-class Void:
+class Void(object):
     def __init__(self, message):
         self._message = message
     __init__.__annotations__ = {'message': str}
