@@ -17,7 +17,6 @@
 # under the License.
 #
 
-import abc
 import datetime
 import six
 from grakn.service.Session.util import enums
@@ -201,6 +200,7 @@ class ConceptMap(object):
         """ Check if the variable map is empty """
         return len(self._concept_map) == 0
 
+
 class ConceptList(object):
 
     def __init__(self, concept_id_list):
@@ -215,16 +215,19 @@ class ConceptSet(object):
 
     def __init__(self, concept_id_set):
         self._concept_id_set = concept_id_set
+    __init__.__annotations__ = {'_concept_id_set': 'List[str]'}
 
     def set(self):
         """ Return the set of Concept IDs within this ConceptSet """
         return self._concept_id_set
+
 
 class ConceptSetMeasure(ConceptSet):
 
     def __init__(self, concept_id_set, number):
         super(ConceptSetMeasure, self).__init__(concept_id_set)
         self._measurement = number
+    __init__.__annotations__ = {'_measurement': float}
 
     def measurement(self):
         return self._measurement
@@ -239,6 +242,7 @@ class Value(object):
     def number(self):
         """ Get as number (float or int) """
         return self._number
+
 
 class Void(object):
     def __init__(self, message):
