@@ -210,7 +210,8 @@ class ConceptList:
         """ Get the list of concept IDs """
         return self._concept_id_list
 
-class ConceptSet:
+
+class ConceptSet(object):
 
     def __init__(self, concept_id_set):
         self._concept_id_set = concept_id_set

@@ -131,7 +131,7 @@ class test_Answers(test_Base):
             person_id = inserted_person.id
 
             void_result = list(tx.query("match $x id {0}; delete $x;".format(person_id)))[0]
-            self.assertEqual(type(void_result), Void)
+            self.assertIsInstance(void_result, Void)
             self.assertTrue("success" in void_result.message())
 
             self.assertTrue(inserted_person.is_deleted())
@@ -146,6 +146,7 @@ class test_Answers(test_Base):
             answer = next(result)
             self.assertIsInstance(answer, Value)
             self.assertEqual(answer.number(), 0)
+            tx.close()
         client.keyspaces().delete("countingzero")
 
     def test_aggr_count_empty_graph_anwer_Value(self):
@@ -155,7 +156,8 @@ class test_Answers(test_Base):
             result = tx.query("match $x sub entity; get $x; count;")
             answer = next(result)
             self.assertIsInstance(answer, Value)
-            self.assertEqual(answer.number(), 2)
+            self.assertEqual(answer.number(), 3)
+            tx.close()
         client.keyspaces().delete("countingnonzero")
 
     def test_conceptmap_explanation(self):
