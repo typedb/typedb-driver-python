@@ -126,7 +126,7 @@ class ResponseReader(object):
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
         return Explanation(native_list_of_concept_maps)
 
-class Explanation(object):
+class Explanation:
 
     def __init__(self, list_of_concept_maps):
         self._concept_maps_list = list_of_concept_maps
@@ -233,6 +233,7 @@ class Value:
 
     def __init__(self, number):
         self._number = number
+    __init__.__annotations__ = {'number': float}
 
     def number(self):
         """ Get as number (float or int) """
@@ -353,7 +354,7 @@ class ResponseIterator(six.Iterator):
         """ Helper method to retrieve concepts from a query() method """
         concepts = []
         for answer in self:
-            if type(answer) != ConceptMap:
+            if not isinstance(answer, ConceptMap):
                 raise GraknError("Only use .collect_concepts on ConceptMaps returned by query()")
             concepts.extend(answer.map().values()) # get concept map => concepts
         return concepts

@@ -199,7 +199,7 @@ class test_Transaction(test_client_Base):
 
     def test_query_tx_already_closed(self):
         self.tx.close()
-        with self.assertRaises(GraknError) :
+        with self.assertRaises(GraknError):
             self.tx.query("match $x isa person; get;")
             
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after close()")
@@ -209,10 +209,6 @@ class test_Transaction(test_client_Base):
         self.assertEqual(len(concepts), 2) # entity and person
         id_set = set(concepts)
         self.assertEqual(len(id_set), 2) # entity and person, not the same
-
-
-
-
 
 
 

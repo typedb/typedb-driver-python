@@ -29,7 +29,6 @@ import subprocess as sp
 import tempfile
 import zipfile
 
-
 class DummyContextManager(object):
     def __init__(self, *args, **kwargs):
         pass
