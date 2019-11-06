@@ -17,7 +17,6 @@
 # under the License.
 #
 
-import abc
 import datetime
 import six
 from grakn.service.Session.util import enums
@@ -117,13 +116,19 @@ class ResponseReader(object):
     def iter_res_to_iterator(tx_service, iterator_id, next_iteration_handler):
         return ResponseIterator(tx_service, iterator_id, next_iteration_handler)
 
+    @staticmethod
+    def create_explanation(tx_service, grpc_explanation_res):
+        """ Convert gRPC explanation response to explanation object """
+        grpc_list_of_concept_maps = grpc_explanation_res.explanation
+        native_list_of_concept_maps = []
+        for grpc_concept_map in grpc_list_of_concept_maps:
+            native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
+        return Explanation(native_list_of_concept_maps)
+
 class Explanation(object):
-    def __init__(self, query_pattern, list_of_concept_maps):
-        self._query_pattern = query_pattern
+
+    def __init__(self, list_of_concept_maps):
         self._concept_maps_list = list_of_concept_maps
-        
-    def query_pattern(self):
-        return self._query_pattern
 
     def get_answers(self):
         """ Return answers this explanation is dependent on"""
@@ -133,24 +138,9 @@ class Explanation(object):
 
 # ----- Different types of answers -----
 
-class Answer(object):
-    """ Top level answer, provides interface """
+class AnswerGroup(object):
 
-    def __init__(self, explanation):
-        self._explanation = explanation
-    __init__.__annotations__ = {'explanation': Explanation}
-
-    @abc.abstractmethod
-    def get(self): 
-        pass
-
-    def explanation(self):
-        return self._explanation
-
-class AnswerGroup(Answer):
-
-    def __init__(self, owner_concept, answer_list, explanation):
-        super(AnswerGroup, self).__init__(explanation)
+    def __init__(self, owner_concept, answer_list):
         self._owner_concept = owner_concept
         self._answer_list = answer_list
 
@@ -164,12 +154,13 @@ class AnswerGroup(Answer):
         return self._answer_list
 
 
+class ConceptMap(object):
 
-class ConceptMap(Answer):
-
-    def __init__(self, concept_map, explanations):
-        super(ConceptMap, self).__init__(explanations)
-        self._concept_map = concept_map 
+    def __init__(self, concept_map, query_pattern, has_explanation, tx_service):
+        self._concept_map = concept_map
+        self._has_explanation = has_explanation
+        self._query_pattern = query_pattern
+        self._tx_service = tx_service
 
     def get(self, var=None):
         """ Get the indicated variable's Concept from the map or this ConceptMap """
@@ -180,9 +171,19 @@ class ConceptMap(Answer):
                 # TODO specialize exception
                 raise GraknError("Variable {0} is not in the ConceptMap".format(var))
             return self._concept_map[var]
-            """ Return ConceptMap """
-            return self
-    
+
+    def query_pattern(self):
+        return self._query_pattern
+
+    def has_explanation(self):
+        return self._has_explanation
+
+    def explanation(self):
+        if self._has_explanation:
+            return self._tx_service.explanation(self)
+        else:
+            raise GraknError("Explanation not available on concept map: " + str(self))
+
     def map(self):
         """ Get the map from Variable (str) to Concept objects """
         return self._concept_map
@@ -199,67 +200,54 @@ class ConceptMap(Answer):
         """ Check if the variable map is empty """
         return len(self._concept_map) == 0
 
-class ConceptList(Answer):
 
-    def __init__(self, concept_id_list, explanation):
-        super(ConceptList, self).__init__(explanation)
+class ConceptList(object):
+
+    def __init__(self, concept_id_list):
         self._concept_id_list = concept_id_list
-    __init__.__annotations__ = {'explanation': Explanation}
-
-    def get(self):
-        """ Get this ConceptList """
-        return self._concept_id_list
 
     def list(self):
         """ Get the list of concept IDs """
         return self._concept_id_list
 
-class ConceptSet(Answer):
 
-    def __init__(self, concept_id_set, explanation):
-        super(ConceptSet, self).__init__(explanation)
+class ConceptSet(object):
+
+    def __init__(self, concept_id_set):
         self._concept_id_set = concept_id_set
-    __init__.__annotations__ = {'explanation': Explanation}
-
-    def get(self):
-        """ Get this ConceptSet """
-        return self
+    __init__.__annotations__ = {'_concept_id_set': 'List[str]'}
 
     def set(self):
         """ Return the set of Concept IDs within this ConceptSet """
         return self._concept_id_set
 
+
 class ConceptSetMeasure(ConceptSet):
 
-    def __init__(self, concept_id_set, number, explanation):
-        super(ConceptSetMeasure, self).__init__(concept_id_set, explanation)
+    def __init__(self, concept_id_set, number):
+        super(ConceptSetMeasure, self).__init__(concept_id_set)
         self._measurement = number
-    __init__.__annotations__ = {'explanation': Explanation}
+    __init__.__annotations__ = {'_measurement': float}
 
     def measurement(self):
         return self._measurement
 
 
-class Value(Answer):
+class Value(object):
 
-    def __init__(self, number, explanation):
-        super(Value, self).__init__(explanation)
+    def __init__(self, number):
         self._number = number
-    __init__.__annotations__ = {'explanation': Explanation}
-
-    def get(self):
-        """ Get this Value object """
-        return self
+    __init__.__annotations__ = {'number': float}
 
     def number(self):
         """ Get as number (float or int) """
         return self._number
 
-class Void(Answer):
+
+class Void(object):
     def __init__(self, message):
-        super(Void, self).__init__(None)
         self._message = message
-    __init__.__annotations__ = {'explanation': Explanation, 'message': str}
+    __init__.__annotations__ = {'message': str}
 
     def message(self):
         """ Get the message on this Void answer type """
@@ -274,7 +262,7 @@ class AnswerConverter(object):
         which_one = grpc_answer.WhichOneof('answer')
 
         if which_one == 'conceptMap':
-           return AnswerConverter._create_concept_map(tx_service, grpc_answer.conceptMap) 
+            return AnswerConverter._create_concept_map(tx_service, grpc_answer.conceptMap)
         elif which_one == 'answerGroup':
             return AnswerConverter._create_answer_group(tx_service, grpc_answer.answerGroup)
         elif which_one == 'conceptList':
@@ -298,9 +286,10 @@ class AnswerConverter(object):
         for (variable, grpc_concept) in var_concept_map.items():
             answer_map[variable] = ConceptFactory.create_concept(tx_service, grpc_concept)
 
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_map_msg.explanation)
-        return ConceptMap(answer_map, explanation)
+        query_pattern = grpc_concept_map_msg.pattern
+        has_explanation = grpc_concept_map_msg.hasExplanation
+
+        return ConceptMap(answer_map,  query_pattern, has_explanation, tx_service)
 
     @staticmethod
     def _create_answer_group(tx_service, grpc_answer_group):
@@ -308,46 +297,28 @@ class AnswerConverter(object):
         owner_concept = ConceptFactory.create_concept(tx_service, grpc_owner_concept)
         grpc_answers = list(grpc_answer_group.answers)
         answer_list = [AnswerConverter.convert(tx_service, grpc_answer) for grpc_answer in grpc_answers]
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_answer_group.explanation)
-        return AnswerGroup(owner_concept, answer_list, explanation)
+        return AnswerGroup(owner_concept, answer_list)
 
     @staticmethod
     def _create_concept_list(tx_service, grpc_concept_list_msg):
         ids_list = list(grpc_concept_list_msg.list.ids)
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_list_msg.explanation)
-        return ConceptList(ids_list, explanation)
+        return ConceptList(ids_list)
 
     @staticmethod
     def _create_concept_set(tx_service, grpc_concept_set_msg):
         ids_set = set(grpc_concept_set_msg.set.ids)
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_set_msg.explanation)
-        return ConceptSet(ids_set, explanation)
+        return ConceptSet(ids_set)
 
     @staticmethod
     def _create_concept_set_measure(tx_service, grpc_concept_set_measure):
         concept_ids = list(grpc_concept_set_measure.set.ids)
         number = grpc_concept_set_measure.measurement.value 
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_concept_set_measure.explanation)
-        return ConceptSetMeasure(concept_ids, AnswerConverter._number_string_to_native(number), explanation)
+        return ConceptSetMeasure(concept_ids, AnswerConverter._number_string_to_native(number))
 
     @staticmethod
     def _create_value(tx_service, grpc_value_msg):
         number = grpc_value_msg.number.value 
-        # build explanation
-        explanation = AnswerConverter._create_explanation(tx_service, grpc_value_msg.explanation)
-        return Value(AnswerConverter._number_string_to_native(number), explanation)
-
-    @staticmethod
-    def _create_explanation(tx_service, grpc_explanation):
-        """ Convert grpc Explanation message into object """
-        query_pattern = grpc_explanation.pattern
-        grpc_list_of_concept_maps = grpc_explanation.answers
-        native_list_of_concept_maps = []
-        for grpc_concept_map in grpc_list_of_concept_maps:
-            native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
-        return Explanation(query_pattern, native_list_of_concept_maps)
+        return Value(AnswerConverter._number_string_to_native(number))
 
     @staticmethod
     def _create_void(tx_service, grpc_void):
@@ -360,7 +331,6 @@ class AnswerConverter(object):
             return int(number)
         except ValueError:
             return float(number)
-
 
 
 class ResponseIterator(six.Iterator):
@@ -389,7 +359,7 @@ class ResponseIterator(six.Iterator):
         """ Helper method to retrieve concepts from a query() method """
         concepts = []
         for answer in self:
-            if type(answer) != ConceptMap:
+            if not isinstance(answer, ConceptMap):
                 raise GraknError("Only use .collect_concepts on ConceptMaps returned by query()")
             concepts.extend(answer.map().values()) # get concept map => concepts
         return concepts

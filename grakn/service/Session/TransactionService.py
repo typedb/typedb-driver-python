@@ -117,6 +117,11 @@ class TransactionService(object):
         response = self._communicator.send(tx_request)
         return response.conceptMethod_res.response
 
+    def explanation(self, explainable):
+        """ Retrieve the explanation of a Concept Map from the server """
+        tx_request = RequestBuilder.explanation(explainable)
+        response = self._communicator.send(tx_request)
+        return ResponseReader.ResponseReader.create_explanation(self, response.explanation_res)
 
     def iterate(self, iterator_id):
         request = RequestBuilder.next_iter(iterator_id)

@@ -22,7 +22,7 @@ import uuid
 import grakn
 from grakn.client import GraknClient, DataType
 from grakn.exception.GraknError import GraknError
-from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup, Void
+from grakn.service.Session.util.ResponseReader import Value
 
 from tests.integration.base import test_Base, GraknServer
 
@@ -199,7 +199,7 @@ class test_Transaction(test_client_Base):
 
     def test_query_tx_already_closed(self):
         self.tx.close()
-        with self.assertRaises(GraknError) :
+        with self.assertRaises(GraknError):
             self.tx.query("match $x isa person; get;")
             
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after close()")
@@ -209,127 +209,6 @@ class test_Transaction(test_client_Base):
         self.assertEqual(len(concepts), 2) # entity and person
         id_set = set(concepts)
         self.assertEqual(len(id_set), 2) # entity and person, not the same
-
-    def test_compute_count_empty_graph_anwer_Value(self):
-        self.tx.put_entity_type("foo")
-        result = self.tx.query("compute count in foo;")
-        answer = next(result)
-        self.assertIsInstance(answer, Value) # specific type of Answer
-        self.assertEqual(answer.number(), 0)
-
-    def test_aggr_count_empty_graph_anwer_Value(self):
-        result = self.tx.query("match $x sub entity; get $x; count;")
-        answer = next(result)
-        self.assertIsInstance(answer, Value)
-        self.assertEqual(answer.number(), 2)
-
-
-    @staticmethod
-    def _build_parentship(tx):
-        """ Helper to set up some state to test answers in a tx/keyspace """
-        parentship_type = tx.put_relation_type("parentship")
-        parentship = parentship_type.create()
-        parent_role = tx.put_role("parent")
-        child_role = tx.put_role("child")
-        parentship_type.relates(parent_role)
-        parentship_type.relates(child_role)
-        person_type = tx.put_entity_type("person")
-        person_type.plays(parent_role)
-        person_type.plays(child_role)
-        parent = person_type.create()
-        child = person_type.create()
-        parentship.assign(child_role, child)
-        parentship.assign(parent_role, parent)
-        tx.commit() # closes the tx
-        return {'child': child.id, 'parent': parent.id, 'parentship': parentship.id}
-
-    def test_shortest_path_answer_ConceptList(self):
-        """ Test shortest path which returns a ConceptList """
-        local_session = client.session("shortestpath")
-        tx = local_session.transaction().write()
-        parentship_map = test_Transaction._build_parentship(tx) # this closes the tx
-        tx = local_session.transaction().write()
-        result = tx.query('compute path from {0}, to {1};'.format(parentship_map['parent'], parentship_map['child']))
-        answer = next(result)
-        self.assertIsInstance(answer, ConceptList)
-        self.assertEqual(len(answer.list()), 3)
-        self.assertTrue(parentship_map['parent'] in answer.list())
-        self.assertTrue(parentship_map['child'] in answer.list())
-        self.assertTrue(parentship_map['parentship'] in answer.list())
-
-        tx.close()
-        local_session.close()
-        client.keyspaces().delete("shortestpath")
-
-    def test_cluster_anwer_ConceptSet(self):
-        """ Test clustering with connected components response as ConceptSet """ 
-        local_session = client.session("clusterkeyspace")
-        tx = local_session.transaction().write()
-        parentship_map = test_Transaction._build_parentship(tx) # this closes the tx
-        tx = local_session.transaction().write()
-        result = tx.query("compute cluster in [person, parentship], using connected-component;")
-        concept_set_answer = next(result)
-        self.assertIsInstance(concept_set_answer, ConceptSet)
-        self.assertEqual(len(concept_set_answer.set()), 3)
-        self.assertTrue(parentship_map['parent'] in concept_set_answer.set())
-        self.assertTrue(parentship_map['child'] in concept_set_answer.set())
-        self.assertTrue(parentship_map['parentship'] in concept_set_answer.set())
-        tx.close()
-        local_session.close()
-        client.keyspaces().delete("clusterkeyspace")
-
-
-    def test_compute_centrality_answer_ConceptSetMeasure(self):
-        """ Test compute centrality, response type ConceptSetMeasure """
-        local_session = client.session("centralitykeyspace")
-        tx = local_session.transaction().write()
-        parentship_map = test_Transaction._build_parentship(tx) # this closes the tx
-        tx = local_session.transaction().write()
-        result = tx.query("compute centrality in [person, parentship], using degree;")
-        concept_set_measure_answer = next(result)
-        self.assertIsInstance(concept_set_measure_answer, ConceptSetMeasure)
-        self.assertEqual(concept_set_measure_answer.measurement(), 1)
-        self.assertTrue(parentship_map['parent'] in concept_set_measure_answer.set())
-        self.assertTrue(parentship_map['child'] in concept_set_measure_answer.set())
-        tx.close()
-        local_session.close()
-        client.keyspaces().delete("centralitykeyspace")
-
-
-    def test_compute_aggregate_group_answer_AnswerGroup(self):
-        """ Test compute aggreate count, response type AnwerGroup """
-        local_session = client.session("aggregategroup")
-        tx = local_session.transaction().write()
-        parentship_map = test_Transaction._build_parentship(tx) # this closes the tx
-        tx = local_session.transaction().write()
-        result = tx.query("match $x isa person; $y isa person; (parent: $x, child: $y) isa parentship; get; group $x;")
-        answer_group = next(result)
-        self.assertIsInstance(answer_group, AnswerGroup)
-        self.assertEqual(answer_group.owner().id, parentship_map['parent'])
-        self.assertEqual(answer_group.answers()[0].get('x').id, parentship_map['parent'])
-        self.assertEqual(answer_group.answers()[0].map()['y'].id, parentship_map['child'])
-        tx.close()
-        local_session.close()
-        client.keyspaces().delete("aggregategroup")
-
-
-    def test_delete_returns_void(self):
-        """ Test `match...delete`, response type should be Void"""
-        local_session = client.session("matchdelete_void")
-        tx = local_session.transaction().write()
-        tx.query("define person sub entity;")
-        result = list(tx.query("insert $x isa person;"))
-        inserted_person = result[0].get("x")
-        person_id = inserted_person.id
-
-        void_result = list(tx.query("match $x id {0}; delete $x;".format(person_id)))[0]
-        self.assertEqual(type(void_result), Void)
-        self.assertTrue("success" in void_result.message())
-
-        self.assertTrue(inserted_person.is_deleted())
-        tx.close()
-        local_session.close()
-        client.keyspaces().delete("matchdelete_void")
 
 
 
