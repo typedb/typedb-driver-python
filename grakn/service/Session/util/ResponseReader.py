@@ -354,17 +354,3 @@ class ResponseIterator(six.Iterator):
             raise StopIteration()
         else:
             return self._iter_resp_converter(self._tx_service, iter_response)
-
-    def collect_concepts(self):
-        """ Helper method to retrieve concepts from a query() method """
-        concepts = []
-        for answer in self:
-            if not isinstance(answer, ConceptMap):
-                raise GraknError("Only use .collect_concepts on ConceptMaps returned by query()")
-            concepts.extend(answer.map().values()) # get concept map => concepts
-        return concepts
-
-
-
-
-
