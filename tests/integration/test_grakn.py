@@ -205,7 +205,7 @@ class test_Transaction(test_client_Base):
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after close()")
 
     def test_no_metatype_duplicates(self):
-        concepts = self.tx.query("match $x sub entity; get;").collect_concepts()
+        concepts = [ans.get("x") for ans in self.tx.query("match $x sub entity; get;")]
         self.assertEqual(len(concepts), 2) # entity and person
         id_set = set(concepts)
         self.assertEqual(len(id_set), 2) # entity and person, not the same
@@ -284,7 +284,7 @@ class test_Transaction(test_client_Base):
             middlename = middlename_attr_type.create("Billie")
     
             attr_concepts = self.tx.get_attributes_by_value("Billie", DataType.STRING)
-            attr_concepts = list(attr_concepts) # collect iterator
+            attr_concepts = list(attr_concepts) 
             self.assertEqual(len(attr_concepts), 2, msg="Do not have 2 first name attrs")
     
             ids = [attr.id for attr in attr_concepts]
