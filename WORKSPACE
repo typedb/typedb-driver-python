@@ -29,7 +29,12 @@ graknlabs_build_tools()
 graknlabs_protocol()
 
 load("@graknlabs_build_tools//distribution:dependencies.bzl", "graknlabs_bazel_distribution")
-graknlabs_bazel_distribution()
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+git_repository(
+    name = "graknlabs_bazel_distribution",
+    remote = "https://github.com/graknlabs/bazel-distribution",
+    commit = "ab584f032297113d3a6360d3b2ac55b250f7043f"
+)
 
 
 ###########################
