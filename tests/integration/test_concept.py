@@ -163,6 +163,8 @@ class test_SchemaConcept(test_concept_Base):
             # set label
             car_type = self.tx.get_schema_concept("car")
             car_type.label("vehicle")
+            # retrieve updated schema concepts
+            list(self.tx.query('match $x sub thing; get;'))
             vehicle_type = self.tx.get_schema_concept("vehicle")
             self.assertEqual(vehicle_type.label(), "vehicle")
 
