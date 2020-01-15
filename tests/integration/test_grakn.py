@@ -256,8 +256,8 @@ class test_Transaction(test_client_Base):
             self.assertTrue(same_person.is_thing(), msg="Concept retrieved is not a thing")
             self.assertEqual(same_person.id, person_id, msg="Retrieved concept does not have matching ID")
         with self.subTest(i=1):
-            # invalid ID
-            none_person = self.tx.get_concept('not_an_id')
+            # invalid ID (can still be parsed as integer by server)
+            none_person = self.tx.get_concept('1111122222')
             self.assertIsNone(none_person, msg="Nonexistant concept ID does not return None")
 
     # --- test get schema concept ---
