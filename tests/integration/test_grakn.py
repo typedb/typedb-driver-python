@@ -259,6 +259,10 @@ class test_Transaction(test_client_Base):
             # invalid ID (can still be parsed as integer by server)
             none_person = self.tx.get_concept('1111122222')
             self.assertIsNone(none_person, msg="Nonexistant concept ID does not return None")
+        with self.subTest(i=2):
+            # invalid ID (cannot be parsed as integer by server)
+            none_person = self.tx.get_concept('not_an_id')
+            self.assertIsNone(none_person, msg="Invalid concept ID does not return None")
 
     # --- test get schema concept ---
     def test_get_schema_concept(self):
