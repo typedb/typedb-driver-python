@@ -64,7 +64,7 @@ assemble_pip(
         "Environment :: Console",
         "Topic :: Database :: Front-Ends"
     ],
-    url = "https://github.com/graknlabs/grakn/tree/master/client-python",
+    url = "https://github.com/graknlabs/client-python/",
     author = "Grakn Labs",
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
