@@ -698,6 +698,7 @@ class test_Relation(test_concept_Base):
         role_players = list(parentship.role_players())
         self.assertEqual(len(role_players), 2)
 
+    @unittest.skip("behaviour changed on server side")
     def test_role_players_2_roles_same_player(self):
         parentship_type = self.tx.get_schema_concept("parentship")
         person_type = self.tx.get_schema_concept("person")

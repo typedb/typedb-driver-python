@@ -1,6 +1,6 @@
 grpcio==1.24.1
 protobuf==3.6.1
-six==1.11.0
+six>=1.11.0
 forbiddenfruit==0.1.2
 # non-native Enum < 3.4 and Native Enum 3.4 onwards
 enum-compat==0.0.2
