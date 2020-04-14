@@ -92,13 +92,12 @@ com_github_grpc_grpc_deps()
 ################################
 
 load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl",
-     "graknlabs_graql", "graknlabs_common", "graknlabs_client_java", "graknlabs_console", "graknlabs_benchmark", "graknlabs_grabl_tracing")
+     "graknlabs_graql", "graknlabs_common", "graknlabs_client_java", "graknlabs_console", "graknlabs_benchmark")
 graknlabs_graql()
 graknlabs_common()
 graknlabs_client_java()
 graknlabs_console()
 graknlabs_benchmark()
-graknlabs_grabl_tracing()
 
 load("@graknlabs_grakn_core//dependencies/maven:dependencies.bzl",
 graknlabs_grakn_core_maven_dependencies = "maven_dependencies")
@@ -119,11 +118,6 @@ antlr_dependencies()
 load("@graknlabs_graql//dependencies/maven:dependencies.bzl",
 graknlabs_graql_maven_dependencies = "maven_dependencies")
 graknlabs_graql_maven_dependencies()
-
-load("@graknlabs_grabl_tracing//dependencies/maven:dependencies.bzl",
-graknlabs_grabl_tracing_maven_dependencies="maven_dependencies")
-graknlabs_grabl_tracing_maven_dependencies()
-
 
 # Load Client Java dependencies for Grakn Core
 
