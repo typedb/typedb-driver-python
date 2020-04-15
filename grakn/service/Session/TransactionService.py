@@ -123,11 +123,57 @@ class TransactionService(object):
         response = self._communicator.send(tx_request)
         return ResponseReader.ResponseReader.create_explanation(self, response.explanation_res)
 
-    def iterate(self, iterator_id):
-        request = RequestBuilder.next_iter(iterator_id)
+    def iterate(self, iter_req):
+        request = RequestBuilder.iter_req_to_tx_req(iter_req)
         response = self._communicator.send(request)
         return response.iterate_res
-    iterate.__annotations__ = {'iterator_id': int}
+
+
+class Iterator(six.Iterator):
+    # TODO implement base iterator (no response converter)
+    def __init__(self, communicator, iter_req):
+        self._id = 0
+        self._state = 'PRE_START'
+        self._communicator = communicator
+        self._iter_req = iter_req
+        self._buffer = []
+
+    def _startIterating(self):
+        self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(self._iter_req))
+        # Send first request, _iter_req
+        self._state = 'ITERATING'
+
+    def _requestBatch(self):
+        self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(
+            RequestBuilder.continue_iterating(self._id, self._iter_req.options)))
+
+    def _receiveBatch(self):
+        while True:
+            transaction_res = next(self._communicator)
+            iter_res = transaction_res.iter_res
+            which_one = iter_res.WhichOneof('res')
+            if which_one == 'done':
+                self._state = 'DONE'
+                return
+            elif which_one == 'iteratorId':
+                self._id = iter_res.iteratorId
+                return
+            else:
+                self._buffer.append(iter_res)
+
+    def __next__(self):
+        # Pop until buffer is empty
+        if len(self._buffer) > 0:
+            return self._buffer.pop(0)
+
+        if self._state == 'PRE_START':
+            self._startIterating()
+        elif self._state == 'ITERATING':
+            self._requestBatch()
+        elif self._state == 'DONE':
+            raise StopIteration()
+        self._receiveBatch()
+        return self.__next__()
 
 
 class Communicator(six.Iterator):
@@ -151,6 +197,15 @@ class Communicator(six.Iterator):
 
     def __iter__(self):
         return self
+
+    def send_only(self, request):
+        if self._closed:
+            raise GraknError("This connection is closed")
+        try:
+            self._add_request(request)
+        except Exception as e:
+            self._closed = True
+            raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, request))
 
     def send(self, request):
         if self._closed:

@@ -26,8 +26,66 @@ from grakn.service.Session.Concept import BaseTypeMapping
 
 import six
 
+
 class RequestBuilder(object):
     """ Static methods for generating GRPC requests """
+
+    @staticmethod
+    def _base_iterate_with_options(batch_options=None):
+        # TODO copy from given batch options
+        iter_options = transaction_messages.Transaction.Iter.Req.Options()
+        if batch_size is None:
+            iter_options.all = True
+        else:
+            iter_options.number = batch_size
+
+        transaction_iter_req = transaction_messages.Transaction.Iter.Req()
+        transaction_iter_req.options.CopyFrom(iter_options)
+        return transaction_iter_req
+
+    @staticmethod
+    def iter_req_to_tx_req(grpc_iter_req):
+        transaction_req = transaction_messages.Transaction.Req()
+        transaction_req.iter_req.CopyFrom(grpc_iter_req)
+        return transaction_req
+
+    @staticmethod
+    def start_iterating_query(query, infer=True, batch_size=None):
+        query_message = transaction_messages.Transaction.Query.Iter.Req()
+        query_message.query = query
+        query_message.infer = transaction_messages.Transaction.Query.INFER.Value("TRUE") if infer else \
+            transaction_messages.Transaction.Query.INFER.Value("FALSE")
+
+        transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
+        transaction_iter_req.query_iter_req.CopyFrom(query_message)
+        return transaction_iter_req
+
+    @staticmethod
+    def start_iterating_concept_method(concept_id, grpc_concept_method_iter_req, batch_size=None):
+        transaction_concept_method_iter_req = transaction_messages.Transaction.ConceptMethod.Iter.Req()
+        transaction_concept_method_iter_req.id = concept_id
+        transaction_concept_method_iter_req.method.CopyFrom(grpc_concept_method_iter_req)
+
+        transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
+        transaction_iter_req.conceptMethod_iter_req.CopyFrom(transaction_concept_method_iter_req)
+        return transaction_iter_req
+
+    def start_iterating_get_attributes_by_value(value, datatype, batch_size=None):
+        get_attrs_req = transaction_messages.Transaction.GetAttributes.Iter.Req()
+        grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, datatype)
+        get_attrs_req.value.CopyFrom(grpc_value_object)
+
+        transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
+        transaction_iter_req.getAttributes_iter_req.CopyFrom(get_attrs_req)
+        return transaction_iter_req
+    start_iterating_get_attributes_by_value.__annotations__ = {'datatype': enums.DataType}
+    start_iterating_get_attributes_by_value = staticmethod(start_iterating_get_attributes_by_value)
+
+    @staticmethod
+    def continue_iterating(iterator_id, batch_options=None):
+        transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_options)
+        transaction_iter_req.iteratorId = iterator_id
+        return transaction_iter_req
 
     @staticmethod
     def concept_method_req_to_tx_req(concept_id, grpc_concept_method_req):
@@ -66,22 +124,11 @@ class RequestBuilder(object):
         return close_session_request
 
     @staticmethod
-    def query(query, infer=True):
-        query_message = transaction_messages.Transaction.Query.Req()
-        query_message.query = query
-        query_message.infer = transaction_messages.Transaction.Query.INFER.Value("TRUE") if infer else \
-                              transaction_messages.Transaction.Query.INFER.Value("FALSE")
-        transaction_req = transaction_messages.Transaction.Req()
-        transaction_req.query_req.CopyFrom(query_message)
-        return transaction_req
-
-    @staticmethod
     def commit():
         commit_req = transaction_messages.Transaction.Commit.Req()
         transaction_req = transaction_messages.Transaction.Req()
         transaction_req.commit_req.CopyFrom(commit_req)
         return transaction_req
-
 
     @staticmethod
     def get_concept(concept_id):
@@ -98,17 +145,6 @@ class RequestBuilder(object):
         transaction_req = transaction_messages.Transaction.Req()
         transaction_req.getSchemaConcept_req.CopyFrom(get_schema_concept_req)
         return transaction_req
-
-    def get_attributes_by_value(value, datatype):
-        get_attrs_req = transaction_messages.Transaction.GetAttributes.Req()
-        grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, datatype)
-        get_attrs_req.value.CopyFrom(grpc_value_object)
-        transaction_req = transaction_messages.Transaction.Req()
-        transaction_req.getAttributes_req.CopyFrom(get_attrs_req)
-        return transaction_req
-    get_attributes_by_value.__annotations__ = {'datatype': enums.DataType}
-    get_attributes_by_value = staticmethod(get_attributes_by_value)
-
 
     @staticmethod
     def put_entity_type(label):
@@ -154,7 +190,6 @@ class RequestBuilder(object):
         transaction_req.putRule_req.CopyFrom(put_rule_req)
         return transaction_req
 
-
     # --- internal requests ---
 
     @staticmethod
@@ -176,16 +211,15 @@ class RequestBuilder(object):
         transaction_req.explanation_req.CopyFrom(explanation_req)
 
         return transaction_req
-
-
-    @staticmethod
-    def next_iter(iterator_id):
-        iterate_request = transaction_messages.Transaction.Iter.Req()
-        iterate_request.id = iterator_id
-        
-        transaction_req = transaction_messages.Transaction.Req()
-        transaction_req.iterate_req.CopyFrom(iterate_request)
-        return transaction_req
+    #
+    # @staticmethod
+    # def next_iter(iterator_id):
+    #     iterate_request = transaction_messages.Transaction.Iter.Req()
+    #     iterate_request.id = iterator_id
+    #
+    #     transaction_req = transaction_messages.Transaction.Req()
+    #     transaction_req.iterate_req.CopyFrom(iterate_request)
+    #     return transaction_req
 
 
     # ------ Concept Method Requests ------
@@ -283,19 +317,17 @@ class RequestBuilder(object):
 
             @staticmethod
             def subs():
-                subs_req = concept_messages.SchemaConcept.Subs.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.schemaConcept_subs_req.CopyFrom(subs_req)
+                subs_req = concept_messages.SchemaConcept.Subs.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.schemaConcept_subs_iter_req.CopyFrom(subs_req)
                 return concept_method_req
 
             @staticmethod
             def sups():
-                sups_req = concept_messages.SchemaConcept.Sups.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.schemaConcept_sups_req.CopyFrom(sups_req)
+                sups_req = concept_messages.SchemaConcept.Sups.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.schemaConcept_sups_iter_req.CopyFrom(sups_req)
                 return concept_method_req
-
-
 
         class Rule(object):
             """ Generates Rule method messages """
@@ -319,19 +351,17 @@ class RequestBuilder(object):
 
             @staticmethod
             def relations():
-                relations_req = concept_messages.Role.Relations.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.role_relations_req.CopyFrom(relations_req)
+                relations_req = concept_messages.Role.Relations.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.role_relations_iter_req.CopyFrom(relations_req)
                 return concept_method_req
 
             @staticmethod
             def players():
-                players_req = concept_messages.Role.Players.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.role_players_req.CopyFrom(players_req)
+                players_req = concept_messages.Role.Players.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.role_players_iter_req.CopyFrom(players_req)
                 return concept_method_req
-
-            
 
         class Type(object):
             """ Generates Type method messages """
@@ -354,23 +384,23 @@ class RequestBuilder(object):
 
             @staticmethod
             def instances():
-                type_instances_req = concept_messages.Type.Instances.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.type_instances_req.CopyFrom(type_instances_req)
+                type_instances_req = concept_messages.Type.Instances.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.type_instances_iter_req.CopyFrom(type_instances_req)
                 return concept_method_req
 
             @staticmethod
             def keys():
-                type_keys_req = concept_messages.Type.Keys.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.type_keys_req.CopyFrom(type_keys_req)
+                type_keys_req = concept_messages.Type.Keys.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.type_keys_iter_req.CopyFrom(type_keys_req)
                 return concept_method_req
 
             @staticmethod
             def attributes():
-                type_attributes_req = concept_messages.Type.Attributes.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.type_attributes_req.CopyFrom(type_attributes_req)
+                type_attributes_req = concept_messages.Type.Attributes.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.type_attributes_iter_req.CopyFrom(type_attributes_req)
                 return concept_method_req 
 
             @staticmethod
@@ -411,13 +441,13 @@ class RequestBuilder(object):
 
             @staticmethod
             def playing():
-                playing_req = concept_messages.Type.Playing.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.type_playing_req.CopyFrom(playing_req)
+                playing_req = concept_messages.Type.Playing.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.type_playing_iter_req.CopyFrom(playing_req)
                 return concept_method_req
 
             @staticmethod
-            def plays( role_concept):
+            def plays(role_concept):
                 grpc_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(role_concept)
                 plays_req = concept_messages.Type.Plays.Req()
                 plays_req.role.CopyFrom(grpc_concept)
@@ -433,9 +463,6 @@ class RequestBuilder(object):
                 concept_method_req = concept_messages.Method.Req()
                 concept_method_req.type_unplay_req.CopyFrom(unplay_req)
                 return concept_method_req
-
-       
-
 
         class EntityType(object):
             """ Generates EntityType method messages """
@@ -459,9 +486,9 @@ class RequestBuilder(object):
 
             @staticmethod
             def roles():
-                roles_req = concept_messages.RelationType.Roles.Req()
-                concept_messages_req = concept_messages.Method.Req()
-                concept_messages_req.relationType_roles_req.CopyFrom(roles_req)
+                roles_req = concept_messages.RelationType.Roles.Iter.Req()
+                concept_messages_req = concept_messages.Method.Iter.Req()
+                concept_messages_req.relationType_roles_iter_req.CopyFrom(roles_req)
                 return concept_messages_req
 
             @staticmethod
@@ -525,7 +552,6 @@ class RequestBuilder(object):
                 concept_method_req.attributeType_setRegex_req.CopyFrom(set_regex_req)
                 return concept_method_req
 
-
         class Thing(object):
             """ Generates Thing method messages """
 
@@ -546,42 +572,42 @@ class RequestBuilder(object):
             @staticmethod
             def attributes(attribute_types=[]):
                 """ Takes a list of AttributeType concepts to narrow attribute retrieval """
-                attributes_req = concept_messages.Thing.Attributes.Req()
+                attributes_req = concept_messages.Thing.Attributes.Iter.Req()
                 for attribute_type_concept in attribute_types:
                     grpc_attr_type_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(attribute_type_concept)
                     attributes_req.attributeTypes.extend([grpc_attr_type_concept])
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.thing_attributes_req.CopyFrom(attributes_req)
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.thing_attributes_iter_req.CopyFrom(attributes_req)
                 return concept_method_req
 
             @staticmethod
             def relations(role_concepts=[]):
                 """ Takes a list of role concepts to narrow the relations retrieval """
-                relations_req = concept_messages.Thing.Relations.Req()
+                relations_req = concept_messages.Thing.Relations.Iter.Req()
                 for role_concept in role_concepts:
                     grpc_role_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(role_concept)
                     # TODO this could use .add() if can be made to work...
                     relations_req.roles.extend([grpc_role_concept])
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.thing_relations_req.CopyFrom(relations_req)
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.thing_relations_iter_req.CopyFrom(relations_req)
                 return concept_method_req
             
             @staticmethod
             def roles():
-                roles_req = concept_messages.Thing.Roles.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.thing_roles_req.CopyFrom(roles_req)
+                roles_req = concept_messages.Thing.Roles.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.thing_roles_iter_req.CopyFrom(roles_req)
                 return concept_method_req
 
             @staticmethod
             def keys(attribute_types=[]):
                 """ Takes a  list of AttributeType concepts to narrow the key retrieval """
-                keys_req = concept_messages.Thing.Keys.Req()
+                keys_req = concept_messages.Thing.Keys.Iter.Req()
                 for attribute_type_concept in attribute_types:
                     grpc_attr_type_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(attribute_type_concept)
                     keys_req.attributeTypes.extend([grpc_attr_type_concept])
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.thing_keys_req.CopyFrom(keys_req)
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.thing_keys_iter_req.CopyFrom(keys_req)
                 return concept_method_req
             
             @staticmethod
@@ -607,20 +633,20 @@ class RequestBuilder(object):
 
             @staticmethod
             def role_players_map():
-                role_players_map_req = concept_messages.Relation.RolePlayersMap.Req()
-                concept_method_req = concept_messages.Method.Req()
+                role_players_map_req = concept_messages.Relation.RolePlayersMap.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
                 concept_method_req.relation_rolePlayersMap_req.CopyFrom(role_players_map_req)
                 return concept_method_req
 
             @staticmethod
             def role_players(roles=[]):
                 """ Retrieve concepts that can play the given roles """
-                role_players_req = concept_messages.Relation.RolePlayers.Req()
+                role_players_req = concept_messages.Relation.RolePlayers.Iter.Req()
                 for role_concept in roles:
                     grpc_role_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(role_concept)
                     role_players_req.roles.extend([grpc_role_concept])
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.relation_rolePlayers_req.CopyFrom(role_players_req)
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.relation_rolePlayers_iter_req.CopyFrom(role_players_req)
                 return concept_method_req
     
             @staticmethod
@@ -657,9 +683,9 @@ class RequestBuilder(object):
 
             @staticmethod
             def owners():
-                owners_req = concept_messages.Attribute.Owners.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.attribute_owners_req.CopyFrom(owners_req)
+                owners_req = concept_messages.Attribute.Owners.Iter.Req()
+                concept_method_req = concept_messages.Method.Iter.Req()
+                concept_method_req.attribute_owners_iter_req.CopyFrom(owners_req)
                 return concept_method_req
         
         class Entity(object):

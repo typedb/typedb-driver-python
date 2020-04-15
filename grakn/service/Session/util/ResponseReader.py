@@ -18,7 +18,6 @@
 #
 
 import datetime
-import six
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import ConceptFactory
 from grakn.exception.GraknError import GraknError 
@@ -27,19 +26,15 @@ from grakn.exception.GraknError import GraknError
 class ResponseReader(object):
     
     @staticmethod
-    def query(tx_service, grpc_query_iter):
-        iterator_id = grpc_query_iter.id
-        return ResponseIterator(tx_service,
-                                iterator_id,
-                                lambda tx_serv, iterate_res: AnswerConverter.convert(tx_serv, iterate_res.query_iter_res.answer))
-
+    def query(tx_service, iterator):
+        return map(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
 
     @staticmethod
     def get_concept(tx_service, grpc_get_schema_concept):
         which_one = grpc_get_schema_concept.WhichOneof("res")
         if which_one == "concept":
             grpc_concept = grpc_get_schema_concept.concept
-            return ConceptFactory.create_concept(tx_service, grpc_concept)
+            return ConceptFactory.create_remote_concept(tx_service, grpc_concept)
         elif which_one == "null":
             return None
         else:
@@ -50,38 +45,35 @@ class ResponseReader(object):
         which_one = grpc_get_concept.WhichOneof("res")
         if which_one == "schemaConcept":
             grpc_concept = grpc_get_concept.schemaConcept
-            return ConceptFactory.create_concept(tx_service, grpc_concept)
+            return ConceptFactory.create_remote_concept(tx_service, grpc_concept)
         elif which_one == "null":
             return None
         else:
             raise GraknError("Unknown get_schema_concept response: {0}".format(which_one))
 
     @staticmethod
-    def get_attributes_by_value(tx_service, grpc_get_attrs_iter):
-        iterator_id = grpc_get_attrs_iter.id
-        return ResponseIterator(tx_service,
-                                iterator_id,
-                                lambda tx_serv, iterate_res: ConceptFactory.create_concept(tx_serv, iterate_res.getAttributes_iter_res.attribute))
+    def get_attributes_by_value(tx_service, iterator):
+        return map(lambda iterate_res: ConceptFactory.create_remote_concept(tx_service, iterate_res.getAttributes_iter_res.attribute), iterator)
 
     @staticmethod
     def put_entity_type(tx_service, grpc_put_entity_type):
-        return ConceptFactory.create_concept(tx_service, grpc_put_entity_type.entityType) 
+        return ConceptFactory.create_remote_concept(tx_service, grpc_put_entity_type.entityType)
 
     @staticmethod
     def put_relation_type(tx_service, grpc_put_relation_type):
-        return ConceptFactory.create_concept(tx_service, grpc_put_relation_type.relationType)
+        return ConceptFactory.create_remote_concept(tx_service, grpc_put_relation_type.relationType)
 
     @staticmethod
     def put_attribute_type(tx_service, grpc_put_attribute_type):
-        return ConceptFactory.create_concept(tx_service, grpc_put_attribute_type.attributeType)
+        return ConceptFactory.create_remote_concept(tx_service, grpc_put_attribute_type.attributeType)
 
     @staticmethod
     def put_role(tx_service, grpc_put_role):
-        return ConceptFactory.create_concept(tx_service, grpc_put_role.role)
+        return ConceptFactory.create_remote_concept(tx_service, grpc_put_role.role)
 
     @staticmethod
     def put_rule(tx_service, grpc_put_rule):
-        return ConceptFactory.create_concept(tx_service, grpc_put_rule.rule)
+        return ConceptFactory.create_remote_concept(tx_service, grpc_put_rule.rule)
 
     @staticmethod
     def from_grpc_value_object(grpc_value_object):
@@ -108,13 +100,28 @@ class ResponseReader(object):
             return local_datetime_utc
         else:
             raise GraknError("Unknown datatype in enum but not handled in from_grpc_value_object")
-        
+
+    @staticmethod
+    def from_grpc_data_type_res(grpc_data_type_res):
+        whichone = grpc_data_type_res.WhichOneof('res')
+        if whichone == 'dataType':
+            # iterate over enum DataType enum to find matching data type
+            for e in enums.DataType:
+                if e.value == grpc_data_type_res.dataType:
+                    return e
+            else:
+                # loop exited normally
+                raise GraknError("Reported datatype NOT in enum: {0}".format(grpc_data_type_res.dataType))
+        elif whichone == 'null':
+            return None
+        else:
+            raise GraknError("Unknown datatype response for AttributeType: {0}".format(whichone))
 
     # --- concept method helpers ---
 
     @staticmethod
-    def iter_res_to_iterator(tx_service, iterator_id, next_iteration_handler):
-        return ResponseIterator(tx_service, iterator_id, next_iteration_handler)
+    def iter_res_to_iterator(tx_service, iterator, next_iteration_handler):
+        return map(lambda res: next_iteration_handler(tx_service, res), iterator)
 
     @staticmethod
     def create_explanation(tx_service, grpc_explanation_res):
@@ -124,6 +131,7 @@ class ResponseReader(object):
         for grpc_concept_map in grpc_list_of_concept_maps:
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
         return Explanation(native_list_of_concept_maps)
+
 
 class Explanation(object):
 
@@ -284,7 +292,7 @@ class AnswerConverter(object):
         var_concept_map = grpc_concept_map_msg.map
         answer_map = {}
         for (variable, grpc_concept) in var_concept_map.items():
-            answer_map[variable] = ConceptFactory.create_concept(tx_service, grpc_concept)
+            answer_map[variable] = ConceptFactory.create_local_concept(tx_service, grpc_concept)
 
         query_pattern = grpc_concept_map_msg.pattern
         has_explanation = grpc_concept_map_msg.hasExplanation
@@ -294,7 +302,7 @@ class AnswerConverter(object):
     @staticmethod
     def _create_answer_group(tx_service, grpc_answer_group):
         grpc_owner_concept = grpc_answer_group.owner
-        owner_concept = ConceptFactory.create_concept(tx_service, grpc_owner_concept)
+        owner_concept = ConceptFactory.create_remote_concept(tx_service, grpc_owner_concept)
         grpc_answers = list(grpc_answer_group.answers)
         answer_list = [AnswerConverter.convert(tx_service, grpc_answer) for grpc_answer in grpc_answers]
         return AnswerGroup(owner_concept, answer_list)
@@ -331,26 +339,3 @@ class AnswerConverter(object):
             return int(number)
         except ValueError:
             return float(number)
-
-
-class ResponseIterator(six.Iterator):
-    """ Retrieves next value in the Grakn response iterator """
-
-    def __init__(self, tx_service , iterator_id, iter_resp_converter):
-        self._tx_service = tx_service  
-        self.iterator_id = iterator_id
-        self._iter_resp_converter = iter_resp_converter
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        # get next from server
-        iter_response = self._tx_service.iterate(self.iterator_id)
-        # print("Iterator response:")
-        # print(iter_response)
-        which_one = iter_response.WhichOneof("res")
-        if which_one == 'done' and iter_response.done:
-            raise StopIteration()
-        else:
-            return self._iter_resp_converter(self._tx_service, iter_response)

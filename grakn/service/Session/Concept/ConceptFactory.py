@@ -18,27 +18,46 @@
 #
 
 from grakn.service.Session.Concept import BaseTypeMapping
-from grakn.service.Session.Concept.Concept import EntityType, RelationType, AttributeType, Role, Rule, Entity, Relation, Attribute, Type
+from grakn.service.Session.Concept.Concept import name_to_object, EntityType, RelationType, AttributeType, Role, Rule, Entity, Relation, Attribute, Type
+from grakn.service.Session.Concept.RemoteConcept import RemoteEntityType, RemoteRelationType, RemoteAttributeType, RemoteRole, RemoteRule, RemoteEntity, RemoteRelation, RemoteAttribute, RemoteType
 
 
 # map names to ConceptHierarchy types
-name_to_object = {
-    BaseTypeMapping.META_TYPE: Type,
-    BaseTypeMapping.ENTITY_TYPE: EntityType,
-    BaseTypeMapping.RELATION_TYPE: RelationType,
-    BaseTypeMapping.ATTRIBUTE_TYPE: AttributeType,
-    BaseTypeMapping.ROLE: Role,
-    BaseTypeMapping.RULE: Rule,
-    BaseTypeMapping.ENTITY: Entity,
-    BaseTypeMapping.RELATION: Relation,
-    BaseTypeMapping.ATTRIBUTE: Attribute
+name_to_remote_object = {
+    BaseTypeMapping.META_TYPE: RemoteType,
+    BaseTypeMapping.ENTITY_TYPE: RemoteEntityType,
+    BaseTypeMapping.RELATION_TYPE: RemoteRelationType,
+    BaseTypeMapping.ATTRIBUTE_TYPE: RemoteAttributeType,
+    BaseTypeMapping.ROLE: RemoteRole,
+    BaseTypeMapping.RULE: RemoteRule,
+    BaseTypeMapping.ENTITY: RemoteEntity,
+    BaseTypeMapping.RELATION: RemoteRelation,
+    BaseTypeMapping.ATTRIBUTE: RemoteAttribute
 }
 
 
-def create_concept(tx_service, grpc_concept):
-    """ Instantate a local Python object for a Concept corresponding to the .baseType of the GRPC concept object """
+def create_remote_concept(tx_service, grpc_concept):
 
     concept_id = grpc_concept.id
+    base_type = grpc_concept.baseType
+
+    return create_remote_concept_base(tx_service, concept_id, base_type)
+
+
+def create_remote_concept_base(tx_service, concept_id, base_type):
+    """ Instantate a local Python object for a Concept corresponding to the .baseType of the GRPC concept object """
+
+    try:
+        concept_name = BaseTypeMapping.grpc_base_type_to_name[base_type]
+        concept_class = name_to_remote_object[concept_name]
+    except KeyError as ke:
+        raise ke
+
+    return concept_class(concept_id, concept_name, tx_service)
+
+
+def create_local_concept(grpc_concept):
+
     base_type = grpc_concept.baseType
 
     try:
@@ -47,4 +66,4 @@ def create_concept(tx_service, grpc_concept):
     except KeyError as ke:
         raise ke
 
-    return concept_class(concept_id, concept_name, tx_service)
+    return concept_class(grpc_concept)
