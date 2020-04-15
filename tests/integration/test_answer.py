@@ -160,7 +160,6 @@ class test_Answers(test_Base):
             tx.close()
         client.keyspaces().delete("countingnonzero")
 
-    @unittest.skip("behaviour changed on server side")
     def test_conceptmap_explanation(self):
         """ Test explanations when hitting a transitive rule """
         with client.session("transitivity") as local_session:
