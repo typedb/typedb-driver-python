@@ -138,7 +138,7 @@ class test_Answers(test_Base):
             tx.close()
         client.keyspaces().delete("matchdelete_void")
 
-    def test_compute_count_empty_graph_anwer_Value(self):
+    def test_compute_count_empty_graph_answer_Value(self):
         with client.session("countingzero") as local_session:
             tx = local_session.transaction().write()
             tx.put_entity_type("foo")
@@ -149,7 +149,7 @@ class test_Answers(test_Base):
             tx.close()
         client.keyspaces().delete("countingzero")
 
-    def test_aggr_count_empty_graph_anwer_Value(self):
+    def test_aggr_count_empty_graph_answer_Value(self):
         with client.session("countingnonzero") as local_session:
             tx = local_session.transaction().write()
             tx.query("define person sub entity; dog sub entity;")

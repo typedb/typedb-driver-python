@@ -669,8 +669,8 @@ class test_Relation(test_concept_Base):
         role_players_map = parentship.role_players_map()
         self.assertEqual(len(role_players_map.keys()), 2)
         for role in role_players_map:
-            players_set = role_players_map[role]
-            self.assertEqual(len(players_set), 1)
+            players_list = role_players_map[role]
+            self.assertEqual(len(players_list), 1)
             self.assertTrue(role.is_role())
 
         role_players = list(parentship.role_players())
@@ -691,14 +691,13 @@ class test_Relation(test_concept_Base):
         role_players_map = parentship.role_players_map()
         self.assertEqual(len(role_players_map.keys()), 1)
         for role in role_players_map:
-            players_set = role_players_map[role]
-            self.assertEqual(len(players_set), 2)
+            players_list = role_players_map[role]
+            self.assertEqual(len(players_list), 2)
             self.assertTrue(role.is_role())
 
         role_players = list(parentship.role_players())
         self.assertEqual(len(role_players), 2)
 
-    @unittest.skip("behaviour changed on server side")
     def test_role_players_2_roles_same_player(self):
         parentship_type = self.tx.get_schema_concept("parentship")
         person_type = self.tx.get_schema_concept("person")
@@ -714,12 +713,34 @@ class test_Relation(test_concept_Base):
         role_players_map = parentship.role_players_map()
         self.assertEqual(len(role_players_map.keys()), 2)
         for role in role_players_map:
-            players_set = role_players_map[role]
-            self.assertEqual(len(players_set), 1)
+            players_list = role_players_map[role]
+            self.assertEqual(len(players_list), 1)
             self.assertTrue(role.is_role())
 
         role_players = list(parentship.role_players())
-        self.assertEqual(len(role_players), 1)
+        self.assertEqual(len(role_players), 2)
+        self.assertTrue(role_players[0].is_thing())
+
+    def test_role_players_1_role_same_player(self):
+        parentship_type = self.tx.get_schema_concept("parentship")
+        person_type = self.tx.get_schema_concept("person")
+        parent_role = self.tx.get_schema_concept("parent")
+
+        self_parent = person_type.create()
+        parentship = parentship_type.create()
+
+        parentship.assign(parent_role, self_parent)
+        parentship.assign(parent_role, self_parent)
+
+        role_players_map = parentship.role_players_map()
+        self.assertEqual(len(role_players_map.keys()), 1)
+        for role in role_players_map:
+            players_list = role_players_map[role]
+            self.assertEqual(len(players_list), 2)
+            self.assertTrue(role.is_role())
+
+        role_players = list(parentship.role_players())
+        self.assertEqual(len(role_players), 2)
         self.assertTrue(role_players[0].is_thing())
 
     def test_assign_unassign(self):

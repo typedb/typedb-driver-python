@@ -595,8 +595,8 @@ class Relation(Thing):
             else:
                 id_mapping[role_id] = role
                 role_key = role
-                mapping[role_key] = set()
-            mapping[role_key].add(player)
+                mapping[role_key] = []
+            mapping[role_key].append(player)
 
         return mapping
 
