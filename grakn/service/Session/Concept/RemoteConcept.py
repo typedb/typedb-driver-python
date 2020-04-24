@@ -531,9 +531,9 @@ class RemoteRelation(RemoteThing):
         # collect all pairs of (role, player) from the iterator (executes over network to Grakn server)
         pairs = list(map(to_pair, self._tx_service.run_concept_iter_method(self.id, role_players_map_req)))
 
-        # aggregate into a imap from role to set(player)
-        # note: need to use role ID as the imap key ultimately
-        imapping = {}
+        # aggregate into a map from role to set(player)
+        # note: need to use role ID as the map key ultimately
+        mapping = {}
         id_mapping = {}
         for (role, player) in pairs:
             role_id = role.id
@@ -542,10 +542,10 @@ class RemoteRelation(RemoteThing):
             else:
                 id_mapping[role_id] = role
                 role_key = role
-                imapping[role_key] = set()
-            imapping[role_key].add(player)
+                mapping[role_key] = []
+            mapping[role_key].append(player)
 
-        return imapping
+        return mapping
 
     def role_players(self, *roles):
         """ Retrieve role players filtered by roles """
