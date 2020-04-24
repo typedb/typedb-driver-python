@@ -30,7 +30,7 @@ class Concept(object):
         self.id = grpc_concept.id
 
     def as_remote(self, tx_service):
-        return ConceptFactory.create_remote_concept_base(tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
+        return ConceptFactory.create_remote_concept_base(tx_service._tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
 
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """

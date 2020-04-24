@@ -633,7 +633,7 @@ class RequestBuilder(object):
             def role_players_map():
                 role_players_map_req = concept_messages.Relation.RolePlayersMap.Iter.Req()
                 concept_method_req = concept_messages.Method.Iter.Req()
-                concept_method_req.relation_rolePlayersMap_req.CopyFrom(role_players_map_req)
+                concept_method_req.relation_rolePlayersMap_iter_req.CopyFrom(role_players_map_req)
                 return concept_method_req
 
             @staticmethod

@@ -45,56 +45,67 @@ class RemoteConcept(object):
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """
         return isinstance(self, RemoteSchemaConcept)
+
     is_schema_concept.__annotations__ = {'return': bool}
 
     def is_type(self):
         """ Check if this concept is a Type concept """
         return isinstance(self, RemoteType)
+
     is_type.__annotations__ = {'return': bool}
 
     def is_thing(self):
         """ Check if this concept is a Thing concept """
         return isinstance(self, RemoteThing)
+
     is_thing.__annotations__ = {'return': bool}
 
     def is_attribute_type(self):
         """ Check if this concept is an AttributeType concept """
         return isinstance(self, RemoteAttributeType)
+
     is_attribute_type.__annotations__ = {'return': bool}
 
     def is_entity_type(self):
         """ Check if this concept is an EntityType concept """
         return isinstance(self, RemoteEntityType)
+
     is_entity_type.__annotations__ = {'return': bool}
 
     def is_relation_type(self):
         """ Check if this concept is a RelationType concept """
         return isinstance(self, RemoteRelationType)
+
     is_relation_type.__annotations__ = {'return': bool}
 
     def is_role(self):
         """ Check if this concept is a Role """
         return isinstance(self, RemoteRole)
+
     is_role.__annotations__ = {'return': bool}
 
     def is_rule(self):
         """ Check if this concept is a Rule concept """
         return isinstance(self, RemoteRule)
+
     is_rule.__annotations__ = {'return': bool}
 
     def is_attribute(self):
         """ Check if this concept is an Attribute concept """
         return isinstance(self, RemoteAttribute)
+
     is_attribute.__annotations__ = {'return': bool}
 
     def is_entity(self):
         """ Check if this concept is an Entity concept """
         return isinstance(self, RemoteEntity)
+
     is_entity.__annotations__ = {'return': bool}
 
     def is_relation(self):
         """ Check if this concept is a Relation concept """
         return isinstance(self, RemoteRelation)
+
     is_relation.__annotations__ = {'return': bool}
 
 
@@ -129,7 +140,7 @@ class RemoteSchemaConcept(RemoteConcept):
             # get direct super schema concept
             get_sup_req = RequestBuilder.ConceptMethod.SchemaConcept.get_sup()
             method_response = self._tx_service.run_concept_method(self.id, get_sup_req)
-            get_sup_response = method_response.schemaConcept_getSup_res 
+            get_sup_response = method_response.schemaConcept_getSup_res
             # check if received a Null or Concept
             whichone = get_sup_response.WhichOneof('res')
             if whichone == 'schemaConcept':
@@ -150,31 +161,22 @@ class RemoteSchemaConcept(RemoteConcept):
     def subs(self):
         """ Retrieve the sub schema concepts of this schema concept, as an iterator """
         subs_req = RequestBuilder.ConceptMethod.SchemaConcept.subs()
-        method_response = self._tx_service.run_concept_method(self.id, subs_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                    self._tx_service,
-                    method_response.schemaConcept_subs_iter.id,
-                    lambda tx_serv, iter_res: 
-                        ConceptFactory.create_remote_concept(tx_serv,
-                        iter_res.conceptMethod_iter_res.schemaConcept_subs_iter_res.schemaConcept)
-                    )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.schemaConcept_subs_iter_res.schemaConcept),
+                   self._tx_service.run_concept_iter_method(self.id, subs_req))
 
     def sups(self):
         """ Retrieve the all supertypes (direct and higher level) of this schema concept as an iterator """
         sups_req = RequestBuilder.ConceptMethod.SchemaConcept.sups()
-        method_response = self._tx_service.run_concept_method(self.id, sups_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.schemaConcept_sups_iter.id,
-                lambda tx_serv, iter_res:
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.schemaConcept_sups_iter_res.schemaConcept)
-                )
- 
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.schemaConcept_sups_iter_res.schemaConcept),
+                   self._tx_service.run_concept_iter_method(self.id, sups_req))
+
+
 class RemoteType(RemoteSchemaConcept):
 
     def is_abstract(self, value=None):
@@ -191,49 +193,35 @@ class RemoteType(RemoteSchemaConcept):
             set_abstract_req = RequestBuilder.ConceptMethod.Type.set_abstract(value)
             method_response = self._tx_service.run_concept_method(self.id, set_abstract_req)
             return self
+
     is_abstract.__annotations__ = {'value': bool, 'return': bool}
 
     def attributes(self):
         """ Retrieve all attributes attached to this Type as an iterator """
         attributes_req = RequestBuilder.ConceptMethod.Type.attributes()
-        method_response = self._tx_service.run_concept_method(self.id, attributes_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.type_attributes_iter.id,
-                lambda tx_serv, iter_res: 
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.type_attributes_iter_res.attributeType)
-                )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.type_attributes_iter_res.attributeType),
+                   self._tx_service.run_concept_iter_method(self.id, attributes_req))
 
     def instances(self):
         """ Retrieve all instances of this Type as an iterator """
         instances_req = RequestBuilder.ConceptMethod.Type.instances()
-        method_response = self._tx_service.run_concept_method(self.id, instances_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.type_instances_iter.id,
-                lambda tx_serv, iter_res: 
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.type_instances_iter_res.thing)
-                )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.type_instances_iter_res.thing),
+                   self._tx_service.run_concept_iter_method(self.id, instances_req))
 
     def playing(self):
         """ Retrieve iterator of roles played by this type """
         playing_req = RequestBuilder.ConceptMethod.Type.playing()
-        method_response = self._tx_service.run_concept_method(self.id, playing_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.type_playing_iter.id,
-                lambda tx_serv, iter_res:
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.type_playing_iter_res.role)
-                )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.type_playing_iter_res.role),
+                   self._tx_service.run_concept_iter_method(self.id, playing_req))
 
     def plays(self, role_concept):
         """ Set a role that is played by this Type """
@@ -246,13 +234,13 @@ class RemoteType(RemoteSchemaConcept):
         unplay_req = RequestBuilder.ConceptMethod.Type.unplay(role_concept)
         method_response = self._tx_service.run_concept_method(self.id, unplay_req)
         return
-    
+
     def has(self, attribute_concept_type):
         """ Attach an attributeType concept to the type """
         has_req = RequestBuilder.ConceptMethod.Type.has(attribute_concept_type)
         method_response = self._tx_service.run_concept_method(self.id, has_req)
         return self
-        
+
     def unhas(self, attribute_concept_type):
         """ Remove an attribute type concept from this type """
         unhas_req = RequestBuilder.ConceptMethod.Type.unhas(attribute_concept_type)
@@ -262,17 +250,11 @@ class RemoteType(RemoteSchemaConcept):
     def keys(self):
         """ Retrieve an iterator of attribute types that this Type uses as keys """
         keys_req = RequestBuilder.ConceptMethod.Type.keys()
-        method_response = self._tx_service.run_concept_method(self.id, keys_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.type_keys_iter.id,
-                lambda tx_serv, iter_res:
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.type_keys_iter_res.attributeType)
-                )
-
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.type_keys_iter_res.attributeType),
+                   self._tx_service.run_concept_iter_method(self.id, keys_req))
 
     def key(self, attribute_concept_type):
         """ Add an attribute type to be a key for this Type """
@@ -287,7 +269,6 @@ class RemoteType(RemoteSchemaConcept):
         return self
 
 
-
 class RemoteEntityType(RemoteType):
 
     def create(self):
@@ -298,8 +279,9 @@ class RemoteEntityType(RemoteType):
         from grakn.service.Session.Concept import ConceptFactory
         return ConceptFactory.create_remote_concept(self._tx_service, grpc_entity_concept)
 
+
 class RemoteAttributeType(RemoteType):
-    
+
     def create(self, value):
         """ Create an instance with this AttributeType """
         self_data_type = self.data_type()
@@ -308,7 +290,7 @@ class RemoteAttributeType(RemoteType):
         grpc_attribute_concept = method_response.attributeType_create_res.attribute
         from grakn.service.Session.Concept import ConceptFactory
         return ConceptFactory.create_remote_concept(self._tx_service, grpc_attribute_concept)
-        
+
     def attribute(self, value):
         """ Retrieve an attribute instance by value if it exists """
         self_data_type = self.data_type()
@@ -353,6 +335,7 @@ class RemoteAttributeType(RemoteType):
             set_regex_req = RequestBuilder.ConceptMethod.AttributeType.set_regex(pattern)
             method_response = self._tx_service.run_concept_method(self.id, set_regex_req)
             return self
+
     regex.__annotations__ = {'pattern': str}
 
 
@@ -364,33 +347,29 @@ class RemoteRelationType(RemoteType):
         grpc_relation_concept = method_response.relationType_create_res.relation
         from grakn.service.Session.Concept import ConceptFactory
         return ConceptFactory.create_remote_concept(self._tx_service, grpc_relation_concept)
-        
+
     def roles(self):
         """ Retrieve roles in this relation schema type """
         get_roles = RequestBuilder.ConceptMethod.RelationType.roles()
-        method_response = self._tx_service.run_concept_method(self.id, get_roles)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.relationType_roles_iter.id,
-                lambda tx_serv, iter_res:
-                    ConceptFactory.create_remote_concept(tx_serv,
-                    iter_res.conceptMethod_iter_res.relationType_roles_iter_res.role)
-                )
-        
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.relationType_roles_iter_res.role),
+                   self._tx_service.run_concept_iter_method(self.id, get_roles))
+
 
     def relates(self, role):
         """ Set a role in this relation schema type """
         relates_req = RequestBuilder.ConceptMethod.RelationType.relates(role)
         method_response = self._tx_service.run_concept_method(self.id, relates_req)
-        return self       
+        return self
 
     def unrelate(self, role):
         """ Remove a role in this relation schema type """
         unrelate_req = RequestBuilder.ConceptMethod.RelationType.unrelate(role)
         method_response = self._tx_service.run_concept_method(self.id, unrelate_req)
         return self
+
 
 class RemoteRule(RemoteSchemaConcept):
 
@@ -420,33 +399,26 @@ class RemoteRule(RemoteSchemaConcept):
         else:
             raise GraknError("Unknown field in get_then or `rule`: {0}".format(whichone))
 
+
 class RemoteRole(RemoteSchemaConcept):
 
     def relations(self):
         """ Retrieve relations that this role participates in, as an iterator """
         relations_req = RequestBuilder.ConceptMethod.Role.relations()
-        method_response = self._tx_service.run_concept_method(self.id, relations_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.role_relations_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.role_relations_iter_res.relationType)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.role_relations_iter_res.relationType),
+                   self._tx_service.run_concept_iter_method(self.id, relations_req))
 
     def players(self):
         """ Retrieve an iterator of entities that play this role """
         players_req = RequestBuilder.ConceptMethod.Role.players()
-        method_response = self._tx_service.run_concept_method(self.id, players_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.role_players_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.role_players_iter_res.type)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.role_players_iter_res.type),
+                   self._tx_service.run_concept_iter_method(self.id, players_req))
 
 
 class RemoteThing(RemoteConcept):
@@ -456,6 +428,7 @@ class RemoteThing(RemoteConcept):
         is_inferred_req = RequestBuilder.ConceptMethod.Thing.is_inferred()
         method_response = self._tx_service.run_concept_method(self.id, is_inferred_req)
         return method_response.thing_isInferred_res.inferred
+
     is_inferred.__annotations__ = {'return': bool}
 
     def type(self):
@@ -468,55 +441,38 @@ class RemoteThing(RemoteConcept):
     def relations(self, *roles):
         """ Get iterator this Thing's relations, filtered to the optionally provided roles """
         relations_req = RequestBuilder.ConceptMethod.Thing.relations(roles)
-        method_response = self._tx_service.run_concept_method(self.id, relations_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.thing_relations_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.thing_relations_iter_res.relation)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.thing_relations_iter_res.relation),
+                   self._tx_service.run_concept_iter_method(self.id, relations_req))
 
     def attributes(self, *attribute_types):
         """ Retrieve iterator of this Thing's attributes, filtered by optionally provided attribute types """
         attrs_req = RequestBuilder.ConceptMethod.Thing.attributes(attribute_types)
-        method_response = self._tx_service.run_concept_method(self.id, attrs_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.thing_attributes_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.thing_attributes_iter_res.attribute)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.thing_attributes_iter_res.attribute),
+                   self._tx_service.run_concept_iter_method(self.id, attrs_req))
 
     def roles(self):
         """ Retrieve iterator of roles this Thing plays """
         roles_req = RequestBuilder.ConceptMethod.Thing.roles()
-        method_response = self._tx_service.run_concept_method(self.id, roles_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.thing_roles_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.thing_roles_iter_res.role)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.thing_roles_iter_res.role),
+                   self._tx_service.run_concept_iter_method(self.id, roles_req))
 
     def keys(self, *attribute_types):
         """ Retrieve iterator of keys (i.e. actual attributes) of this Thing, filtered by the optionally provided attribute types """
         keys_req = RequestBuilder.ConceptMethod.Thing.keys(attribute_types)
-        method_response = self._tx_service.run_concept_method(self.id, keys_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.thing_keys_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.thing_keys_iter_res.attribute)
-               )
-
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.thing_keys_iter_res.attribute),
+                   self._tx_service.run_concept_iter_method(self.id, keys_req))
 
     def has(self, attribute):
         """ Attach an attribute instance to this Thing """
@@ -524,16 +480,16 @@ class RemoteThing(RemoteConcept):
         method_response = self._tx_service.run_concept_method(self.id, has_req)
         return
 
-
     def unhas(self, attribute):
         """ Remove an attribute instance from this Thing """
         unhas_req = RequestBuilder.ConceptMethod.Thing.unhas(attribute)
         method_response = self._tx_service.run_concept_method(self.id, unhas_req)
-        return 
+        return
 
 
 class RemoteEntity(RemoteThing):
     pass
+
 
 class RemoteAttribute(RemoteThing):
 
@@ -548,15 +504,11 @@ class RemoteAttribute(RemoteThing):
     def owners(self):
         """ Retrieve entities that have this attribute value """
         owners_req = RequestBuilder.ConceptMethod.Attribute.owners()
-        method_response = self._tx_service.run_concept_method(self.id, owners_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.attribute_owners_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.attribute_owners_iter_res.thing)
-               )
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.attribute_owners_iter_res.thing),
+                   self._tx_service.run_concept_iter_method(self.id, owners_req))
 
 
 class RemoteRelation(RemoteThing):
@@ -564,26 +516,20 @@ class RemoteRelation(RemoteThing):
     def role_players_map(self):
         """ Retrieve dictionary {role : set(players)} for this relation """
         role_players_map_req = RequestBuilder.ConceptMethod.Relation.role_players_map()
-        method_response = self._tx_service.run_concept_method(self.id, role_players_map_req)
 
+        tx_service = self._tx_service
         # create the iterator to obtain all the pairs of (role, player)
-        def to_pair(tx_service, iter_res):
-            response = iter_res.conceptMethod_iter_res.relation_rolePlayersMap_iter_res
+        def to_pair(iter_res):
+            response = iter_res.relation_rolePlayersMap_iter_res
             from grakn.service.Session.Concept import ConceptFactory
             role = ConceptFactory.create_remote_concept(tx_service, response.role)
             from grakn.service.Session.Concept import ConceptFactory
             player = ConceptFactory.create_remote_concept(tx_service, response.player)
             return (role, player)
 
-        from grakn.service.Session.util import ResponseReader
-        iterator = ResponseReader.ResponseReader.iter_res_to_iterator(
-                    self._tx_service,
-                    method_response.relation_rolePlayersMap_iter.id,
-                    to_pair)
-        
         # collect all pairs of (role, player) from the iterator (executes over network to Grakn server)
-        pairs = list(iterator)
-        
+        pairs = list(map(to_pair, self._tx_service.run_concept_iter_method(self.id, role_players_map_req)))
+
         # aggregate into a map from role to set(player)
         # note: need to use role ID as the map key ultimately
         mapping = {}
@@ -603,16 +549,11 @@ class RemoteRelation(RemoteThing):
     def role_players(self, *roles):
         """ Retrieve role players filtered by roles """
         role_players_req = RequestBuilder.ConceptMethod.Relation.role_players(roles)
-        method_response = self._tx_service.run_concept_method(self.id, role_players_req)
-        from grakn.service.Session.util import ResponseReader
         from grakn.service.Session.Concept import ConceptFactory
-        return ResponseReader.ResponseReader.iter_res_to_iterator(
-                self._tx_service,
-                method_response.relation_rolePlayers_iter.id,
-                lambda tx_service, iter_res:
-                    ConceptFactory.create_remote_concept(tx_service, iter_res.conceptMethod_iter_res.relation_rolePlayers_iter_res.thing)
-               )
-
+        return map(lambda iter_res:
+                   ConceptFactory.create_remote_concept(self._tx_service,
+                                                        iter_res.relation_rolePlayers_iter_res.thing),
+                   self._tx_service.run_concept_iter_method(self.id, role_players_req))
 
     def assign(self, role, thing):
         """ Assign an entity to a role on this relation instance """

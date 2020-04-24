@@ -39,12 +39,11 @@ class TransactionService(object):
         self._communicator.send(open_req)
     __init__.__annotations__ = {'tx_type': enums.TxType}
 
-
     # --- Passthrough targets ---
     # targets of top level Transaction class
 
     def query(self, query, infer=True):
-        return Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer), ResponseReader.ResponseReader.query(self))
+        return map(ResponseReader.ResponseReader.query(self), Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer)))
     query.__annotations__ = {'query': str}
 
     def commit(self):
@@ -113,25 +112,22 @@ class TransactionService(object):
         response = self._communicator.send(tx_request)
         return response.conceptMethod_res.response
 
+    def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
+        return map(lambda res: res.conceptMethod_iter_res.response, Iterator(self._communicator, RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req)))
+
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """
         tx_request = RequestBuilder.explanation(explainable)
         response = self._communicator.send(tx_request)
         return ResponseReader.ResponseReader.create_explanation(self, response.explanation_res)
 
-    def iterate(self, iter_req):
-        request = RequestBuilder.iter_req_to_tx_req(iter_req)
-        response = self._communicator.send(request)
-        return response.iterate_res
-
 
 class Iterator(six.Iterator):
-    def __init__(self, communicator, iter_req, res_converter):
+    def __init__(self, communicator, iter_req):
         self._id = 0
         self._communicator = communicator
         self._iter_req = iter_req
         self._buffer = []
-        self._res_converter = res_converter
         self._start_iterating()
         self._receive_batch()
 
@@ -163,7 +159,7 @@ class Iterator(six.Iterator):
     def __next__(self):
         # Pop until buffer is empty
         if len(self._buffer) > 0:
-            return self._res_converter(self._buffer.pop(0))
+            return self._buffer.pop(0)
 
         if self._state == 'ITERATING':
             self._request_batch()
