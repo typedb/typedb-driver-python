@@ -17,12 +17,7 @@
 # under the License.
 #
 
-#from grakn.service.Session.Concept import BaseTypeMapping
-import BaseTypeMapping
-import Concept
-#from grakn.service.Session.Concept.Concept import name_to_object, EntityType, RelationType, AttributeType, Role, Rule, Entity, Relation, Attribute, Type
-#from grakn.service.Session.Concept.RemoteConcept import RemoteEntityType, RemoteRelationType, RemoteAttributeType, RemoteRole, RemoteRule, RemoteEntity, RemoteRelation, RemoteAttribute, RemoteType
-import RemoteConcept
+from grakn.service.Session.Concept import BaseTypeMapping, Concept, RemoteConcept
 
 # map names to ConceptHierarchy types
 name_to_remote_object = {
