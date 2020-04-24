@@ -20,6 +20,7 @@
 import six
 from six.moves import queue
 
+from itertools import imap
 
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
 import grakn.service.Session.util.ResponseReader as ResponseReader # for circular import issue
@@ -43,7 +44,7 @@ class TransactionService(object):
     # targets of top level Transaction class
 
     def query(self, query, infer=True):
-        return map(ResponseReader.ResponseReader.query(self), Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer)))
+        return imap(ResponseReader.ResponseReader.query(self), Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer)))
     query.__annotations__ = {'query': str}
 
     def commit(self):
@@ -69,9 +70,9 @@ class TransactionService(object):
     get_schema_concept.__annotations__ = {'label': str}
 
     def get_attributes_by_value(self, attribute_value, data_type):
-        request = RequestBuilder.get_attributes_by_value(attribute_value, data_type)
-        response = self._communicator.send(request)
-        return ResponseReader.ResponseReader.get_attributes_by_value(self, response.getAttributes_iter)
+        request = RequestBuilder.start_iterating_get_attributes_by_value(attribute_value, data_type)
+        iterator = Iterator(self._communicator, request)
+        return ResponseReader.ResponseReader.get_attributes_by_value(self, iterator)
     get_attributes_by_value.__annotations__ = {'data_type': enums.DataType}
 
     def put_entity_type(self, label):
@@ -113,7 +114,7 @@ class TransactionService(object):
         return response.conceptMethod_res.response
 
     def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
-        return map(lambda res: res.conceptMethod_iter_res.response, Iterator(self._communicator, RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req)))
+        return imap(lambda res: res.conceptMethod_iter_res.response, Iterator(self._communicator, RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req)))
 
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """

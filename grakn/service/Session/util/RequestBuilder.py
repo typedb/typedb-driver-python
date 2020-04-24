@@ -30,7 +30,6 @@ class RequestBuilder(object):
 
     @staticmethod
     def _base_iterate_with_options(batch_size=None):
-        # TODO copy from given batch options
         iter_options = transaction_messages.Transaction.Iter.Req.Options()
         if batch_size is None:
             iter_options.all = True
@@ -218,7 +217,6 @@ class RequestBuilder(object):
     #     transaction_req = transaction_messages.Transaction.Req()
     #     transaction_req.iterate_req.CopyFrom(iterate_request)
     #     return transaction_req
-
 
     # ------ Concept Method Requests ------
 
