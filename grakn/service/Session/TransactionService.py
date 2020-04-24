@@ -44,11 +44,7 @@ class TransactionService(object):
     # targets of top level Transaction class
 
     def query(self, query, infer=True):
-        request = RequestBuilder.query(query, infer=infer)
-        # print("Query request: {0}".format(request))
-        response = self._communicator.send(request)
-        # convert `response` into a python iterator
-        return ResponseReader.ResponseReader.query(self, response.query_iter)
+        return Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer), ResponseReader.ResponseReader.query(self))
     query.__annotations__ = {'query': str}
 
     def commit(self):
@@ -130,26 +126,26 @@ class TransactionService(object):
 
 
 class Iterator(six.Iterator):
-    # TODO implement base iterator (no response converter)
-    def __init__(self, communicator, iter_req):
+    def __init__(self, communicator, iter_req, res_converter):
         self._id = 0
-        self._state = 'PRE_START'
         self._communicator = communicator
         self._iter_req = iter_req
         self._buffer = []
+        self._res_converter = res_converter
+        self._start_iterating()
+        self._receive_batch()
 
-    def _startIterating(self):
+    def _start_iterating(self):
         self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(self._iter_req))
-        # Send first request, _iter_req
         self._state = 'ITERATING'
 
-    def _requestBatch(self):
+    def _request_batch(self):
         self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(
             RequestBuilder.continue_iterating(self._id, self._iter_req.options)))
 
-    def _receiveBatch(self):
+    def _receive_batch(self):
         while True:
-            transaction_res = next(self._communicator)
+            transaction_res = self._communicator.receive()
             iter_res = transaction_res.iter_res
             which_one = iter_res.WhichOneof('res')
             if which_one == 'done':
@@ -161,18 +157,19 @@ class Iterator(six.Iterator):
             else:
                 self._buffer.append(iter_res)
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         # Pop until buffer is empty
         if len(self._buffer) > 0:
-            return self._buffer.pop(0)
+            return self._res_converter(self._buffer.pop(0))
 
-        if self._state == 'PRE_START':
-            self._startIterating()
-        elif self._state == 'ITERATING':
-            self._requestBatch()
+        if self._state == 'ITERATING':
+            self._request_batch()
         elif self._state == 'DONE':
             raise StopIteration()
-        self._receiveBatch()
+        self._receive_batch()
         return self.__next__()
 
 
@@ -222,6 +219,20 @@ class Communicator(six.Iterator):
         if response is None:
             raise GraknError("No response received")
         
+        return response
+
+    def receive(self):
+        if self._closed:
+            raise GraknError("This connection is closed")
+        try:
+            response = next(self._response_iterator)
+        except Exception as e:  # specialize into different gRPC exceptions?
+            self._closed = True
+            raise GraknError("Server/network error: {0}".format(e))
+
+        if response is None:
+            raise GraknError("No response received")
+
         return response
 
     def close(self):

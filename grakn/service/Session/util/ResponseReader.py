@@ -26,8 +26,8 @@ from grakn.exception.GraknError import GraknError
 class ResponseReader(object):
     
     @staticmethod
-    def query(tx_service, iterator):
-        return map(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
+    def query(tx_service):
+        return lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer)
 
     @staticmethod
     def get_concept(tx_service, grpc_get_schema_concept):
@@ -292,7 +292,7 @@ class AnswerConverter(object):
         var_concept_map = grpc_concept_map_msg.map
         answer_map = {}
         for (variable, grpc_concept) in var_concept_map.items():
-            answer_map[variable] = ConceptFactory.create_local_concept(tx_service, grpc_concept)
+            answer_map[variable] = ConceptFactory.create_local_concept(grpc_concept)
 
         query_pattern = grpc_concept_map_msg.pattern
         has_explanation = grpc_concept_map_msg.hasExplanation

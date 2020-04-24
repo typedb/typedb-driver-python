@@ -18,8 +18,10 @@
 #
 
 
-from grakn.service.Session.Concept import BaseTypeMapping, ConceptFactory
-from grakn.service.Session.util.ResponseReader import ResponseReader
+#from grakn.service.Session.Concept import BaseTypeMapping, ConceptFactory
+#from grakn.service.Session.util.ResponseReader import ResponseReader
+import BaseTypeMapping
+import ConceptFactory
 
 
 class Concept(object):
@@ -28,10 +30,7 @@ class Concept(object):
         self.id = grpc_concept.id
 
     def as_remote(self, tx_service):
-        try:
-            return ConceptFactory.create_remote_concept_base(tx_service, self.id, object_to_name[type(self)])
-        except KeyError as ke:
-            raise ke
+        return ConceptFactory.create_remote_concept_base(tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
 
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """
@@ -130,7 +129,8 @@ class AttributeType(Type):
 
     def __index__(self, grpc_concept):
         super(Type, self).__init__(grpc_concept)
-        self._data_type = ResponseReader.from_grpc_data_type_res(grpc_concept.dataType_res)
+        from grakn.service.Session.util import ResponseReader
+        self._data_type = ResponseReader.ResponseReader.from_grpc_data_type_res(grpc_concept.dataType_res)
 
     def data_type(self):
         """ Get the DataType enum (grakn.DataType) corresponding to the type of this attribute """
@@ -171,7 +171,8 @@ class Attribute(Thing):
 
     def __init__(self, grpc_concept):
         super(Attribute, self).__init__(grpc_concept)
-        self._value = ResponseReader.from_grpc_value_object(grpc_concept.value_res.value)
+        from grakn.service.Session.util import ResponseReader
+        self._value = ResponseReader.ResponseReader.from_grpc_value_object(grpc_concept.value_res.value)
 
     def value(self):
         return self._value

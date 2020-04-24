@@ -24,14 +24,12 @@ import grakn_protocol.session.Answer_pb2 as answer_messages
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import BaseTypeMapping
 
-import six
-
 
 class RequestBuilder(object):
     """ Static methods for generating GRPC requests """
 
     @staticmethod
-    def _base_iterate_with_options(batch_options=None):
+    def _base_iterate_with_options(batch_size=None):
         # TODO copy from given batch options
         iter_options = transaction_messages.Transaction.Iter.Req.Options()
         if batch_size is None:

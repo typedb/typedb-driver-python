@@ -134,7 +134,7 @@ class test_Answers(test_Base):
             self.assertIsInstance(void_result, Void)
             self.assertTrue("success" in void_result.message())
 
-            self.assertTrue(inserted_person.is_deleted())
+            self.assertTrue(inserted_person.as_remote(tx).is_deleted())
             tx.close()
         client.keyspaces().delete("matchdelete_void")
 
