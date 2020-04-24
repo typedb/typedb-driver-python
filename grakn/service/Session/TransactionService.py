@@ -37,7 +37,7 @@ class TransactionService(object):
 
         # open the transaction with an 'open' message
         open_req = RequestBuilder.open_tx(session_id, tx_type)
-        self._communicator.send(open_req)
+        self._communicator.send_receive(open_req)
     __init__.__annotations__ = {'tx_type': enums.TxType}
 
     # --- Passthrough targets ---
@@ -49,7 +49,7 @@ class TransactionService(object):
 
     def commit(self):
         request = RequestBuilder.commit()
-        self._communicator.send(request)
+        self._communicator.send_receive(request)
 
     def close(self):
         self._communicator.close()
@@ -59,13 +59,13 @@ class TransactionService(object):
 
     def get_concept(self, concept_id):
         request = RequestBuilder.get_concept(concept_id)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.get_concept(self, response.getConcept_res)
     get_concept.__annotations__ = {'concept_id': str}
 
     def get_schema_concept(self, label):
         request = RequestBuilder.get_schema_concept(label)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.get_schema_concept(self, response.getSchemaConcept_res)
     get_schema_concept.__annotations__ = {'label': str}
 
@@ -77,31 +77,31 @@ class TransactionService(object):
 
     def put_entity_type(self, label):
         request = RequestBuilder.put_entity_type(label)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.put_entity_type(self, response.putEntityType_res)
     put_entity_type.__annotations__ = {'label': str}
 
     def put_relation_type(self, label):
         request = RequestBuilder.put_relation_type(label)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.put_relation_type(self, response.putRelationType_res)
     put_relation_type.__annotations__ = {'label': str}
 
     def put_attribute_type(self, label, data_type):
         request = RequestBuilder.put_attribute_type(label, data_type)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.put_attribute_type(self, response.putAttributeType_res)
     put_attribute_type.__annotations__ = {'label': str, 'data_type': enums.DataType}
 
     def put_role(self, label):
         request = RequestBuilder.put_role(label)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.put_role(self, response.putRole_res)
     put_role.__annotations__ = {'label': str}
 
     def put_rule(self, label, when, then):
         request = RequestBuilder.put_rule(label, when, then)
-        response = self._communicator.send(request)
+        response = self._communicator.send_receive(request)
         return ResponseReader.ResponseReader.put_rule(self, response.putRule_res)
     put_rule.__annotations__ = {'label': str, 'when': str, 'then': str}
 
@@ -110,7 +110,7 @@ class TransactionService(object):
     def run_concept_method(self, concept_id, grpc_concept_method_req):
         # wrap method_req into a transaction message
         tx_request = RequestBuilder.concept_method_req_to_tx_req(concept_id, grpc_concept_method_req)
-        response = self._communicator.send(tx_request)
+        response = self._communicator.send_receive(tx_request)
         return response.conceptMethod_res.response
 
     def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
@@ -119,7 +119,7 @@ class TransactionService(object):
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """
         tx_request = RequestBuilder.explanation(explainable)
-        response = self._communicator.send(tx_request)
+        response = self._communicator.send_receive(tx_request)
         return ResponseReader.ResponseReader.create_explanation(self, response.explanation_res)
 
 
@@ -201,7 +201,7 @@ class Communicator(six.Iterator):
             self._closed = True
             raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, request))
 
-    def send(self, request):
+    def send_receive(self, request):
         if self._closed:
             # TODO integrate this into TransactionService to throw a "Transaction is closed" rather than "connection is closed..."
             raise GraknError("This connection is closed")

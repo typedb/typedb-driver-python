@@ -18,10 +18,7 @@
 #
 
 
-#from grakn.service.Session.Concept import BaseTypeMapping, ConceptFactory
-#from grakn.service.Session.util.ResponseReader import ResponseReader
-import BaseTypeMapping
-import ConceptFactory
+from grakn.service.Session.Concept import BaseTypeMapping
 
 
 class Concept(object):
@@ -29,8 +26,9 @@ class Concept(object):
     def __init__(self, grpc_concept):
         self.id = grpc_concept.id
 
-    def as_remote(self, tx_service):
-        return ConceptFactory.create_remote_concept_base(tx_service._tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
+    def as_remote(self, tx):
+        from grakn.service.Session.Concept import ConceptFactory
+        return ConceptFactory.create_remote_concept_base(tx._tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
 
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """
@@ -154,6 +152,7 @@ class Thing(Concept):
     def __init__(self, grpc_concept):
         super(Thing, self).__init__(grpc_concept)
         self._inferred = grpc_concept.inferred_res.inferred
+        from grakn.service.Session.Concept import ConceptFactory
         self._type = ConceptFactory.create_local_concept(grpc_concept.type_res.type)
 
     def is_inferred(self):

@@ -208,15 +208,6 @@ class RequestBuilder(object):
         transaction_req.explanation_req.CopyFrom(explanation_req)
 
         return transaction_req
-    #
-    # @staticmethod
-    # def next_iter(iterator_id):
-    #     iterate_request = transaction_messages.Transaction.Iter.Req()
-    #     iterate_request.id = iterator_id
-    #
-    #     transaction_req = transaction_messages.Transaction.Req()
-    #     transaction_req.iterate_req.CopyFrom(iterate_request)
-    #     return transaction_req
 
     # ------ Concept Method Requests ------
 
