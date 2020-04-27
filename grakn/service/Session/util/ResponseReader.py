@@ -17,8 +17,6 @@
 # under the License.
 #
 
-from itertools import imap
-
 import datetime
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import ConceptFactory
@@ -29,7 +27,7 @@ class ResponseReader(object):
     
     @staticmethod
     def get_query_results(tx_service, iterator):
-        return imap(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
+        return map(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
 
     @staticmethod
     def get_concept(tx_service, grpc_get_schema_concept):
@@ -55,7 +53,7 @@ class ResponseReader(object):
 
     @staticmethod
     def get_attributes_by_value(tx_service, iterator):
-        return imap(lambda iterate_res: ConceptFactory.create_remote_concept(tx_service, iterate_res.getAttributes_iter_res.attribute), iterator)
+        return map(lambda iterate_res: ConceptFactory.create_remote_concept(tx_service, iterate_res.getAttributes_iter_res.attribute), iterator)
 
     @staticmethod
     def put_entity_type(tx_service, grpc_put_entity_type):

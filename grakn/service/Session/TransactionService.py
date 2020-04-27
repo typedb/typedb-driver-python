@@ -20,12 +20,11 @@
 import six
 from six.moves import queue
 
-from itertools import imap
-
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
 import grakn.service.Session.util.ResponseReader as ResponseReader # for circular import issue
 from grakn.service.Session.util import enums
 from grakn.exception.GraknError import GraknError
+
 
 class TransactionService(object):
 
@@ -114,7 +113,7 @@ class TransactionService(object):
         return response.conceptMethod_res.response
 
     def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
-        return imap(lambda res: res.conceptMethod_iter_res.response, Iterator(self._communicator, RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req)))
+        return map(lambda res: res.conceptMethod_iter_res.response, Iterator(self._communicator, RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req)))
 
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """
