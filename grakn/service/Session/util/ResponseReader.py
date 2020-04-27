@@ -20,7 +20,8 @@
 import datetime
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import ConceptFactory
-from grakn.exception.GraknError import GraknError 
+from grakn.exception.GraknError import GraknError
+from six.moves import map
 
 
 class ResponseReader(object):

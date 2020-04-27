@@ -20,6 +20,7 @@
 from grakn.service.Session.util import enums
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
 from grakn.exception.GraknError import GraknError
+from six.moves import map
 
 
 class RemoteConcept(object):
