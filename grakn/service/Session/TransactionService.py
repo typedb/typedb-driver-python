@@ -44,7 +44,7 @@ class TransactionService(object):
     # targets of top level Transaction class
 
     def query(self, query, infer=True):
-        return imap(ResponseReader.ResponseReader.query(self), Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer)))
+        return ResponseReader.ResponseReader.get_query_results(self, Iterator(self._communicator, RequestBuilder.start_iterating_query(query, infer)))
     query.__annotations__ = {'query': str}
 
     def commit(self):

@@ -28,8 +28,8 @@ from grakn.exception.GraknError import GraknError
 class ResponseReader(object):
     
     @staticmethod
-    def query(tx_service):
-        return lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer)
+    def get_query_results(tx_service, iterator):
+        return imap(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
 
     @staticmethod
     def get_concept(tx_service, grpc_get_schema_concept):
@@ -300,7 +300,7 @@ class AnswerConverter(object):
     @staticmethod
     def _create_answer_group(tx_service, grpc_answer_group):
         grpc_owner_concept = grpc_answer_group.owner
-        owner_concept = ConceptFactory.create_remote_concept(tx_service, grpc_owner_concept)
+        owner_concept = ConceptFactory.create_local_concept(grpc_owner_concept)
         grpc_answers = list(grpc_answer_group.answers)
         answer_list = [AnswerConverter.convert(tx_service, grpc_answer) for grpc_answer in grpc_answers]
         return AnswerGroup(owner_concept, answer_list)
