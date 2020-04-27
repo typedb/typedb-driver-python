@@ -435,7 +435,7 @@ class test_Role(test_concept_Base):
         """ Test retrieving relations of a role """
         # parent role, parentship already exist
         result = [ans.get("x") for ans in self.tx.query("match $x type parent; get;")]
-        parent_role = result[0]
+        parent_role = result[0].as_remote(self.tx)
         self.assertEqual(parent_role.base_type, "ROLE")
 
         relations = list(parent_role.relations())
@@ -446,7 +446,7 @@ class test_Role(test_concept_Base):
     def test_players(self):
         """ Test retrieving entity types playing this role """
         result = [ans.get("x") for ans in self.tx.query("match $x type parent; get;")]
-        parent_role = result[0]
+        parent_role = result[0].as_remote(self.tx)
         self.assertEqual(parent_role.base_type, "ROLE")
 
         entity_types = list(parent_role.players())
@@ -609,7 +609,7 @@ class test_Attribute(test_concept_Base):
         person_type = self.tx.get_schema_concept("person")
         person_type.has(date_type)
         concepts = [ans.get("x") for ans in self.tx.query("insert $x isa person, has birthdate 2018-08-06;")]
-        person = concepts[0]
+        person = concepts[0].as_remote(self.tx)
         attrs_iter = person.attributes()
         for attr_concept in attrs_iter:
             # pick out the birthdate
