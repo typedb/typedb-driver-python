@@ -90,14 +90,17 @@ class Communicator(six.Iterator):
             raise StopIteration()
         return request
 
+    def error_if_closed(self):
+        if self._closed:
+            raise GraknError("This connection is closed")
+
     # Put a request for GRPC to consume
     def _send_with_resolver(self, resolver, request):
         self._resolver_queue.append(resolver)
         self._request_queue.put(request)
 
     def _block_for_next(self, resolver):
-        if self._closed:
-            raise GraknError("This connection is closed")
+        self.error_if_closed()
         while True:
             current = None
             try:
@@ -120,9 +123,11 @@ class Communicator(six.Iterator):
                 raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
 
     def iteration_request(self, request, is_last_response):
+        self.error_if_closed()
         return IterationResolver(self, request, is_last_response)
 
     def single_request(self, request):
+        self.error_if_closed()
         return SingleResolver(self, request).get()
 
     def close(self):
