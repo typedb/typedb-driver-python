@@ -23,8 +23,31 @@ from six.moves import queue
 from grakn.exception.GraknError import GraknError
 
 
+class SingleResolver:
+    def __init__(self, communicator, request):
+        self._request = request
+        self._communicator = communicator
+        self._buffered_response = None
+        communicator._send_with_resolver(self, request)
+
+    def _is_last_response(self, response):
+        return True
+
+    def _buffer_response(self, response):
+        self._buffered_response = response
+
+    def get(self):
+        response = self._buffered_response
+        if response:
+            return response
+        else:
+            response = self._communicator._block_for_next(self)
+            self._buffered_response = response
+            return response
+
+
 class IterationResolver(six.Iterator):
-    def __init__(self, communicator, request, is_last_response=lambda x: True):
+    def __init__(self, communicator, request, is_last_response):
         self._request = request
         self._is_last_response = is_last_response
         self._communicator = communicator
@@ -80,12 +103,15 @@ class Communicator(six.Iterator):
             try:
                 current = self._resolver_queue[0]
                 response = next(self._response_iterator)
+
                 if current._is_last_response(response):
                     self._resolver_queue.popleft()
                     current._ended = True
+
                 if current is resolver:
                     return response
-                current._buffer_response(response)  # This result is for another
+                else:
+                    current._buffer_response(response)
 
             except Exception as e:
                 self._closed = True
@@ -97,7 +123,7 @@ class Communicator(six.Iterator):
         return IterationResolver(self, request, is_last_response)
 
     def single_request(self, request):
-        return next(IterationResolver(self, request))
+        return SingleResolver(self, request).get()
 
     def close(self):
         if not self._closed:
