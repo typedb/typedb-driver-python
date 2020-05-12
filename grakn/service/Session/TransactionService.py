@@ -18,11 +18,12 @@
 #
 
 import six
-from six.moves import queue, map
+from six.moves import map
 
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
 import grakn.service.Session.util.ResponseReader as ResponseReader # for circular import issue
 from grakn.service.Session.util import enums
+from grakn.service.Session.util.Communicator import Communicator
 from grakn.exception.GraknError import GraknError
 
 
@@ -36,7 +37,7 @@ class TransactionService(object):
 
         # open the transaction with an 'open' message
         open_req = RequestBuilder.open_tx(session_id, tx_type)
-        self._communicator.send_receive(open_req)
+        self._communicator.single_request(open_req)
     __init__.__annotations__ = {'tx_type': enums.TxType}
 
     # --- Passthrough targets ---
@@ -48,7 +49,7 @@ class TransactionService(object):
 
     def commit(self):
         request = RequestBuilder.commit()
-        self._communicator.send_receive(request)
+        self._communicator.single_request(request)
 
     def close(self):
         self._communicator.close()
@@ -58,13 +59,13 @@ class TransactionService(object):
 
     def get_concept(self, concept_id):
         request = RequestBuilder.get_concept(concept_id)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.get_concept(self, response.getConcept_res)
     get_concept.__annotations__ = {'concept_id': str}
 
     def get_schema_concept(self, label):
         request = RequestBuilder.get_schema_concept(label)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.get_schema_concept(self, response.getSchemaConcept_res)
     get_schema_concept.__annotations__ = {'label': str}
 
@@ -76,31 +77,31 @@ class TransactionService(object):
 
     def put_entity_type(self, label):
         request = RequestBuilder.put_entity_type(label)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_entity_type(self, response.putEntityType_res)
     put_entity_type.__annotations__ = {'label': str}
 
     def put_relation_type(self, label):
         request = RequestBuilder.put_relation_type(label)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_relation_type(self, response.putRelationType_res)
     put_relation_type.__annotations__ = {'label': str}
 
     def put_attribute_type(self, label, data_type):
         request = RequestBuilder.put_attribute_type(label, data_type)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_attribute_type(self, response.putAttributeType_res)
     put_attribute_type.__annotations__ = {'label': str, 'data_type': enums.DataType}
 
     def put_role(self, label):
         request = RequestBuilder.put_role(label)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_role(self, response.putRole_res)
     put_role.__annotations__ = {'label': str}
 
     def put_rule(self, label, when, then):
         request = RequestBuilder.put_rule(label, when, then)
-        response = self._communicator.send_receive(request)
+        response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_rule(self, response.putRule_res)
     put_rule.__annotations__ = {'label': str, 'when': str, 'then': str}
 
@@ -109,7 +110,7 @@ class TransactionService(object):
     def run_concept_method(self, concept_id, grpc_concept_method_req):
         # wrap method_req into a transaction message
         tx_request = RequestBuilder.concept_method_req_to_tx_req(concept_id, grpc_concept_method_req)
-        response = self._communicator.send_receive(tx_request)
+        response = self._communicator.single_request(tx_request)
         return response.conceptMethod_res.response
 
     def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
@@ -118,127 +119,50 @@ class TransactionService(object):
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """
         tx_request = RequestBuilder.explanation(explainable)
-        response = self._communicator.send_receive(tx_request)
+        response = self._communicator.single_request(tx_request)
         return ResponseReader.ResponseReader.create_explanation(self, response.explanation_res)
+
+
+end_of_batch_results = {'done', 'iteratorId'}
+
+
+def end_of_batch(res):
+    res_type = res.iter_res.WhichOneof('res')
+    return res_type == 'done' or res_type == 'iteratorId'
 
 
 class Iterator(six.Iterator):
     def __init__(self, communicator, iter_req):
-        self._id = 0
         self._communicator = communicator
         self._iter_req = iter_req
-        self._buffer = []
-        self._start_iterating()
-        self._receive_batch()
-
-    def _start_iterating(self):
-        self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(self._iter_req))
-        self._state = 'ITERATING'
-
-    def _request_batch(self):
-        self._communicator.send_only(RequestBuilder.iter_req_to_tx_req(
-            RequestBuilder.continue_iterating(self._id, self._iter_req.options)))
-
-    def _receive_batch(self):
-        while True:
-            transaction_res = self._communicator.receive()
-            iter_res = transaction_res.iter_res
-            which_one = iter_res.WhichOneof('res')
-            if which_one == 'done':
-                self._state = 'DONE'
-                return
-            elif which_one == 'iteratorId':
-                self._id = iter_res.iteratorId
-                return
-            else:
-                self._buffer.append(iter_res)
+        self._response_iterator = self._communicator.iteration_request(RequestBuilder.iter_req_to_tx_req(self._iter_req), end_of_batch)
+        self._done = False
 
     def __iter__(self):
         return self
 
-    def __next__(self):
-        # Pop until buffer is empty
-        if len(self._buffer) > 0:
-            return self._buffer.pop(0)
-
-        if self._state == 'ITERATING':
-            self._request_batch()
-        elif self._state == 'DONE':
-            raise StopIteration()
-        self._receive_batch()
-        return self.__next__()
-
-
-class Communicator(six.Iterator):
-    """ An iterator and interface for GRPC stream """
-
-    def __init__(self, grpc_stream_constructor):
-        self._queue = queue.Queue()
-        self._response_iterator = grpc_stream_constructor(self)
-        self._closed = False
-
-    def _add_request(self, request):
-        self._queue.put(request)
+    def _request_next_batch(self, iter_id):
+        self._response_iterator = self._communicator.iteration_request(RequestBuilder.iter_req_to_tx_req(
+            RequestBuilder.continue_iterating(iter_id, self._iter_req.options)), end_of_batch)
 
     def __next__(self):
-        # print("`next` called on Communicator")
-        # print("Current queue: {0}".format(list(self._queue.queue)))
-        next_item = self._queue.get(block=True)
-        if next_item is None:
-            raise StopIteration()
-        return next_item
+        if self._done:
+            raise GraknError('Iterator was already iterated.')
 
-    def __iter__(self):
-        return self
-
-    def send_only(self, request):
-        if self._closed:
-            raise GraknError("This connection is closed")
-        try:
-            self._add_request(request)
-        except Exception as e:
-            self._closed = True
-            raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, request))
-
-    def send_receive(self, request):
-        if self._closed:
-            # TODO integrate this into TransactionService to throw a "Transaction is closed" rather than "connection is closed..."
-            raise GraknError("This connection is closed")
-        try:
-            self._add_request(request)
-            response = next(self._response_iterator)
-        except Exception as e: # specialize into different gRPC exceptions?
-            # invalidate this communicator, functionally this occurs automatically on exception (iterator not usable anymore)
-            self._closed = True
-            raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, request))
-
-        if response is None:
-            raise GraknError("No response received")
-        
-        return response
-
-    def receive(self):
-        if self._closed:
-            raise GraknError("This connection is closed")
         try:
             response = next(self._response_iterator)
-        except Exception as e:  # specialize into different gRPC exceptions?
-            self._closed = True
-            raise GraknError("Server/network error: {0}".format(e))
+        except StopIteration:
+            raise GraknError('Internal client/protocol error,'
+                             ' did not receive an expected "done" or "iteratorId" message.'
+                             '\n\n Please ensure client version is supported by server version.')
 
-        if response is None:
-            raise GraknError("No response received")
-
-        return response
-
-    def close(self):
-        if not self._closed:
-            with self._queue.mutex: # probably don't even need the mutex
-                self._queue.queue.clear()
-            self._queue.put(None)
-            self._closed = True
-            # force exhaust the iterator so `onCompleted()` is called on the server
-            try:
-                next(self._response_iterator)
-            except StopIteration:
-                pass
+        iter_res = response.iter_res
+        res_type = iter_res.WhichOneof('res')
+        if res_type == 'done':
+            self._done = True
+            raise StopIteration
+        elif res_type == 'iteratorId':
+            self._request_next_batch(iter_res.iteratorId)
+            return next(self)
+        else:
+            return iter_res
