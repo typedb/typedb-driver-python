@@ -45,6 +45,10 @@ class SingleResolver:
             self._buffered_response = response
             return response
 
+    def _on_close(self):
+        # Exhaust ourselves to ensure any error is correctly raised
+        self.get()
+
 
 class IterationResolver(six.Iterator):
     def __init__(self, communicator, request, is_last_response):
@@ -52,6 +56,7 @@ class IterationResolver(six.Iterator):
         self._is_last_response = is_last_response
         self._communicator = communicator
         self._ended = False
+        self._has_received_first_response = False
         self._response_buffer = deque()
         communicator._send_with_resolver(self, request)
 
@@ -64,13 +69,20 @@ class IterationResolver(six.Iterator):
         except IndexError:
             if self._ended:
                 raise StopIteration()
-            return self._communicator._block_for_next(self)
+            response = self._communicator._block_for_next(self)
+            self._has_received_first_response = True
+            return response
 
     def _buffer_response(self, response):
+        self._has_received_first_response = True
         self._response_buffer.append(response)
 
     def _end(self):
         self._ended = False
+
+    def _on_close(self):
+        if not self._has_received_first_response:
+            next(self)
 
 
 class Communicator(six.Iterator):
@@ -119,7 +131,8 @@ class Communicator(six.Iterator):
             except Exception as e:
                 self._closed = True
                 if not current:
-                    raise GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n Ensure client version is compatible with server version.".format(e))
+                    raise GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n "
+                                     "Ensure client version is compatible with server version.".format(e))
                 raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
 
     def iteration_request(self, request, is_last_response):
@@ -132,6 +145,11 @@ class Communicator(six.Iterator):
 
     def close(self):
         if not self._closed:
+
+            # Exhaust all resolvers, ensuring that transaction is closed without error
+            for resolver in self._resolver_queue:
+                resolver._on_close()
+
             with self._request_queue.mutex:  # probably don't even need the mutex
                 self._request_queue.queue.clear()
             self._request_queue.put(None)
