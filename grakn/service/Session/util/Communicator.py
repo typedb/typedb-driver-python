@@ -17,6 +17,32 @@
 # under the License.
 #
 
+# Communicator Architecture
+# =========================
+#
+# This communicator allows us to track the sending of multiple requests and match their responses, which may be streams
+# of multiple results, without blocking the initial request call and without any complex threading. This allows the
+# usage of a single stream from a single thread to have predictable results, as there will never be race conditions
+# between requests.
+#
+# The result is that requests are:
+# * Async: like promises.
+# * Serial: always made in the order they are requested by the caller thread.
+#
+# When a request is made, a Resolver is pushed onto the `resolver_queue`. The Resolver is used to *pull* the correct
+# responses from the GRPC stream, which must arrive in a corresponding order but could be pulled by the client in any
+# order. There is no "push" from GRPC, the GRPC stream is pulled until the correct responses are found.
+#
+# No matter which resolver is being resolved, the resolvers *must* be iterated in the order  of the `resolver_queue`,
+# since that wil be the order of the responses. If another resolver is ahead of the one we want to retrieve responses
+# for, any responses we find are pushed to its buffer, so that when the user later retrieves responses through that
+# resolver, it will not miss any. **This push only happens when trying to retrieve results out of the order you request
+# them**, it does not happen in a separate thread!
+#
+# As a final step, closing the transaction must ensure that at least one valid response is received for each resolver,
+# to catch and raise any errors before returning control to the user code.
+
+
 import six
 from collections import deque
 from six.moves import queue
@@ -46,7 +72,7 @@ class SingleResolver:
             return response
 
     def _on_close(self):
-        # Exhaust ourselves to ensure any error is correctly raised
+        # Ensure any error is correctly raised by waiting for the response even if we are closing
         self.get()
 
 
@@ -56,7 +82,6 @@ class IterationResolver(six.Iterator):
         self._is_last_response = is_last_response
         self._communicator = communicator
         self._ended = False
-        self._has_received_first_response = False
         self._response_buffer = deque()
         communicator._send_with_resolver(self, request)
 
@@ -69,20 +94,17 @@ class IterationResolver(six.Iterator):
         except IndexError:
             if self._ended:
                 raise StopIteration()
-            response = self._communicator._block_for_next(self)
-            self._has_received_first_response = True
-            return response
+            return self._communicator._block_for_next(self)
 
     def _buffer_response(self, response):
-        self._has_received_first_response = True
         self._response_buffer.append(response)
 
     def _end(self):
         self._ended = False
 
     def _on_close(self):
-        if not self._has_received_first_response:
-            next(self)
+        for x in self:
+            pass  # Exhaust this iterator to ensure there were no errors
 
 
 class Communicator(six.Iterator):
