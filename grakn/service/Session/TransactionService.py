@@ -140,15 +140,18 @@ class Iterator(six.Iterator):
         self._communicator = communicator
         self._iter_req = iter_req
         self._response_iterator = self._communicator.iteration_request(
-            RequestBuilder.iter_req_to_tx_req(self._iter_req), end_of_batch)
+            RequestBuilder.iter_req_to_tx_req(self._iter_req),
+            end_of_batch)
         self._done = False
 
     def __iter__(self):
         return self
 
     def _request_next_batch(self, iter_id):
-        self._response_iterator = self._communicator.iteration_request(RequestBuilder.iter_req_to_tx_req(
-            RequestBuilder.continue_iterating(iter_id, self._iter_req.options)), end_of_batch)
+        self._response_iterator = self._communicator.iteration_request(
+            RequestBuilder.iter_req_to_tx_req(
+                RequestBuilder.continue_iterating(iter_id, self._iter_req.options)),
+            end_of_batch)
 
     def __next__(self):
         if self._done:
