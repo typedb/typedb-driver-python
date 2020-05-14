@@ -190,10 +190,10 @@ class test_Transaction(test_client_Base):
     def test_query_invalid_syntax(self):
         """ Invalid syntax -- expected behavior is an exception & closed transaction """
         with self.assertRaises(GraknError):
-            answers = self.tx.query("match $x bob marley; get")
+            next(self.tx.query("match $x bob marley; get"))
         with self.assertRaises(GraknError):
             # should be closed
-            self.tx.query("match $x isa person; get;")
+            next(self.tx.query("match $x isa person; get;"))
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after invalid syntax")
 
 
