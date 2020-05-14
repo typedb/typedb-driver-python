@@ -71,6 +71,9 @@ class SingleResolver:
             self._buffered_response = response
             return response
 
+    def _end(self):
+        pass
+
     def _on_close(self):
         # Ensure any error is correctly raised by waiting for the response even if we are closing
         self.get()
@@ -100,11 +103,15 @@ class IterationResolver(six.Iterator):
         self._response_buffer.append(response)
 
     def _end(self):
-        self._ended = False
+        self._ended = True
 
     def _on_close(self):
-        for x in self:
-            pass  # Exhaust this iterator to ensure there were no errors
+        try:
+            while not self._ended:
+                response = self._communicator._block_for_next(self)
+                self._buffer_response(response)
+        except StopIteration:
+            pass
 
 
 class Communicator(six.Iterator):
@@ -143,7 +150,7 @@ class Communicator(six.Iterator):
 
                 if current._is_last_response(response):
                     self._resolver_queue.popleft()
-                    current._ended = True
+                    current._end()
 
                 if current is resolver:
                     return response
@@ -169,7 +176,8 @@ class Communicator(six.Iterator):
         if not self._closed:
 
             # Exhaust all resolvers, ensuring that transaction is closed without error
-            for resolver in self._resolver_queue:
+
+            for resolver in list(self._resolver_queue):
                 resolver._on_close()
 
             with self._request_queue.mutex:  # probably don't even need the mutex
