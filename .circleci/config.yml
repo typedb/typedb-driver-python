@@ -45,6 +45,7 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
+      - run: pyenv global 2.7.12 3.5.2
       - run-bazel-rbe:
           command: bazel build //...
 
