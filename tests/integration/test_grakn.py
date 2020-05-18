@@ -180,13 +180,14 @@ class test_Transaction(test_client_Base):
         answers = self.tx.query("match $x isa person; get;")
         self.assertIsNotNone(answers)
 
-
     def test_query_empty_result(self):
+        """ Ensures that empty query results behave like empty iterators """
         answers = self.tx.query('match $x isa person, has age 9999; get;')
         with self.assertRaises(StopIteration):
             next(answers)
 
-    def test_large_query(self):
+    def test_query_with_multiple_batches(self):
+        """ Ensures that the query batching code works as intended and does not regress """
         self.tx.query('define giraffe sub entity;')
         for i in range(150):
             self.tx.query('insert $x isa giraffe;')
