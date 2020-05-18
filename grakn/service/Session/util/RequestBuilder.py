@@ -79,8 +79,9 @@ class RequestBuilder(object):
     start_iterating_get_attributes_by_value = staticmethod(start_iterating_get_attributes_by_value)
 
     @staticmethod
-    def continue_iterating(iterator_id, batch_options=None):
-        transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_options)
+    def continue_iterating(iterator_id, batch_options):
+        transaction_iter_req = transaction_messages.Transaction.Iter.Req()
+        transaction_iter_req.options.CopyFrom(batch_options)
         transaction_iter_req.iteratorId = iterator_id
         return transaction_iter_req
 
