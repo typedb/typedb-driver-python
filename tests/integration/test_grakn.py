@@ -186,6 +186,12 @@ class test_Transaction(test_client_Base):
         with self.assertRaises(StopIteration):
             next(answers)
 
+    def test_large_query(self):
+        self.tx.query('define giraffe sub entity;')
+        for i in range(150):
+            self.tx.query('insert $x isa giraffe;')
+        answers = self.tx.query('match $x isa giraffe; get $x;')
+        self.assertEquals(sum(1 for _ in answers), 150)
 
     def test_query_invalid_syntax(self):
         """ Invalid syntax -- expected behavior is an exception & closed transaction """
