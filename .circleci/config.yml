@@ -136,6 +136,7 @@ jobs:
           pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
           bazel run @graknlabs_build_tools//ci:release-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
+      - run: pyenv global 2.7.12 3.5.2
       - run: |
           export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
           bazel run --define version=$(cat VERSION) //:deploy-github -- $CIRCLE_SHA1
