@@ -132,7 +132,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run: |
           pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
