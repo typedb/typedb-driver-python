@@ -45,7 +45,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run-bazel-rbe:
           command: bazel build //...
 
@@ -55,7 +54,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run-bazel-rbe:
           command: bazel test //:test_integration --test_output=streamed
 
@@ -65,7 +63,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
@@ -81,7 +78,6 @@ jobs:
       - run: sudo apt-get install python-pip
       - run-grakn-server
       - run: sleep 60
-      - run: pyenv global 2.7.12 3.5.2
       - run:
           name: Run test-deployment for client-python
           command: |
@@ -110,7 +106,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run: |
           export RELEASE_APPROVAL_USERNAME=$REPO_GITHUB_USERNAME
           export RELEASE_APPROVAL_TOKEN=$REPO_GITHUB_TOKEN
@@ -121,7 +116,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run: |
           bazel run @graknlabs_build_tools//ci:release-validate-deps -- \
             graknlabs_protocol
@@ -136,7 +130,6 @@ jobs:
           pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
           bazel run @graknlabs_build_tools//ci:release-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
-      - run: pyenv global 2.7.12 3.5.2
       - run: bazel clean --expunge
       - run: |
           export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
@@ -148,7 +141,6 @@ jobs:
     steps:
       - install-bazel-linux-rbe
       - checkout
-      - run: pyenv global 2.7.12 3.5.2
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
