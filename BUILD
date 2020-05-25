@@ -17,7 +17,7 @@
 
 exports_files(["requirements.txt", "deployment.properties", "RELEASE_TEMPLATE.md"])
 
-load("@io_bazel_rules_python//python:python.bzl", "py_library", "py_test")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 load("@graknlabs_client_python_pip//:requirements.bzl",
        graknlabs_client_python_requirement = "requirement")
@@ -37,7 +37,6 @@ py_library(
         graknlabs_client_python_requirement("protobuf"),
         graknlabs_client_python_requirement("grpcio"),
         graknlabs_client_python_requirement("six"),
-        graknlabs_client_python_requirement("enum34"),
     ],
     visibility =["//visibility:public"]
 )
@@ -48,10 +47,7 @@ assemble_pip(
     package_name = "grakn-client",
     classifiers = [
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -67,7 +63,7 @@ assemble_pip(
     author = "Grakn Labs",
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
-    install_requires=['grpcio==1.24.1,<2', 'protobuf==3.6.1', 'six>=1.11.0', 'enum34; python_version < "3.4"'],
+    install_requires=['grpcio==1.24.1,<2', 'protobuf==3.6.1', 'six>=1.11.0'],
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     description = "Grakn Client for Python",
     long_description_file = "//:README.md",
@@ -97,10 +93,9 @@ py_test(
     ],
     deps = [
         ":client_python",
-        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
-    python_version = "PY2"
+    python_version = "PY3"
 )
 
 py_test(
@@ -111,10 +106,9 @@ py_test(
     ],
     deps = [
         ":client_python",
-        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
-    python_version = "PY2"
+    python_version = "PY3"
 )
 
 py_test(
@@ -125,10 +119,9 @@ py_test(
     ],
     deps = [
         ":client_python",
-        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
-    python_version = "PY2"
+    python_version = "PY3"
 )
 
 py_test(
@@ -139,11 +132,10 @@ py_test(
     ],
     deps = [
         ":client_python",
-        graknlabs_client_python_requirement("forbiddenfruit")
     ],
     size = "large",
     data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
-    python_version = "PY2"
+    python_version = "PY3"
 )
 
 test_suite(

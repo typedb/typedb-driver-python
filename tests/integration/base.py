@@ -20,7 +20,6 @@ from __future__ import print_function
 
 from unittest import TestCase
 from datetime import datetime
-from forbiddenfruit import curse
 
 import os
 import shutil
@@ -29,26 +28,12 @@ import subprocess as sp
 import tempfile
 import zipfile
 
-class DummyContextManager(object):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __enter__(self, *args, **kwargs):
-        pass
-
-    def __exit__(self, *args, **kwargs):
-        pass
-
 
 class ZipFile(zipfile.ZipFile):
-    def extract(self, member, path=None, pwd=None):
+    def _extract_member(self, member, targetpath, pwd):
         if not isinstance(member, zipfile.ZipInfo):
             member = self.getinfo(member)
-
-        if path is None:
-            path = os.getcwd()
-
-        ret_val = self._extract_member(member, path, pwd)
+        ret_val = super()._extract_member(member, targetpath, pwd)
         attr = member.external_attr >> 16
         os.chmod(ret_val, attr)
         return ret_val
@@ -86,17 +71,6 @@ class test_Base(TestCase):
     @classmethod
     def setUpClass(cls):
         super(test_Base, cls).setUpClass()
-
-        def _datetime_to_timestamp(self):
-            epoch = datetime(1970, 1, 1)
-            diff = self - epoch
-            return int(diff.total_seconds())
-
-        if six.PY2:
-            print('Patching datetime.timestamp for PY2')
-            print('Patching unittest.TestCase.subTest for PY2')
-            curse(datetime, 'timestamp', _datetime_to_timestamp)
-            curse(TestCase, 'subTest', DummyContextManager)
 
     @classmethod
     def tearDownClass(cls):
