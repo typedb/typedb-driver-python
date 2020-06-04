@@ -132,7 +132,7 @@ class test_Answers(test_Base):
 
             void_result = list(tx.query("match $x id {0}; delete $x isa thing;".format(person_id)))[0]
             self.assertIsInstance(void_result, Void)
-            self.assertTrue("deleted" in void_result.message())
+            self.assertTrue("Deleted" in void_result.message())
 
             self.assertTrue(inserted_person.as_remote(tx).is_deleted())
             tx.close()
