@@ -252,7 +252,7 @@ class RequestBuilder(object):
                 diff = data - epoch
                 epoch_seconds_utc = int(diff.total_seconds())
                 epoch_ms_long_utc = int(epoch_seconds_utc*1000)
-                msg.date = epoch_ms_long_utc
+                msg.datetime = epoch_ms_long_utc
             else:
                 # TODO specialize exception
                 raise Exception("Unknown attribute valuetype: {}".format(valuetype))
