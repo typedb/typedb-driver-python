@@ -125,7 +125,7 @@ class test_Concept(test_concept_Base):
         self.assertTrue(car.is_deleted())
 
         car2 = car_type.create()
-        self.tx.query("match $x isa car; delete $x;")
+        self.tx.query("match $x isa car; delete $x isa car;")
         self.assertTrue(car2.is_deleted)
 
 
@@ -236,20 +236,19 @@ class test_Type(test_concept_Base):
         with self.subTest(i=0):
             person_schema_type = self.tx.get_schema_concept("person")
             person_plays = list(person_schema_type.playing())
-            # by default, they play 4 explicit roles and 2 @has-... roles 
-            self.assertEqual(len(person_plays), 6)
+            self.assertEqual(len(person_plays), 4)
         with self.subTest(i=1):
             person_schema_type.plays(father)
             updated_person_plays = person_schema_type.playing()
             labels = [role.label() for role in updated_person_plays]
-            self.assertEqual(len(labels), 7)
+            self.assertEqual(len(labels), 5)
             self.assertTrue("father" in labels)
         with self.subTest(i=2): 
             # remove role/plays from person
             person_schema_type.unplay(father)
             updated_person_plays = person_schema_type.playing()
             labels = [role.label() for role in updated_person_plays]
-            self.assertEqual(len(labels), 6)
+            self.assertEqual(len(labels), 4)
             self.assertFalse("father" in labels)
 
     def test_attributes_methods(self):

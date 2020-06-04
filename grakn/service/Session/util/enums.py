@@ -37,4 +37,4 @@ class ValueType(Enum):
     LONG = ConceptMessages.AttributeType.VALUE_TYPE.Value('LONG')
     FLOAT = ConceptMessages.AttributeType.VALUE_TYPE.Value('FLOAT')
     DOUBLE = ConceptMessages.AttributeType.VALUE_TYPE.Value('DOUBLE')
-    DATETIME= ConceptMessages.AttributeType.VALUE_TYPE.Value('DATE') #NOTE this is not quite in sync
+    DATETIME = ConceptMessages.AttributeType.VALUE_TYPE.Value('DATETIME')

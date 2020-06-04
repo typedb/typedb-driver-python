@@ -95,7 +95,7 @@ class ResponseReader(object):
             return grpc_value_object.float
         elif whichone == 'double':
             return grpc_value_object.double
-        elif whichone == 'date':
+        elif whichone == 'datetime':
             epoch_ms_utc = grpc_value_object.date
             local_datetime_utc = datetime.datetime.fromtimestamp(float(epoch_ms_utc)/1000.)
             return local_datetime_utc
