@@ -67,15 +67,15 @@ class RequestBuilder(object):
         transaction_iter_req.conceptMethod_iter_req.CopyFrom(transaction_concept_method_iter_req)
         return transaction_iter_req
 
-    def start_iterating_get_attributes_by_value(value, datatype, batch_size=None):
+    def start_iterating_get_attributes_by_value(value, valuetype, batch_size=None):
         get_attrs_req = transaction_messages.Transaction.GetAttributes.Iter.Req()
-        grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, datatype)
+        grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, valuetype)
         get_attrs_req.value.CopyFrom(grpc_value_object)
 
         transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
         transaction_iter_req.getAttributes_iter_req.CopyFrom(get_attrs_req)
         return transaction_iter_req
-    start_iterating_get_attributes_by_value.__annotations__ = {'datatype': enums.DataType}
+    start_iterating_get_attributes_by_value.__annotations__ = {'valuetype': enums.ValueType}
     start_iterating_get_attributes_by_value = staticmethod(start_iterating_get_attributes_by_value)
 
     @staticmethod
@@ -160,14 +160,14 @@ class RequestBuilder(object):
         transaction_req.putRelationType_req.CopyFrom(put_relation_type_req)
         return transaction_req
 
-    def put_attribute_type(label, data_type):
+    def put_attribute_type(label, value_type):
         put_attribute_type_req = transaction_messages.Transaction.PutAttributeType.Req()
         put_attribute_type_req.label = label
-        put_attribute_type_req.dataType = data_type.value # retrieve enum value
+        put_attribute_type_req.valueType = value_type.value # retrieve enum value
         transaction_req = transaction_messages.Transaction.Req()
         transaction_req.putAttributeType_req.CopyFrom(put_attribute_type_req)
         return transaction_req
-    put_attribute_type.__annotations__ = {'data_type': enums.DataType}
+    put_attribute_type.__annotations__ = {'value_type': enums.ValueType}
     put_attribute_type = staticmethod(put_attribute_type)
 
     @staticmethod
@@ -232,32 +232,32 @@ class RequestBuilder(object):
             grpc_concept.baseType = grpc_base_type
             return grpc_concept
 
-        def as_value_object(data, datatype):
+        def as_value_object(data, valuetype):
             msg = concept_messages.ValueObject()
-            if datatype == enums.DataType.STRING:
+            if valuetype == enums.ValueType.STRING:
                 msg.string = data
-            elif datatype == enums.DataType.BOOLEAN:
+            elif valuetype == enums.ValueType.BOOLEAN:
                 msg.boolean = data
-            elif datatype == enums.DataType.INTEGER:
+            elif valuetype == enums.ValueType.INTEGER:
                 msg.integer = data
-            elif datatype == enums.DataType.LONG:
+            elif valuetype == enums.ValueType.LONG:
                 msg.long = data
-            elif datatype == enums.DataType.FLOAT:
+            elif valuetype == enums.ValueType.FLOAT:
                 msg.float = data
-            elif datatype == enums.DataType.DOUBLE:
+            elif valuetype == enums.ValueType.DOUBLE:
                 msg.double = data
-            elif datatype == enums.DataType.DATE:
+            elif valuetype == enums.ValueType.DATETIME:
                 # convert local datetime into long
                 epoch = datetime(1970, 1, 1)
                 diff = data - epoch
                 epoch_seconds_utc = int(diff.total_seconds())
                 epoch_ms_long_utc = int(epoch_seconds_utc*1000)
-                msg.date = epoch_ms_long_utc 
+                msg.date = epoch_ms_long_utc
             else:
                 # TODO specialize exception
-                raise Exception("Unknown attribute datatype: {}".format(datatype))
+                raise Exception("Unknown attribute valuetype: {}".format(valuetype))
             return msg
-        as_value_object.__annotations__ = {'datatype': enums.DataType}
+        as_value_object.__annotations__ = {'valuetype': enums.ValueType}
         as_value_object = staticmethod(as_value_object)
 
 
@@ -280,12 +280,6 @@ class RequestBuilder(object):
                 concept_method_req.schemaConcept_setLabel_req.CopyFrom(set_schema_label_req)
                 return concept_method_req
 
-            @staticmethod
-            def is_implicit():
-                is_implicit_req = concept_messages.SchemaConcept.IsImplicit.Req()
-                concept_method_req = concept_messages.Method.Req()
-                concept_method_req.schemaConcept_isImplicit_req.CopyFrom(is_implicit_req)
-                return concept_method_req
 
             @staticmethod
             def get_sup():
@@ -501,8 +495,8 @@ class RequestBuilder(object):
             """ Generates AttributeType method messages """
             
             @staticmethod
-            def create(value, datatype):
-                grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, datatype)
+            def create(value, valuetype):
+                grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, valuetype)
                 create_attr_req = concept_messages.AttributeType.Create.Req()
                 create_attr_req.value.CopyFrom(grpc_value_object)
                 concept_method_req = concept_messages.Method.Req()
@@ -510,8 +504,8 @@ class RequestBuilder(object):
                 return concept_method_req
 
             @staticmethod
-            def attribute(value, datatype):
-                grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, datatype)
+            def attribute(value, valuetype):
+                grpc_value_object = RequestBuilder.ConceptMethod.as_value_object(value, valuetype)
                 attribute_req = concept_messages.AttributeType.Attribute.Req()
                 attribute_req.value.CopyFrom(grpc_value_object)
                 concept_method_req = concept_messages.Method.Req()
@@ -519,10 +513,10 @@ class RequestBuilder(object):
                 return concept_method_req
 
             @staticmethod
-            def data_type():
-                datatype_req = concept_messages.AttributeType.DataType.Req()
+            def value_type():
+                valuetype_req = concept_messages.AttributeType.ValueType.Req()
                 concept_method_req = concept_messages.Method.Req()
-                concept_method_req.attributeType_dataType_req.CopyFrom(datatype_req)
+                concept_method_req.attributeType_valueType_req.CopyFrom(valuetype_req)
                 return concept_method_req
 
             @staticmethod
@@ -601,10 +595,10 @@ class RequestBuilder(object):
             @staticmethod
             def has(attribute_concept):
                 grpc_attribute_concept = RequestBuilder.ConceptMethod._concept_to_grpc_concept(attribute_concept)
-                relhas_req = concept_messages.Thing.Relhas.Req()
-                relhas_req.attribute.CopyFrom(grpc_attribute_concept)
+                has_req = concept_messages.Thing.Has.Req()
+                has_req.attribute.CopyFrom(grpc_attribute_concept)
                 concept_method_req = concept_messages.Method.Req()
-                concept_method_req.thing_relhas_req.CopyFrom(relhas_req)
+                concept_method_req.thing_has_req.CopyFrom(has_req)
                 return concept_method_req
 
             @staticmethod

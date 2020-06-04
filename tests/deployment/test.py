@@ -10,7 +10,7 @@ class PythonApplicationTest(TestCase):
         client = GraknClient("localhost:48555")
         session = client.session("define_schema")
         with session.transaction().write() as tx:
-            tx.query("define person sub entity, has name; name sub attribute, datatype string;")
+            tx.query("define person sub entity, has name; name sub attribute, value string;")
             tx.commit()
         session.close()
         client.close()
@@ -28,7 +28,7 @@ class PythonApplicationTest(TestCase):
         client = GraknClient("localhost:48555")
         session = client.session("define_schema")
         with session.transaction().write() as tx:
-            tx.query("define person sub entity, has name; name sub attribute, datatype string;")
+            tx.query("define person sub entity, has name; name sub attribute, value string;")
             tx.commit()
         with session.transaction().write() as tx:
             tx.query("insert $x isa person, has name \"john\";")

@@ -125,12 +125,6 @@ class RemoteSchemaConcept(RemoteConcept):
             method_response = self._tx_service.run_concept_method(self.id, set_label_req)
             return self
 
-    def is_implicit(self):
-        """ Check if this schema concept is implicit """
-        is_implicit_req = RequestBuilder.ConceptMethod.SchemaConcept.is_implicit()
-        method_response = self._tx_service.run_concept_method(self.id, is_implicit_req)
-        return method_response.schemaConcept_isImplicit_res.implicit
-
     def sup(self, super_concept=None):
         """ 
         Get or set super schema concept.
@@ -284,8 +278,8 @@ class RemoteAttributeType(RemoteType):
 
     def create(self, value):
         """ Create an instance with this AttributeType """
-        self_data_type = self.data_type()
-        create_inst_req = RequestBuilder.ConceptMethod.AttributeType.create(value, self_data_type)
+        self_value_type = self.value_type()
+        create_inst_req = RequestBuilder.ConceptMethod.AttributeType.create(value, self_value_type)
         method_response = self._tx_service.run_concept_method(self.id, create_inst_req)
         grpc_attribute_concept = method_response.attributeType_create_res.attribute
         from grakn.service.Session.Concept import ConceptFactory
@@ -293,8 +287,8 @@ class RemoteAttributeType(RemoteType):
 
     def attribute(self, value):
         """ Retrieve an attribute instance by value if it exists """
-        self_data_type = self.data_type()
-        get_attribute_req = RequestBuilder.ConceptMethod.AttributeType.attribute(value, self_data_type)
+        self_value_type = self.value_type()
+        get_attribute_req = RequestBuilder.ConceptMethod.AttributeType.attribute(value, self_value_type)
         method_response = self._tx_service.run_concept_method(self.id, get_attribute_req)
         response = method_response.attributeType_attribute_res
         whichone = response.WhichOneof('res')
@@ -306,24 +300,24 @@ class RemoteAttributeType(RemoteType):
         else:
             raise GraknError("Unknown `res` key in AttributeType `attribute` response: {0}".format(whichone))
 
-    def data_type(self):
-        """ Get the DataType enum (grakn.DataType) corresponding to the type of this attribute """
-        get_data_type_req = RequestBuilder.ConceptMethod.AttributeType.data_type()
-        method_response = self._tx_service.run_concept_method(self.id, get_data_type_req)
-        response = method_response.attributeType_dataType_res
+    def value_type(self):
+        """ Get the ValueType enum (grakn.ValueType) corresponding to the type of this attribute """
+        get_value_type_req = RequestBuilder.ConceptMethod.AttributeType.value_type()
+        method_response = self._tx_service.run_concept_method(self.id, get_value_type_req)
+        response = method_response.attributeType_valueType_res
         whichone = response.WhichOneof('res')
-        if whichone == 'dataType':
-            # iterate over enum DataType enum to find matching data type
-            for e in enums.DataType:
-                if e.value == response.dataType:
+        if whichone == 'valueType':
+            # iterate over enum ValueType enum to find matching data type
+            for e in enums.ValueType:
+                if e.value == response.valueType:
                     return e
             else:
                 # loop exited normally
-                raise GraknError("Reported datatype NOT in enum: {0}".format(response.dataType))
+                raise GraknError("Reported valuetype NOT in enum: {0}".format(response.valueType))
         elif whichone == 'null':
             return None
         else:
-            raise GraknError("Unknown datatype response for AttributeType: {0}".format(whichone))
+            raise GraknError("Unknown valuetype response for AttributeType: {0}".format(whichone))
 
     def regex(self, pattern=None):
         """ Get or set regex """

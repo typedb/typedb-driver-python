@@ -19,7 +19,7 @@
 
 import grpc
 
-from grakn.service.Session.util.enums import DataType   # user-facing DataType enum
+from grakn.service.Session.util.enums import ValueType   # user-facing ValueType enum
 
 from grakn.service.Session.util.RequestBuilder import RequestBuilder
 from grakn.service.Session.util.enums import TxType as _TxType
@@ -176,13 +176,13 @@ class Transaction(object):
         return self._tx_service.get_schema_concept(label)
     get_schema_concept.__annotations__ = {'label': str}
 
-    def get_attributes_by_value(self, attribute_value, data_type):
-        """ Retrieve atttributes with a specific value and datatype
+    def get_attributes_by_value(self, attribute_value, value_type):
+        """ Retrieve atttributes with a specific value and value type
 
         :param any attribute_value: the value to match
-        :param grakn.DataType data_type: The data type of the value in Grakn, as given by the grakn.DataType enum
+        :param grakn.ValueType value_type: The value type of the value in Grakn, as given by the grakn.ValueType enum
         """
-        return self._tx_service.get_attributes_by_value(attribute_value, data_type)
+        return self._tx_service.get_attributes_by_value(attribute_value, value_type)
 
     def put_entity_type(self, label):
         """ Define a new entity type with the given label """
@@ -194,13 +194,13 @@ class Transaction(object):
         return self._tx_service.put_relation_type(label)
     put_relation_type.__annotations__ = {'label': str}
 
-    def put_attribute_type(self, label, data_type):
-        """ Define a new attribute type with the given label and data type
+    def put_attribute_type(self, label, value_type):
+        """ Define a new attribute type with the given label and value type
 
         :param str label: the label of the attribute type
-        :param grakn.DataType data_type: the data type of the value to be stored, as given by the grakn.DataType enum
+        :param grakn.ValueType value_type: the data type of the value to be stored, as given by the grakn.ValueType enum
         """
-        return self._tx_service.put_attribute_type(label, data_type)
+        return self._tx_service.put_attribute_type(label, value_type)
     put_attribute_type.__annotations__ = {'label': str}
 
     def put_role(self, label):

@@ -20,7 +20,7 @@
 import unittest
 import uuid
 import grakn
-from grakn.client import GraknClient, DataType
+from grakn.client import GraknClient, ValueType
 from grakn.exception.GraknError import GraknError
 from grakn.service.Session.util.ResponseReader import Value
 
@@ -140,8 +140,8 @@ class test_client_Base(test_Base):
                          "mother sub role; "
                          "son sub role; "
                          "person sub entity, has age, has gender, plays parent, plays child, plays mother, plays son; "
-                         "age sub attribute, datatype long; "
-                         "gender sub attribute, datatype string; "
+                         "age sub attribute, value long; "
+                         "gender sub attribute, value string; "
                          "parentship sub relation, relates parent, relates child, relates mother, relates son;")
             except GraknError as ce:
                 print(ce)
@@ -289,12 +289,12 @@ class test_Transaction(test_client_Base):
         """ Retrieve attribute instances by value """
         with self.subTest(i=0):
             # test retrieving multiple concepts
-            firstname_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
-            middlename_attr_type = self.tx.put_attribute_type("middlename", DataType.STRING)
+            firstname_attr_type = self.tx.put_attribute_type("firstname", ValueType.STRING)
+            middlename_attr_type = self.tx.put_attribute_type("middlename", ValueType.STRING)
             firstname = firstname_attr_type.create("Billie")
             middlename = middlename_attr_type.create("Billie")
     
-            attr_concepts = self.tx.get_attributes_by_value("Billie", DataType.STRING)
+            attr_concepts = self.tx.get_attributes_by_value("Billie", ValueType.STRING)
             attr_concepts = list(attr_concepts) 
             self.assertEqual(len(attr_concepts), 2, msg="Do not have 2 first name attrs")
     
@@ -304,7 +304,7 @@ class test_Transaction(test_client_Base):
         with self.subTest(i=1):
             # test retrieving no concepts
             # because we have no "Jean" attributes
-            jean_attrs = list(self.tx.get_attributes_by_value("Jean", DataType.STRING))
+            jean_attrs = list(self.tx.get_attributes_by_value("Jean", ValueType.STRING))
             self.assertEqual(len(jean_attrs), 0)
 
     # --- test schema modification ---
@@ -323,7 +323,7 @@ class test_Transaction(test_client_Base):
 
     def test_put_attribute_type(self):
         """ Test putting a new attribtue type in schema """
-        birthdate = self.tx.put_attribute_type("surname", DataType.DATE)
+        birthdate = self.tx.put_attribute_type("surname", ValueType.DATETIME)
         self.assertTrue(birthdate.is_schema_concept())
         self.assertTrue(birthdate.is_attribute_type())
 

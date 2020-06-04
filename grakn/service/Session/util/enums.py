@@ -28,13 +28,13 @@ class TxType(Enum):
     BATCH = SessionMessages.Transaction.Type.Value('BATCH')
     
 
-data_type_map = {}
+VALUE_TYPE_map = {}
 
-class DataType(Enum):
-    STRING = ConceptMessages.AttributeType.DATA_TYPE.Value('STRING')
-    BOOLEAN = ConceptMessages.AttributeType.DATA_TYPE.Value('BOOLEAN')
-    INTEGER = ConceptMessages.AttributeType.DATA_TYPE.Value('INTEGER')
-    LONG = ConceptMessages.AttributeType.DATA_TYPE.Value('LONG')
-    FLOAT = ConceptMessages.AttributeType.DATA_TYPE.Value('FLOAT')
-    DOUBLE = ConceptMessages.AttributeType.DATA_TYPE.Value('DOUBLE')
-    DATE= ConceptMessages.AttributeType.DATA_TYPE.Value('DATE')
+class ValueType(Enum):
+    STRING = ConceptMessages.AttributeType.VALUE_TYPE.Value('STRING')
+    BOOLEAN = ConceptMessages.AttributeType.VALUE_TYPE.Value('BOOLEAN')
+    INTEGER = ConceptMessages.AttributeType.VALUE_TYPE.Value('INTEGER')
+    LONG = ConceptMessages.AttributeType.VALUE_TYPE.Value('LONG')
+    FLOAT = ConceptMessages.AttributeType.VALUE_TYPE.Value('FLOAT')
+    DOUBLE = ConceptMessages.AttributeType.VALUE_TYPE.Value('DOUBLE')
+    DATETIME= ConceptMessages.AttributeType.VALUE_TYPE.Value('DATE') #NOTE this is not quite in sync
