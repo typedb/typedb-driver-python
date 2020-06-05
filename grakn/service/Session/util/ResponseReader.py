@@ -79,10 +79,10 @@ class ResponseReader(object):
     @staticmethod
     def from_grpc_value_object(grpc_value_object):
         whichone = grpc_value_object.WhichOneof('value')
-        # check the one is in the known datatypes
-        known_datatypes = [e.name.lower() for e in enums.DataType]
-        if whichone.lower() not in known_datatypes:
-            raise GraknError("Unknown value object value key: {0}, not in {1}".format(whichone, known_datatypes))
+        # check the one is in the known ValueTypes
+        known_valuetypes = [e.name.lower() for e in enums.ValueType]
+        if whichone.lower() not in known_valuetypes:
+            raise GraknError("Unknown value object value key: {0}, not in {1}".format(whichone, known_valuetypes))
         if whichone == 'string':
             return grpc_value_object.string
         elif whichone == 'boolean':
@@ -95,28 +95,28 @@ class ResponseReader(object):
             return grpc_value_object.float
         elif whichone == 'double':
             return grpc_value_object.double
-        elif whichone == 'date':
-            epoch_ms_utc = grpc_value_object.date
+        elif whichone == 'datetime':
+            epoch_ms_utc = grpc_value_object.datetime
             local_datetime_utc = datetime.datetime.fromtimestamp(float(epoch_ms_utc)/1000.)
             return local_datetime_utc
         else:
-            raise GraknError("Unknown datatype in enum but not handled in from_grpc_value_object")
+            raise GraknError("Unknown valuetype in enum but not handled in from_grpc_value_object")
 
     @staticmethod
-    def from_grpc_data_type_res(grpc_data_type_res):
-        whichone = grpc_data_type_res.WhichOneof('res')
-        if whichone == 'dataType':
-            # iterate over enum DataType enum to find matching data type
-            for e in enums.DataType:
-                if e.value == grpc_data_type_res.dataType:
+    def from_grpc_value_type_res(grpc_value_type_res):
+        whichone = grpc_value_type_res.WhichOneof('res')
+        if whichone == 'valueType':
+            # iterate over enum ValueType enum to find matching data type
+            for e in enums.ValueType:
+                if e.value == grpc_value_type_res.valueType:
                     return e
             else:
                 # loop exited normally
-                raise GraknError("Reported datatype NOT in enum: {0}".format(grpc_data_type_res.dataType))
+                raise GraknError("Reported valuetype NOT in enum: {0}".format(grpc_value_type_res.valueType))
         elif whichone == 'null':
             return None
         else:
-            raise GraknError("Unknown datatype response for AttributeType: {0}".format(whichone))
+            raise GraknError("Unknown valuetype response for AttributeType: {0}".format(whichone))
 
     # --- concept method helpers ---
 

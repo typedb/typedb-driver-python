@@ -18,7 +18,7 @@
 #
 
 import unittest
-from grakn.client import GraknClient, DataType
+from grakn.client import GraknClient, ValueType
 import datetime
 import uuid
 from grakn.exception.GraknError import GraknError
@@ -54,8 +54,8 @@ class test_concept_Base(test_Base):
                      "mother sub role; "
                      "son sub role; "
                      "person sub entity, has age, has gender, plays parent, plays child, plays mother, plays son; "
-                     "age sub attribute, datatype long; "
-                     "gender sub attribute, datatype string; "
+                     "age sub attribute, value long; "
+                     "gender sub attribute, value string; "
                      "parentship sub relation, relates parent, relates child, relates mother, relates son;")
         except GraknError as ce: 
             print(ce)
@@ -125,7 +125,7 @@ class test_Concept(test_concept_Base):
         self.assertTrue(car.is_deleted())
 
         car2 = car_type.create()
-        self.tx.query("match $x isa car; delete $x;")
+        self.tx.query("match $x isa car; delete $x isa car;")
         self.assertTrue(car2.is_deleted)
 
 
@@ -142,7 +142,7 @@ class test_Concept(test_concept_Base):
         self.assertFalse(owner.is_attribute())
         self.assertTrue(owner.is_relation())
 
-        attr_type = self.tx.put_attribute_type("age", DataType.LONG)
+        attr_type = self.tx.put_attribute_type("age", ValueType.LONG)
         age = attr_type.create(50)
         self.assertFalse(age.is_entity())
         self.assertTrue(age.is_attribute())
@@ -174,12 +174,6 @@ class test_SchemaConcept(test_concept_Base):
                 bike_type.label(100)
             self.assertIsNone(bike_type)
 
-    def test_is_implicit(self):
-        """ Test implicit schema concepts """
-        person = self.tx.get_schema_concept("person")
-        self.assertFalse(person.is_implicit())
-        implicit_concept = self.tx.get_schema_concept("@has-age")
-        self.assertTrue(implicit_concept.is_implicit())
 
     def test_get_sups(self):
         """ Test get super types of a schema concept -- recall a type is supertype of itself always """
@@ -242,26 +236,25 @@ class test_Type(test_concept_Base):
         with self.subTest(i=0):
             person_schema_type = self.tx.get_schema_concept("person")
             person_plays = list(person_schema_type.playing())
-            # by default, they play 4 explicit roles and 2 @has-... roles 
-            self.assertEqual(len(person_plays), 6)
+            self.assertEqual(len(person_plays), 4)
         with self.subTest(i=1):
             person_schema_type.plays(father)
             updated_person_plays = person_schema_type.playing()
             labels = [role.label() for role in updated_person_plays]
-            self.assertEqual(len(labels), 7)
+            self.assertEqual(len(labels), 5)
             self.assertTrue("father" in labels)
         with self.subTest(i=2): 
             # remove role/plays from person
             person_schema_type.unplay(father)
             updated_person_plays = person_schema_type.playing()
             labels = [role.label() for role in updated_person_plays]
-            self.assertEqual(len(labels), 6)
+            self.assertEqual(len(labels), 4)
             self.assertFalse("father" in labels)
 
     def test_attributes_methods(self):
         """ Test get/set/delete attributes """
         person = self.tx.get_schema_concept("person")
-        haircolor_attr = self.tx.put_attribute_type("haircolor", DataType.STRING)
+        haircolor_attr = self.tx.put_attribute_type("haircolor", ValueType.STRING)
         with self.subTest(i=0):
             # get attrs
             current_attrs = person.attributes()
@@ -293,7 +286,7 @@ class test_Type(test_concept_Base):
     def test_key(self):
         """ Test get/set/delete key on Type """
         person_type = self.tx.get_schema_concept("person")
-        name_attr_type = self.tx.put_attribute_type('name', DataType.STRING)
+        name_attr_type = self.tx.put_attribute_type('name', ValueType.STRING)
 
         with self.subTest(i=0):
             # check current keys
@@ -324,36 +317,36 @@ class test_EntityType(test_concept_Base):
 class test_AttributeType(test_concept_Base):
 
     def test_create(self):
-        str_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
+        str_attr_type = self.tx.put_attribute_type("firstname", ValueType.STRING)
         john = str_attr_type.create("john")
         self.assertTrue(john.is_attribute())
         self.assertEqual(john.value(), "john")
 
-        bool_attr_type = self.tx.put_attribute_type("employed", DataType.BOOLEAN)
+        bool_attr_type = self.tx.put_attribute_type("employed", ValueType.BOOLEAN)
         employed = bool_attr_type.create(True)
         self.assertEqual(employed.value(), True)
 
-        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", ValueType.DOUBLE)
         one = double_attr_type.create(1.0)
         self.assertEqual(one.value(), 1.0)
 
-    def test_data_type(self):
-        str_attr_type = self.tx.put_attribute_type("firstname", DataType.STRING)
-        self.assertEqual(str_attr_type.data_type(), DataType.STRING)
+    def test_value_type(self):
+        str_attr_type = self.tx.put_attribute_type("firstname", ValueType.STRING)
+        self.assertEqual(str_attr_type.value_type(), ValueType.STRING)
 
-        bool_attr_type = self.tx.put_attribute_type("employed", DataType.BOOLEAN)
-        self.assertEqual(bool_attr_type.data_type(), DataType.BOOLEAN)
+        bool_attr_type = self.tx.put_attribute_type("employed", ValueType.BOOLEAN)
+        self.assertEqual(bool_attr_type.value_type(), ValueType.BOOLEAN)
 
-        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
-        self.assertEqual(double_attr_type.data_type(), DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", ValueType.DOUBLE)
+        self.assertEqual(double_attr_type.value_type(), ValueType.DOUBLE)
 
-        long_attr_type = self.tx.put_attribute_type("randomint", DataType.LONG)
-        self.assertEqual(long_attr_type.data_type(), DataType.LONG)
+        long_attr_type = self.tx.put_attribute_type("randomint", ValueType.LONG)
+        self.assertEqual(long_attr_type.value_type(), ValueType.LONG)
 
     def test_attribute(self):
         """ Test retrieve attribute instances """
 
-        name = self.tx.put_attribute_type("name", DataType.STRING)
+        name = self.tx.put_attribute_type("name", ValueType.STRING)
         john = name.create("john")
         
         with self.subTest(i=0):
@@ -368,7 +361,7 @@ class test_AttributeType(test_concept_Base):
 
     def test_regex(self):
         """ Test get/set regex """
-        attr_type = self.tx.put_attribute_type("dogbadness", DataType.STRING)
+        attr_type = self.tx.put_attribute_type("dogbadness", ValueType.STRING)
 
         empty_regex = attr_type.regex()
         self.assertEqual(len(empty_regex), 0, msg="Unset regex does not have length 0")
@@ -523,7 +516,7 @@ class test_Thing(test_concept_Base):
     def test_has_unhas_attributes(self):
         """ Test has/unhas/get attributes """
         person_type = self.tx.get_schema_concept("person")
-        name_attr_type = self.tx.put_attribute_type("name", DataType.STRING)
+        name_attr_type = self.tx.put_attribute_type("name", ValueType.STRING)
         person_type.has(name_attr_type)
         person = person_type.create()
         attr_john = name_attr_type.create("john")
@@ -540,9 +533,9 @@ class test_Thing(test_concept_Base):
     def test_attributes(self):
         """ Test retrieve attrs optionally narrowed by types """
         person_type = self.tx.get_schema_concept("person")
-        name_attr = self.tx.put_attribute_type("name", DataType.STRING)
-        foo_attr = self.tx.put_attribute_type("foo", DataType.BOOLEAN)
-        bar_attr = self.tx.put_attribute_type("bar", DataType.LONG)
+        name_attr = self.tx.put_attribute_type("name", ValueType.STRING)
+        foo_attr = self.tx.put_attribute_type("foo", ValueType.BOOLEAN)
+        bar_attr = self.tx.put_attribute_type("bar", ValueType.LONG)
         
         person_type.has(name_attr)
         person_type.has(foo_attr)
@@ -573,8 +566,8 @@ class test_Thing(test_concept_Base):
     def test_keys(self):
         """ Test retrieving keys optionally filtered by attribute types """
         person_type = self.tx.get_schema_concept("person")
-        name_type = self.tx.put_attribute_type("name", DataType.STRING)
-        surname_type = self.tx.put_attribute_type("surname", DataType.STRING)
+        name_type = self.tx.put_attribute_type("name", ValueType.STRING)
+        surname_type = self.tx.put_attribute_type("surname", ValueType.STRING)
         person_type.key(name_type)
         person_type.has(surname_type)
         
@@ -600,12 +593,12 @@ class test_Attribute(test_concept_Base):
 
     def test_value(self):
         """ Get attribute value """
-        double_attr_type = self.tx.put_attribute_type("length", DataType.DOUBLE)
+        double_attr_type = self.tx.put_attribute_type("length", ValueType.DOUBLE)
         double = double_attr_type.create(43.1)
         self.assertEqual(double.value(), 43.1)
 
     def test_get_date_value(self):
-        date_type = self.tx.put_attribute_type("birthdate", DataType.DATE)
+        date_type = self.tx.put_attribute_type("birthdate", ValueType.DATETIME)
         person_type = self.tx.get_schema_concept("person")
         person_type.has(date_type)
         concepts = [ans.get("x") for ans in self.tx.query("insert $x isa person, has birthdate 2018-08-06;")]
@@ -622,7 +615,7 @@ class test_Attribute(test_concept_Base):
                 return
 
     def test_set_date_value(self):
-        date_type = self.tx.put_attribute_type("birthdate", DataType.DATE)
+        date_type = self.tx.put_attribute_type("birthdate", ValueType.DATETIME)
         test_date = datetime.datetime(year=2018, month=6, day=6)
         date_attr_inst = date_type.create(test_date)
         value = date_attr_inst.value() # retrieve from server
@@ -633,7 +626,7 @@ class test_Attribute(test_concept_Base):
         """ Test retrieving entities that have an attribute """
         person_type = self.tx.get_schema_concept("person")
         animal_type = self.tx.put_entity_type("animal")
-        name_type = self.tx.put_attribute_type("name", DataType.STRING)
+        name_type = self.tx.put_attribute_type("name", ValueType.STRING)
         person_type.has(name_type)
         animal_type.has(name_type)
 
@@ -760,8 +753,7 @@ class test_Relation(test_concept_Base):
         self.assertEqual(role_players[0].id, person.id)
 
         parentship.unassign(parent_role, person)
-        post_remove_role_players = list(parentship.role_players())
-        self.assertEqual(len(post_remove_role_players), 0)
+        self.assertTrue(parentship.is_deleted())
 
     
     def test_role_players_filtered_by_role(self):

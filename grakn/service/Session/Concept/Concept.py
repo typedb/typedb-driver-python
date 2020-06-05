@@ -102,17 +102,12 @@ class SchemaConcept(Concept):
     def __init__(self, grpc_concept):
         super(SchemaConcept, self).__init__(grpc_concept)
         self._label = grpc_concept.label_res.label
-        self._implicit = grpc_concept.isImplicit_res.implicit
 
     def label(self):
         """
         Get the label of this schema concept.
         """
         return self._label
-
-    def is_implicit(self):
-        """ Check if this schema concept is implicit """
-        return self._implicit
 
 
 class Type(SchemaConcept):
@@ -128,11 +123,11 @@ class AttributeType(Type):
     def __index__(self, grpc_concept):
         super(Type, self).__init__(grpc_concept)
         from grakn.service.Session.util import ResponseReader
-        self._data_type = ResponseReader.ResponseReader.from_grpc_data_type_res(grpc_concept.dataType_res)
+        self._value_type = ResponseReader.ResponseReader.from_grpc_value_type_res(grpc_concept.valueType_res)
 
-    def data_type(self):
-        """ Get the DataType enum (grakn.DataType) corresponding to the type of this attribute """
-        return self._data_type
+    def value_type(self):
+        """ Get the ValueType enum (grakn.ValueType) corresponding to the type of this attribute """
+        return self._value_type
 
 
 class RelationType(Type):

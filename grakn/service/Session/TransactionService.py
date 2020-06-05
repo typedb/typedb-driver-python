@@ -71,11 +71,11 @@ class TransactionService(object):
         return ResponseReader.ResponseReader.get_schema_concept(self, response.getSchemaConcept_res)
     get_schema_concept.__annotations__ = {'label': str}
 
-    def get_attributes_by_value(self, attribute_value, data_type):
-        request = RequestBuilder.start_iterating_get_attributes_by_value(attribute_value, data_type)
+    def get_attributes_by_value(self, attribute_value, value_type):
+        request = RequestBuilder.start_iterating_get_attributes_by_value(attribute_value, value_type)
         iterator = Iterator(self._communicator, request)
         return ResponseReader.ResponseReader.get_attributes_by_value(self, iterator)
-    get_attributes_by_value.__annotations__ = {'data_type': enums.DataType}
+    get_attributes_by_value.__annotations__ = {'value_type': enums.ValueType}
 
     def put_entity_type(self, label):
         request = RequestBuilder.put_entity_type(label)
@@ -89,11 +89,11 @@ class TransactionService(object):
         return ResponseReader.ResponseReader.put_relation_type(self, response.putRelationType_res)
     put_relation_type.__annotations__ = {'label': str}
 
-    def put_attribute_type(self, label, data_type):
-        request = RequestBuilder.put_attribute_type(label, data_type)
+    def put_attribute_type(self, label, value_type):
+        request = RequestBuilder.put_attribute_type(label, value_type)
         response = self._communicator.single_request(request)
         return ResponseReader.ResponseReader.put_attribute_type(self, response.putAttributeType_res)
-    put_attribute_type.__annotations__ = {'label': str, 'data_type': enums.DataType}
+    put_attribute_type.__annotations__ = {'label': str, 'value_type': enums.ValueType}
 
     def put_role(self, label):
         request = RequestBuilder.put_role(label)
