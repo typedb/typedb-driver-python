@@ -85,6 +85,7 @@ class IterationResolver(six.Iterator):
         self._is_last_response = is_last_response
         self._communicator = communicator
         self._ended = False
+        self._started = False
         self._response_buffer = deque()
         communicator._send_with_resolver(self, request)
 
@@ -92,6 +93,7 @@ class IterationResolver(six.Iterator):
         return self
 
     def __next__(self):
+        self._started = True
         try:
             return self._response_buffer.popleft()
         except IndexError:
@@ -100,6 +102,7 @@ class IterationResolver(six.Iterator):
             return self._communicator._block_for_next(self)
 
     def _buffer_response(self, response):
+        self._started = True
         self._response_buffer.append(response)
 
     def _end(self):
@@ -110,6 +113,14 @@ class IterationResolver(six.Iterator):
             while not self._ended:
                 response = self._communicator._block_for_next(self)
                 self._buffer_response(response)
+        except StopIteration:
+            pass
+
+    def get(self):
+        if self._started:
+            return self
+        try:
+            self._response_buffer.append(next(self))
         except StopIteration:
             pass
 

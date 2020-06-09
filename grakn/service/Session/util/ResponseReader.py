@@ -27,8 +27,8 @@ from six.moves import map
 class ResponseReader(object):
     
     @staticmethod
-    def get_query_results(tx_service, iterator):
-        return map(lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer), iterator)
+    def get_query_results(tx_service):
+        return lambda iterate_res: AnswerConverter.convert(tx_service, iterate_res.query_iter_res.answer)
 
     @staticmethod
     def get_concept(tx_service, grpc_get_schema_concept):
@@ -53,8 +53,8 @@ class ResponseReader(object):
             raise GraknError("Unknown get_schema_concept response: {0}".format(which_one))
 
     @staticmethod
-    def get_attributes_by_value(tx_service, iterator):
-        return map(lambda iterate_res: ConceptFactory.create_remote_concept(tx_service, iterate_res.getAttributes_iter_res.attribute), iterator)
+    def get_attributes_by_value(tx_service):
+        return lambda iterate_res: ConceptFactory.create_remote_concept(tx_service, iterate_res.getAttributes_iter_res.attribute)
 
     @staticmethod
     def put_entity_type(tx_service, grpc_put_entity_type):

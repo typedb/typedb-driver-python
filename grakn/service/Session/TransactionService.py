@@ -44,9 +44,9 @@ class TransactionService(object):
     # targets of top level Transaction class
 
     def query(self, query, infer=True, batch_size=50):
-        return ResponseReader.ResponseReader\
-            .get_query_results(self, Iterator(self._communicator,
-                                              RequestBuilder.start_iterating_query(query, infer, batch_size)))
+        return Iterator(self._communicator,
+                        RequestBuilder.start_iterating_query(query, infer, batch_size),
+                        ResponseReader.ResponseReader.get_query_results(self))
     query.__annotations__ = {'query': str}
 
     def commit(self):
@@ -73,9 +73,8 @@ class TransactionService(object):
 
     def get_attributes_by_value(self, attribute_value, value_type):
         request = RequestBuilder.start_iterating_get_attributes_by_value(attribute_value, value_type)
-        iterator = Iterator(self._communicator, request)
-        return ResponseReader.ResponseReader.get_attributes_by_value(self, iterator)
-    get_attributes_by_value.__annotations__ = {'value_type': enums.ValueType}
+        return Iterator(self._communicator, request, ResponseReader.ResponseReader.get_attributes_by_value(self))
+    get_attributes_by_value.__annotations__ = {'data_type': enums.ValueType}
 
     def put_entity_type(self, label):
         request = RequestBuilder.put_entity_type(label)
@@ -116,9 +115,9 @@ class TransactionService(object):
         return response.conceptMethod_res.response
 
     def run_concept_iter_method(self, concept_id, grpc_concept_iter_method_req):
-        return map(lambda res: res.conceptMethod_iter_res.response,
-                   Iterator(self._communicator,
-                            RequestBuilder.start_iterating_concept_method(concept_id,grpc_concept_iter_method_req)))
+        return Iterator(self._communicator,
+                        RequestBuilder.start_iterating_concept_method(concept_id, grpc_concept_iter_method_req),
+                        lambda res: res.conceptMethod_iter_res.response)
 
     def explanation(self, explainable):
         """ Retrieve the explanation of a Concept Map from the server """
@@ -136,13 +135,14 @@ def end_of_batch(res):
 
 
 class Iterator(six.Iterator):
-    def __init__(self, communicator, iter_req):
+    def __init__(self, communicator, iter_req, resp_converter):
         self._communicator = communicator
         self._iter_req = iter_req
         self._response_iterator = self._communicator.iteration_request(
             RequestBuilder.iter_req_to_tx_req(self._iter_req),
             end_of_batch)
         self._done = False
+        self._resp_converter = resp_converter
 
     def __iter__(self):
         return self
@@ -173,4 +173,9 @@ class Iterator(six.Iterator):
             self._request_next_batch(iter_res.iteratorId)
             return next(self)
         else:
-            return iter_res
+            return self._resp_converter(iter_res)
+
+    def get(self):
+        if not self._done:
+            self._response_iterator.get()
+        return self
