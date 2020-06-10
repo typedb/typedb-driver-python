@@ -21,14 +21,19 @@
 from grakn.service.Session.Concept import BaseTypeMapping
 
 
+def base_type_of(concept):
+    return object_to_name[type(concept)]
+
+
 class Concept(object):
 
     def __init__(self, grpc_concept):
         self.id = grpc_concept.id
+        self.base_type = base_type_of(self)
 
     def as_remote(self, tx):
         from grakn.service.Session.Concept import ConceptFactory
-        return ConceptFactory.create_remote_concept_base(tx._tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[object_to_name[type(self)]])
+        return ConceptFactory.create_remote_concept_base(tx._tx_service, self.id, BaseTypeMapping.name_to_grpc_base_type[base_type_of(self)])
 
     def is_schema_concept(self):
         """ Check if this concept is a schema concept """

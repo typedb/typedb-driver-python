@@ -209,6 +209,29 @@ class test_Answers(test_Base):
             self.assertEqual(has_explanation, 6)
         client.keyspaces().delete("transitivity")
 
+    def test_get_explanation(self):
+        with client.session("explanation") as local_session:
+            tx = local_session.transaction().write()
+            tx.query("define family-name sub attribute, value string;"
+                     "parenthood sub relation, relates parent, relates child;"
+                     "person sub entity, has family-name, plays parent, plays child;"
+                     "family-name-inheritence sub rule,"
+                     "when { (parent: $p, child: $c) isa parenthood; $p has family-name $f; },"
+                     "then { $c has family-name $f; };")
+            tx.query("insert $bob isa person, has family-name \"bobson\";"
+                     "$bobjr isa person;"
+                     "(parent: $bob, child: $bobjr) isa parenthood;")
+
+            tx.commit()
+            tx = local_session.transaction().read()
+
+            answers = tx.query("match $x isa person, has family-name $f; get;")
+            for x in answers:
+                if x.has_explanation():
+                    explanation = x.explanation()
+
+        client.keyspaces().delete("explanation")
+
 
 if __name__ == "__main__":
     with GraknServer():
