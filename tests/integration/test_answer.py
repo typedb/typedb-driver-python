@@ -229,6 +229,7 @@ class test_Answers(test_Base):
             for x in answers:
                 if x.has_explanation():
                     explanation = x.explanation()
+                    self.assertIsNotNone(explanation.get_rule())
 
         client.keyspaces().delete("explanation")
 

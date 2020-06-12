@@ -127,18 +127,26 @@ class ResponseReader(object):
         native_list_of_concept_maps = []
         for grpc_concept_map in grpc_list_of_concept_maps:
             native_list_of_concept_maps.append(AnswerConverter._create_concept_map(tx_service, grpc_concept_map))
-        return Explanation(native_list_of_concept_maps)
+        rule = ConceptFactory.create_local_concept(grpc_explanation_res.rule)
+        if len(rule.id) == 0:
+            rule = None
+        return Explanation(native_list_of_concept_maps, rule)
 
 
 class Explanation(object):
 
-    def __init__(self, list_of_concept_maps):
+    def __init__(self, list_of_concept_maps, rule):
         self._concept_maps_list = list_of_concept_maps
+        self._rule = rule
 
     def get_answers(self):
         """ Return answers this explanation is dependent on"""
         # note that concept_maps are subtypes of Answer
         return self._concept_maps_list
+
+    def get_rule(self):
+        """ return the rule that is being explained, if there is one """
+        return self._rule
 
 
 # ----- Different types of answers -----
