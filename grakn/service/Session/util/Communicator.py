@@ -93,15 +93,20 @@ class IterationResolver(six.Iterator):
         return self
 
     def __next__(self):
+        # Regardless of the outcome, we must have a result or error before this method returns
         self._started = True
         try:
+            # We should first return any results that another resolver has buffered for us
             return self._response_buffer.popleft()
         except IndexError:
             if self._ended:
                 raise StopIteration()
+            # Block on the GRPC stream and returns the next result, not requiring the buffer
+            # This may buffer results for other resolvers
             return self._communicator._block_for_next(self)
 
     def _buffer_response(self, response):
+        # Only called when another resolver is pushing a result into our buffer, this may happen before first __next__
         self._started = True
         self._response_buffer.append(response)
 
