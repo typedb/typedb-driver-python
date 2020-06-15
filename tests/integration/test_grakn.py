@@ -217,6 +217,17 @@ class test_Transaction(test_client_Base):
         id_set = set(concepts)
         self.assertEqual(len(id_set), 2) # entity and person, not the same
 
+    def test_query_errors_async(self):
+        answer = self.tx.query("match $x isa unicorn; get;")
+
+        with self.assertRaises(GraknError):
+            answer.get()
+
+    def test_query_errors_async_on_commit(self):
+        self.tx.query("match $x isa unicorn; get;")
+
+        with self.assertRaises(GraknError):
+            self.tx.commit()
 
 
     # --- commit tests --- 
