@@ -204,6 +204,30 @@ class test_Transaction(test_client_Base):
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after invalid syntax")
 
 
+    def test_query_infer_false(self):
+        """ Test that when the infer flag is false, no inferred answers are returned """
+        local_session = client.session("query_flag_infer_false")
+        local_tx = local_session.transaction.write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string; naming sub rule, when {$x isa person; $a isa name;}, then {$x has name $a;};").get()
+        local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;").get(), infer=False))
+        self.assertEquals(answers, 0)
+
+
+    def test_query_infer_true(self):
+        """ Test that when the infer flag is true, inferred answers are returned """
+        local_session = client.session("query_flag_infer_true")
+        local_tx = local_session.transaction.write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string; naming sub rule, when {$x isa person; $a isa name;}, then {$x has name $a;};").get()
+        local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;").get())
+        self.assertEquals(answers, 1)
+
+
     def test_query_tx_already_closed(self):
         self.tx.close()
         with self.assertRaises(GraknError):

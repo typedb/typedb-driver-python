@@ -55,14 +55,14 @@ class RequestBuilder(object):
     @staticmethod
     def _query_options(infer, explain):
         options_message = transaction_messages.Transaction.Query.Options()
-        if infer != SERVER_DEFAULT:
+        if infer != QueryOptions.SERVER_DEFAULT:
             if type(infer) == bool:
-                options_message.infer = infer
+                options_message.inferFlag = infer
             else:
                 raise GraknError("query 'infer' flag must be SERVER_DEFAULT or a boolean")
-        if explain != SERVER_DEFAULT:
+        if explain != QueryOptions.SERVER_DEFAULT:
             if type(explain) == bool:
-                options_message.explain = explain
+                options_message.explainFlag = explain
             else:
                 raise GraknError("query 'explain' flag must be SERVER_DEFAULT or a boolean")
         return options_message
@@ -71,7 +71,7 @@ class RequestBuilder(object):
     def start_iterating_query(query, infer, explain, batch_size):
         query_message = transaction_messages.Transaction.Query.Iter.Req()
         query_message.query = query
-        query_options = _query_options(infer, explain)
+        query_options = RequestBuilder._query_options(infer, explain)
         query_message.options.CopyFrom(query_options)
         transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
         transaction_iter_req.query_iter_req.CopyFrom(query_message)

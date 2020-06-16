@@ -209,7 +209,8 @@ class test_Answers(test_Base):
             self.assertEqual(has_explanation, 6)
         client.keyspaces().delete("transitivity")
 
-    def test_get_explanation(self):
+
+    def test_get_explanation_has_rule(self):
         with client.session("explanation") as local_session:
             tx = local_session.transaction().write()
             tx.query("define family-name sub attribute, value string;"
@@ -225,7 +226,7 @@ class test_Answers(test_Base):
             tx.commit()
             tx = local_session.transaction().read()
 
-            answers = tx.query("match $x isa person, has family-name $f; get;")
+            answers = tx.query("match $x isa person, has family-name $f; get;", explain=True)
             for x in answers:
                 if x.has_explanation():
                     explanation = x.explanation()
@@ -233,6 +234,61 @@ class test_Answers(test_Base):
 
         client.keyspaces().delete("explanation")
 
+
+    def test_query_with_explain_false_no_explanations_available(self):
+        with client.session("explanation") as local_session:
+            tx = local_session.transaction().write()
+            tx.query("define family-name sub attribute, value string;"
+                     "parenthood sub relation, relates parent, relates child;"
+                     "person sub entity, has family-name, plays parent, plays child;"
+                     "family-name-inheritence sub rule,"
+                     "when { (parent: $p, child: $c) isa parenthood; $p has family-name $f; },"
+                     "then { $c has family-name $f; };")
+            tx.query("insert $bob isa person, has family-name \"bobson\";"
+                     "$bobjr isa person;"
+                     "(parent: $bob, child: $bobjr) isa parenthood;")
+
+            tx.commit()
+            tx = local_session.transaction().read()
+
+            answers = tx.query("match $x isa person, has family-name $f; get;", explain=False)
+            for x in answers:
+                self.assertFalse(x.has_explanation())
+
+        client.keyspaces().delete("explanation")
+
+
+    def test_explain_true_explanation_sub_explanation_exists(self):
+        with client.session("explanation") as local_session:
+            tx = local_session.transaction().write()
+            tx.query("define family-name sub attribute, value string;"
+                     "parenthood sub relation, relates parent, relates child;"
+                     "fatherhood sub parenthood, relates father as parent, relates father-child as child;"
+                     "person sub entity, has family-name, plays parent, plays child, plays father, plays father-child, has gender;"
+                     "gender sub attribute, value string; "
+                     "family-name-inheritence sub rule,"
+                     "when { (parent: $p, child: $c) isa parenthood; $p has family-name $f; },"
+                     "then { $c has family-name $f; }; "
+                     "fatherhood-rule sub rule, "
+                     "when { $p isa person, has gender \"male\", has family-name $f; $c isa person, has family-name $f; }, "
+                     "then { (father: $p, father-child: $c) isa fatherhood; };")
+            tx.query("insert $bob isa person, has family-name \"bobson\", has gender \"male\";"
+                     "$bobjr isa person;"
+                     "(parent: $bob, child: $bobjr) isa parenthood;")
+
+            tx.commit()
+            tx = local_session.transaction().read()
+
+            answers = tx.query("match $m isa fatherhood; get;", explain=True)
+            for x in answers:
+                if x.has_explanation():
+                    explanation = x.explanation()
+                    self.assertIsNotNone(explanation.get_rule())
+                    sub_answers = explanation.get_answers()
+                    self.assertTrue(sub_answers[0].has_explanation())
+                    self.assertIsNotNone(sub_answers[0].explanation())
+
+        client.keyspaces().delete("explanation")
 
 if __name__ == "__main__":
     with GraknServer():
