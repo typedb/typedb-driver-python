@@ -211,7 +211,8 @@ class test_Answers(test_Base):
 
 
     def test_get_explanation_has_rule(self):
-        with client.session("explanation") as local_session:
+        """ Test that explanations have rules attached """
+        with client.session("explanation_has_rule") as local_session:
             tx = local_session.transaction().write()
             tx.query("define family-name sub attribute, value string;"
                      "parenthood sub relation, relates parent, relates child;"
@@ -232,11 +233,11 @@ class test_Answers(test_Base):
                     explanation = x.explanation()
                     self.assertIsNotNone(explanation.get_rule())
 
-        client.keyspaces().delete("explanation")
+        client.keyspaces().delete("explanation_has_rule")
 
 
     def test_query_with_explain_false_no_explanations_available(self):
-        with client.session("explanation") as local_session:
+        with client.session("query_explain_false") as local_session:
             tx = local_session.transaction().write()
             tx.query("define family-name sub attribute, value string;"
                      "parenthood sub relation, relates parent, relates child;"
@@ -259,7 +260,7 @@ class test_Answers(test_Base):
 
 
     def test_explain_true_explanation_sub_explanation_exists(self):
-        with client.session("explanation") as local_session:
+        with client.session("query_explain_sub_explanation") as local_session:
             tx = local_session.transaction().write()
             tx.query("define family-name sub attribute, value string;"
                      "parenthood sub relation, relates parent, relates child;"

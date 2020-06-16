@@ -212,7 +212,7 @@ class test_Transaction(test_client_Base):
         local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
         local_tx.commit()
         local_tx = local_session.transaction().read()
-        answers = list(local_tx.query("match $x isa person, has name $a; get;").get(), infer=False))
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", infer=False).get())
         self.assertEquals(answers, 0)
 
 
@@ -224,7 +224,7 @@ class test_Transaction(test_client_Base):
         local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
         local_tx.commit()
         local_tx = local_session.transaction().read()
-        answers = list(local_tx.query("match $x isa person, has name $a; get;").get())
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", infer=True).get())
         self.assertEquals(answers, 1)
 
 
