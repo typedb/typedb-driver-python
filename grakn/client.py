@@ -21,7 +21,7 @@ import grpc
 
 from grakn.service.Session.util.enums import ValueType   # user-facing ValueType enum
 
-from grakn.service.Session.util.RequestBuilder import RequestBuilder
+from grakn.service.Session.util.RequestBuilder import RequestBuilder, QueryOptions
 from grakn.service.Session.util.enums import TxType as _TxType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
@@ -132,7 +132,7 @@ class TransactionBuilder(object):
 class Transaction(object):
     """ Presents the Grakn interface to the user, actual work with GRPC happens in TransactionService """
 
-    Options = RequestBuilder.QueryOptions
+    Options = QueryOptions
 
     def __init__(self, transaction_service):
         self._tx_service = transaction_service

@@ -37,9 +37,9 @@ class RequestBuilder(object):
         iter_options = transaction_messages.Transaction.Iter.Req.Options()
         if batch_size == QueryOptions.BATCH_ALL:
             iter_options.all = True
-        else if type(batch_size) == int and batch_size > 0:
+        elif type(batch_size) == int and batch_size > 0:
             iter_options.number = batch_size
-        else if batch_size != QueryOptions.SERVER_DEFAULT:
+        elif batch_size != QueryOptions.SERVER_DEFAULT:
             raise GraknError("batch_size parameter must either be an integer, SERVER_DEFAULT, or BATCH_ALL")
 
         transaction_iter_req = transaction_messages.Transaction.Iter.Req()
