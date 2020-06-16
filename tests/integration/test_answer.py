@@ -256,7 +256,7 @@ class test_Answers(test_Base):
             for x in answers:
                 self.assertFalse(x.has_explanation())
 
-        client.keyspaces().delete("explanation")
+        client.keyspaces().delete("query_explain_false")
 
 
     def test_explain_true_explanation_sub_explanation_exists(self):
@@ -289,7 +289,7 @@ class test_Answers(test_Base):
                     self.assertTrue(sub_answers[0].has_explanation())
                     self.assertIsNotNone(sub_answers[0].explanation())
 
-        client.keyspaces().delete("explanation")
+        client.keyspaces().delete("query_explain_sub_explanation")
 
 if __name__ == "__main__":
     with GraknServer():
