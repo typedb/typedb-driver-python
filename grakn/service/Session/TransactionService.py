@@ -43,7 +43,7 @@ class TransactionService(object):
     # --- Passthrough targets ---
     # targets of top level Transaction class
 
-    def query(self, query, infer=True, batch_size=50):
+    def query(self, query, infer, batch_size):
         return Iterator(self._communicator,
                         RequestBuilder.start_iterating_query(query, infer, batch_size),
                         ResponseReader.ResponseReader.get_query_results(self))
