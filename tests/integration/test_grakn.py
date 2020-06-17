@@ -20,7 +20,7 @@
 import unittest
 import uuid
 import grakn
-from grakn.client import GraknClient, ValueType
+from grakn.client import GraknClient, ValueType, Transaction
 from grakn.exception.GraknError import GraknError
 from grakn.service.Session.util.ResponseReader import Value
 
@@ -202,6 +202,84 @@ class test_Transaction(test_client_Base):
             # should be closed
             next(self.tx.query("match $x isa person; get;"))
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after invalid syntax")
+
+
+    def test_query_infer_false(self):
+        """ Test that when the infer flag is false, no inferred answers are returned """
+        local_session = client.session("query_flag_infer_false")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string; naming sub rule, when {$x isa person; $a isa name;}, then {$x has name $a;};").get()
+        local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", infer=False).get())
+        self.assertEquals(len(answers), 0)
+
+
+    def test_query_infer_true(self):
+        """ Test that when the infer flag is true, inferred answers are returned """
+        local_session = client.session("query_flag_infer_true")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string; naming sub rule, when {$x isa person; $a isa name;}, then {$x has name $a;};").get()
+        local_tx.query("insert $x isa person; $a \"John\" isa name;").get()
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", infer=True).get())
+        self.assertEquals(len(answers), 1)
+
+
+    def test_query_batch_all(self):
+        """ Test that batch_size=ALL succeeds at retrieving all the answers """
+        local_session = client.session("query_batch_size_all")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string;")
+        for i in range(100):
+            local_tx.query("insert $x isa person, has name \"John-{0}\"; ".format(i))
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", batch_size=Transaction.Options.BATCH_ALL).get())
+        self.assertEquals(len(answers), 100)
+
+
+    def test_query_batch_one(self):
+        """ Test that batch_size=1 succeeds at retrieving all the answers """
+        local_session = client.session("query_batch_size_one")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string;")
+        for i in range(100):
+            local_tx.query("insert $x isa person, has name \"John-{0}\"; ".format(i))
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        answers = list(local_tx.query("match $x isa person, has name $a; get;", batch_size=1).get())
+        self.assertEquals(len(answers), 100)
+
+
+    def test_query_batch_nonpositive_throws(self):
+        """ Test that batch_size="Nonsense" succeeds at retrieving all the answers """
+        local_session = client.session("query_batch_size_nonpositive")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string;")
+        for i in range(100):
+            local_tx.query("insert $x isa person, has name \"John-{0}\"; ".format(i))
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        with self.assertRaises(Exception):
+            answers = list(local_tx.query("match $x isa person, has name $a; get;", batch_size=0).get())
+        with self.assertRaises(Exception):
+            answers = list(local_tx.query("match $x isa person, has name $a; get;", batch_size=-50).get())
+
+
+    def test_query_batch_nonsense_throws(self):
+        """ Test that batch_size="Nonsense" succeeds at retrieving all the answers """
+        local_session = client.session("query_batch_size_nonsense")
+        local_tx = local_session.transaction().write()
+        local_tx.query("define person sub entity, has name; name sub attribute, value string;")
+        for i in range(100):
+            local_tx.query("insert $x isa person, has name \"John-{0}\"; ".format(i))
+        local_tx.commit()
+        local_tx = local_session.transaction().read()
+        with self.assertRaises(Exception):
+            answers = list(local_tx.query("match $x isa person, has name $a; get;", batch_size="nonsense").get())
 
 
     def test_query_tx_already_closed(self):

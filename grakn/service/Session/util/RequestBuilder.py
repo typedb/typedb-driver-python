@@ -23,18 +23,24 @@ import grakn_protocol.session.Concept_pb2 as concept_messages
 import grakn_protocol.session.Answer_pb2 as answer_messages
 from grakn.service.Session.util import enums
 from grakn.service.Session.Concept import BaseTypeMapping
+from grakn.exception import GraknError
 
+class QueryOptions(object):
+    SERVER_DEFAULT = None
+    BATCH_ALL = "all"
 
 class RequestBuilder(object):
     """ Static methods for generating GRPC requests """
 
     @staticmethod
-    def _base_iterate_with_options(batch_size=None):
+    def _base_iterate_with_options(batch_size):
         iter_options = transaction_messages.Transaction.Iter.Req.Options()
-        if batch_size is None:
+        if batch_size == QueryOptions.BATCH_ALL:
             iter_options.all = True
-        else:
+        elif type(batch_size) == int and batch_size > 0:
             iter_options.number = batch_size
+        elif batch_size != QueryOptions.SERVER_DEFAULT:
+            raise GraknError("batch_size parameter must either be an integer, SERVER_DEFAULT, or BATCH_ALL")
 
         transaction_iter_req = transaction_messages.Transaction.Iter.Req()
         transaction_iter_req.options.CopyFrom(iter_options)
@@ -47,12 +53,26 @@ class RequestBuilder(object):
         return transaction_req
 
     @staticmethod
-    def start_iterating_query(query, infer=True, batch_size=None):
+    def _query_options(infer, explain):
+        options_message = transaction_messages.Transaction.Query.Options()
+        if infer != QueryOptions.SERVER_DEFAULT:
+            if type(infer) == bool:
+                options_message.inferFlag = infer
+            else:
+                raise GraknError("query 'infer' flag must be SERVER_DEFAULT or a boolean")
+        if explain != QueryOptions.SERVER_DEFAULT:
+            if type(explain) == bool:
+                options_message.explainFlag = explain
+            else:
+                raise GraknError("query 'explain' flag must be SERVER_DEFAULT or a boolean")
+        return options_message
+
+    @staticmethod
+    def start_iterating_query(query, infer, explain, batch_size):
         query_message = transaction_messages.Transaction.Query.Iter.Req()
         query_message.query = query
-        query_message.infer = transaction_messages.Transaction.Query.INFER.Value("TRUE") if infer else \
-            transaction_messages.Transaction.Query.INFER.Value("FALSE")
-
+        query_options = RequestBuilder._query_options(infer, explain)
+        query_message.options.CopyFrom(query_options)
         transaction_iter_req = RequestBuilder._base_iterate_with_options(batch_size)
         transaction_iter_req.query_iter_req.CopyFrom(query_message)
         return transaction_iter_req

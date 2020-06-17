@@ -21,7 +21,7 @@ import grpc
 
 from grakn.service.Session.util.enums import ValueType   # user-facing ValueType enum
 
-from grakn.service.Session.util.RequestBuilder import RequestBuilder
+from grakn.service.Session.util.RequestBuilder import RequestBuilder, QueryOptions
 from grakn.service.Session.util.enums import TxType as _TxType
 from grakn.service.Keyspace.KeyspaceService import KeyspaceService
 from grakn.service.Session.TransactionService import TransactionService
@@ -132,6 +132,8 @@ class TransactionBuilder(object):
 class Transaction(object):
     """ Presents the Grakn interface to the user, actual work with GRPC happens in TransactionService """
 
+    Options = QueryOptions
+
     def __init__(self, transaction_service):
         self._tx_service = transaction_service
     __init__.__annotations__ = {'transaction_service': TransactionService}
@@ -148,9 +150,9 @@ class Transaction(object):
             #print("Closing Transaction due to exception: {0} \n traceback: \n {1}".format(type, tb))
             return False
 
-    def query(self, query, infer=True):
-        """ Execute a Graql query, inference is optionally enabled """
-        return self._tx_service.query(query, infer)
+    def query(self, query, infer=Options.SERVER_DEFAULT, explain=Options.SERVER_DEFAULT, batch_size=Options.SERVER_DEFAULT):
+        """ Execute a Graql query with query options"""
+        return self._tx_service.query(query, infer, explain, batch_size)
     query.__annotations__ = {'query': str}
 
     def commit(self):
