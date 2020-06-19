@@ -40,7 +40,8 @@ commands:
 
 jobs:
   build:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -49,7 +50,8 @@ jobs:
           command: bazel build //...
 
   test:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -58,7 +60,8 @@ jobs:
           command: bazel test //:test_integration --test_output=streamed
 
   deploy-pip-snapshot:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -69,7 +72,8 @@ jobs:
           bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
 
   test-deployment:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -89,7 +93,8 @@ jobs:
             cd tests/deployment/ && python -m unittest test
 
   sync-dependencies-snapshot:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -101,7 +106,8 @@ jobs:
           --targets grakn-kgms:master kglib:master
 
   release-approval:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -112,7 +118,8 @@ jobs:
           bazel run @graknlabs_build_tools//ci:release-approval
 
   release-validate:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     steps:
       - install-bazel-linux-rbe
       - checkout
@@ -121,7 +128,8 @@ jobs:
             graknlabs_protocol
 
   deploy-github:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -136,7 +144,8 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-github -- $CIRCLE_SHA1
 
   deploy-pip-release:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -147,7 +156,8 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-pip -- release
 
   sync-dependencies-release:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
       - install-bazel-linux-rbe
@@ -159,7 +169,8 @@ jobs:
           --targets grakn-kgms:master docs:master examples:master kglib:master
 
   release-cleanup:
-    machine: true
+    machine: 
+      image: ubuntu-1604:201903-01
     steps:
       - checkout
       - run: git push --delete https://$REPO_GITHUB_TOKEN@github.com/graknlabs/client-python $CIRCLE_BRANCH
