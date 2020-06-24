@@ -105,7 +105,7 @@ jobs:
       - checkout
       - run: |
           export SYNC_DEPENDENCIES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
+          bazel run @graknlabs_dependencies//tools/sync:dependencies -- \
           --source client-python@$CIRCLE_SHA1 \
           --targets grakn-kgms:master kglib:master
 
@@ -119,7 +119,7 @@ jobs:
       - run: |
           export RELEASE_APPROVAL_USERNAME=$REPO_GITHUB_USERNAME
           export RELEASE_APPROVAL_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:release-approval
+          bazel run @graknlabs_dependencies//tools/release:approval
 
   release-validate:
     machine: 
@@ -128,7 +128,7 @@ jobs:
       - install-bazel
       - checkout
       - run: |
-          bazel run @graknlabs_build_tools//ci:release-validate-deps -- \
+          bazel run @graknlabs_dependencies//tools/release:validate-deps -- \
             graknlabs_protocol
 
   deploy-github:
@@ -141,7 +141,7 @@ jobs:
       - run: |
           pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:release-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
+          bazel run @graknlabs_dependencies//tools/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
       - run: bazel clean --expunge
       - run: |
           export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
@@ -168,7 +168,7 @@ jobs:
       - checkout
       - run: |
           export SYNC_DEPENDENCIES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
+          bazel run @graknlabs_dependencies//tools/sync:dependencies -- \
           --source client-python@$(cat VERSION) \
           --targets grakn-kgms:master docs:master examples:master kglib:master
 
