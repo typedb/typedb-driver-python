@@ -136,6 +136,7 @@ class Communicator(six.Iterator):
         self._resolver_queue = deque()
         self._response_iterator = grpc_stream_constructor(self)
         self._closed = False
+        self._error = None
 
     def __iter__(self):
         return self
