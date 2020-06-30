@@ -73,7 +73,7 @@ assemble_pip(
 deploy_pip(
     name = "deploy-pip",
     target = ":assemble-pip",
-    deployment_properties = "@graknlabs_build_tools//:deployment.properties",
+    deployment_properties = "@graknlabs_dependencies//distribution:deployment.properties",
 )
 
 

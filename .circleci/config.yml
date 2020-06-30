@@ -17,36 +17,35 @@
 
 version: 2.1
 commands:
-  install-bazel-linux-rbe:
+  install-bazel:
     steps:
-      - run: curl -OL https://raw.githubusercontent.com/graknlabs/build-tools/master/ci/install-bazel-linux.sh
-      - run: bash ./install-bazel-linux.sh && rm ./install-bazel-linux.sh
-      - run: curl -OL https://raw.githubusercontent.com/graknlabs/build-tools/master/ci/install-bazel-rbe.sh
-      - run: bash ./install-bazel-rbe.sh && rm ./install-bazel-rbe.sh
+      - run: curl -OL https://raw.githubusercontent.com/graknlabs/dependencies/master/tool/bazelinstall/linux.sh
+      - run: bash ./linux.sh && rm ./linux.sh
+      - run: curl -OL https://raw.githubusercontent.com/graknlabs/dependencies/master/tool/bazelinstall/rbe.sh
+      - run: bash ./rbe.sh && rm ./rbe.sh
 
-  run-bazel-rbe:
+  run-bazel:
     parameters:
       command:
         type: string
     steps:
-      - run: bazel run @graknlabs_build_tools//ci:run-bazel-rbe -- << parameters.command >>
+      - run: bazel run @graknlabs_dependencies//tool/bazelrun:rbe -- << parameters.command >>
 
-  run-grakn-server:
+  run-grakn:
     steps:
-      - run-bazel-rbe:
+      - run-bazel:
           command: bazel build @graknlabs_grakn_core//:assemble-linux-targz
       - run: mkdir dist && tar -xvzf bazel-bin/external/graknlabs_grakn_core/grakn-core-all-linux.tar.gz -C ./dist/
       - run: nohup ./dist/grakn-core-all-linux/grakn server start
-
 jobs:
   build:
     machine: 
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
-      - run-bazel-rbe:
+      - run-bazel:
           command: bazel build //...
 
   test:
@@ -54,9 +53,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
-      - run-bazel-rbe:
+      - run-bazel:
           command: bazel test //:test_integration --test_output=streamed
 
   deploy-pip-snapshot:
@@ -64,7 +63,7 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
@@ -76,11 +75,11 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
-      - run-grakn-server
+      - run-grakn
       - run: sleep 60
       - run:
           name: Run test-deployment for client-python
@@ -97,11 +96,11 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           export SYNC_DEPENDENCIES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
+          bazel run @graknlabs_dependencies//tool/sync:dependencies -- \
           --source client-python@$CIRCLE_SHA1 \
           --targets grakn-kgms:master kglib:master
 
@@ -110,21 +109,21 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           export RELEASE_APPROVAL_USERNAME=$REPO_GITHUB_USERNAME
           export RELEASE_APPROVAL_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:release-approval
+          bazel run @graknlabs_dependencies//tool/release:approval
 
   release-validate:
     machine: 
       image: ubuntu-1604:201903-01
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
-          bazel run @graknlabs_build_tools//ci:release-validate-deps -- \
+          bazel run @graknlabs_dependencies//tool/release:validate-deps -- \
             graknlabs_protocol
 
   deploy-github:
@@ -132,12 +131,12 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           pip install certifi
           export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:release-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
+          bazel run @graknlabs_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
       - run: bazel clean --expunge
       - run: |
           export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
@@ -148,7 +147,7 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
@@ -160,11 +159,11 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel-linux-rbe
+      - install-bazel
       - checkout
       - run: |
           export SYNC_DEPENDENCIES_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run @graknlabs_build_tools//ci:sync-dependencies -- \
+          bazel run @graknlabs_dependencies//tool/sync:dependencies -- \
           --source client-python@$(cat VERSION) \
           --targets grakn-kgms:master docs:master examples:master kglib:master
 
