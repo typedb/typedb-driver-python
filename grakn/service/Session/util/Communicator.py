@@ -136,6 +136,7 @@ class Communicator(six.Iterator):
         self._resolver_queue = deque()
         self._response_iterator = grpc_stream_constructor(self)
         self._closed = False
+        self._error = None
 
     def __iter__(self):
         return self
@@ -174,11 +175,13 @@ class Communicator(six.Iterator):
                     current._buffer_response(response)
 
             except Exception as e:
-                self._closed = True
                 if not current:
-                    raise GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n "
+                    self._error = GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n "
                                      "Ensure client version is compatible with server version.".format(e))
-                raise GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
+                else:
+                    self._error = GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
+                self.close()
+                raise self._error
 
     def iteration_request(self, request, is_last_response):
         self.error_if_closed()
@@ -190,18 +193,27 @@ class Communicator(six.Iterator):
 
     def close(self):
         if not self._closed:
-
-            # Exhaust all resolvers, ensuring that transaction is closed without error
-
-            for resolver in list(self._resolver_queue):
-                resolver._on_close()
+            raise_error = False
+            if not self._error:
+                # Exhaust all resolvers, ensuring that transaction is closed without error
+                try:
+                    for resolver in list(self._resolver_queue):
+                        resolver._on_close()
+                except GraknError as e:
+                    self._error = e
+                    raise_error = True
+            self._closed = True
 
             with self._request_queue.mutex:  # probably don't even need the mutex
                 self._request_queue.queue.clear()
             self._request_queue.put(None)
-            self._closed = True
+
             # force exhaust the iterator so `onCompleted()` is called on the server
-            try:
-                next(self._response_iterator)
-            except StopIteration:
-                pass
+            if not self._error:
+                try:
+                    next(self._response_iterator)
+                except StopIteration:
+                    pass
+
+            if raise_error:
+                raise self._error
