@@ -178,7 +178,8 @@ class Communicator(six.Iterator):
                 if not current:
                     self._error = GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n "
                                      "Ensure client version is compatible with server version.".format(e))
-                self._error = GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
+                else:
+                    self._error = GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
                 self.close()
                 raise self._error
 
