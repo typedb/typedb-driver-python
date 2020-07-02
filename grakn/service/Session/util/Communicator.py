@@ -180,6 +180,7 @@ class Communicator(six.Iterator):
                                      "Ensure client version is compatible with server version.".format(e))
                 self._error = GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
                 self.close()
+                raise self._error
 
     def iteration_request(self, request, is_last_response):
         self.error_if_closed()
@@ -198,6 +199,7 @@ class Communicator(six.Iterator):
                     for resolver in list(self._resolver_queue):
                         resolver._on_close()
                 except GraknError as e:
+                    self._error = e
                     raise_error = True
             self._closed = True
 
@@ -206,10 +208,11 @@ class Communicator(six.Iterator):
             self._request_queue.put(None)
 
             # force exhaust the iterator so `onCompleted()` is called on the server
-            try:
-                next(self._response_iterator)
-            except StopIteration:
-                pass
+            if not self._error:
+                try:
+                    next(self._response_iterator)
+                except StopIteration:
+                    pass
 
             if raise_error:
                 raise self._error
