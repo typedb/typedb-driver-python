@@ -56,7 +56,7 @@ jobs:
       - install-bazel
       - checkout
       - run-bazel:
-          command: bazel test //:test_integration --test_output=streamed
+          command: bazel test //:test_integration --test_output=errors
 
   deploy-pip-snapshot:
     machine: 
