@@ -179,7 +179,7 @@ class Communicator(six.Iterator):
                     self._error = GraknError("Internal client/protocol error, request/response pair not matched: {0}\n\n "
                                      "Ensure client version is compatible with server version.".format(e))
                 self._error = GraknError("Server/network error: {0}\n\n generated from request: {1}".format(e, current._request))
-                raise self._error
+                self.close()
 
     def iteration_request(self, request, is_last_response):
         self.error_if_closed()
@@ -205,11 +205,11 @@ class Communicator(six.Iterator):
                 self._request_queue.queue.clear()
             self._request_queue.put(None)
 
-            if raise_error:
-                raise self._error
-
             # force exhaust the iterator so `onCompleted()` is called on the server
             try:
                 next(self._response_iterator)
             except StopIteration:
                 pass
+
+            if raise_error:
+                raise self._error
