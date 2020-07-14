@@ -20,7 +20,7 @@ workspace(name = "graknlabs_client_python")
 ################################
 # Load @graknlabs_dependencies #
 ################################
-load("//dependencies/graknlabs:dependencies.bzl", "graknlabs_dependencies")
+load("//dependencies/graknlabs:repositories.bzl", "graknlabs_dependencies")
 graknlabs_dependencies()
 
 # Load Antlr
@@ -131,7 +131,7 @@ rules_pkg_dependencies()
 ############################
 # Load @graknlabs_protocol #
 ############################
-load("//dependencies/graknlabs:dependencies.bzl", "graknlabs_protocol")
+load("//dependencies/graknlabs:repositories.bzl", "graknlabs_protocol")
 graknlabs_protocol()
 
 load("@graknlabs_dependencies//builder/grpc:deps.bzl", grpc_deps = "deps")
@@ -144,48 +144,11 @@ com_github_grpc_grpc_deps()
 load("@stackb_rules_proto//java:deps.bzl", "java_grpc_compile")
 java_grpc_compile()
 
-##############################
-# Load @graknlabs_grakn_core #
-##############################
-load("//dependencies/graknlabs:dependencies.bzl", "graknlabs_grakn_core")
-graknlabs_grakn_core()
-
-load("@graknlabs_grakn_core//dependencies/maven:dependencies.bzl",
-graknlabs_grakn_core_maven_dependencies = "maven_dependencies")
-graknlabs_grakn_core_maven_dependencies()
-
-#######################################################
-# Load @graknlabs_common (from @graknlabs_grakn_core) #
-#######################################################
-load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl", "graknlabs_common")
-graknlabs_common()
-
-######################################################
-# Load @graknlabs_graql (from @graknlabs_grakn_core) #
-######################################################
-load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl", "graknlabs_graql")
-graknlabs_graql()
-load("@graknlabs_graql//dependencies/maven:artifacts.bzl", graknlabs_graql_artifacts = "artifacts")
-
-##############################################################
-# Load @graknlabs_grabl_tracing (from @graknlabs_grakn_core) #
-##############################################################
-load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl", "graknlabs_grabl_tracing")
-graknlabs_grabl_tracing()
-load("@graknlabs_grabl_tracing//dependencies/maven:artifacts.bzl", graknlabs_grabl_tracing_artifacts = "artifacts")
-
-############################################################
-# Load @graknlabs_client_java (from @graknlabs_grakn_core) #
-############################################################
-load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl", "graknlabs_client_java")
-graknlabs_client_java()
-load("@graknlabs_client_java//dependencies/maven:artifacts.bzl", graknlabs_client_java_artifacts = "artifacts")
-
-########################################################
-# Load @graknlabs_console (from @graknlabs_grakn_core) #
-########################################################
-load("@graknlabs_grakn_core//dependencies/graknlabs:dependencies.bzl", "graknlabs_console")
-graknlabs_console()
+#######################################
+# Load @graknlabs_grakn_core_artifact #
+#######################################
+load("//dependencies/graknlabs:artifacts.bzl", "graknlabs_grakn_core_artifact")
+graknlabs_grakn_core_artifact()
 
 #################################
 # Load @graknlabs_client_python #
@@ -197,12 +160,3 @@ pip3_import(
 load("@graknlabs_client_python_pip//:requirements.bzl",
 graknlabs_client_python_pip_install = "pip_install")
 graknlabs_client_python_pip_install()
-
-###############
-# Load @maven #
-###############
-maven(
-    graknlabs_graql_artifacts +
-    graknlabs_grabl_tracing_artifacts +
-    graknlabs_client_java_artifacts
-)

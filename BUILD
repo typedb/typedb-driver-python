@@ -94,7 +94,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -107,7 +108,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -120,7 +122,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -134,7 +137,8 @@ py_test(
         ":client_python",
     ],
     size = "large",
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
