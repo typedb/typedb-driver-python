@@ -19,26 +19,13 @@
 from __future__ import print_function
 
 from unittest import TestCase
-from datetime import datetime
 
 import os
 import shutil
-import six
 import subprocess as sp
 import tempfile
-# import zipfile
 import sys
 import tarfile
-
-
-# class ZipFile(zipfile.ZipFile):
-#     def _extract_member(self, member, targetpath, pwd):
-#         if not isinstance(member, zipfile.ZipInfo):
-#             member = self.getinfo(member)
-#         ret_val = super()._extract_member(member, targetpath, pwd)
-#         attr = member.external_attr >> 16
-#         os.chmod(ret_val, attr)
-#         return ret_val
 
 
 class GraknServer(object):
@@ -65,7 +52,7 @@ class GraknServer(object):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
         with tarfile.open(GraknServer.DISTRIBUTION_LOCATION) as tf:
             tf.extractall(self.__unpacked_dir)
-            self.__distribution_root_dir = os.path.commonpath(tf.getnames())
+            self.__distribution_root_dir = os.path.commonpath(tf.getnames()[1:])
 
 
 class test_Base(TestCase):
