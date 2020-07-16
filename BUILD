@@ -27,6 +27,7 @@ load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
        graknlabs_bazel_distribution_requirement = "requirement")
 
 load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
+load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "artifact_extractor")
 
 
 py_library(
@@ -94,7 +95,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -107,7 +109,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -120,7 +123,8 @@ py_test(
     deps = [
         ":client_python",
     ],
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -134,7 +138,8 @@ py_test(
         ":client_python",
     ],
     size = "large",
-    data = ["@graknlabs_grakn_core//:assemble-mac-zip"],
+    data = ["@graknlabs_grakn_core_artifact//file"],
+    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
     python_version = "PY3"
 )
 
@@ -146,4 +151,9 @@ test_suite(
         ":test_keyspace",
         ":test_answer",
     ]
+)
+
+artifact_extractor(
+    name = "grakn-extractor",
+    artifact = "@graknlabs_grakn_core_artifact//file",
 )

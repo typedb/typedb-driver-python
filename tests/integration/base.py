@@ -19,31 +19,20 @@
 from __future__ import print_function
 
 from unittest import TestCase
-from datetime import datetime
 
 import os
 import shutil
-import six
 import subprocess as sp
 import tempfile
-import zipfile
-
-
-class ZipFile(zipfile.ZipFile):
-    def _extract_member(self, member, targetpath, pwd):
-        if not isinstance(member, zipfile.ZipInfo):
-            member = self.getinfo(member)
-        ret_val = super()._extract_member(member, targetpath, pwd)
-        attr = member.external_attr >> 16
-        os.chmod(ret_val, attr)
-        return ret_val
+import sys
+import tarfile
 
 
 class GraknServer(object):
-    DISTRIBUTION_LOCATION = 'external/graknlabs_grakn_core/grakn-core-all-mac.zip'
-    DISTRIBUTION_ROOT_DIR = 'grakn-core-all-mac'
+    DISTRIBUTION_LOCATION = sys.argv.pop()
 
     def __init__(self):
+        self.__distribution_root_dir = None
         self.__unpacked_dir = None
 
     def __enter__(self):
@@ -51,18 +40,19 @@ class GraknServer(object):
             self._unpack()
         sp.check_call([
             'grakn', 'server', 'start'
-        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
+        ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         sp.check_call([
             'grakn', 'server', 'stop'
-        ], cwd=os.path.join(self.__unpacked_dir, GraknServer.DISTRIBUTION_ROOT_DIR))
+        ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
         shutil.rmtree(self.__unpacked_dir)
 
     def _unpack(self):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
-        with ZipFile(GraknServer.DISTRIBUTION_LOCATION) as zf:
-            zf.extractall(self.__unpacked_dir)
+        with tarfile.open(GraknServer.DISTRIBUTION_LOCATION) as tf:
+            tf.extractall(self.__unpacked_dir)
+            self.__distribution_root_dir = os.path.commonpath(tf.getnames()[1:])
 
 
 class test_Base(TestCase):
