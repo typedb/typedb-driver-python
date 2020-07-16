@@ -45,6 +45,15 @@ python_deps()
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
 pip_repositories()
 
+# Load graknlabs_dependencies_ci_pip (for @graknlabs_dependencies//tool/sync:dependencies)
+pip3_import(
+    name = "graknlabs_dependencies_ci_pip",
+    requirements = "@graknlabs_dependencies//tool:requirements.txt",
+)
+load("@graknlabs_dependencies_ci_pip//:requirements.bzl",
+graknlabs_dependencies_ci_pip_install = "pip_install")
+graknlabs_dependencies_ci_pip_install()
+
 
 #####################################################################
 # Load @graknlabs_bazel_distribution (from @graknlabs_dependencies) #
