@@ -47,7 +47,7 @@ jobs:
       - run-bazel:
           command: bazel build //...
 
-  test:
+  test-concept:
     machine: 
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
@@ -55,7 +55,37 @@ jobs:
       - install-bazel
       - checkout
       - run-bazel:
-          command: bazel test //:test_integration --test_output=errors
+          command: bazel test //:test_concept --test_output=errors
+
+  test-grakn:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/client-python
+    steps:
+      - install-bazel
+      - checkout
+      - run-bazel:
+          command: bazel test //:test_grakn --test_output=errors
+
+  test-keyspace:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/client-python
+    steps:
+      - install-bazel
+      - checkout
+      - run-bazel:
+          command: bazel test //:test_keyspace --test_output=errors
+
+  test-answer:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: ~/client-python
+    steps:
+      - install-bazel
+      - checkout
+      - run-bazel:
+          command: bazel test //:test_answer --test_output=errors
 
   deploy-pip-snapshot:
     machine: 
@@ -180,7 +210,19 @@ workflows:
           filters:
             branches:
               ignore: client-python-release-branch
-      - test:
+      - test-concept:
+          filters:
+            branches:
+              ignore: client-python-release-branch
+      - test-grakn:
+          filters:
+            branches:
+              ignore: client-python-release-branch
+      - test-keyspace:
+          filters:
+            branches:
+              ignore: client-python-release-branch
+      - test-answer:
           filters:
             branches:
               ignore: client-python-release-branch
@@ -190,7 +232,10 @@ workflows:
               only: master
           requires:
             - build
-            - test
+            - test-concept
+            - test-grakn
+            - test-keyspace
+            - test-answer
       - test-deployment:
           filters:
             branches:
