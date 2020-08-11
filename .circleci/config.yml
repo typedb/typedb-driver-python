@@ -242,18 +242,12 @@ workflows:
               only: master
           requires:
             - deploy-pip-snapshot
-      - sync-dependencies-snapshot:
-          filters:
-            branches:
-              only: master
-          requires:
-            - test-deployment
       - release-approval:
           filters:
             branches:
               only: master
           requires:
-            - sync-dependencies-snapshot
+            - test-deployment
 
   client-python-release:
     jobs:
@@ -280,15 +274,9 @@ workflows:
               only: client-python-release-branch
           requires:
             - deploy-approval
-      - sync-dependencies-release:
-          filters:
-            branches:
-              only: client-python-release-branch
-          requires:
-            - deploy-pip-release
       - release-cleanup:
           filters:
             branches:
               only: client-python-release-branch
           requires:
-            - sync-dependencies-release
+            - deploy-pip-release
