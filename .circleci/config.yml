@@ -31,35 +31,29 @@ commands:
     steps:
       - run: bazel run @graknlabs_dependencies//tool/bazelrun:rbe -- << parameters.command >>
 
-  install-artifact-credentials:
-    steps:
-      - run: bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-
   run-grakn:
     steps:
       - run-bazel:
-          command: bazel run //:grakn-extractor -- dist/grakn-core-server-linux
-      - run: nohup ./dist/grakn-core-server-linux/grakn server start
+          command: bazel run //:grakn-extractor -- dist/grakn-core-all-linux
+      - run: nohup ./dist/grakn-core-all-linux/grakn server start
 jobs:
   build:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run-bazel:
           command: bazel build //...
 
   test-concept:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run-bazel:
           command: bazel test //:test_concept --test_output=errors
 
@@ -68,9 +62,8 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run-bazel:
           command: bazel test //:test_grakn --test_output=errors
 
@@ -79,9 +72,8 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run-bazel:
           command: bazel test //:test_keyspace --test_output=errors
 
@@ -90,32 +82,30 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run-bazel:
           command: bazel test //:test_answer --test_output=errors
 
   deploy-pip-snapshot:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
+      - checkout
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
           bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
 
   test-deployment:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - checkout
       - install-bazel
-      - install-artifact-credentials
+      - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
       - run-grakn
@@ -131,7 +121,7 @@ jobs:
             cd tests/deployment/ && python -m unittest test
 
   sync-dependencies-snapshot:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -144,7 +134,7 @@ jobs:
           --targets grakn-kgms:master kglib:master
 
   release-approval:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -156,17 +146,16 @@ jobs:
           bazel run @graknlabs_dependencies//tool/release:approval
 
   release-validate:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     steps:
       - install-bazel
       - checkout
       - run: |
-          bazel run @graknlabs_dependencies//tool/release:validate-deps -- \
-            graknlabs_protocol
+          bazel test //:release-validate-deps --test_output=streamed
 
   deploy-github:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -182,7 +171,7 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-github -- $CIRCLE_SHA1
 
   deploy-pip-release:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -194,7 +183,7 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-pip -- release
 
   sync-dependencies-release:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -207,7 +196,7 @@ jobs:
           --targets grakn-kgms:master docs:master examples:master kglib:master
 
   release-cleanup:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
