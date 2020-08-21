@@ -152,8 +152,7 @@ jobs:
       - install-bazel
       - checkout
       - run: |
-          bazel run @graknlabs_dependencies//tool/release:validate-deps -- \
-            graknlabs_protocol
+          bazel test //:release-validate-deps --test_output=streamed
 
   deploy-github:
     machine: 
