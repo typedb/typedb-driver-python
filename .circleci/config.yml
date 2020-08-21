@@ -30,7 +30,9 @@ commands:
         type: string
     steps:
       - run: bazel run @graknlabs_dependencies//tool/bazelrun:rbe -- << parameters.command >>
-
+  install-artifact-credentials:
+    steps:
+      - run: bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
   run-grakn:
     steps:
       - run-bazel:
@@ -43,6 +45,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run-bazel:
           command: bazel build //...
@@ -53,6 +56,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run-bazel:
           command: bazel test //:test_concept --test_output=errors
@@ -63,6 +67,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run-bazel:
           command: bazel test //:test_grakn --test_output=errors
@@ -73,6 +78,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run-bazel:
           command: bazel test //:test_keyspace --test_output=errors
@@ -83,6 +89,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run-bazel:
           command: bazel test //:test_answer --test_output=errors
@@ -105,6 +112,7 @@ jobs:
     working_directory: ~/client-python
     steps:
       - install-bazel
+      - install-artifact-credentials
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
