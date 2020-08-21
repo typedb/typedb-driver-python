@@ -28,7 +28,7 @@ load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
 
 load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
 load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "artifact_extractor")
-
+load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_deps")
 
 py_library(
     name = "client_python",
@@ -156,4 +156,13 @@ test_suite(
 artifact_extractor(
     name = "grakn-extractor",
     artifact = "@graknlabs_grakn_core_artifact//file",
+)
+
+release_validate_deps(
+    name = "release-validate-deps",
+    refs = "@graknlabs_client_python_workspace_refs//:refs.json",
+    tagged_deps = [
+        "@graknlabs_protocol",
+    ],
+    tags = ["manual"]  # in order for bazel test //... to not fail
 )

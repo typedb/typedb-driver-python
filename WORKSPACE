@@ -23,6 +23,8 @@ workspace(name = "graknlabs_client_python")
 load("//dependencies/graknlabs:repositories.bzl", "graknlabs_dependencies")
 graknlabs_dependencies()
 
+load("@graknlabs_dependencies//dependencies/maven:artifacts.bzl", graknlabs_dependencies_artifacts = "artifacts")
+
 # Load Bazel
 load("@graknlabs_dependencies//builder/bazel:deps.bzl", "bazel_toolchain")
 bazel_toolchain()
@@ -38,6 +40,13 @@ com_github_grpc_grpc_deps()
 load("@graknlabs_dependencies//builder/java:deps.bzl", java_deps = "deps")
 java_deps()
 load("@graknlabs_dependencies//library/maven:rules.bzl", "maven")
+
+# Load Kotlin
+load("@graknlabs_dependencies//builder/kotlin:deps.bzl", kotlin_deps = "deps")
+kotlin_deps()
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
+kotlin_repositories()
+kt_register_toolchains()
 
 # Load Python
 load("@graknlabs_dependencies//builder/python:deps.bzl", python_deps = "deps")
@@ -107,3 +116,15 @@ pip3_import(
 load("@graknlabs_client_python_pip//:requirements.bzl",
 graknlabs_client_python_pip_install = "pip_install")
 graknlabs_client_python_pip_install()
+
+###############
+# Load @maven #
+###############
+maven(graknlabs_dependencies_artifacts)
+
+##################################################
+# Create @graknlabs_client_python_workspace_refs #
+##################################################
+
+load("@graknlabs_bazel_distribution//common:rules.bzl", "workspace_refs")
+workspace_refs(name = "graknlabs_client_python_workspace_refs")
