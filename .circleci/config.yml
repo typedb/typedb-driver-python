@@ -44,9 +44,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run-bazel:
           command: bazel build //...
 
@@ -55,9 +55,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run-bazel:
           command: bazel test //:test_concept --test_output=errors
 
@@ -66,9 +66,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run-bazel:
           command: bazel test //:test_grakn --test_output=errors
 
@@ -77,9 +77,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run-bazel:
           command: bazel test //:test_keyspace --test_output=errors
 
@@ -88,9 +88,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run-bazel:
           command: bazel test //:test_answer --test_output=errors
 
@@ -99,8 +99,8 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
@@ -111,9 +111,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
+      - checkout
       - install-bazel
       - install-artifact-credentials
-      - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
       - run-grakn
