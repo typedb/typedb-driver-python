@@ -38,7 +38,7 @@ commands:
       - run: nohup ./dist/grakn-core-all-linux/grakn server start
 jobs:
   build:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -48,7 +48,7 @@ jobs:
           command: bazel build //...
 
   test-concept:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -88,7 +88,7 @@ jobs:
           command: bazel test //:test_answer --test_output=errors
 
   deploy-pip-snapshot:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -100,7 +100,7 @@ jobs:
           bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
 
   test-deployment:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -121,7 +121,7 @@ jobs:
             cd tests/deployment/ && python -m unittest test
 
   sync-dependencies-snapshot:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -134,7 +134,7 @@ jobs:
           --targets grakn-kgms:master kglib:master
 
   release-approval:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -146,17 +146,16 @@ jobs:
           bazel run @graknlabs_dependencies//tool/release:approval
 
   release-validate:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     steps:
       - install-bazel
       - checkout
       - run: |
-          bazel run @graknlabs_dependencies//tool/release:validate-deps -- \
-            graknlabs_protocol
+          bazel test //:release-validate-deps --test_output=streamed
 
   deploy-github:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -172,7 +171,7 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-github -- $CIRCLE_SHA1
 
   deploy-pip-release:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -184,7 +183,7 @@ jobs:
           bazel run --define version=$(cat VERSION) //:deploy-pip -- release
 
   sync-dependencies-release:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
@@ -197,7 +196,7 @@ jobs:
           --targets grakn-kgms:master docs:master examples:master kglib:master
 
   release-cleanup:
-    machine: 
+    machine:
       image: ubuntu-1604:201903-01
     steps:
       - checkout
