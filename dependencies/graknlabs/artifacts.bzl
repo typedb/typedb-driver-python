@@ -15,12 +15,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "artifact_file")
+load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_file")
+load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
 
 def graknlabs_grakn_core_artifact():
+    pass
     artifact_file(
         name = "graknlabs_grakn_core_artifact",
         group_name = "graknlabs_grakn_core",
         artifact_name = "grakn-core-all-linux-{version}.tar.gz",
-        commit = "7cc0fcc8e44eb419f540b5ccedb4fcfe23c26e32",
+        commit_source = deployment["artifact.snapshot"],
+        tag_source = deployment["artifact.release"],
+        tag = "1.8.1",
     )
