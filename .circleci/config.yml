@@ -30,14 +30,16 @@ commands:
         type: string
     steps:
       - run: bazel run @graknlabs_dependencies//tool/bazelrun:rbe -- << parameters.command >>
+
   install-artifact-credentials:
     steps:
       - run: bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+
   run-grakn:
     steps:
       - run-bazel:
-          command: bazel run //:grakn-extractor -- dist/grakn-core-all-linux
-      - run: nohup ./dist/grakn-core-all-linux/grakn server start
+          command: bazel run //:grakn-extractor -- dist/grakn-core-server-linux
+      - run: nohup ./dist/grakn-core-server-linux/grakn server start
 jobs:
   build:
     machine: 
