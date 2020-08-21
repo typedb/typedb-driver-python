@@ -19,12 +19,12 @@ load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_file")
 load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
 
 def graknlabs_grakn_core_artifact():
-    pass
     artifact_file(
         name = "graknlabs_grakn_core_artifact",
         group_name = "graknlabs_grakn_core",
         artifact_name = "grakn-core-all-linux-{version}.tar.gz",
         commit_source = deployment["artifact.snapshot"],
         tag_source = deployment["artifact.release"],
+        # TODO - client-python is broken with 1.8.1, as current deps (eg. protocol) are preparing for Grakn 2.0
         tag = "1.8.1",
     )
