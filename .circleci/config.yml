@@ -31,19 +31,27 @@ commands:
     steps:
       - run: bazel run @graknlabs_dependencies//tool/bazelrun:rbe -- << parameters.command >>
 
+  install-artifact-credentials:
+    steps:
+      - run: |
+          ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
+          ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
+          bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+
   run-grakn:
     steps:
       - run-bazel:
-          command: bazel run //:grakn-extractor -- dist/grakn-core-all-linux
-      - run: nohup ./dist/grakn-core-all-linux/grakn server start
+          command: bazel run //:grakn-extractor -- dist/grakn-core-server-linux
+      - run: nohup ./dist/grakn-core-server-linux/grakn server start
 jobs:
   build:
     machine:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run-bazel:
           command: bazel build //...
 
@@ -52,8 +60,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run-bazel:
           command: bazel test //:test_concept --test_output=errors
 
@@ -62,8 +71,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run-bazel:
           command: bazel test //:test_grakn --test_output=errors
 
@@ -72,8 +82,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run-bazel:
           command: bazel test //:test_keyspace --test_output=errors
 
@@ -82,8 +93,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run-bazel:
           command: bazel test //:test_answer --test_output=errors
 
@@ -92,8 +104,8 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
       - run: |
           export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
           export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
@@ -104,8 +116,9 @@ jobs:
       image: ubuntu-1604:201903-01
     working_directory: ~/client-python
     steps:
-      - install-bazel
       - checkout
+      - install-bazel
+      - install-artifact-credentials
       - run: sudo apt-get update
       - run: sudo apt-get install python-pip
       - run-grakn

@@ -15,20 +15,22 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-exports_files(["requirements.txt", "deployment.properties", "RELEASE_TEMPLATE.md"])
+exports_files(["requirements.txt", "deployment.bzl", "RELEASE_TEMPLATE.md"])
 
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
-
 load("@graknlabs_client_python_pip//:requirements.bzl",
        graknlabs_client_python_requirement = "requirement")
 
 load("@graknlabs_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
-load("@graknlabs_bazel_distribution_pip//:requirements.bzl",
-       graknlabs_bazel_distribution_requirement = "requirement")
-
+load("@graknlabs_bazel_distribution_pip//:requirements.bzl", graknlabs_bazel_distribution_requirement = "requirement")
 load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
-load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "artifact_extractor")
+load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
+
 load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_deps")
+load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
+load(":deployment.bzl", github_deployment = "deployment")
+
+
 
 py_library(
     name = "client_python",
@@ -74,7 +76,8 @@ assemble_pip(
 deploy_pip(
     name = "deploy-pip",
     target = ":assemble-pip",
-    deployment_properties = "@graknlabs_dependencies//distribution:deployment.properties",
+    snapshot = deployment["pypi.snapshot"],
+    release = deployment["pypi.release"],
 )
 
 
@@ -83,7 +86,8 @@ deploy_github(
     release_description = "//:RELEASE_TEMPLATE.md",
     title = "Grakn Client Python",
     title_append_version = True,
-    deployment_properties = "//:deployment.properties",
+    organisation = github_deployment["github.organisation"],
+    repository = github_deployment["github.repository"],
 )
 
 py_test(

@@ -23,8 +23,6 @@ workspace(name = "graknlabs_client_python")
 load("//dependencies/graknlabs:repositories.bzl", "graknlabs_dependencies")
 graknlabs_dependencies()
 
-load("@graknlabs_dependencies//dependencies/maven:artifacts.bzl", graknlabs_dependencies_artifacts = "artifacts")
-
 # Load Bazel
 load("@graknlabs_dependencies//builder/bazel:deps.bzl", "bazel_toolchain")
 bazel_toolchain()
@@ -48,6 +46,9 @@ load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_reg
 kotlin_repositories()
 kt_register_toolchains()
 
+# Load Kotlin Maven Dependencies
+load("@graknlabs_dependencies//dependencies/maven:artifacts.bzl", graknlabs_dependencies_artifacts = "artifacts")
+
 # Load Python
 load("@graknlabs_dependencies//builder/python:deps.bzl", python_deps = "deps")
 python_deps()
@@ -67,7 +68,7 @@ graknlabs_dependencies_ci_pip_install()
 #####################################################################
 # Load @graknlabs_bazel_distribution (from @graknlabs_dependencies) #
 #####################################################################
-load("//dependencies/graknlabs:repositories.bzl", "graknlabs_bazel_distribution")
+load("@graknlabs_dependencies//dependencies/graknlabs:repositories.bzl",  "graknlabs_bazel_distribution")
 graknlabs_bazel_distribution()
 
 pip3_import(
@@ -117,14 +118,18 @@ load("@graknlabs_client_python_pip//:requirements.bzl",
 graknlabs_client_python_pip_install = "pip_install")
 graknlabs_client_python_pip_install()
 
+
 ###############
 # Load @maven #
 ###############
-maven(graknlabs_dependencies_artifacts)
+maven(
+   graknlabs_dependencies_artifacts
+)
 
-##################################################
-# Create @graknlabs_client_python_workspace_refs #
-##################################################
-
+################################################
+# Create @graknlabs_client_java_workspace_refs #
+################################################
 load("@graknlabs_bazel_distribution//common:rules.bzl", "workspace_refs")
-workspace_refs(name = "graknlabs_client_python_workspace_refs")
+workspace_refs(
+    name = "graknlabs_client_python_workspace_refs"
+)
