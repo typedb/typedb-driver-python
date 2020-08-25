@@ -166,7 +166,7 @@ release_validate_deps(
     name = "release-validate-deps",
     refs = "@graknlabs_client_python_workspace_refs//:refs.json",
     tagged_deps = [
-        "graknlabs_protocol",
+        "@graknlabs_protocol",
     ],
     tags = ["manual"]  # in order for bazel test //... to not fail
 )
