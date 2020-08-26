@@ -51,19 +51,14 @@ grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl",
 com_github_grpc_grpc_deps = "grpc_deps")
 com_github_grpc_grpc_deps()
-load("@stackb_rules_proto//java:deps.bzl", "java_grpc_compile")
-java_grpc_compile()
-load("@stackb_rules_proto//node:deps.bzl", "node_grpc_compile")
-node_grpc_compile()
 
 # Load //tool/common
 load("@graknlabs_dependencies//tool/common:deps.bzl", "graknlabs_dependencies_ci_pip",
     graknlabs_dependencies_tool_maven_artifacts = "maven_artifacts")
 graknlabs_dependencies_ci_pip()
-load("@graknlabs_dependencies_ci_pip//:requirements.bzl", "pip_install")
-pip_install()
+load("@graknlabs_dependencies_ci_pip//:requirements.bzl", graknlabs_dependencies_pip_install = "pip_install")
+graknlabs_dependencies_pip_install()
 
-# Load //tool/
 ######################################
 # Load @graknlabs_bazel_distribution #
 ######################################
