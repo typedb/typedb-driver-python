@@ -43,6 +43,7 @@ commands:
       - run-bazel:
           command: bazel run //:grakn-extractor -- dist/grakn-core-server-linux
       - run: nohup ./dist/grakn-core-server-linux/grakn server start
+
 jobs:
   build:
     machine:
