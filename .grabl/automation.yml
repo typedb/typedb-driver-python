@@ -7,8 +7,6 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/$(python3 -V | cut -c 8-99)/lib/python$(python3 -V | cut -c 8-10)/site-packages/lsb_release.py
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
