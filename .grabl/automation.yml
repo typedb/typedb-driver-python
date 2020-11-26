@@ -7,6 +7,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
+        pyenv install 3.8.5
         pyenv global 3.8.5
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
@@ -31,6 +32,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
+        pyenv install 3.8.5
         pyenv global 3.8.5
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
