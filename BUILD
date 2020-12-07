@@ -35,7 +35,7 @@ py_library(
     name = "client_python",
     srcs = glob(["grakn/**/*.py"]),
     deps = [
-        graknlabs_client_python_requirement("graknprotocol"),
+        "@graknlabs_protocol//grpc/python:protocol",
         graknlabs_client_python_requirement("protobuf"),
         graknlabs_client_python_requirement("grpcio"),
         graknlabs_client_python_requirement("six"),
