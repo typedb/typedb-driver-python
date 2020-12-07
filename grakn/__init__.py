@@ -17,4 +17,4 @@
 # under the License.
 #
 
-from grakn import rpc
+from grakn import client

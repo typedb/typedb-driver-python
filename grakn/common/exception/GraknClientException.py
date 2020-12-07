@@ -1,0 +1,2 @@
+class GraknClientException(Exception):
+    pass

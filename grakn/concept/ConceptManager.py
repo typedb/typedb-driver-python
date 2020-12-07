@@ -1,0 +1,2 @@
+class ConceptManager(object):
+    pass

@@ -1,7 +1,6 @@
-from grakn.rpc.database_manager import DatabaseManager
-from grakn.rpc.session import Session
+from grakn.rpc.DatabaseManager import DatabaseManager
+from grakn.rpc.Session import Session
 import grpc
-import enum
 
 
 class GraknClient(object):
@@ -14,13 +13,18 @@ class GraknClient(object):
     def session(self, database, type, options=None):
         return Session(self._channel, database, type, options)
 
-    def databases(self): return self._databases
+    def databases(self):
+        return self._databases
 
-    def close(self): self._channel.close()
+    def close(self):
+        self._channel.close()
 
-    def __enter__(self): return self
+    def __enter__(self):
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        if tb is None: pass
-        else: return False
+        if exc_tb is None:
+            pass
+        else:
+            return False
