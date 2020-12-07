@@ -128,11 +128,11 @@ jobs:
           name: Run test-deployment for client-python
           command: |
             echo -n "0.0.0-$CIRCLE_SHA1" > VERSION
-            sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" tests/deployment/requirements.txt
-            cat tests/deployment/requirements.txt
+            sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" test/deployment/requirements.txt
+            cat test/deployment/requirements.txt
             pip install --upgrade pip
-            pip install -r tests/deployment/requirements.txt
-            cd tests/deployment/ && python -m unittest test
+            pip install -r test/deployment/requirements.txt
+            cd test/deployment/ && python -m unittest test
 
   sync-dependencies-snapshot:
     machine:

@@ -19,40 +19,39 @@
 
 import unittest
 from grakn.client import GraknClient
-from tests.integration.base import test_Base, GraknServer
+from grakn.rpc.session import Session
+from test.integration.base import test_base, GraknServer
 
-client = None
-session = None
+client: GraknClient
 
-class test_Keyspace(test_Base):
+
+class ConnectionTest(test_base):
     @classmethod
     def setUpClass(cls):
-        super(test_Keyspace, cls).setUpClass()
-        global client, session
-        client = GraknClient("localhost:48555")
-        session = client.session("keyspacetest")
+        super(ConnectionTest, cls).setUpClass()
+        global client
+        client = GraknClient()
 
     @classmethod
     def tearDownClass(cls):
-        super(test_Keyspace, cls).tearDownClass()
-        global client, session
-        session.close()
+        super(ConnectionTest, cls).tearDownClass()
+        global client
         client.close()
 
-    def test_retrieve_delete(self):
-       """ Test retrieving and deleting a specific keyspace """
+    def test_basic_database(self):
+        dbs = client.databases().all()
+        if "grakn" in dbs:
+            client.databases().delete("grakn")
+        client.databases().create("grakn")
+        dbs = client.databases().all()
+        self.assertTrue("grakn" in dbs)
 
-       tx = session.transaction().write()
-       tx.close()
-
-       keyspaces = client.keyspaces().retrieve()
-       self.assertGreater(len(keyspaces), 0)
-       self.assertTrue('keyspacetest' in keyspaces)
-
-       client.keyspaces().delete('keyspacetest')
-       post_delete_keyspaces = client.keyspaces().retrieve()
-       self.assertFalse('keyspacetest' in post_delete_keyspaces)
-
+    def test_basic_session(self):
+        dbs = client.databases().all()
+        if "grakn" not in dbs:
+            client.databases().create("grakn")
+        session = client.session("grakn", Session.Type.SCHEMA)
+        session.close()
 
 if __name__ == "__main__":
     with GraknServer():

@@ -18,24 +18,24 @@
 #
 
 import unittest
-from grakn.client import GraknClient, ValueType
+from grakn import GraknClient, ValueType
 import datetime
 import uuid
-from grakn.exception.GraknError import GraknError
+from grakn import GraknError
 
 
-from tests.integration.base import test_Base, GraknServer
+from test.integration.base import test_base, GraknServer
 
 client = None
 session = None
 
-class test_concept_Base(test_Base):
+class test_concept_base(test_base):
     """ Sets up DB for use in tests """
 
     @classmethod
     def setUpClass(cls):
         """ Make sure we have some sort of schema and data in DB, only done once """
-        super(test_concept_Base, cls).setUpClass()
+        super(test_concept_base, cls).setUpClass()
 
         global client, session
 
@@ -67,7 +67,7 @@ class test_concept_Base(test_Base):
 
     @classmethod
     def tearDownClass(cls):
-        super(test_concept_Base, cls).tearDownClass()
+        super(test_concept_base, cls).tearDownClass()
         global session, client
         session.close()
         # clear the test keyspace
@@ -84,7 +84,7 @@ class test_concept_Base(test_Base):
         tx.close()
 
 
-class test_Concept(test_concept_Base):
+class test_Concept(test_concept_base):
     """ Test methods available on all Concepts """
 
     def test_delete_schema_types(self):
@@ -148,7 +148,7 @@ class test_Concept(test_concept_Base):
         self.assertTrue(age.is_attribute())
         self.assertFalse(age.is_relation())
 
-class test_SchemaConcept(test_concept_Base):
+class test_SchemaConcept(test_concept_base):
     """ Test methods available on all SchemaConcepts """
     
     def test_set_label(self):
@@ -212,7 +212,7 @@ class test_SchemaConcept(test_concept_Base):
 
 
 
-class test_Type(test_concept_Base):
+class test_Type(test_concept_base):
     """ Tests concept API of things common to Type objects """
 
     def test_is_abstract(self):
@@ -306,7 +306,7 @@ class test_Type(test_concept_Base):
             self.assertEqual(len(keys), 0)
 
 
-class test_EntityType(test_concept_Base):
+class test_EntityType(test_concept_base):
 
     def test_create(self):
         person_type = self.tx.get_schema_concept("person")
@@ -314,7 +314,7 @@ class test_EntityType(test_concept_Base):
         self.assertTrue(person.is_entity())
 
 
-class test_AttributeType(test_concept_Base):
+class test_AttributeType(test_concept_base):
 
     def test_create(self):
         str_attr_type = self.tx.put_attribute_type("firstname", ValueType.STRING)
@@ -371,7 +371,7 @@ class test_AttributeType(test_concept_Base):
         self.assertEqual(regex, "(good|bad)-dog")
 
 
-class test_RelationType(test_concept_Base):
+class test_RelationType(test_concept_base):
 
     def test_create(self):
         rel_type = self.tx.put_relation_type("owner")
@@ -403,7 +403,7 @@ class test_RelationType(test_concept_Base):
             self.assertEqual(roles[0].base_type, "ROLE")
 
 
-class test_Rule(test_concept_Base):
+class test_Rule(test_concept_base):
 
     def test_when_then(self):
         """ Test get valid  when/then """
@@ -422,7 +422,7 @@ class test_Rule(test_concept_Base):
         self.assertIsNone(rule.get_then())
 
 
-class test_Role(test_concept_Base):
+class test_Role(test_concept_base):
 
     def test_relations(self):
         """ Test retrieving relations of a role """
@@ -448,7 +448,7 @@ class test_Role(test_concept_Base):
         self.assertEqual(entity_types[0].label(), "person")
 
 
-class test_Thing(test_concept_Base):
+class test_Thing(test_concept_base):
 
     def test_is_inferred(self):
         person_type = self.tx.get_schema_concept("person")
@@ -589,7 +589,7 @@ class test_Thing(test_concept_Base):
         self.assertEqual(len(empty_keys), 0)
 
 
-class test_Attribute(test_concept_Base):
+class test_Attribute(test_concept_base):
 
     def test_value(self):
         """ Get attribute value """
@@ -643,7 +643,7 @@ class test_Attribute(test_concept_Base):
         self.assertTrue(person.id in labels and animal.id in labels)
 
 
-class test_Relation(test_concept_Base):
+class test_Relation(test_concept_base):
 
     def test_role_players_2_roles_1_player(self):
         """ Test role_players_map and role_players with 2 roles and 1 player each """

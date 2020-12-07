@@ -1,5 +1,5 @@
 from unittest import TestCase
-from grakn.client import GraknClient
+from grakn import GraknClient
 
 
 

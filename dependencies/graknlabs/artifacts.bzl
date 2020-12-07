@@ -15,16 +15,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_file")
-load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
+load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "native_artifact_files")
+load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment_private")
 
-def graknlabs_grakn_core_artifact():
-    artifact_file(
+def graknlabs_grakn_core_artifacts():
+    native_artifact_files(
         name = "graknlabs_grakn_core_artifact",
         group_name = "graknlabs_grakn_core",
-        artifact_name = "grakn-core-all-linux-{version}.tar.gz",
-        commit_source = deployment["artifact.snapshot"],
-        tag_source = deployment["artifact.release"],
-        # TODO - client-python is broken with 1.8.1, as current deps (eg. protocol) are preparing for Grakn 2.0
-        tag = "1.8.1",
+        artifact_name = "grakn-core-server-{platform}-{version}.tar.gz",
+        tag_source = deployment_private["artifact.release"],
+        commit_source = deployment_private["artifact.snapshot"],
+        commit = "e43c18d37b753a86e9f278b59336ddfa5c9bdc35",
     )

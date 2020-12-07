@@ -20,14 +20,13 @@
 import unittest
 import uuid
 import grakn
-from grakn.client import GraknClient, ValueType, Transaction
-from grakn.exception.GraknError import GraknError
-from grakn.service.Session.util.ResponseReader import Value
+from grakn import GraknClient, ValueType, Transaction
+from grakn import GraknError
 
-from tests.integration.base import test_Base, GraknServer
+from test.integration.base import test_base, GraknServer
 
 
-class test_client_PreDbSetup(test_Base):
+class test_client_PreDbSetup(test_base):
     """ Tests Database interactions *before* anything needs to be inserted/created """
 
     # --- Test grakn client instantiation for one URI ---
@@ -66,14 +65,14 @@ class test_client_PreDbSetup(test_Base):
         """ Test OK uri and keyspace """
         a_inst = GraknClient('localhost:48555')
         a_session = a_inst.session('test')
-        self.assertIsInstance(a_session, grakn.client.Session)
+        self.assertIsInstance(a_session, grakn.rpc.Session)
         tx = a_session.transaction().read()
         tx.close()
         a_session.close()
 
         # test the `with` statement
         with a_inst.session('test') as session:
-            self.assertIsInstance(session, grakn.client.Session)
+            self.assertIsInstance(session, grakn.rpc.Session)
             tx = session.transaction().read()
             tx.close()
 
@@ -103,7 +102,7 @@ class test_client_PreDbSetup(test_Base):
         client = GraknClient('localhost:48555')
         a_session = client.session('test')
         tx = a_session.transaction().read()
-        self.assertIsInstance(tx, grakn.client.Transaction)
+        self.assertIsInstance(tx, grakn.rpc.Transaction)
         client.close()
 
     def test_client_tx_invalid_enum(self):
@@ -117,13 +116,13 @@ class test_client_PreDbSetup(test_Base):
 client = None
 session = None
 
-class test_client_Base(test_Base):
+class test_client_base(test_base):
     """ Sets up DB for use in tests """
 
     @classmethod
     def setUpClass(cls):
         """ Make sure we have some sort of schema and data in DB, only done once """
-        super(test_client_Base, cls).setUpClass()
+        super(test_client_base, cls).setUpClass()
 
         global client, session
         client = GraknClient("localhost:48555")
@@ -153,7 +152,7 @@ class test_client_Base(test_Base):
 
     @classmethod
     def tearDownClass(cls):
-        super(test_client_Base, cls).tearDownClass()
+        super(test_client_base, cls).tearDownClass()
 
         global client, session
         session.close()
@@ -171,7 +170,7 @@ class test_client_Base(test_Base):
 
 
 
-class test_Transaction(test_client_Base):
+class test_Transaction(test_client_base):
     """ Class for testing transaction methods, eg query, put attribute type... """
 
     # --- query tests ---

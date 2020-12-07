@@ -18,15 +18,15 @@
 #
 
 import unittest
-from grakn.client import GraknClient
-from grakn.service.Session.util.ResponseReader import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup, \
+from grakn import GraknClient
+from grakn import Value, ConceptList, ConceptSet, ConceptSetMeasure, AnswerGroup, \
     Void
-from tests.integration.base import test_Base, GraknServer
+from test.integration.base import test_base, GraknServer
 
 client = None
 
 
-class test_Answers(test_Base):
+class test_Answers(test_base):
     @classmethod
     def setUpClass(cls):
         global client

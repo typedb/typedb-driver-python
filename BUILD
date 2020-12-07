@@ -17,7 +17,6 @@
 
 exports_files(["requirements.txt", "deployment.bzl", "RELEASE_TEMPLATE.md"])
 
-load("@rules_python//python:defs.bzl", "py_library", "py_test")
 load("@graknlabs_client_python_pip//:requirements.bzl",
        graknlabs_client_python_requirement = "requirement")
 
@@ -36,7 +35,7 @@ py_library(
     name = "client_python",
     srcs = glob(["grakn/**/*.py"]),
     deps = [
-        "@graknlabs_protocol//grpc/python:protocol",
+        graknlabs_client_python_requirement("graknprotocol"),
         graknlabs_client_python_requirement("protobuf"),
         graknlabs_client_python_requirement("grpcio"),
         graknlabs_client_python_requirement("six"),
@@ -67,6 +66,7 @@ assemble_pip(
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
     install_requires=[
+        'graknprotocol==0.0.0-3102664d4b230fea229730a2e6af949e5c3bcf37',
         'grpcio==1.33.2',
         'protobuf==3.6.1',
         'six>=1.11.0',
@@ -94,76 +94,9 @@ deploy_github(
     repository = github_deployment["github.repository"],
 )
 
-py_test(
-    name = "test_concept",
-    srcs = [
-        "tests/integration/base.py",
-        "tests/integration/test_concept.py"
-    ],
-    deps = [
-        ":client_python",
-    ],
-    data = ["@graknlabs_grakn_core_artifact//file"],
-    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_grakn",
-    srcs = [
-        "tests/integration/base.py",
-        "tests/integration/test_grakn.py"
-    ],
-    deps = [
-        ":client_python",
-    ],
-    data = ["@graknlabs_grakn_core_artifact//file"],
-    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_keyspace",
-    srcs = [
-        "tests/integration/base.py",
-        "tests/integration/test_keyspace.py"
-    ],
-    deps = [
-        ":client_python",
-    ],
-    data = ["@graknlabs_grakn_core_artifact//file"],
-    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_answer",
-    srcs = [
-        "tests/integration/base.py",
-        "tests/integration/test_answer.py"
-    ],
-    deps = [
-        ":client_python",
-    ],
-    size = "large",
-    data = ["@graknlabs_grakn_core_artifact//file"],
-    args = ["$(location @graknlabs_grakn_core_artifact//file)"],
-    python_version = "PY3"
-)
-
-test_suite(
-    name = "test_integration",
-    tests = [
-        ":test_concept",
-        ":test_grakn",
-        ":test_keyspace",
-        ":test_answer",
-    ]
-)
-
 artifact_extractor(
     name = "grakn-extractor",
-    artifact = "@graknlabs_grakn_core_artifact//file",
+    artifact = "@graknlabs_grakn_core_artifact_linux//file",
 )
 
 release_validate_deps(

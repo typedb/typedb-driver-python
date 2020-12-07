@@ -35,18 +35,18 @@ class GraknServer(object):
         self.__distribution_root_dir = None
         self.__unpacked_dir = None
 
-    def __enter__(self):
-        if not self.__unpacked_dir:
-            self._unpack()
-        sp.check_call([
-            'grakn', 'server', 'start'
-        ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
+    def __enter__(self): pass
+        # if not self.__unpacked_dir:
+        #     self._unpack()
+        # sp.check_call([
+        #     'grakn', 'server'
+        # ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        sp.check_call([
-            'grakn', 'server', 'stop'
-        ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
-        shutil.rmtree(self.__unpacked_dir)
+    def __exit__(self, exc_type, exc_val, exc_tb): pass
+        # sp.check_call([
+        #     'grakn', 'server', 'stop'
+        # ], cwd=os.path.join(self.__unpacked_dir, self.__distribution_root_dir))
+        # shutil.rmtree(self.__unpacked_dir)
 
     def _unpack(self):
         self.__unpacked_dir = tempfile.mkdtemp(prefix='grakn')
@@ -55,13 +55,13 @@ class GraknServer(object):
             self.__distribution_root_dir = os.path.commonpath(tf.getnames()[1:])
 
 
-class test_Base(TestCase):
+class test_base(TestCase):
     """ Sets up DB for use in tests """
 
     @classmethod
     def setUpClass(cls):
-        super(test_Base, cls).setUpClass()
+        super(test_base, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        super(test_Base, cls).tearDownClass()
+        super(test_base, cls).tearDownClass()

@@ -1,0 +1,1 @@
+class GraknOptions(object): pass

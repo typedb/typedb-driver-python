@@ -1,43 +1,26 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-
+from grakn.rpc.database_manager import DatabaseManager
+from grakn.rpc.session import Session
 import grpc
-from abc import ABC, abstractmethod
-
-from grakn_protocol.session.Session_pb2_grpc import SessionServiceStub
+import enum
 
 
-class Grakn(ABC):
+class GraknClient(object):
+    DEFAULT_URI = "localhost:1729"
 
-    class Client(ABC):
+    def __init__(self, address=DEFAULT_URI):
+        self._channel = grpc.insecure_channel(address)
+        self._databases = DatabaseManager(self._channel)
 
-        @abstractmethod
-        def session(self, database, session_type, options = None): pass
+    def session(self, database, type, options=None):
+        return Session(self._channel, database, type, options)
 
-        @abstractmethod
-        def databases(self): pass
+    def databases(self): return self._databases
 
-        @abstractmethod
-        def is_open(self): pass
+    def close(self): self._channel.close()
 
-        @abstractmethod
-        def close(self): pass
+    def __enter__(self): return self
 
-        # TODO: do we need __enter__, __exit__ here?
-
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        if tb is None: pass
+        else: return False
