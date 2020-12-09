@@ -26,7 +26,7 @@ from test.integration.base import test_base, GraknServer
 client = None
 
 
-class test_Answers(test_base):
+class TestQuery(test_base):
     @classmethod
     def setUpClass(cls):
         global client
@@ -60,7 +60,7 @@ class test_Answers(test_base):
         """ Test shortest path which returns a ConceptList """
         with client.session("shortestpath") as local_session:
             tx = local_session.transaction().write()
-            parentship_map = test_Answers._build_parentship(tx) # this closes the tx
+            parentship_map = TestQuery._build_parentship(tx) # this closes the tx
             tx = local_session.transaction().write()
             result = tx.query('compute path from {0}, to {1};'.format(parentship_map['parent'], parentship_map['child']))
             answer = next(result)
@@ -76,7 +76,7 @@ class test_Answers(test_base):
         """ Test clustering with connected components response as ConceptSet """
         with client.session("clusterkeyspace") as local_session:
             tx = local_session.transaction().write()
-            parentship_map = test_Answers._build_parentship(tx) # this closes the tx
+            parentship_map = TestQuery._build_parentship(tx) # this closes the tx
             tx = local_session.transaction().write()
             result = tx.query("compute cluster in [person, parentship], using connected-component;")
             concept_set_answer = next(result)
@@ -93,7 +93,7 @@ class test_Answers(test_base):
         """ Test compute centrality, response type ConceptSetMeasure """
         with client.session("centralitykeyspace") as local_session:
             tx = local_session.transaction().write()
-            parentship_map = test_Answers._build_parentship(tx) # this closes the tx
+            parentship_map = TestQuery._build_parentship(tx) # this closes the tx
             tx = local_session.transaction().write()
             result = tx.query("compute centrality in [person, parentship], using degree;")
             concept_set_measure_answer = next(result)
@@ -109,7 +109,7 @@ class test_Answers(test_base):
         """ Test compute aggreate count, response type AnwerGroup """
         with client.session("aggregategroup") as local_session:
             tx = local_session.transaction().write()
-            parentship_map = test_Answers._build_parentship(tx) # this closes the tx
+            parentship_map = TestQuery._build_parentship(tx) # this closes the tx
             tx = local_session.transaction().write()
             result = tx.query("match $x isa person; $y isa person; (parent: $x, child: $y) isa parentship; get; group $x;")
             answer_group = next(result)

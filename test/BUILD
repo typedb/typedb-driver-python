@@ -38,10 +38,10 @@ py_test(
 )
 
 py_test(
-    name = "test_answer",
+    name = "test_query",
     srcs = [
         "integration/base.py",
-        "integration/test_answer.py"
+        "integration/test_query.py"
     ],
     deps = [
         "//:client_python",
@@ -56,8 +56,7 @@ test_suite(
     name = "test_integration",
     tests = [
         ":test_concept",
-        ":test_grakn",
         ":test_connection",
-        ":test_answer",
+        ":test_query",
     ]
 )
