@@ -7,10 +7,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -19,10 +16,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -31,10 +25,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -43,10 +34,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -58,10 +46,7 @@ build:
       machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -76,10 +61,7 @@ build:
       type: foreground
       dependencies: [deploy-pip-snapshot]
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
@@ -113,10 +95,7 @@ release:
     deploy-github:
       machine: graknlabs-ubuntu-20.04
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         pip install certifi
         export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
         bazel run @graknlabs_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
@@ -126,10 +105,7 @@ release:
     deploy-pip-release:
       machine: graknlabs-ubuntu-20.04
       script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+        pyenv global system
         export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
         bazel run --define version=$(cat VERSION) //:deploy-pip -- release
