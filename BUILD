@@ -66,7 +66,7 @@ assemble_pip(
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
     install_requires=[
-        'graknprotocol==0.0.0-0d4069a2ae36c16d458cca6000c6804cc434aec9',
+        'graknprotocol==0.0.0-79b425673f1def7527ff3a11c06502fdfc6e6606',
         'grpcio==1.33.2',
         'protobuf==3.6.1',
         'six>=1.11.0',
