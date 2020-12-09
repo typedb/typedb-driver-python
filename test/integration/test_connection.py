@@ -19,23 +19,21 @@
 
 import unittest
 from grakn.client import GraknClient
-from grakn.rpc.Session import Session
-from grakn.rpc.Transaction import Transaction
+from grakn.rpc.session import Session
+from grakn.rpc.transaction import Transaction
 from test.integration.base import test_base, GraknServer
 
-client: GraknClient
 
-
-class ConnectionTest(test_base):
+class TestConnection(test_base):
     @classmethod
     def setUpClass(cls):
-        super(ConnectionTest, cls).setUpClass()
+        super(TestConnection, cls).setUpClass()
         global client
         client = GraknClient()
 
     @classmethod
     def tearDownClass(cls):
-        super(ConnectionTest, cls).tearDownClass()
+        super(TestConnection, cls).tearDownClass()
         global client
         client.close()
 
