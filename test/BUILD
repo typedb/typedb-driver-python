@@ -24,20 +24,6 @@ py_test(
 )
 
 py_test(
-    name = "test_grakn",
-    srcs = [
-        "integration/base.py",
-        "integration/test_grakn.py"
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    data = [":native-grakn-artifact"],
-    args = ["$(location :native-grakn-artifact)"],
-    python_version = "PY3"
-)
-
-py_test(
     name = "test_connection",
     srcs = [
         "integration/base.py",

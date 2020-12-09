@@ -26,6 +26,7 @@ from grakn import GraknError
 from test.integration.base import test_base, GraknServer
 
 
+# TODO: we should ensure that all these tests are migrated to BDD
 class test_client_PreDbSetup(test_base):
     """ Tests Database interactions *before* anything needs to be inserted/created """
 
