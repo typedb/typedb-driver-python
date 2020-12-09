@@ -1,6 +1,10 @@
-from grakn.rpc.DatabaseManager import DatabaseManager
-from grakn.rpc.Session import Session
 import grpc
+import sched
+import time
+
+from grakn.options import GraknOptions
+from grakn.rpc.database_manager import DatabaseManager
+from grakn.rpc.session import Session
 
 
 class GraknClient(object):
@@ -9,9 +13,10 @@ class GraknClient(object):
     def __init__(self, address=DEFAULT_URI):
         self._channel = grpc.insecure_channel(address)
         self._databases = DatabaseManager(self._channel)
+        self._scheduler = sched.scheduler(time.time, time.sleep)
 
-    def session(self, database, type, options=None):
-        return Session(self._channel, database, type, options)
+    def session(self, database, session_type, options=GraknOptions()):
+        return Session(self, database, session_type, options)
 
     def databases(self):
         return self._databases
