@@ -3,6 +3,7 @@ import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.concept import Concept, RemoteConcept
+from grakn.concept.thing.thing import Thing
 
 
 class Type(Concept):
@@ -43,3 +44,29 @@ class RemoteType(RemoteConcept):
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return self._transaction._stream(request, lambda res: type_list_getter(res.type_res))
+
+    def _thing_stream(self, method, thing_list_getter):
+        method.label = self._label
+        request = transaction_proto.Transaction.Req()
+        request.type_req.CopyFrom(method)
+        return self._transaction._stream(request, lambda res: thing_list_getter(res.type_res))
+
+    def _execute(self, method):
+        method.label = self._label
+        request = transaction_proto.Transaction.Req()
+        request.type_req.CopyFrom(method)
+        return self._transaction._execute(request).type_res
+
+    # TODO: this does NOT belong here!
+    def create(self):
+        method = concept_proto.Type.Req()
+        create_req = concept_proto.EntityType.Create.Req()
+        method.entity_type_create_req.CopyFrom(create_req)
+        return Thing.of(self._execute(method).entity_type_create_res.entity)
+
+    # TODO: this also doesn't belong here!
+    def get_instances(self):
+        method = concept_proto.Type.Req()
+        get_instances_req = concept_proto.ThingType.GetInstances.Req()
+        method.thing_type_get_instances_req.CopyFrom(get_instances_req)
+        return self._thing_stream(method, lambda res: res.thing_type_get_instances_res.thing)

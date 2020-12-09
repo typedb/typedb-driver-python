@@ -55,10 +55,16 @@ class Transaction(object):
         return self._query_manager
 
     def commit(self):
-        pass
+        req = transaction_proto.Transaction.Req()
+        commit_req = transaction_proto.Transaction.Commit.Req()
+        req.commit_req.CopyFrom(commit_req)
+        self._execute(req)
 
     def rollback(self):
-        pass
+        req = transaction_proto.Transaction.Req()
+        rollback_req = transaction_proto.Transaction.Rollback.Req()
+        req.rollback_req.CopyFrom(rollback_req)
+        self._execute(req)
 
     def close(self):
         self._transaction_was_closed = True
@@ -70,6 +76,7 @@ class Transaction(object):
         request.id = request_id
         self._response_queues[request_id] = response_queue
         self._request_iterator.put(request)
+        print(request)
         return self._fetch(request_id)
 
     def _stream(self, request, transform_response):
