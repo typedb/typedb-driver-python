@@ -7,14 +7,13 @@ from grakn.concept.concept import Concept, RemoteConcept
 
 class Thing(Concept):
 
-    def __init__(self, iid):
+    def __init__(self, iid: str):
         if not iid:
-            raise GraknClientException("IID must be set.")
-        # TODO: it might be worth converting IID to some other type
+            raise GraknClientException("IID must be a non-empty string.")
         self._iid = iid
 
     @staticmethod
-    def of(thing_proto):
+    def of(thing_proto: concept_proto.Thing):
         # TODO: implement this properly
         return Thing(thing_proto.iid)
 
@@ -24,7 +23,7 @@ class Thing(Concept):
 
 class RemoteThing(RemoteConcept):
 
-    def __init__(self, transaction, iid):
+    def __init__(self, transaction, iid: str):
         if not transaction:
             raise GraknClientException("Transaction must be set.")
         if not iid:

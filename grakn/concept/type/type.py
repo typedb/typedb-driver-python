@@ -1,3 +1,5 @@
+from typing import Callable, List
+
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
@@ -8,14 +10,14 @@ from grakn.concept.thing.thing import Thing
 
 class Type(Concept):
 
-    def __init__(self, label, is_root):
+    def __init__(self, label: str, is_root: bool):
         if not label:
             raise GraknClientException("Label must be a non-empty string.")
         self._label = label
         self._is_root = is_root
 
     @staticmethod
-    def of(type_proto):
+    def of(type_proto: concept_proto.Type):
         # TODO: implement this properly
         return Type(type_proto.label, type_proto.root)
 
@@ -25,7 +27,7 @@ class Type(Concept):
 
 class RemoteType(RemoteConcept):
 
-    def __init__(self, transaction, label, is_root):
+    def __init__(self, transaction, label: str, is_root: bool):
         if not transaction:
             raise GraknClientException("Transaction must be set.")
         if not label:
@@ -39,19 +41,19 @@ class RemoteType(RemoteConcept):
         method.type_get_supertypes_req.CopyFrom(concept_proto.Type.GetSupertypes.Req())
         return self._type_stream(method, lambda res: res.type_get_supertypes_res.type)
 
-    def _type_stream(self, method, type_list_getter):
+    def _type_stream(self, method: concept_proto.Type.Req, type_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Type]]):
         method.label = self._label
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return self._transaction._stream(request, lambda res: type_list_getter(res.type_res))
 
-    def _thing_stream(self, method, thing_list_getter):
+    def _thing_stream(self, method: concept_proto.Type.Req, thing_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Thing]]):
         method.label = self._label
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return self._transaction._stream(request, lambda res: thing_list_getter(res.type_res))
 
-    def _execute(self, method):
+    def _execute(self, method: concept_proto.Type.Req):
         method.label = self._label
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)

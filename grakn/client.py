@@ -15,7 +15,7 @@ class GraknClient(object):
         self._databases = DatabaseManager(self._channel)
         self._scheduler = sched.scheduler(time.time, time.sleep)
 
-    def session(self, database, session_type, options=GraknOptions()):
+    def session(self, database: str, session_type: Session.Type, options=GraknOptions()):
         return Session(self, database, session_type, options)
 
     def databases(self):

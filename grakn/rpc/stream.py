@@ -1,3 +1,5 @@
+from typing import Callable, List
+
 import six
 
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
@@ -10,7 +12,7 @@ class Stream(six.Iterator):
     CONTINUE = "continue"
     DONE = "done"
 
-    def __init__(self, transaction, request_id, transform_response):
+    def __init__(self, transaction, request_id: str, transform_response: Callable[[transaction_proto.Transaction.Res], List] = None):
         self._transaction = transaction
         self._request_id = request_id
         self._transform_response = transform_response
@@ -27,6 +29,7 @@ class Stream(six.Iterator):
                 self._current_iterator = None
 
         res = self._transaction._fetch(self._request_id)
+        print(res)
         res_case = res.WhichOneof("res")
         if res_case == Stream.CONTINUE:
             continue_req = transaction_proto.Transaction.Req()

@@ -41,36 +41,36 @@ class TestConcept(test_base):
         if "grakn" not in client.databases().all():
             client.databases().create("grakn")
 
-    # def test_get_supertypes(self):
-    #     with client.session("grakn", Session.Type.SCHEMA) as session:
-    #         with session.transaction(Transaction.Type.WRITE) as tx:
-    #             lion = tx.concepts().put_entity_type("lion")
-    #             for lion_supertype in lion.as_remote(tx).get_supertypes():
-    #                 print(lion_supertype)
-    #
-    # def test_streaming_operation_on_closed_tx(self):
-    #     with client.session("grakn", Session.Type.SCHEMA) as session:
-    #         with session.transaction(Transaction.Type.WRITE) as tx:
-    #             lion = tx.concepts().put_entity_type("lion")
-    #             tx.close()
-    #             try:
-    #                 for _ in lion.as_remote(tx).get_supertypes():
-    #                     self.fail()
-    #                 self.fail()
-    #             except GraknClientException:
-    #                 pass
-    #
-    # def test_invalid_streaming_operation(self):
-    #     with client.session("grakn", Session.Type.SCHEMA) as session:
-    #         with session.transaction(Transaction.Type.WRITE) as tx:
-    #             lion = tx.concepts().put_entity_type("lion")
-    #             lion._label = "lizard"
-    #             try:
-    #                 for _ in lion.as_remote(tx).get_supertypes():
-    #                     self.fail()
-    #                 self.fail()
-    #             except GraknClientException:
-    #                 pass
+    def test_get_supertypes(self):
+        with client.session("grakn", Session.Type.SCHEMA) as session:
+            with session.transaction(Transaction.Type.WRITE) as tx:
+                lion = tx.concepts().put_entity_type("lion")
+                for lion_supertype in lion.as_remote(tx).get_supertypes():
+                    print(lion_supertype)
+
+    def test_streaming_operation_on_closed_tx(self):
+        with client.session("grakn", Session.Type.SCHEMA) as session:
+            with session.transaction(Transaction.Type.WRITE) as tx:
+                lion = tx.concepts().put_entity_type("lion")
+                tx.close()
+                try:
+                    for _ in lion.as_remote(tx).get_supertypes():
+                        self.fail()
+                    self.fail()
+                except GraknClientException:
+                    pass
+
+    def test_invalid_streaming_operation(self):
+        with client.session("grakn", Session.Type.SCHEMA) as session:
+            with session.transaction(Transaction.Type.WRITE) as tx:
+                lion = tx.concepts().put_entity_type("lion")
+                lion._label = "lizard"
+                try:
+                    for _ in lion.as_remote(tx).get_supertypes():
+                        self.fail()
+                    self.fail()
+                except GraknClientException:
+                    pass
 
     def test_get_many_instances(self):
         with client.session("grakn", Session.Type.SCHEMA) as session:

@@ -28,6 +28,7 @@ import sys
 import tarfile
 
 
+# TODO: update to work with Grakn 2.0
 class GraknServer(object):
     DISTRIBUTION_LOCATION = sys.argv.pop()
 

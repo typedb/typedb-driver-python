@@ -9,7 +9,11 @@ from grakn.rpc.transaction import Transaction
 
 class Session(object):
 
-    def __init__(self, client, database, session_type, options=GraknOptions()):
+    class Type(enum.Enum):
+        DATA = 0
+        SCHEMA = 1
+
+    def __init__(self, client, database: str, session_type: Type, options=GraknOptions()):
         self._channel = client._channel
         self._scheduler = client._scheduler
         self._database = database
@@ -25,7 +29,7 @@ class Session(object):
         self._is_open = True
         self._pulse = self._scheduler.enter(5, 1, self._transmit_pulse, ())
 
-    def transaction(self, transaction_type, options=GraknOptions()):
+    def transaction(self, transaction_type: Transaction.Type, options=GraknOptions()):
         return Transaction(self._channel, self._session_id, transaction_type, options)
 
     def session_type(self): return self._session_type
@@ -61,12 +65,8 @@ class Session(object):
             return False
 
     @staticmethod
-    def _session_type_proto(session_type):
+    def _session_type_proto(session_type: Type):
         if session_type == Session.Type.DATA:
             return session_proto.Session.Type.Value("DATA")
         if session_type == Session.Type.SCHEMA:
             return session_proto.Session.Type.Value("SCHEMA")
-
-    class Type(enum.Enum):
-        DATA = 0
-        SCHEMA = 1

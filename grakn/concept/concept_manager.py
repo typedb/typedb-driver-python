@@ -9,7 +9,7 @@ class ConceptManager(object):
     def __init__(self, transaction):
         self._transaction = transaction
 
-    def put_entity_type(self, label):
+    def put_entity_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
         put_entity_type_req = concept_proto.ConceptManager.PutEntityType.Req()
         put_entity_type_req.label = label
@@ -17,10 +17,10 @@ class ConceptManager(object):
         res = self._execute(req)
         return Type.of(res.put_entity_type_res.entity_type)
 
-    def get_entity_type(self, label):
+    def get_entity_type(self, label: str):
         pass
 
-    def get_type(self, label):
+    def get_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
         get_type_req = concept_proto.ConceptManager.GetType.Req()
         get_type_req.label = label
@@ -30,7 +30,7 @@ class ConceptManager(object):
         # TODO: if  .... .getResCase == ... TYPE
         return Type.of(response.get_type_res.type)
 
-    def _execute(self, request):
+    def _execute(self, request: concept_proto.ConceptManager.Req):
         req = transaction_proto.Transaction.Req()
         req.concept_manager_req.CopyFrom(request)
         return self._transaction._execute(req).concept_manager_res

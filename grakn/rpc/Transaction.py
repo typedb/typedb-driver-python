@@ -1,4 +1,6 @@
 import enum
+from typing import Callable, List
+
 import grpc
 import six
 import time
@@ -18,11 +20,14 @@ from grakn.rpc.stream import Stream
 
 
 class Transaction(object):
+    class Type(enum.Enum):
+        READ = 0
+        WRITE = 1
 
-    def __init__(self, channel, session_id, transaction_type, options=GraknOptions()):
+    def __init__(self, channel: grpc.Channel, session_id: str, transaction_type: Type, options=GraknOptions()):
         self._transaction_type = transaction_type
         self._concept_manager = ConceptManager(self)
-        self._query_manager = QueryManager()
+        self._query_manager = QueryManager(self)
         self._response_queues = {}
 
         self._grpc_stub = GraknStub(channel)
@@ -70,16 +75,15 @@ class Transaction(object):
         self._transaction_was_closed = True
         self._request_iterator.close()
 
-    def _execute(self, request):
+    def _execute(self, request: transaction_proto.Transaction.Req):
         response_queue = queue.Queue()
         request_id = str(uuid.uuid4())
         request.id = request_id
         self._response_queues[request_id] = response_queue
         self._request_iterator.put(request)
-        print(request)
         return self._fetch(request_id)
 
-    def _stream(self, request, transform_response):
+    def _stream(self, request: transaction_proto.Transaction.Req, transform_response: Callable[[transaction_proto.Transaction.Res], List] = None):
         response_queue = queue.Queue()
         request_id = str(uuid.uuid4())
         request.id = request_id
@@ -87,7 +91,7 @@ class Transaction(object):
         self._request_iterator.put(request)
         return Stream(self, request_id, transform_response)
 
-    def _fetch(self, request_id):
+    def _fetch(self, request_id: str):
         try:
             return self._response_queues[request_id].get(block=False)
         except queue.Empty:
@@ -126,13 +130,8 @@ class Transaction(object):
         if transaction_type == Transaction.Type.WRITE:
             return transaction_proto.Transaction.Type.Value("WRITE")
 
-    class Type(enum.Enum):
-        READ = 0
-        WRITE = 1
-
 
 class RequestIterator(six.Iterator):
-
     CLOSE_STREAM = "CLOSE_STREAM"
 
     def __init__(self):
@@ -150,7 +149,7 @@ class RequestIterator(six.Iterator):
             raise StopIteration()
         return request
 
-    def put(self, request):
+    def put(self, request: transaction_proto.Transaction.Req):
         self._request_queue.put(request)
 
     def close(self):

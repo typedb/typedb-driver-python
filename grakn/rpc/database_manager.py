@@ -1,21 +1,22 @@
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.database_pb2 as database_proto
+from grpc import Channel
 
 
 class DatabaseManager(object):
 
-    def __init__(self, channel):
+    def __init__(self, channel: Channel):
         self._grpc_stub = GraknStub(channel)
 
-    def contains(self, name):
+    def contains(self, name: str):
         return self._grpc_stub.database_contains(database_proto.Database.Contains.Req()).contains
 
-    def create(self, name):
+    def create(self, name: str):
         request = database_proto.Database.Create.Req()
         request.name = name
         self._grpc_stub.database_create(request)
 
-    def delete(self, name):
+    def delete(self, name: str):
         request = database_proto.Database.Delete.Req()
         request.name = name
         self._grpc_stub.database_delete(request)
