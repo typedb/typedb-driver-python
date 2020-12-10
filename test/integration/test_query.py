@@ -34,6 +34,10 @@ class TestQuery(test_base):
     def tearDownClass(cls):
         client.close()
 
+    def setUp(self):
+        if "grakn" not in client.databases().all():
+            client.databases().create("grakn")
+
     def test_define_relation_type(self):
         with client.session("grakn", Session.Type.SCHEMA) as session:
             with session.transaction(Transaction.Type.WRITE) as tx:

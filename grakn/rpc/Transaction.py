@@ -11,10 +11,10 @@ from six.moves import queue
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
+from grakn import proto_builder
 from grakn.common.exception import GraknClientException
 from grakn.concept.concept_manager import ConceptManager
 from grakn.options import GraknOptions
-from grakn.proto_builder import GraknProtoBuilder
 from grakn.query.query_manager import QueryManager
 from grakn.rpc.stream import Stream
 
@@ -38,7 +38,7 @@ class Transaction(object):
         open_req = transaction_proto.Transaction.Open.Req()
         open_req.session_id = session_id
         open_req.type = Transaction._transaction_type_proto(transaction_type)
-        open_req.options.CopyFrom(GraknProtoBuilder.options(options))
+        open_req.options.CopyFrom(proto_builder.options(options))
         req = transaction_proto.Transaction.Req()
         req.open_req.CopyFrom(open_req)
 
@@ -79,6 +79,8 @@ class Transaction(object):
         response_queue = queue.Queue()
         request_id = str(uuid.uuid4())
         request.id = request_id
+        if self._transaction_was_closed:
+            raise GraknClientException("The transaction has been closed and no further operation is allowed.")
         self._response_queues[request_id] = response_queue
         self._request_iterator.put(request)
         return self._fetch(request_id)
@@ -87,6 +89,8 @@ class Transaction(object):
         response_queue = queue.Queue()
         request_id = str(uuid.uuid4())
         request.id = request_id
+        if self._transaction_was_closed:
+            raise GraknClientException("The transaction has been closed and no further operation is allowed.")
         self._response_queues[request_id] = response_queue
         self._request_iterator.put(request)
         return Stream(self, request_id, transform_response)
@@ -97,21 +101,29 @@ class Transaction(object):
         except queue.Empty:
             pass
 
+        # Keep taking responses until we get one that matches the request ID
         while True:
             try:
                 response = next(self._response_iterator)
-                if response.id == request_id:
-                    return response
-                else:
-                    response_queue = self._response_queues[response.id]
-                    if response_queue is None:
-                        raise GraknClientException("Received a response with unknown request id '" + response.id + "'.")
-                    response_queue.put(response)
+            except grpc.RpcError as e:
+                self._transaction_was_closed = True
+                grakn_exception = GraknClientException(e.details())
+                for response_queue in self._response_queues.values():
+                    response_queue.put(grakn_exception)
+                # noinspection PyUnresolvedReferences
+                raise grakn_exception
             except StopIteration:
                 raise GraknClientException("The transaction has been closed and no further operation is allowed.")
-            except grpc.RpcError as e:
-                # noinspection PyUnresolvedReferences
-                raise GraknClientException(e.details())
+
+            if isinstance(response, GraknClientException):
+                raise response
+            elif response.id == request_id:
+                return response
+            else:
+                response_queue = self._response_queues[response.id]
+                if response_queue is None:
+                    raise GraknClientException("Received a response with unknown request id '" + response.id + "'.")
+                response_queue.put(response)
 
     def __enter__(self):
         return self

@@ -4,8 +4,8 @@ import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
+from grakn.concept import proto_builder, proto_reader
 from grakn.concept.concept import Concept, RemoteConcept
-from grakn.concept.thing.thing import Thing
 
 
 class Type(Concept):
@@ -16,13 +16,39 @@ class Type(Concept):
         self._label = label
         self._is_root = is_root
 
-    @staticmethod
-    def of(type_proto: concept_proto.Type):
-        # TODO: implement this properly
-        return Type(type_proto.label, type_proto.root)
+    def get_label(self):
+        return self._label
 
-    def as_remote(self, transaction):
-        return RemoteType(transaction, self._label, self._is_root)
+    def is_root(self):
+        return self._is_root
+
+    def is_type(self):
+        return True
+
+    def is_thing_type(self):
+        return False
+
+    def is_entity_type(self):
+        return False
+
+    def is_attribute_type(self):
+        return False
+
+    def is_relation_type(self):
+        return False
+
+    def is_role_type(self):
+        return False
+
+    def __str__(self):
+        return type(self).__name__ + "[label:" + self._label + "]"
+
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if not other or type(self) != type(other):
+            return False
+        return self._label == other.get_label()
 
 
 class RemoteType(RemoteConcept):
@@ -36,22 +62,86 @@ class RemoteType(RemoteConcept):
         self._label = label
         self._is_root = is_root
 
+    def get_label(self):
+        return self._label
+
+    def is_root(self):
+        return self._is_root
+
+    def set_label(self, label: str):
+        req = concept_proto.Type.Req()
+        set_label_req = concept_proto.Type.SetLabel.Req()
+        set_label_req.label = label
+        req.type_set_label_req.CopyFrom(set_label_req)
+        self._execute(req)
+        self._label = label
+
+    def is_abstract(self):
+        req = concept_proto.Type.Req()
+        req.type_is_abstract_req.CopyFrom(concept_proto.Type.IsAbstract.Req())
+        res = self._execute(req)
+        return res.type_is_abstract_res.abstract
+
+    def is_type(self):
+        return True
+
+    def is_thing_type(self):
+        return False
+
+    def is_entity_type(self):
+        return False
+
+    def is_attribute_type(self):
+        return False
+
+    def is_relation_type(self):
+        return False
+
+    def is_role_type(self):
+        return False
+
+    def set_supertype(self, _type: Type):
+        req = concept_proto.Type.Req()
+        supertype_req = concept_proto.Type.SetSupertype.Req()
+        supertype_req.type = proto_builder.type_(_type)
+        req.type_set_supertype_req.CopyFrom(supertype_req)
+        self._execute(req)
+
+    def get_supertype(self):
+        req = concept_proto.Type.Req()
+        req.type_get_supertype_req.CopyFrom(concept_proto.Type.GetSupertype.Req())
+        res = self._execute(req).type_get_supertype_res
+        return proto_reader.type_(res.type) if res.WhichOneof("res") == "type" else None
+
     def get_supertypes(self):
         method = concept_proto.Type.Req()
         method.type_get_supertypes_req.CopyFrom(concept_proto.Type.GetSupertypes.Req())
         return self._type_stream(method, lambda res: res.type_get_supertypes_res.type)
 
+    def get_subtypes(self):
+        method = concept_proto.Type.Req()
+        method.type_get_subtypes_req.CopyFrom(concept_proto.Type.GetSubtypes.Req())
+        return self._type_stream(method, lambda res: res.type_get_subtypes_res.type)
+
+    def delete(self):
+        method = concept_proto.Type.Req()
+        method.type_delete_req.CopyFrom(concept_proto.Type.Delete.Req())
+        self._execute(method)
+
+    def is_deleted(self):
+        return not self._transaction.concepts().get_type(self._label)
+
     def _type_stream(self, method: concept_proto.Type.Req, type_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Type]]):
         method.label = self._label
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
-        return self._transaction._stream(request, lambda res: type_list_getter(res.type_res))
+        return map(lambda type_proto: proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.type_res)))
 
     def _thing_stream(self, method: concept_proto.Type.Req, thing_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Thing]]):
         method.label = self._label
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
-        return self._transaction._stream(request, lambda res: thing_list_getter(res.type_res))
+        return map(lambda thing_proto: proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.type_res)))
 
     def _execute(self, method: concept_proto.Type.Req):
         method.label = self._label
@@ -59,16 +149,12 @@ class RemoteType(RemoteConcept):
         request.type_req.CopyFrom(method)
         return self._transaction._execute(request).type_res
 
-    # TODO: this does NOT belong here!
-    def create(self):
-        method = concept_proto.Type.Req()
-        create_req = concept_proto.EntityType.Create.Req()
-        method.entity_type_create_req.CopyFrom(create_req)
-        return Thing.of(self._execute(method).entity_type_create_res.entity)
+    def __str__(self):
+        return type(self).__name__ + "[label:" + self._label + "]"
 
-    # TODO: this also doesn't belong here!
-    def get_instances(self):
-        method = concept_proto.Type.Req()
-        get_instances_req = concept_proto.ThingType.GetInstances.Req()
-        method.thing_type_get_instances_req.CopyFrom(get_instances_req)
-        return self._thing_stream(method, lambda res: res.thing_type_get_instances_res.thing)
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if not other or type(self) != type(other):
+            return False
+        return self._label == other.get_label()

@@ -9,7 +9,9 @@ class DatabaseManager(object):
         self._grpc_stub = GraknStub(channel)
 
     def contains(self, name: str):
-        return self._grpc_stub.database_contains(database_proto.Database.Contains.Req()).contains
+        request = database_proto.Database.Contains.Req()
+        request.name = name
+        return self._grpc_stub.database_contains(request).contains
 
     def create(self, name: str):
         request = database_proto.Database.Create.Req()

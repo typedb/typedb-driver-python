@@ -35,7 +35,7 @@ py_library(
     name = "client_python",
     srcs = glob(["grakn/**/*.py"]),
     deps = [
-        "@graknlabs_protocol//grpc/python:protocol",
+        graknlabs_client_python_requirement("graknprotocol"),
         graknlabs_client_python_requirement("protobuf"),
         graknlabs_client_python_requirement("grpcio"),
         graknlabs_client_python_requirement("six"),
@@ -66,7 +66,7 @@ assemble_pip(
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
     install_requires=[
-        'graknprotocol==0.0.0-79b425673f1def7527ff3a11c06502fdfc6e6606',
+        'graknprotocol==0.0.0-8c659da5f36dc8abfdb7998cf9835e43f9415902',
         'grpcio==1.33.2',
         'protobuf==3.6.1',
         'six>=1.11.0',

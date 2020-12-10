@@ -34,6 +34,6 @@ def graknlabs_common():
 def graknlabs_protocol():
     git_repository(
         name = "graknlabs_protocol",
-        remote = "https://github.com/alexjpwalker/protocol",
-        commit = "aa4af25a51497271324d7c6423299cdc7b835248", # sync-marker: do not remove this comment, this is used for sync-dependencies by @graknlabs_protocol
+        remote = "https://github.com/graknlabs/protocol",
+        commit = "df46da1b83c17e1ec37b433a7d1432a37ccba7b1", # sync-marker: do not remove this comment, this is used for sync-dependencies by @graknlabs_protocol
     )

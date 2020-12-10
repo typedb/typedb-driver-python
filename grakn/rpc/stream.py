@@ -9,8 +9,8 @@ from grakn.common.exception import GraknClientException
 
 class Stream(six.Iterator):
 
-    CONTINUE = "continue"
-    DONE = "done"
+    _CONTINUE = "continue"
+    _DONE = "done"
 
     def __init__(self, transaction, request_id: str, transform_response: Callable[[transaction_proto.Transaction.Res], List] = None):
         self._transaction = transaction
@@ -29,15 +29,14 @@ class Stream(six.Iterator):
                 self._current_iterator = None
 
         res = self._transaction._fetch(self._request_id)
-        print(res)
         res_case = res.WhichOneof("res")
-        if res_case == Stream.CONTINUE:
+        if res_case == Stream._CONTINUE:
             continue_req = transaction_proto.Transaction.Req()
             continue_req.id = self._request_id
             setattr(continue_req, "continue", True)
             self._transaction._request_iterator.put(continue_req)
             return next(self)
-        elif res_case == Stream.DONE:
+        elif res_case == Stream._DONE:
             raise StopIteration()
         elif res_case is None:
             raise GraknClientException("The required field 'res' of type 'transaction_proto.Transaction.Res' was not set.")

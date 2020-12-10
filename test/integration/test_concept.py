@@ -46,7 +46,7 @@ class TestConcept(test_base):
             with session.transaction(Transaction.Type.WRITE) as tx:
                 lion = tx.concepts().put_entity_type("lion")
                 for lion_supertype in lion.as_remote(tx).get_supertypes():
-                    print(lion_supertype)
+                    print(str(lion_supertype) + " is a supertype of 'lion'")
 
     def test_streaming_operation_on_closed_tx(self):
         with client.session("grakn", Session.Type.SCHEMA) as session:
@@ -81,8 +81,8 @@ class TestConcept(test_base):
             with session.transaction(Transaction.Type.WRITE) as tx:
                 for _ in range(100):
                     goldfish_type.as_remote(tx).create()
-                for goldfish in goldfish_type.as_remote(tx).get_instances():
-                    print(goldfish)
+                goldfish_count = sum(1 for _ in goldfish_type.as_remote(tx).get_instances())
+                print("There are " + str(goldfish_count) + " goldfish.")
 
 if __name__ == "__main__":
     with GraknServer():
