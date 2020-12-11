@@ -62,12 +62,12 @@ class RemoteRoleType(RemoteType):
     def get_relation_types(self):
         method = concept_proto.Type.Req()
         method.role_type_get_relation_types_req.CopyFrom(concept_proto.RoleType.GetRelationTypes.Req())
-        return self._type_stream(method, lambda res: res.role_type_get_relation_types_res.relation_type)
+        return self._type_stream(method, lambda res: res.role_type_get_relation_types_res.relation_types)
 
     def get_players(self):
         method = concept_proto.Type.Req()
         method.role_type_get_players_req.CopyFrom(concept_proto.RoleType.GetPlayers.Req())
-        return self._type_stream(method, lambda res: res.role_type_get_players_res.thing_type)
+        return self._type_stream(method, lambda res: res.role_type_get_players_res.thing_types)
 
     def is_role_type(self):
         return True

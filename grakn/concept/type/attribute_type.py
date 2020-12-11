@@ -62,7 +62,7 @@ class RemoteAttributeType(RemoteThingType):
         get_owners_req = concept_proto.AttributeType.GetOwners.Req()
         get_owners_req.only_key = only_key
         method.attribute_type_get_owners_req.CopyFrom(get_owners_req)
-        return self._type_stream(method, lambda res: res.attribute_type_get_owners_res.owner)
+        return self._type_stream(method, lambda res: res.attribute_type_get_owners_res.owners)
 
     def _put_internal(self, value_proto):
         method = concept_proto.Type.Req()

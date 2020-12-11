@@ -3,7 +3,8 @@ import graknprotocol.protobuf.concept_pb2 as concept_proto
 from grakn.common.exception import GraknClientException
 from grakn.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
     DateTimeAttribute
-from grakn.concept.thing.thing import Thing
+from grakn.concept.thing.entity import Entity
+from grakn.concept.thing.relation import Relation
 from grakn.concept.type.attribute_type import BooleanAttributeType, LongAttributeType, DoubleAttributeType, \
     StringAttributeType, DateTimeAttributeType, AttributeType
 from grakn.concept.type.entity_type import EntityType
@@ -13,20 +14,26 @@ from grakn.concept.type.thing_type import ThingType
 
 
 def thing(thing_proto: concept_proto.Thing):
-    # TODO: implement this properly
-    return Thing._of(thing_proto)
+    if thing_proto.encoding == concept_proto.Thing.Encoding.Value("ENTITY"):
+        return Entity._of(thing_proto)
+    elif thing_proto.encoding == concept_proto.Thing.Encoding.Value("RELATION"):
+        return Relation._of(thing_proto)
+    elif thing_proto.encoding == concept_proto.Thing.Encoding.Value("ATTRIBUTE"):
+        return attribute(thing_proto)
+    else:
+        raise GraknClientException("The encoding " + thing_proto.encoding + " was not recognised.")
 
 
 def attribute(thing_proto: concept_proto.Thing):
-    if thing_proto.value_type == concept_proto.AttributeType.ValueType.BOOLEAN:
+    if thing_proto.value_type == concept_proto.AttributeType.ValueType.Value("BOOLEAN"):
         return BooleanAttribute._of(thing_proto)
-    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.LONG:
+    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.Value("LONG"):
         return LongAttribute._of(thing_proto)
-    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.DOUBLE:
+    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.Value("DOUBLE"):
         return DoubleAttribute._of(thing_proto)
-    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.STRING:
+    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.Value("STRING"):
         return StringAttribute._of(thing_proto)
-    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.DATETIME:
+    elif thing_proto.value_type == concept_proto.AttributeType.ValueType.Value("DATETIME"):
         return DateTimeAttribute._of(thing_proto)
     else:
         raise GraknClientException("The value type " + str(thing_proto.value_type) + " was not recognised.")

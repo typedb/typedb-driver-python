@@ -86,9 +86,8 @@ github_deps()
 # Load @graknlabs dependencies #
 ################################
 
-load("//dependencies/graknlabs:repositories.bzl", "graknlabs_protocol", "graknlabs_common")
+load("//dependencies/graknlabs:repositories.bzl", "graknlabs_common")
 graknlabs_common()
-graknlabs_protocol()
 
 # Load artifacts
 load("//dependencies/graknlabs:artifacts.bzl", "graknlabs_grakn_core_artifacts")

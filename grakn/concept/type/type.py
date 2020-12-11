@@ -116,12 +116,12 @@ class RemoteType(RemoteConcept):
     def get_supertypes(self):
         method = concept_proto.Type.Req()
         method.type_get_supertypes_req.CopyFrom(concept_proto.Type.GetSupertypes.Req())
-        return self._type_stream(method, lambda res: res.type_get_supertypes_res.type)
+        return self._type_stream(method, lambda res: res.type_get_supertypes_res.types)
 
     def get_subtypes(self):
         method = concept_proto.Type.Req()
         method.type_get_subtypes_req.CopyFrom(concept_proto.Type.GetSubtypes.Req())
-        return self._type_stream(method, lambda res: res.type_get_subtypes_res.type)
+        return self._type_stream(method, lambda res: res.type_get_subtypes_res.types)
 
     def delete(self):
         method = concept_proto.Type.Req()

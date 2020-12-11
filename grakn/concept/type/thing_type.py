@@ -16,7 +16,7 @@ class RemoteThingType(RemoteType):
         method = concept_proto.Type.Req()
         get_instances_req = concept_proto.ThingType.GetInstances.Req()
         method.thing_type_get_instances_req.CopyFrom(get_instances_req)
-        return self._thing_stream(method, lambda res: res.thing_type_get_instances_res.thing)
+        return self._thing_stream(method, lambda res: res.thing_type_get_instances_res.things)
 
     def set_abstract(self):
         req = concept_proto.Type.Req()
@@ -50,7 +50,7 @@ class RemoteThingType(RemoteType):
     def get_plays(self):
         req = concept_proto.Type.Req()
         req.thing_type_get_plays_req.CopyFrom(concept_proto.ThingType.GetPlays.Req())
-        return self._type_stream(req, lambda res: res.thing_type_get_plays_res.role)
+        return self._type_stream(req, lambda res: res.thing_type_get_plays_res.roles)
 
     def get_owns(self, value_type=None, keys_only=False):
         req = concept_proto.Type.Req()
@@ -59,7 +59,7 @@ class RemoteThingType(RemoteType):
         if value_type:
             get_owns_req.value_type = proto_builder.value_type(value_type)
         req.thing_type_get_owns_req.CopyFrom(get_owns_req)
-        return self._type_stream(req, lambda res: res.thing_type_get_owns_res.attribute_type)
+        return self._type_stream(req, lambda res: res.thing_type_get_owns_res.attribute_types)
 
     def unset_plays(self, role):
         req = concept_proto.Type.Req()

@@ -66,7 +66,7 @@ assemble_pip(
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
     install_requires=[
-        'graknprotocol==0.0.0-8c659da5f36dc8abfdb7998cf9835e43f9415902',
+        'graknprotocol==0.0.0-6bf8c601ecd57a2869cde56c17eec8784a9a2804',
         'grpcio==1.33.2',
         'protobuf==3.6.1',
         'six>=1.11.0',
@@ -99,14 +99,15 @@ artifact_extractor(
     artifact = "@graknlabs_grakn_core_artifact_linux//file",
 )
 
-release_validate_deps(
-    name = "release-validate-deps",
-    refs = "@graknlabs_client_python_workspace_refs//:refs.json",
-    tagged_deps = [
-        "@graknlabs_protocol",
-    ],
-    tags = ["manual"]  # in order for bazel test //... to not fail
-)
+# TODO: add it back once we're able to depend on @graknlabs_protocol as bazel rather than artifact dependency
+#release_validate_deps(
+#    name = "release-validate-deps",
+#    refs = "@graknlabs_client_python_workspace_refs//:refs.json",
+#    tagged_deps = [
+#        "@graknlabs_protocol",
+#    ],
+#    tags = ["manual"]  # in order for bazel test //... to not fail
+#)
 
 # CI targets that are not declared in any BUILD file, but are called externally
 filegroup(
