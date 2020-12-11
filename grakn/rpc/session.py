@@ -4,16 +4,17 @@ import enum
 
 from grakn import proto_builder
 from grakn.options import GraknOptions
-from grakn.rpc.transaction import Transaction
+from grakn.rpc.transaction import Transaction, TransactionType
+
+
+class SessionType(enum.Enum):
+    DATA = 0
+    SCHEMA = 1
 
 
 class Session(object):
 
-    class Type(enum.Enum):
-        DATA = 0
-        SCHEMA = 1
-
-    def __init__(self, client, database: str, session_type: Type, options=GraknOptions()):
+    def __init__(self, client, database: str, session_type: SessionType, options=GraknOptions()):
         self._channel = client._channel
         self._scheduler = client._scheduler
         self._database = database
@@ -29,7 +30,7 @@ class Session(object):
         self._is_open = True
         self._pulse = self._scheduler.enter(5, 1, self._transmit_pulse, ())
 
-    def transaction(self, transaction_type: Transaction.Type, options=GraknOptions()):
+    def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
         return Transaction(self._channel, self._session_id, transaction_type, options)
 
     def session_type(self): return self._session_type
@@ -65,8 +66,8 @@ class Session(object):
             return False
 
     @staticmethod
-    def _session_type_proto(session_type: Type):
-        if session_type == Session.Type.DATA:
+    def _session_type_proto(session_type: SessionType):
+        if session_type == SessionType.DATA:
             return session_proto.Session.Type.Value("DATA")
-        if session_type == Session.Type.SCHEMA:
+        if session_type == SessionType.SCHEMA:
             return session_proto.Session.Type.Value("SCHEMA")

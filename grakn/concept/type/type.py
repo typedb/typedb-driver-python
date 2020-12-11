@@ -4,7 +4,7 @@ import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.concept import proto_builder, proto_reader
+from grakn.concept import proto_reader, proto_builder
 from grakn.concept.concept import Concept, RemoteConcept
 
 
@@ -41,14 +41,14 @@ class Type(Concept):
         return False
 
     def __str__(self):
-        return type(self).__name__ + "[label:" + self._label + "]"
+        return type(self).__name__ + "[label:" + self.get_label() + "]"
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._label == other.get_label()
+        return self.get_label() == other.get_label()
 
 
 class RemoteType(RemoteConcept):
@@ -129,32 +129,32 @@ class RemoteType(RemoteConcept):
         self._execute(method)
 
     def is_deleted(self):
-        return not self._transaction.concepts().get_type(self._label)
+        return not self._transaction.concepts().get_type(self.get_label())
 
     def _type_stream(self, method: concept_proto.Type.Req, type_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Type]]):
-        method.label = self._label
+        method.label = self.get_label()
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return map(lambda type_proto: proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.type_res)))
 
     def _thing_stream(self, method: concept_proto.Type.Req, thing_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Thing]]):
-        method.label = self._label
+        method.label = self.get_label()
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return map(lambda thing_proto: proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.type_res)))
 
     def _execute(self, method: concept_proto.Type.Req):
-        method.label = self._label
+        method.label = self.get_label()
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
         return self._transaction._execute(request).type_res
 
     def __str__(self):
-        return type(self).__name__ + "[label:" + self._label + "]"
+        return type(self).__name__ + "[label:" + self.get_label() + "]"
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._label == other.get_label()
+        return self.get_label() == other.get_label()

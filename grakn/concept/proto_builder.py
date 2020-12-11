@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException
+from grakn.concept.type.value_type import ValueType
 
 
 def type_(_type):
@@ -12,6 +15,53 @@ def type_(_type):
         proto_type.scope = _type.get_scope()
 
     return proto_type
+
+
+def boolean_attribute_value(value: bool):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.boolean = value
+    return value_proto
+
+
+def long_attribute_value(value: int):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.long = value
+    return value_proto
+
+
+def double_attribute_value(value: float):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.double = value
+    return value_proto
+
+
+def string_attribute_value(value: str):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.string = value
+    return value_proto
+
+
+def datetime_attribute_value(value: datetime):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.long = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
+    return value_proto
+
+
+def value_type(value_type_: ValueType):
+    if value_type_ == ValueType.BOOLEAN:
+        return concept_proto.AttributeType.ValueType.BOOLEAN
+    elif value_type_ == ValueType.LONG:
+        return concept_proto.AttributeType.ValueType.LONG
+    elif value_type_ == ValueType.DOUBLE:
+        return concept_proto.AttributeType.ValueType.DOUBLE
+    elif value_type_ == ValueType.STRING:
+        return concept_proto.AttributeType.ValueType.STRING
+    elif value_type_ == ValueType.DATETIME:
+        return concept_proto.AttributeType.ValueType.DATETIME
+    elif value_type_ == ValueType.OBJECT:
+        return concept_proto.AttributeType.ValueType.OBJECT
+    else:
+        raise GraknClientException("Unrecognised value type: " + str(value_type_))
 
 
 def type_encoding(_type):

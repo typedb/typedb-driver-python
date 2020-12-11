@@ -18,9 +18,7 @@
 #
 
 import unittest
-from grakn.client import GraknClient
-from grakn.rpc.session import Session
-from grakn.rpc.transaction import Transaction
+from grakn.client import GraknClient, SessionType, TransactionType
 from test.integration.base import test_base, GraknServer
 
 
@@ -48,14 +46,14 @@ class TestConnection(test_base):
     def test_session(self):
         if "grakn" not in client.databases().all():
             client.databases().create("grakn")
-        session = client.session("grakn", Session.Type.SCHEMA)
+        session = client.session("grakn", SessionType.SCHEMA)
         session.close()
 
     def test_transaction(self):
         if "grakn" not in client.databases().all():
             client.databases().create("grakn")
-        with client.session("grakn", Session.Type.SCHEMA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 pass
 
 if __name__ == "__main__":

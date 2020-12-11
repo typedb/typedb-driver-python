@@ -19,12 +19,14 @@ from grakn.query.query_manager import QueryManager
 from grakn.rpc.stream import Stream
 
 
-class Transaction(object):
-    class Type(enum.Enum):
-        READ = 0
-        WRITE = 1
+class TransactionType(enum.Enum):
+    READ = 0
+    WRITE = 1
 
-    def __init__(self, channel: grpc.Channel, session_id: str, transaction_type: Type, options=GraknOptions()):
+
+class Transaction(object):
+
+    def __init__(self, channel: grpc.Channel, session_id: str, transaction_type: TransactionType, options=GraknOptions()):
         self._transaction_type = transaction_type
         self._concept_manager = ConceptManager(self)
         self._query_manager = QueryManager(self)
@@ -137,9 +139,9 @@ class Transaction(object):
 
     @staticmethod
     def _transaction_type_proto(transaction_type):
-        if transaction_type == Transaction.Type.READ:
+        if transaction_type == TransactionType.READ:
             return transaction_proto.Transaction.Type.Value("READ")
-        if transaction_type == Transaction.Type.WRITE:
+        if transaction_type == TransactionType.WRITE:
             return transaction_proto.Transaction.Type.Value("WRITE")
 
 

@@ -18,10 +18,8 @@
 #
 
 import unittest
-from grakn.client import GraknClient
+from grakn.client import GraknClient, SessionType, TransactionType
 from grakn.common.exception import GraknClientException
-from grakn.rpc.session import Session
-from grakn.rpc.transaction import Transaction
 from test.integration.base import test_base, GraknServer
 
 
@@ -42,15 +40,15 @@ class TestConcept(test_base):
             client.databases().create("grakn")
 
     def test_get_supertypes(self):
-        with client.session("grakn", Session.Type.SCHEMA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 lion = tx.concepts().put_entity_type("lion")
                 for lion_supertype in lion.as_remote(tx).get_supertypes():
                     print(str(lion_supertype) + " is a supertype of 'lion'")
 
     def test_streaming_operation_on_closed_tx(self):
-        with client.session("grakn", Session.Type.SCHEMA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 lion = tx.concepts().put_entity_type("lion")
                 tx.close()
                 try:
@@ -61,8 +59,8 @@ class TestConcept(test_base):
                     pass
 
     def test_invalid_streaming_operation(self):
-        with client.session("grakn", Session.Type.SCHEMA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 lion = tx.concepts().put_entity_type("lion")
                 lion._label = "lizard"
                 try:
@@ -73,16 +71,17 @@ class TestConcept(test_base):
                     pass
 
     def test_get_many_instances(self):
-        with client.session("grakn", Session.Type.SCHEMA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 goldfish_type = tx.concepts().put_entity_type("goldfish")
                 tx.commit()
-        with client.session("grakn", Session.Type.DATA) as session:
-            with session.transaction(Transaction.Type.WRITE) as tx:
+        with client.session("grakn", SessionType.DATA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
                 for _ in range(100):
                     goldfish_type.as_remote(tx).create()
                 goldfish_count = sum(1 for _ in goldfish_type.as_remote(tx).get_instances())
                 print("There are " + str(goldfish_count) + " goldfish.")
+
 
 if __name__ == "__main__":
     with GraknServer():
