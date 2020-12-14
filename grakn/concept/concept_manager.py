@@ -1,7 +1,7 @@
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
-from grakn.concept import proto_reader
+from grakn.concept.proto import concept_proto_reader
 from grakn.concept.type.entity_type import EntityType
 from grakn.concept.type.relation_type import RelationType
 
@@ -53,7 +53,7 @@ class ConceptManager(object):
         put_attribute_type_req.label = label
         req.put_attribute_type_req.CopyFrom(put_attribute_type_req)
         res = self._execute(req)
-        return proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
+        return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
 
     def get_attribute_type(self, label: str):
         _type = self.get_type(label)
@@ -66,7 +66,7 @@ class ConceptManager(object):
         req.get_thing_req.CopyFrom(get_thing_req)
 
         response = self._execute(req)
-        return proto_reader.thing(response.get_thing_res.thing) if response.get_thing_res.WhichOneof("res") == "thing" else None
+        return concept_proto_reader.thing(response.get_thing_res.thing) if response.get_thing_res.WhichOneof("res") == "thing" else None
 
     def get_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
@@ -75,7 +75,7 @@ class ConceptManager(object):
         req.get_type_req.CopyFrom(get_type_req)
 
         response = self._execute(req)
-        return proto_reader.type_(response.get_type_res.type) if response.get_type_res.WhichOneof("res") == "type" else None
+        return concept_proto_reader.type_(response.get_type_res.type) if response.get_type_res.WhichOneof("res") == "type" else None
 
     def _execute(self, request: concept_proto.ConceptManager.Req):
         req = transaction_proto.Transaction.Req()

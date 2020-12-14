@@ -3,11 +3,9 @@ from typing import Mapping
 import graknprotocol.protobuf.answer_pb2 as answer_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.concept import proto_reader
+from grakn.concept.proto import concept_proto_reader
 from grakn.concept.answer.answer import Answer
 from grakn.concept.concept import Concept
-from grakn.concept.thing.thing import Thing
-from grakn.concept.type import type as type_
 
 
 class ConceptMap(Answer):
@@ -49,9 +47,9 @@ def _of(concept_map_proto: answer_proto.ConceptMap):
     for res_var in concept_map_proto.map:
         res_concept = concept_map_proto.map[res_var]
         if res_concept.HasField(ConceptMap._THING):
-            concept = proto_reader.thing(res_concept.thing)
+            concept = concept_proto_reader.thing(res_concept.thing)
         else:
-            concept = proto_reader.type_(res_concept.type)
+            concept = concept_proto_reader.type_(res_concept.type)
         variable_map[res_var] = concept
     query_pattern = None if concept_map_proto.pattern == "" else concept_map_proto.pattern
     return ConceptMap(variable_map, query_pattern)

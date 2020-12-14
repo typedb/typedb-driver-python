@@ -1,6 +1,6 @@
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
-from grakn.concept import proto_reader
+from grakn.concept.proto import concept_proto_reader
 from grakn.concept.thing.relation import Relation
 from grakn.concept.type.thing_type import ThingType, RemoteThingType
 
@@ -36,7 +36,7 @@ class RemoteRelationType(RemoteThingType):
             get_relates_req.label = role_label
             method.relation_type_get_relates_for_role_label_req.CopyFrom(get_relates_req)
             res = self._execute(method).relation_type_get_relates_for_role_label_res
-            return proto_reader.type_(res.role_type) if res.HasField("role_type") else None
+            return concept_proto_reader.type_(res.role_type) if res.HasField("role_type") else None
         else:
             method.relates_type_get_relates_req.CopyFrom(concept_proto.RelationType.GetRelates.Req())
             return self._type_stream(method, lambda res: res.relation_type_get_relates_res.roles)

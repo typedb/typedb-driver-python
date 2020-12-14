@@ -4,7 +4,7 @@ import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.concept import proto_reader, proto_builder
+from grakn.concept.proto import concept_proto_builder, concept_proto_reader
 from grakn.concept.concept import Concept, RemoteConcept
 
 
@@ -103,7 +103,7 @@ class RemoteType(RemoteConcept):
     def set_supertype(self, _type: Type):
         req = concept_proto.Type.Req()
         supertype_req = concept_proto.Type.SetSupertype.Req()
-        supertype_req.type = proto_builder.type_(_type)
+        supertype_req.type = concept_proto_builder.type_(_type)
         req.type_set_supertype_req.CopyFrom(supertype_req)
         self._execute(req)
 
@@ -111,7 +111,7 @@ class RemoteType(RemoteConcept):
         req = concept_proto.Type.Req()
         req.type_get_supertype_req.CopyFrom(concept_proto.Type.GetSupertype.Req())
         res = self._execute(req).type_get_supertype_res
-        return proto_reader.type_(res.type) if res.WhichOneof("res") == "type" else None
+        return concept_proto_reader.type_(res.type) if res.WhichOneof("res") == "type" else None
 
     def get_supertypes(self):
         method = concept_proto.Type.Req()
@@ -135,13 +135,13 @@ class RemoteType(RemoteConcept):
         method.label = self.get_label()
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
-        return map(lambda type_proto: proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.type_res)))
+        return map(lambda type_proto: concept_proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.type_res)))
 
     def _thing_stream(self, method: concept_proto.Type.Req, thing_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Thing]]):
         method.label = self.get_label()
         request = transaction_proto.Transaction.Req()
         request.type_req.CopyFrom(method)
-        return map(lambda thing_proto: proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.type_res)))
+        return map(lambda thing_proto: concept_proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.type_res)))
 
     def _execute(self, method: concept_proto.Type.Req):
         method.label = self.get_label()

@@ -2,7 +2,7 @@ from typing import Callable, List
 
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
-from grakn.concept import proto_reader
+from grakn.concept.proto import concept_proto_reader
 from grakn.concept.type.type import Type, RemoteType
 
 
@@ -57,7 +57,7 @@ class RemoteRoleType(RemoteType):
     def get_relation_type(self):
         method = concept_proto.Type.Req()
         method.role_type_get_relation_type_req.CopyFrom(concept_proto.RoleType.GetRelationType.Req())
-        return proto_reader.type_(self._execute(method).role_type_get_relation_type_res.relation_type)
+        return concept_proto_reader.type_(self._execute(method).role_type_get_relation_type_res.relation_type)
 
     def get_relation_types(self):
         method = concept_proto.Type.Req()

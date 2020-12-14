@@ -2,7 +2,7 @@ from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.session_pb2 as session_proto
 import enum
 
-from grakn import proto_builder
+from grakn import grakn_proto_builder
 from grakn.options import GraknOptions
 from grakn.rpc.transaction import Transaction, TransactionType
 
@@ -24,7 +24,7 @@ class Session(object):
         open_req = session_proto.Session.Open.Req()
         open_req.database = database
         open_req.type = Session._session_type_proto(session_type)
-        open_req.options.CopyFrom(proto_builder.options(options))
+        open_req.options.CopyFrom(grakn_proto_builder.options(options))
 
         self._session_id = self._grpc_stub.session_open(open_req).session_id
         self._is_open = True

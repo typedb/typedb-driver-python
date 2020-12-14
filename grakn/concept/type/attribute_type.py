@@ -2,7 +2,7 @@ from datetime import datetime
 
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
-from grakn.concept import proto_reader, proto_builder
+from grakn.concept.proto import concept_proto_builder, concept_proto_reader
 from grakn.concept.type.thing_type import ThingType, RemoteThingType
 from grakn.concept.type.value_type import ValueType
 
@@ -69,7 +69,7 @@ class RemoteAttributeType(RemoteThingType):
         put_req = concept_proto.AttributeType.Put.Req()
         put_req.value = value_proto
         method.attribute_type_put_req.CopyFrom(put_req)
-        return proto_reader.attribute(self._execute(method).attribute_type_put_res.attribute)
+        return concept_proto_reader.attribute(self._execute(method).attribute_type_put_res.attribute)
 
     def _get_internal(self, value_proto):
         method = concept_proto.Type.Req()
@@ -77,7 +77,7 @@ class RemoteAttributeType(RemoteThingType):
         get_req.value = value_proto
         method.attribute_type_get_req.CopyFrom(get_req)
         response = self._execute(method).attribute_type_get_res
-        return proto_reader.attribute(response.attribute) if response.WhichOneof("res") == "attribute" else None
+        return concept_proto_reader.attribute(response.attribute) if response.WhichOneof("res") == "attribute" else None
 
     def is_boolean(self):
         return False
@@ -127,10 +127,10 @@ class RemoteBooleanAttributeType(RemoteAttributeType):
         return RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
 
     def put(self, value: bool):
-        return self._put_internal(proto_builder.boolean_attribute_value(value))
+        return self._put_internal(concept_proto_builder.boolean_attribute_value(value))
 
     def get(self, value: bool):
-        return self._get_internal(proto_builder.boolean_attribute_value(value))
+        return self._get_internal(concept_proto_builder.boolean_attribute_value(value))
 
     def is_boolean(self):
         return True
@@ -161,10 +161,10 @@ class RemoteLongAttributeType(RemoteAttributeType):
         return RemoteLongAttributeType(transaction, self.get_label(), self.is_root())
 
     def put(self, value: int):
-        return self._put_internal(proto_builder.long_attribute_value(value))
+        return self._put_internal(concept_proto_builder.long_attribute_value(value))
 
     def get(self, value: int):
-        return self._get_internal(proto_builder.long_attribute_value(value))
+        return self._get_internal(concept_proto_builder.long_attribute_value(value))
 
     def is_long(self):
         return True
@@ -195,10 +195,10 @@ class RemoteDoubleAttributeType(RemoteAttributeType):
         return RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root())
 
     def put(self, value: float):
-        return self._put_internal(proto_builder.double_attribute_value(value))
+        return self._put_internal(concept_proto_builder.double_attribute_value(value))
 
     def get(self, value: float):
-        return self._get_internal(proto_builder.double_attribute_value(value))
+        return self._get_internal(concept_proto_builder.double_attribute_value(value))
 
     def is_double(self):
         return True
@@ -229,10 +229,10 @@ class RemoteStringAttributeType(RemoteAttributeType):
         return RemoteStringAttributeType(transaction, self.get_label(), self.is_root())
 
     def put(self, value: str):
-        return self._put_internal(proto_builder.string_attribute_value(value))
+        return self._put_internal(concept_proto_builder.string_attribute_value(value))
 
     def get(self, value: str):
-        return self._get_internal(proto_builder.string_attribute_value(value))
+        return self._get_internal(concept_proto_builder.string_attribute_value(value))
 
     def is_string(self):
         return True
@@ -263,10 +263,10 @@ class RemoteDateTimeAttributeType(RemoteAttributeType):
         return RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root())
 
     def put(self, value: datetime):
-        return self._put_internal(proto_builder.datetime_attribute_value(value))
+        return self._put_internal(concept_proto_builder.datetime_attribute_value(value))
 
     def get(self, value: datetime):
-        return self._get_internal(proto_builder.datetime_attribute_value(value))
+        return self._get_internal(concept_proto_builder.datetime_attribute_value(value))
 
     def is_datetime(self):
         return True

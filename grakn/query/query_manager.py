@@ -3,7 +3,7 @@ from typing import Callable, List
 import graknprotocol.protobuf.query_pb2 as query_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
-from grakn import proto_builder
+from grakn import grakn_proto_builder
 from grakn.concept.answer import concept_map
 from grakn.options import GraknOptions
 
@@ -50,13 +50,13 @@ class QueryManager(object):
 
     def _run_query(self, query_req: query_proto.Query.Req, options: GraknOptions):
         req = transaction_proto.Transaction.Req()
-        query_req.options.CopyFrom(proto_builder.options(options))
+        query_req.options.CopyFrom(grakn_proto_builder.options(options))
         req.query_req.CopyFrom(query_req)
         # Using stream makes this request asynchronous.
         self._transaction._stream(req)
 
     def _iterate_query(self, query_req: query_proto.Query.Req, response_reader: Callable[[transaction_proto.Transaction.Res], List], options: GraknOptions):
         req = transaction_proto.Transaction.Req()
-        query_req.options.CopyFrom(proto_builder.options(options))
+        query_req.options.CopyFrom(grakn_proto_builder.options(options))
         req.query_req.CopyFrom(query_req)
         return self._transaction._stream(req, response_reader)

@@ -11,7 +11,7 @@ from six.moves import queue
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
-from grakn import proto_builder
+from grakn import grakn_proto_builder
 from grakn.common.exception import GraknClientException
 from grakn.concept.concept_manager import ConceptManager
 from grakn.options import GraknOptions
@@ -40,7 +40,7 @@ class Transaction(object):
         open_req = transaction_proto.Transaction.Open.Req()
         open_req.session_id = session_id
         open_req.type = Transaction._transaction_type_proto(transaction_type)
-        open_req.options.CopyFrom(proto_builder.options(options))
+        open_req.options.CopyFrom(grakn_proto_builder.options(options))
         req = transaction_proto.Transaction.Req()
         req.open_req.CopyFrom(open_req)
 

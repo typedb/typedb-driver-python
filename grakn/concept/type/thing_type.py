@@ -1,6 +1,6 @@
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
-from grakn.concept import proto_builder
+from grakn.concept.proto import concept_proto_builder
 from grakn.concept.type.type import Type, RemoteType
 
 
@@ -31,19 +31,19 @@ class RemoteThingType(RemoteType):
     def set_plays(self, role, overridden_role=None):
         req = concept_proto.Type.Req()
         set_plays_req = concept_proto.ThingType.SetPlays.Req()
-        set_plays_req.role = proto_builder.type_(role)
+        set_plays_req.role = concept_proto_builder.type_(role)
         if overridden_role:
-            set_plays_req.overridden_role = proto_builder.type_(overridden_role)
+            set_plays_req.overridden_role = concept_proto_builder.type_(overridden_role)
         req.thing_type_set_plays_req.CopyFrom(set_plays_req)
         self._execute(req)
 
     def set_owns(self, attribute_type, overridden_type=None, is_key=False):
         req = concept_proto.Type.Req()
         set_owns_req = concept_proto.ThingType.SetOwns.Req()
-        set_owns_req.attribute_type = proto_builder.type_(attribute_type)
+        set_owns_req.attribute_type = concept_proto_builder.type_(attribute_type)
         set_owns_req.is_key = is_key
         if overridden_type:
-            set_owns_req.overridden_type = proto_builder.type_(overridden_type)
+            set_owns_req.overridden_type = concept_proto_builder.type_(overridden_type)
         req.thing_type_set_owns_req.CopyFrom(set_owns_req)
         self._execute(req)
 
@@ -57,21 +57,21 @@ class RemoteThingType(RemoteType):
         get_owns_req = concept_proto.ThingType.GetOwns.Req()
         get_owns_req.keys_only = keys_only
         if value_type:
-            get_owns_req.value_type = proto_builder.value_type(value_type)
+            get_owns_req.value_type = concept_proto_builder.value_type(value_type)
         req.thing_type_get_owns_req.CopyFrom(get_owns_req)
         return self._type_stream(req, lambda res: res.thing_type_get_owns_res.attribute_types)
 
     def unset_plays(self, role):
         req = concept_proto.Type.Req()
         unset_plays_req = concept_proto.ThingType.UnsetPlays.Req()
-        unset_plays_req.role = proto_builder.type_(role)
+        unset_plays_req.role = concept_proto_builder.type_(role)
         req.thing_type_unset_plays_req.CopyFrom(unset_plays_req)
         self._execute(req)
 
     def unset_owns(self, attribute_type):
         req = concept_proto.Type.Req()
         unset_owns_req = concept_proto.ThingType.UnsetOwns.Req()
-        unset_owns_req.attribute_type = proto_builder.type_(attribute_type)
+        unset_owns_req.attribute_type = concept_proto_builder.type_(attribute_type)
         req.thing_type_unset_owns_req.CopyFrom(unset_owns_req)
         self._execute(req)
 
