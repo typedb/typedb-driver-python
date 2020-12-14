@@ -18,14 +18,14 @@ class QueryManager(object):
         match_req = query_proto.Graql.Match.Req()
         match_req.query = query
         request.match_req.CopyFrom(match_req)
-        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.match_res.answer, options))
+        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.match_res.answers, options))
 
     def insert(self, query: str, options=GraknOptions()):
         request = query_proto.Query.Req()
         insert_req = query_proto.Graql.Insert.Req()
         insert_req.query = query
         request.insert_req.CopyFrom(insert_req)
-        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.insert_res.answer, options))
+        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.insert_res.answers, options))
 
     def delete(self, query: str, options=GraknOptions()):
         request = query_proto.Query.Req()
