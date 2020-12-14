@@ -1,7 +1,7 @@
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
-from grakn.concept.proto import concept_proto_reader
+from grakn.concept.proto import concept_proto_reader, concept_proto_builder
 from grakn.concept.type.entity_type import EntityType
 from grakn.concept.type.relation_type import RelationType
 
@@ -62,7 +62,7 @@ class ConceptManager(object):
     def get_thing(self, iid: str):
         req = concept_proto.ConceptManager.Req()
         get_thing_req = concept_proto.ConceptManager.GetThing.Req()
-        get_thing_req.iid = iid
+        get_thing_req.iid = concept_proto_builder.iid(iid)
         req.get_thing_req.CopyFrom(get_thing_req)
 
         response = self._execute(req)

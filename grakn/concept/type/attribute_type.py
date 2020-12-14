@@ -148,7 +148,7 @@ class LongAttributeType(AttributeType):
     def as_remote(self, transaction):
         return RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
 
-    def is_boolean(self):
+    def is_long(self):
         return True
 
 

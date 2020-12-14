@@ -1,9 +1,17 @@
 from datetime import datetime
+from typing import List
 
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.type.value_type import ValueType
+
+
+def thing(thing_):
+    proto_thing = concept_proto.Thing()
+    proto_thing.iid = bytes.fromhex(thing_.get_iid())
+    proto_thing.encoding = thing_encoding(thing_)
+    return proto_thing
 
 
 def type_(_type):
@@ -15,6 +23,10 @@ def type_(_type):
         proto_type.scope = _type.get_scope()
 
     return proto_type
+
+
+def types(types_: List):
+    return map(lambda _type: type_(_type), types_)
 
 
 def boolean_attribute_value(value: bool):
@@ -43,7 +55,7 @@ def string_attribute_value(value: str):
 
 def datetime_attribute_value(value: datetime):
     value_proto = concept_proto.Attribute.Value()
-    value_proto.long = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
+    value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
     return value_proto
 
 
@@ -64,6 +76,21 @@ def value_type(value_type_: ValueType):
         raise GraknClientException("Unrecognised value type: " + str(value_type_))
 
 
+def iid(iid_: str):
+    return bytes.fromhex(iid_)
+
+
+def thing_encoding(thing_):
+    if thing_.is_entity():
+        return concept_proto.Thing.Encoding.Value("ENTITY")
+    elif thing_.is_relation():
+        return concept_proto.Thing.Encoding.Value("RELATION")
+    elif thing_.is_attribute():
+        return concept_proto.Thing.Encoding.Value("ATTRIBUTE")
+    else:
+        raise GraknClientException("Unrecognised thing encoding: " + str(thing_))
+
+
 def type_encoding(_type):
     if _type.is_entity_type():
         return concept_proto.Type.Encoding.Value("ENTITY_TYPE")
@@ -76,4 +103,4 @@ def type_encoding(_type):
     elif _type.is_thing_type():
         return concept_proto.Type.Encoding.Value("THING_TYPE")
     else:
-        raise GraknClientException("Unrecognised type encoding")
+        raise GraknClientException("Unrecognised type encoding: " + str(_type))

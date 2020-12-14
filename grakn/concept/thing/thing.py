@@ -4,7 +4,7 @@ import graknprotocol.protobuf.concept_pb2 as concept_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.concept import proto_reader
+from grakn.concept.proto import concept_proto_reader, concept_proto_builder
 from grakn.concept.concept import Concept, RemoteConcept
 
 
@@ -14,9 +14,6 @@ class Thing(Concept):
         if not iid:
             raise GraknClientException("IID must be a non-empty string.")
         self._iid = iid
-
-    def as_remote(self, transaction):
-        return RemoteThing(transaction, self._iid)
 
     def get_iid(self):
         return self._iid
@@ -60,7 +57,7 @@ class RemoteThing(RemoteConcept):
     def get_type(self):
         method = concept_proto.Thing.Req()
         method.thing_get_type_req.CopyFrom(concept_proto.Thing.GetType.Req())
-        return proto_reader.type_(self._execute(method).thing_get_type_res.thing_type)
+        return concept_proto_reader.type_(self._execute(method).thing_get_type_res.thing_type)
 
     def is_inferred(self):
         req = concept_proto.Thing.Req()
@@ -78,24 +75,72 @@ class RemoteThing(RemoteConcept):
         if only_key:
             get_has_req.keys_only = only_key
         elif attribute_types:
-            pass  # TODO
-            # get_has_req.
+            get_has_req.attribute_types.extend(concept_proto_builder.types(attribute_types))
+        method.thing_get_has_req.CopyFrom(get_has_req)
+        return self._thing_stream(method, lambda res: res.thing_get_has_res.attributes)
 
+    def get_plays(self):
+        req = concept_proto.Thing.Req()
+        req.thing_get_plays_req.CopyFrom(concept_proto.Thing.GetPlays.Req())
+        return self._type_stream(req, lambda res: res.thing_get_plays_res.role_types)
+
+    def get_relations(self, role_types=None):
+        if not role_types:
+            role_types = []
+        method = concept_proto.Thing.Req()
+        get_relations_req = concept_proto.Thing.GetRelations.Req()
+        get_relations_req.role_types.extend(concept_proto_builder.types(role_types))
+        method.thing_get_relations_req.CopyFrom(get_relations_req)
+        return self._thing_stream(method, lambda res: res.thing_get_relations_res.relations)
+
+    def set_has(self, attribute):
+        method = concept_proto.Thing.Req()
+        set_has_req = concept_proto.Thing.SetHas.Req()
+        set_has_req.attribute = concept_proto_builder.thing(attribute)
+        method.thing_set_has_req.CopyFrom(set_has_req)
+        self._execute(method)
+
+    def unset_has(self, attribute):
+        method = concept_proto.Thing.Req()
+        unset_has_req = concept_proto.Thing.UnsetHas.Req()
+        unset_has_req.attribute = concept_proto_builder.thing(attribute)
+        method.thing_unset_has_req.CopyFrom(unset_has_req)
+        self._execute(method)
+
+    def delete(self):
+        method = concept_proto.Thing.Req()
+        method.thing_delete_req.CopyFrom(method.concept_proto.Thing.Delete.Req())
+        self._execute(method)
+
+    def is_deleted(self):
+        return not self._transaction.concepts().get_thing(self.get_iid())
+
+    def is_thing(self):
+        return True
+
+    def is_entity(self):
+        return False
+
+    def is_attribute(self):
+        return False
+
+    def is_relation(self):
+        return False
 
     def _thing_stream(self, method: concept_proto.Thing.Req, thing_list_getter: Callable[[concept_proto.Thing.Res], List[concept_proto.Thing]]):
-        method.iid = self.get_iid()
+        method.iid = concept_proto_builder.iid(self.get_iid())
         request = transaction_proto.Transaction.Req()
         request.thing_req.CopyFrom(method)
-        return map(lambda thing_proto: proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.thing_res)))
+        return map(lambda thing_proto: concept_proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.thing_res)))
 
     def _type_stream(self, method: concept_proto.Thing.Req, type_list_getter: Callable[[concept_proto.Thing.Res], List[concept_proto.Type]]):
-        method.iid = self.get_iid()
+        method.iid = concept_proto_builder.iid(self.get_iid())
         request = transaction_proto.Transaction.Req()
         request.thing_req.CopyFrom(method)
-        return map(lambda type_proto: proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.thing_res)))
+        return map(lambda type_proto: concept_proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.thing_res)))
 
     def _execute(self, method: concept_proto.Thing.Req):
-        method.iid = self.get_iid()
+        method.iid = concept_proto_builder.iid(self.get_iid())
         request = transaction_proto.Transaction.Req()
         request.thing_req.CopyFrom(method)
         return self._transaction._execute(request).thing_res

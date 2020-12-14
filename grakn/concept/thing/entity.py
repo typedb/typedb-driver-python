@@ -9,6 +9,17 @@ class Entity(Thing):
     def _of(thing_proto: concept_proto.Thing):
         return Entity(thing_proto.iid.hex())
 
+    def as_remote(self, transaction):
+        return RemoteEntity(transaction, self._iid)
+
+    def is_entity(self):
+        return True
+
 
 class RemoteEntity(RemoteThing):
-    pass
+
+    def as_remote(self, transaction):
+        return RemoteEntity(transaction, self._iid)
+
+    def is_entity(self):
+        return True
