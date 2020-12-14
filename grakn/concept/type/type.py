@@ -157,4 +157,4 @@ class RemoteType(RemoteConcept):
             return True
         if not other or type(self) != type(other):
             return False
-        return self.get_label() == other.get_label()
+        return self._transaction is other._transaction and self.get_label() == other.get_label()

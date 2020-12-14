@@ -153,4 +153,4 @@ class RemoteThing(RemoteConcept):
             return True
         if not other or type(self) != type(other):
             return False
-        return self._iid == other._iid
+        return self._transaction is other._transaction and self._iid == other._iid
