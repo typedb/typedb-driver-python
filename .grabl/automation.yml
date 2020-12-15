@@ -15,42 +15,42 @@ build:
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
         bazel build //...
-    test-concept:
-      machine: graknlabs-ubuntu-20.04
-      type: foreground
-      script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
-        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //:test_concept --test_output=errors
-    test-connection:
-      machine: graknlabs-ubuntu-20.04
-      type: foreground
-      script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
-        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //:test_connection --test_output=errors
-    test-query:
-      machine: graknlabs-ubuntu-20.04
-      type: foreground
-      script: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
-        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //:test_query --test_output=errors
+#    test-concept:
+#      machine: graknlabs-ubuntu-20.04
+#      type: foreground
+#      script: |
+#        pyenv global 3.6.10
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
+#        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //:test_concept --test_output=errors
+#    test-connection:
+#      machine: graknlabs-ubuntu-20.04
+#      type: foreground
+#      script: |
+#        pyenv global 3.6.10
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
+#        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //:test_connection --test_output=errors
+#    test-query:
+#      machine: graknlabs-ubuntu-20.04
+#      type: foreground
+#      script: |
+#        pyenv global 3.6.10
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
+#        ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //:test_query --test_output=errors
     deploy-pip-snapshot:
       filter:
         owner: graknlabs
