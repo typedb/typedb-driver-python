@@ -1,7 +1,18 @@
 config:
   version-candidate: VERSION
+  dependencies:
+    dependencies: [build]
+    common: [build, release]
 
 build:
+  quality:
+    filter:
+      owner: graknlabs
+      branch: master
+    dependency-analysis:
+      machine: graknlabs-ubuntu-20.04
+      script: |
+        bazel run @graknlabs_dependencies//grabl/analysis:dependency-analysis
   correctness:
     build:
       machine: graknlabs-ubuntu-20.04
@@ -15,6 +26,8 @@ build:
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
         bazel build //...
+        bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
+        bazel test $(bazel query 'kind(checkstyle_test, //...)')
 #    test-concept:
 #      machine: graknlabs-ubuntu-20.04
 #      type: foreground
@@ -52,10 +65,12 @@ build:
 #        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
 #        bazel test //:test_query --test_output=errors
     deploy-pip-snapshot:
+      machine: graknlabs-ubuntu-20.04
+      # TODO: should depend on tests
+      dependencies: [build]
       filter:
         owner: graknlabs
         branch: master
-      machine: graknlabs-ubuntu-20.04
       type: foreground
       script: |
         pyenv global 3.6.10
@@ -69,12 +84,12 @@ build:
         export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
         bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
     test-deployment:
+      machine: graknlabs-ubuntu-20.04
+      dependencies: [deploy-pip-snapshot]
       filter:
         owner: graknlabs
         branch: master
-      machine: graknlabs-ubuntu-20.04
       type: foreground
-      dependencies: [deploy-pip-snapshot]
       script: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
@@ -86,7 +101,7 @@ build:
         bazel run //:grakn-extractor -- dist/grakn-core-server-linux
         nohup ./dist/grakn-core-server-linux/grakn server start
         sleep 60
-        echo -n "0.0.0-$CIRCLE_SHA1" > VERSION
+        echo -n "0.0.0-$GRABL_COMMIT" > VERSION
         sed -i -e "s/CLIENT_PYTHON_VERSION_MARKER/$(cat VERSION)/g" test/deployment/requirements.txt
         cat test/deployment/requirements.txt
         pip install --upgrade pip
@@ -115,7 +130,7 @@ release:
         bazel run @graknlabs_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
         bazel clean --expunge
         export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
-          bazel run --define version=$(cat VERSION) //:deploy-github -- $CIRCLE_SHA1
+        bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
       machine: graknlabs-ubuntu-20.04
       script: |
