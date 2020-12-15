@@ -17,7 +17,5 @@
 # under the License.
 #
 
-deployment = {
-    "github.organisation" : "graknlabs",
-    "github.repository" : "client-python",
-}
+class GraknClientException(Exception):
+    pass

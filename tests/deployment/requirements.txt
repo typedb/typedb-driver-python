@@ -1,1 +1,0 @@
-https://repo.grakn.ai/repository/pypi-snapshot-group/packages/grakn-client/CLIENT_PYTHON_VERSION_MARKER/grakn-client-CLIENT_PYTHON_VERSION_MARKER.tar.gz
