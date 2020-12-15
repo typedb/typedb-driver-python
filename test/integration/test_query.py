@@ -36,12 +36,14 @@ class TestQuery(test_base):
         if "grakn" not in client.databases().all():
             client.databases().create("grakn")
 
-    def test_define_relation_type(self):
+    def test_define_and_undef_relation_type(self):
         with client.session("grakn", SessionType.SCHEMA) as session:
             with session.transaction(TransactionType.WRITE) as tx:
                 tx.query().define("define lionfight sub relation, relates victor, relates loser;")
                 lionfight_type = tx.concepts().get_type("lionfight")
                 print(lionfight_type._label)
+                tx.query().undefine("undefine lionfight sub relation;")
+                tx.commit()
 
     def test_insert_some_entities(self):
         with client.session("grakn", SessionType.SCHEMA) as session:
