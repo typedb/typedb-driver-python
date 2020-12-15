@@ -22,6 +22,9 @@ class AttributeType(ThingType):
     def is_keyable(self):
         return is_keyable(self.get_value_type())
 
+    def is_attribute_type(self):
+        return True
+
     def is_boolean(self):
         return False
 
@@ -45,6 +48,9 @@ class AttributeType(ThingType):
             return False
         return self.get_label() == other.get_label()
 
+    def __hash__(self):
+        return super(AttributeType, self).__hash__()
+
 
 class RemoteAttributeType(RemoteThingType):
 
@@ -67,17 +73,20 @@ class RemoteAttributeType(RemoteThingType):
     def _put_internal(self, value_proto):
         method = concept_proto.Type.Req()
         put_req = concept_proto.AttributeType.Put.Req()
-        put_req.value = value_proto
+        put_req.value.CopyFrom(value_proto)
         method.attribute_type_put_req.CopyFrom(put_req)
         return concept_proto_reader.attribute(self._execute(method).attribute_type_put_res.attribute)
 
     def _get_internal(self, value_proto):
         method = concept_proto.Type.Req()
         get_req = concept_proto.AttributeType.Get.Req()
-        get_req.value = value_proto
+        get_req.value.CopyFrom(value_proto)
         method.attribute_type_get_req.CopyFrom(get_req)
         response = self._execute(method).attribute_type_get_res
         return concept_proto_reader.attribute(response.attribute) if response.WhichOneof("res") == "attribute" else None
+
+    def is_attribute_type(self):
+        return True
 
     def is_boolean(self):
         return False
@@ -100,6 +109,9 @@ class RemoteAttributeType(RemoteThingType):
         if not other or not isinstance(RemoteAttributeType, other):
             return False
         return self.get_label() == other.get_label()
+
+    def __hash__(self):
+        return super(RemoteAttributeType, self).__hash__()
 
 
 class BooleanAttributeType(AttributeType):
@@ -143,10 +155,10 @@ class LongAttributeType(AttributeType):
         return LongAttributeType(type_proto.label, type_proto.root)
 
     def get_value_type(self):
-        return ValueType.BOOLEAN
+        return ValueType.LONG
 
     def as_remote(self, transaction):
-        return RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
+        return RemoteLongAttributeType(transaction, self.get_label(), self.is_root())
 
     def is_long(self):
         return True

@@ -29,21 +29,16 @@ class RemoteRelation(RemoteThing):
         method.iid = concept_proto_builder.iid(self.get_iid())
 
         request = transaction_proto.Transaction.Req()
-        request.thing_req = method
+        request.thing_req.CopyFrom(method)
         stream = self._transaction._stream(request, lambda res: res.thing_res.relation_get_players_by_role_type_res.role_types_with_players)
 
         role_player_dict = {}
         for role_player in stream:
             role = concept_proto_reader.type_(role_player.role_type)
             player = concept_proto_reader.thing(role_player.player)
-            added_to_existing_entry = False
-            for role_key in role_player_dict.keys():
-                if role_key.get_scoped_label() == role.get_scoped_label():
-                    role_player_dict[role_key].append(player)
-                    added_to_existing_entry = True
-                    break
-            if not added_to_existing_entry:
-                role_player_dict[role] = [player]
+            if role not in role_player_dict:
+                role_player_dict[role] = []
+            role_player_dict[role].append(player)
         return role_player_dict
 
     def get_players(self, role_types=None):
@@ -58,16 +53,16 @@ class RemoteRelation(RemoteThing):
     def add_player(self, role_type, player):
         method = concept_proto.Thing.Req()
         add_player_req = concept_proto.Relation.AddPlayer.Req()
-        add_player_req.role_type = concept_proto_builder.type_(role_type)
-        add_player_req.player = concept_proto_builder.thing(player)
+        add_player_req.role_type.CopyFrom(concept_proto_builder.type_(role_type))
+        add_player_req.player.CopyFrom(concept_proto_builder.thing(player))
         method.relation_add_player_req.CopyFrom(add_player_req)
         self._execute(method)
 
     def remove_player(self, role_type, player):
         method = concept_proto.Thing.Req()
         remove_player_req = concept_proto.Relation.RemovePlayer.Req()
-        remove_player_req.role_type = concept_proto_builder.type_(role_type)
-        remove_player_req.player = concept_proto_builder.thing(player)
+        remove_player_req.role_type.CopyFrom(concept_proto_builder.type_(role_type))
+        remove_player_req.player.CopyFrom(concept_proto_builder.thing(player))
         method.relation_remove_player_req.CopyFrom(remove_player_req)
         self._execute(method)
 

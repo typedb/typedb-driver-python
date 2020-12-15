@@ -15,6 +15,7 @@ class Type(Concept):
             raise GraknClientException("Label must be a non-empty string.")
         self._label = label
         self._is_root = is_root
+        self._hash = hash(label)
 
     def get_label(self):
         return self._label
@@ -50,6 +51,9 @@ class Type(Concept):
             return False
         return self.get_label() == other.get_label()
 
+    def __hash__(self):
+        return self._hash
+
 
 class RemoteType(RemoteConcept):
 
@@ -61,6 +65,7 @@ class RemoteType(RemoteConcept):
         self._transaction = transaction
         self._label = label
         self._is_root = is_root
+        self._hash = hash((self._transaction, label))
 
     def get_label(self):
         return self._label
@@ -75,6 +80,7 @@ class RemoteType(RemoteConcept):
         req.type_set_label_req.CopyFrom(set_label_req)
         self._execute(req)
         self._label = label
+        self._hash = hash((self._transaction, label))
 
     def is_abstract(self):
         req = concept_proto.Type.Req()
@@ -103,7 +109,7 @@ class RemoteType(RemoteConcept):
     def set_supertype(self, _type: Type):
         req = concept_proto.Type.Req()
         supertype_req = concept_proto.Type.SetSupertype.Req()
-        supertype_req.type = concept_proto_builder.type_(_type)
+        supertype_req.type.CopyFrom(concept_proto_builder.type_(_type))
         req.type_set_supertype_req.CopyFrom(supertype_req)
         self._execute(req)
 
@@ -158,3 +164,6 @@ class RemoteType(RemoteConcept):
         if not other or type(self) != type(other):
             return False
         return self._transaction is other._transaction and self.get_label() == other.get_label()
+
+    def __hash__(self):
+        return self._hash

@@ -12,6 +12,7 @@ class Rule(object):
         self._label = label
         self._when = when
         self._then = then
+        self._hash = hash(label)
 
     @staticmethod
     def _of(rule_proto: logic_proto.Rule):
@@ -42,6 +43,9 @@ class Rule(object):
             return False
         return self.get_label() == other.get_label()
 
+    def __hash__(self):
+        return self._hash
+
 
 class RemoteRule(Rule):
 
@@ -50,6 +54,7 @@ class RemoteRule(Rule):
         if not transaction:
             raise GraknClientException("Transaction must be set.")
         self._transaction = transaction
+        self._hash = hash((transaction, label))
 
     def set_label(self, label: str):
         req = logic_proto.Rule.Req()
@@ -76,6 +81,9 @@ class RemoteRule(Rule):
         if not other or type(self) != type(other):
             return False
         return self._transaction is other._transaction and self.get_label() == other.get_label()
+
+    def __hash__(self):
+        return super(RemoteRule, self).__hash__()
 
     def _execute(self, method: logic_proto.Rule.Req):
         method.label = self.get_label()

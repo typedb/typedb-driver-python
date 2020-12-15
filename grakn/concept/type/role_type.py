@@ -11,6 +11,7 @@ class RoleType(Type):
     def __init__(self, label: str, scope: str, is_root: bool):
         super(RoleType, self).__init__(label, is_root)
         self._scope = scope
+        self._hash = hash((scope, label))
 
     @staticmethod
     def _of(type_proto: concept_proto.Type):
@@ -38,12 +39,16 @@ class RoleType(Type):
             return False
         return self.get_scoped_label() == other.get_scoped_label()
 
+    def __hash__(self):
+        return super(RoleType, self).__hash__()
+
 
 class RemoteRoleType(RemoteType):
 
     def __init__(self, transaction, label: str, scope: str, is_root: bool):
         super(RemoteRoleType, self).__init__(transaction, label, is_root)
         self._scope = scope
+        self._hash = hash((transaction, scope, label))
 
     def get_scope(self):
         return self._scope
@@ -89,3 +94,6 @@ class RemoteRoleType(RemoteType):
         if not other or type(self) != type(other):
             return False
         return self.get_scoped_label() == other.get_scoped_label()
+
+    def __hash__(self):
+        return super(RemoteRoleType, self).__hash__()

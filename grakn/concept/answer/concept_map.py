@@ -41,6 +41,9 @@ class ConceptMap(Answer):
             return False
         return other._map == self._map
 
+    def __hash__(self):
+        return hash(self._map)
+
 
 def _of(concept_map_proto: answer_proto.ConceptMap):
     variable_map = {}

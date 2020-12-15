@@ -38,7 +38,7 @@ class RemoteRelationType(RemoteThingType):
             res = self._execute(method).relation_type_get_relates_for_role_label_res
             return concept_proto_reader.type_(res.role_type) if res.HasField("role_type") else None
         else:
-            method.relates_type_get_relates_req.CopyFrom(concept_proto.RelationType.GetRelates.Req())
+            method.relation_type_get_relates_req.CopyFrom(concept_proto.RelationType.GetRelates.Req())
             return self._type_stream(method, lambda res: res.relation_type_get_relates_res.roles)
 
     def set_relates(self, role_label: str, overridden_label: str = None):

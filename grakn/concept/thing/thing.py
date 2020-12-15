@@ -14,6 +14,7 @@ class Thing(Concept):
         if not iid:
             raise GraknClientException("IID must be a non-empty string.")
         self._iid = iid
+        self._hash = hash(iid)
 
     def get_iid(self):
         return self._iid
@@ -40,6 +41,9 @@ class Thing(Concept):
             return False
         return self.get_iid() == other.get_iid()
 
+    def __hash__(self):
+        return self._hash
+
 
 class RemoteThing(RemoteConcept):
 
@@ -50,6 +54,7 @@ class RemoteThing(RemoteConcept):
             raise GraknClientException("IID must be set.")
         self._transaction = transaction
         self._iid = iid
+        self._hash = hash(iid)
 
     def get_iid(self):
         return self._iid
@@ -96,14 +101,14 @@ class RemoteThing(RemoteConcept):
     def set_has(self, attribute):
         method = concept_proto.Thing.Req()
         set_has_req = concept_proto.Thing.SetHas.Req()
-        set_has_req.attribute = concept_proto_builder.thing(attribute)
+        set_has_req.attribute.CopyFrom(concept_proto_builder.thing(attribute))
         method.thing_set_has_req.CopyFrom(set_has_req)
         self._execute(method)
 
     def unset_has(self, attribute):
         method = concept_proto.Thing.Req()
         unset_has_req = concept_proto.Thing.UnsetHas.Req()
-        unset_has_req.attribute = concept_proto_builder.thing(attribute)
+        unset_has_req.attribute.CopyFrom(concept_proto_builder.thing(attribute))
         method.thing_unset_has_req.CopyFrom(unset_has_req)
         self._execute(method)
 
@@ -154,3 +159,6 @@ class RemoteThing(RemoteConcept):
         if not other or type(self) != type(other):
             return False
         return self._transaction is other._transaction and self._iid == other._iid
+
+    def __hash__(self):
+        return self._hash

@@ -17,6 +17,7 @@ from grakn.concept.concept_manager import ConceptManager
 from grakn.options import GraknOptions
 from grakn.query.query_manager import QueryManager
 from grakn.rpc.stream import Stream
+from grakn.logic.logic_manager import LogicManager
 
 
 class TransactionType(enum.Enum):
@@ -30,6 +31,7 @@ class Transaction(object):
         self._transaction_type = transaction_type
         self._concept_manager = ConceptManager(self)
         self._query_manager = QueryManager(self)
+        self._logic_manager = LogicManager(self)
         self._response_queues = {}
 
         self._grpc_stub = GraknStub(channel)
@@ -60,6 +62,9 @@ class Transaction(object):
 
     def query(self):
         return self._query_manager
+
+    def logic(self):
+        return self._logic_manager
 
     def commit(self):
         req = transaction_proto.Transaction.Req()

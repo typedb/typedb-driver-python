@@ -9,7 +9,7 @@ class Answer(object):
     _CONCEPT_MAP = "concept_map"
 
 
-def of(proto_answer: answer_proto.Answer):
+def _of(proto_answer: answer_proto.Answer):
     answer_case = proto_answer.WhichOneof("answer")
     if answer_case == Answer._CONCEPT_MAP:
         return concept_map._of(proto_answer.concept_map)

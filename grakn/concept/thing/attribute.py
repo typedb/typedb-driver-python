@@ -64,7 +64,7 @@ class BooleanAttribute(Attribute):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return BooleanAttribute(thing_proto.iid.hex(), thing_proto.boolean)
+        return BooleanAttribute(thing_proto.iid.hex(), thing_proto.value.boolean)
 
     def get_value(self):
         return self._value
@@ -100,7 +100,7 @@ class LongAttribute(Attribute):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return LongAttribute(thing_proto.iid.hex(), thing_proto.long)
+        return LongAttribute(thing_proto.iid.hex(), thing_proto.value.long)
 
     def get_value(self):
         return self._value
@@ -136,7 +136,7 @@ class DoubleAttribute(Attribute):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return DoubleAttribute(thing_proto.iid.hex(), thing_proto.double)
+        return DoubleAttribute(thing_proto.iid.hex(), thing_proto.value.double)
 
     def get_value(self):
         return self._value
@@ -172,7 +172,7 @@ class StringAttribute(Attribute):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return StringAttribute(thing_proto.iid.hex(), thing_proto.string)
+        return StringAttribute(thing_proto.iid.hex(), thing_proto.value.string)
 
     def get_value(self):
         return self._value
@@ -208,7 +208,7 @@ class DateTimeAttribute(Attribute):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return DateTimeAttribute(thing_proto.iid.hex(), datetime.fromtimestamp(float(thing_proto.date_time) / 1000.0))
+        return DateTimeAttribute(thing_proto.iid.hex(), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
 
     def get_value(self):
         return self._value

@@ -61,17 +61,17 @@ def datetime_attribute_value(value: datetime):
 
 def value_type(value_type_: ValueType):
     if value_type_ == ValueType.BOOLEAN:
-        return concept_proto.AttributeType.ValueType.BOOLEAN
+        return concept_proto.AttributeType.ValueType.Value("BOOLEAN")
     elif value_type_ == ValueType.LONG:
-        return concept_proto.AttributeType.ValueType.LONG
+        return concept_proto.AttributeType.ValueType.Value("LONG")
     elif value_type_ == ValueType.DOUBLE:
-        return concept_proto.AttributeType.ValueType.DOUBLE
+        return concept_proto.AttributeType.ValueType.Value("DOUBLE")
     elif value_type_ == ValueType.STRING:
-        return concept_proto.AttributeType.ValueType.STRING
+        return concept_proto.AttributeType.ValueType.Value("STRING")
     elif value_type_ == ValueType.DATETIME:
-        return concept_proto.AttributeType.ValueType.DATETIME
+        return concept_proto.AttributeType.ValueType.Value("DATETIME")
     elif value_type_ == ValueType.OBJECT:
-        return concept_proto.AttributeType.ValueType.OBJECT
+        return concept_proto.AttributeType.ValueType.Value("OBJECT")
     else:
         raise GraknClientException("Unrecognised value type: " + str(value_type_))
 

@@ -47,10 +47,11 @@ class ConceptManager(object):
         _type = self.get_type(label)
         return _type if _type.is_relation_type() else None
 
-    def put_attribute_type(self, label: str):
+    def put_attribute_type(self, label: str, value_type):
         req = concept_proto.ConceptManager.Req()
         put_attribute_type_req = concept_proto.ConceptManager.PutAttributeType.Req()
         put_attribute_type_req.label = label
+        put_attribute_type_req.value_type = concept_proto_builder.value_type(value_type)
         req.put_attribute_type_req.CopyFrom(put_attribute_type_req)
         res = self._execute(req)
         return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)

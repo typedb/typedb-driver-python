@@ -1,7 +1,7 @@
 import graknprotocol.protobuf.logic_pb2 as logic_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
-from logic.rule import Rule
+from grakn.logic.rule import Rule
 
 
 class LogicManager(object):
