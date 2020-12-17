@@ -43,7 +43,7 @@ py_library(
         graknlabs_client_python_requirement("grpcio"),
         graknlabs_client_python_requirement("six"),
     ],
-    visibility =["//visibility:public"]
+    visibility = ["//visibility:public"]
 )
 
 checkstyle_test(
