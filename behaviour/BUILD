@@ -1,7 +1,7 @@
 load("//tools:behave_rule.bzl", "py_cucumber_test")
 
 py_cucumber_test(
-    name = "tutorial",
+    name = "transaction_test",
     feats = [
         "transaction.feature",
     ],
