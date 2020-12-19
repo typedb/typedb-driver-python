@@ -106,6 +106,7 @@ deploy_github(
     title_append_version = True,
     organisation = github_deployment["github.organisation"],
     repository = github_deployment["github.repository"],
+    draft = False
 )
 
 artifact_extractor(
