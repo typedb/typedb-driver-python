@@ -31,7 +31,7 @@ class ConceptManager(object):
         self._transaction = transaction
 
     def get_root_thing_type(self):
-        return self.get_type("thing")
+        return self._get_thing_type("thing")
 
     def get_root_entity_type(self):
         return self.get_entity_type("entity")
@@ -51,7 +51,7 @@ class ConceptManager(object):
         return EntityType._of(res.put_entity_type_res.entity_type)
 
     def get_entity_type(self, label: str):
-        _type = self.get_type(label)
+        _type = self._get_thing_type(label)
         return _type if _type.is_entity_type() else None
 
     def put_relation_type(self, label: str):
@@ -63,7 +63,7 @@ class ConceptManager(object):
         return RelationType._of(res.put_relation_type_res.relation_type)
 
     def get_relation_type(self, label: str):
-        _type = self.get_type(label)
+        _type = self._get_thing_type(label)
         return _type if _type.is_relation_type() else None
 
     def put_attribute_type(self, label: str, value_type):
@@ -76,7 +76,7 @@ class ConceptManager(object):
         return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
 
     def get_attribute_type(self, label: str):
-        _type = self.get_type(label)
+        _type = self._get_thing_type(label)
         return _type if _type.is_attribute_type() else None
 
     def get_thing(self, iid: str):
@@ -88,14 +88,14 @@ class ConceptManager(object):
         response = self._execute(req)
         return concept_proto_reader.thing(response.get_thing_res.thing) if response.get_thing_res.WhichOneof("res") == "thing" else None
 
-    def get_type(self, label: str):
+    def _get_thing_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
-        get_type_req = concept_proto.ConceptManager.GetType.Req()
-        get_type_req.label = label
-        req.get_type_req.CopyFrom(get_type_req)
+        get_thing_type_req = concept_proto.ConceptManager.GetThingType.Req()
+        get_thing_type_req.label = label
+        req.get_thing_type_req.CopyFrom(get_thing_type_req)
 
         response = self._execute(req)
-        return concept_proto_reader.type_(response.get_type_res.type) if response.get_type_res.WhichOneof("res") == "type" else None
+        return concept_proto_reader.thing_type(response.get_thing_type_res.thing_type) if response.get_thing_type_res.WhichOneof("res") == "thing_type" else None
 
     def _execute(self, request: concept_proto.ConceptManager.Req):
         req = transaction_proto.Transaction.Req()

@@ -18,7 +18,7 @@
 #
 
 # --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
-graknprotocol==2.0.0a3
+graknprotocol==2.0.0a4
 grpcio==1.33.2
 protobuf==3.6.1
 six>=1.11.0

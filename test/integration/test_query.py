@@ -40,7 +40,7 @@ class TestQuery(test_base):
         with client.session("grakn", SessionType.SCHEMA) as session:
             with session.transaction(TransactionType.WRITE) as tx:
                 tx.query().define("define lionfight sub relation, relates victor, relates loser;")
-                lionfight_type = tx.concepts().get_type("lionfight")
+                lionfight_type = tx.concepts().get_relation_type("lionfight")
                 print(lionfight_type._label)
                 tx.query().undefine("undefine lionfight sub relation;")
                 tx.commit()
