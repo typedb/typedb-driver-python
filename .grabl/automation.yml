@@ -21,7 +21,7 @@ config:
   version-candidate: VERSION
   dependencies:
     dependencies: [build]
-    common: [build, release]
+    common: [build]
 
 build:
   quality:
