@@ -79,12 +79,7 @@ assemble_pip(
     author = "Grakn Labs",
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
-    install_requires=[
-        'graknprotocol==2.0.0a4',
-        'grpcio==1.33.2',
-        'protobuf==3.6.1',
-        'six>=1.11.0',
-    ],
+    requirements_file = "//:requirements.txt",
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     description = "Grakn Client for Python",
     long_description_file = "//:README.md",
