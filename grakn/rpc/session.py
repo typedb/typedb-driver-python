@@ -52,6 +52,7 @@ class Session(object):
         self._is_open = True
         self._scheduler.enter(5, 1, self._transmit_pulse, ())
         thread = Thread(target=self._scheduler.run)
+        # TODO: We should probably kill this thread when the session closes as it prevents the process closing.
         thread.start()
 
     def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
