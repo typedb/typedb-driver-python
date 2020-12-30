@@ -13,6 +13,9 @@ py_behave_test(
     background = ["//test/behaviour:background"],
     steps = [
         ":steps",
+        "//test/behaviour/connection:steps",
+        "//test/behaviour/connection/database:steps",
+        "//test/behaviour/connection/session:steps",
     ],
     deps = [
         "//:client_python",
