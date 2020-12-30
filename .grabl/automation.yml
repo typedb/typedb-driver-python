@@ -21,7 +21,7 @@ config:
   version-candidate: VERSION
   dependencies:
     dependencies: [build]
-    common: [build, release]
+    common: [build] # TODO: add 'release' once dependency-analysis works with tags
 
 build:
   quality:
@@ -29,12 +29,12 @@ build:
       owner: graknlabs
       branch: master
     dependency-analysis:
-      machine: graknlabs-ubuntu-20.04
+      image: graknlabs-ubuntu-20.04
       script: |
         bazel run @graknlabs_dependencies//grabl/analysis:dependency-analysis
   correctness:
     build:
-      machine: graknlabs-ubuntu-20.04
+      image: graknlabs-ubuntu-20.04
       type: foreground
       script: |
         pyenv global 3.6.10
@@ -48,7 +48,7 @@ build:
         bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
         bazel test $(bazel query 'kind(checkstyle_test, //...)')
 #    test-concept:
-#      machine: graknlabs-ubuntu-20.04
+#      image: graknlabs-ubuntu-20.04
 #      type: foreground
 #      script: |
 #        pyenv global 3.6.10
@@ -60,7 +60,7 @@ build:
 #        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
 #        bazel test //:test_concept --test_output=errors
 #    test-connection:
-#      machine: graknlabs-ubuntu-20.04
+#      image: graknlabs-ubuntu-20.04
 #      type: foreground
 #      script: |
 #        pyenv global 3.6.10
@@ -72,7 +72,7 @@ build:
 #        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
 #        bazel test //:test_connection --test_output=errors
 #    test-query:
-#      machine: graknlabs-ubuntu-20.04
+#      image: graknlabs-ubuntu-20.04
 #      type: foreground
 #      script: |
 #        pyenv global 3.6.10
@@ -84,7 +84,7 @@ build:
 #        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
 #        bazel test //:test_query --test_output=errors
     deploy-pip-snapshot:
-      machine: graknlabs-ubuntu-20.04
+      image: graknlabs-ubuntu-20.04
       # TODO: should depend on tests
       dependencies: [build]
       filter:
@@ -104,7 +104,7 @@ build:
         bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
       # TODO: fix test-deployment
 #    test-deployment:
-#      machine: graknlabs-ubuntu-20.04
+#      image: graknlabs-ubuntu-20.04
 #      dependencies: [deploy-pip-snapshot]
 #      filter:
 #        owner: graknlabs
@@ -132,14 +132,13 @@ release:
   filter:
     owner: graknlabs
     branch: master
-  # TODO: add it back once we're able to depend on @graknlabs_protocol as bazel rather than artifact dependency
-  #  validation:
-  #    validate-dependencies:
-  #      machine: graknlabs-ubuntu-20.04
-  #      script: bazel test //:release-validate-deps --test_output=streamed
+  validation:
+    validate-dependencies:
+      image: graknlabs-ubuntu-20.04
+      script: bazel test //:release-validate-python-deps --test_output=streamed
   deployment:
     deploy-github:
-      machine: graknlabs-ubuntu-20.04
+      image: graknlabs-ubuntu-20.04
       script: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
@@ -152,7 +151,7 @@ release:
         export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
         bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
-      machine: graknlabs-ubuntu-20.04
+      image: graknlabs-ubuntu-20.04
       script: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3

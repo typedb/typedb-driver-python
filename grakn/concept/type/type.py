@@ -154,7 +154,7 @@ class RemoteType(RemoteConcept):
         self._execute(method)
 
     def is_deleted(self):
-        return not self._transaction.concepts().get_type(self.get_label())
+        return not self._transaction.concepts()._get_thing_type(self.get_label())
 
     def _type_stream(self, method: concept_proto.Type.Req, type_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Type]]):
         method.label = self.get_label()

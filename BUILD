@@ -27,7 +27,7 @@ load("@graknlabs_bazel_distribution_pip//:requirements.bzl", graknlabs_bazel_dis
 load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
 load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 
-load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_deps")
+load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_python_deps")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
@@ -79,12 +79,7 @@ assemble_pip(
     author = "Grakn Labs",
     author_email = "community@grakn.ai",
     license = "Apache-2.0",
-    install_requires=[
-        'graknprotocol==2.0.0a3',
-        'grpcio==1.33.2',
-        'protobuf==3.6.1',
-        'six>=1.11.0',
-    ],
+    requirements_file = "//:requirements.txt",
     keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
     description = "Grakn Client for Python",
     long_description_file = "//:README.md",
@@ -106,6 +101,7 @@ deploy_github(
     title_append_version = True,
     organisation = github_deployment["github.organisation"],
     repository = github_deployment["github.repository"],
+    draft = False
 )
 
 artifact_extractor(
@@ -113,15 +109,13 @@ artifact_extractor(
     artifact = "@graknlabs_grakn_core_artifact_linux//file",
 )
 
-# TODO: add it back once we're able to depend on @graknlabs_protocol as bazel rather than artifact dependency
-#release_validate_deps(
-#    name = "release-validate-deps",
-#    refs = "@graknlabs_client_python_workspace_refs//:refs.json",
-#    tagged_deps = [
-#        "@graknlabs_protocol",
-#    ],
-#    tags = ["manual"]  # in order for bazel test //... to not fail
-#)
+release_validate_python_deps(
+    name = "release-validate-python-deps",
+    requirements = "//:requirements.txt",
+    tagged_deps = [
+        "graknprotocol",
+    ],
+)
 
 # CI targets that are not declared in any BUILD file, but are called externally
 filegroup(
