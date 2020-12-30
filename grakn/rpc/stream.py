@@ -31,7 +31,7 @@ class Stream(six.Iterator):
     _CONTINUE = "continue"
     _DONE = "done"
 
-    def __init__(self, transaction, request_id: str, transform_response: Callable[[transaction_proto.Transaction.Res], List] = None):
+    def __init__(self, transaction, request_id: str, transform_response: Callable[[transaction_proto.Transaction.Res], List] = lambda res: None):
         self._transaction = transaction
         self._request_id = request_id
         self._transform_response = transform_response
