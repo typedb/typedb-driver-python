@@ -24,6 +24,7 @@ def _rule_implementation(ctx):
         content="behave %s" % features_dir,
         is_executable=True
     )
+
     # The executable output is added automatically to this target.
 
     # Add the feature and step files for behave to the runfiles.
@@ -34,7 +35,9 @@ def _rule_implementation(ctx):
         # It is also possible to define data_runfiles and default_runfiles.
         # However if runfiles is specified it's not possible to define the above
         # ones since runfiles sets them both.
-        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.steps + ctx.files.deps)
+        runfiles = ctx.runfiles(
+            files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps
+        )
     )]
 
 """
@@ -57,7 +60,8 @@ py_cucumber_test = rule(
     attrs={
         # Do not declare "name": It is added automatically.
         "feats": attr.label_list(allow_files=True),
-        "steps": attr.label_list(allow_files=True),
+        "steps": attr.label_list(),
+        "background": attr.label_list(),
         "deps": attr.label_list(mandatory=True,allow_empty=False),
     },
     test=True,
