@@ -16,6 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import sched
+import time
+from threading import Thread
 
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.session_pb2 as session_proto
@@ -33,9 +36,11 @@ class SessionType(enum.Enum):
 
 class Session(object):
 
+    _PULSE_FREQUENCY_SECONDS = 5
+
     def __init__(self, client, database: str, session_type: SessionType, options=GraknOptions()):
         self._channel = client._channel
-        self._scheduler = client._scheduler
+        self._scheduler = sched.scheduler(time.time, time.sleep)
         self._database = database
         self._session_type = session_type
         self._grpc_stub = GraknStub(self._channel)
@@ -47,7 +52,10 @@ class Session(object):
 
         self._session_id = self._grpc_stub.session_open(open_req).session_id
         self._is_open = True
-        self._pulse = self._scheduler.enter(5, 1, self._transmit_pulse, ())
+        self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+        # TODO: This thread blocks the process from closing. We should try cancelling the scheduled task when the
+        #       session closes. If that doesn't work, we need some other way of getting the thread to exit.
+        Thread(target=self._scheduler.run).start()
 
     def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
         return Transaction(self._channel, self._session_id, transaction_type, options)
@@ -70,9 +78,10 @@ class Session(object):
             return
         pulse_req = session_proto.Session.Pulse.Req()
         pulse_req.session_id = self._session_id
-        is_alive = self._grpc_stub.session_pulse(pulse_req).is_alive
-        if is_alive:
-            self._pulse = self._scheduler.enter(5, 1, self._transmit_pulse, ())
+        res = self._grpc_stub.session_pulse(pulse_req)
+        if res.alive:
+            self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+            Thread(target=self._scheduler.run).start()
 
     def __enter__(self):
         return self
