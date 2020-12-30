@@ -1,5 +1,5 @@
 package(default_visibility = ["//test/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "py_cucumber_test")
+load("//tools:behave_rule.bzl", "py_behave_test")
 
 py_library(
     name = "steps",
@@ -7,14 +7,10 @@ py_library(
     deps = [],
 )
 
-py_cucumber_test(
+py_behave_test(
     name = "test",
-    feats = [
-        "transaction.feature",
-    ],
-    background = [
-        "//test/behaviour:background",
-    ],
+    feats = ["transaction.feature"],
+    background = ["//test/behaviour:background"],
     steps = [
         ":steps",
     ],
