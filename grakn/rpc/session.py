@@ -52,10 +52,10 @@ class Session(object):
 
         self._session_id = self._grpc_stub.session_open(open_req).session_id
         self._is_open = True
-        self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+        self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
         # TODO: This thread blocks the process from closing. We should try cancelling the scheduled task when the
         #       session closes. If that doesn't work, we need some other way of getting the thread to exit.
-        Thread(target=self._scheduler.run).start()
+        Thread(target=self._scheduler.run, daemon=True).start()
 
     def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
         return Transaction(self._channel, self._session_id, transaction_type, options)
@@ -67,6 +67,8 @@ class Session(object):
     def close(self):
         if self._is_open:
             self._is_open = False
+            self._scheduler.cancel(self._pulse)
+            self._scheduler.empty()
             req = session_proto.Session.Close.Req()
             req.session_id = self._session_id
             self._grpc_stub.session_close(req)
@@ -80,8 +82,8 @@ class Session(object):
         pulse_req.session_id = self._session_id
         res = self._grpc_stub.session_pulse(pulse_req)
         if res.alive:
-            self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-            Thread(target=self._scheduler.run).start()
+            self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+            Thread(target=self._scheduler.run, daemon=True).start()
 
     def __enter__(self):
         return self
