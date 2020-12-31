@@ -13,14 +13,15 @@ Implementation of the rule py_behave_test.
 """
 def _rule_implementation(ctx):
 
-    # behave requires a 'steps' folder to exist in the test root directory, which is the location of environment.py
-    steps_out_dir = ctx.files.background[0].dirname + "/steps"
-
     # Store the path of the first feature file. It is recommended to only have one feature file.
     feats_dir = ctx.files.feats[0].dirname
 
+    # behave requires a 'steps' folder to exist in the test root directory.
+    steps_out_dir = ctx.files.feats[0].dirname + "/steps"
+
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
-    cmd = "mkdir " + steps_out_dir + " && "
+    cmd = "cp %s %s" % (ctx.files.background[0].path, feats_dir)
+    cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
     cmd += " && behave %s" % feats_dir
 

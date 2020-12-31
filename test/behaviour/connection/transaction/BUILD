@@ -9,7 +9,7 @@ py_library(
 
 py_behave_test(
     name = "test",
-    feats = ["transaction.feature"],
+    feats = ["@graknlabs_behaviour//connection:transaction.feature"],
     background = ["//test/behaviour:background"],
     steps = [
         ":steps",
