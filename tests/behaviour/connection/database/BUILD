@@ -1,4 +1,4 @@
-package(default_visibility = ["//test/behaviour:__subpackages__"])
+package(default_visibility = ["//tests/behaviour:__subpackages__"])
 load("//tools:behave_rule.bzl", "py_behave_test")
 
 py_library(
@@ -10,10 +10,10 @@ py_library(
 #py_behave_test(
 #    name = "test",
 #    feats = ["transaction.feature"],
-#    background = ["//test/behaviour:background"],
+#    background = ["//tests/behaviour:background"],
 #    steps = [
 #        ":steps",
-#        "//test/behaviour/connection:steps",
+#        "//tests/behaviour/connection:steps",
 #    ],
 #    deps = [
 #        "//:client_python",
