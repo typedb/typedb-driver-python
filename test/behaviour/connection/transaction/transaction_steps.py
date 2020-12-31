@@ -1,4 +1,5 @@
 from concurrent.futures.thread import ThreadPoolExecutor
+from functools import partial
 from typing import Callable
 
 from behave import *
@@ -7,34 +8,37 @@ from grakn.common.exception import GraknClientException
 from grakn.rpc.transaction import TransactionType, Transaction
 
 
-# TODO: this is implemented as open(s) in some clients - get rid of that, simplify them
-@step("session opens transaction of type: {transaction_type}")
-def step_impl(context, transaction_type):  # TODO transaction_type should parse to type TransactionType by itself ideally
-    transaction_type = TransactionType.READ if transaction_type == "read" else TransactionType.WRITE
+def for_each_session_open_transaction_of_type(context, transaction_types: list):
     for session in context.sessions:
         transactions = []
-        transactions.append(session.transaction(transaction_type))
-        context.sessions_to_transactions[session] = transactions
-
-
-@step("for each session, open transaction of type:")
-@step("for each session, open transactions of type:")
-def step_impl(context):
-    for session in context.sessions:
-        transactions = []
-        for row in context.table.headers + context.table.rows:
-            transaction_type = TransactionType.READ if row[0] == "read" else TransactionType.WRITE
+        for transaction_type in transaction_types:
             transaction = session.transaction(transaction_type)
             transactions.append(transaction)
         context.sessions_to_transactions[session] = transactions
+
+
+# TODO: this is implemented as open(s) in some clients - get rid of that, simplify them
+@step("session opens transaction of type: {transaction_type}")
+@step("for each session, open transaction of type: {transaction_type}")
+def step_impl(context, transaction_type):  # TODO transaction_type should parse to type TransactionType by itself ideally
+    transaction_type = TransactionType.READ if transaction_type == "read" else TransactionType.WRITE
+    for_each_session_open_transaction_of_type(context, [transaction_type])
+
+
+@step("for each session, open transaction of type")
+@step("for each session, open transactions of type")
+def step_impl(context):
+    raw_values = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    transaction_types = list(map(lambda raw: TransactionType.READ if raw == "read" else TransactionType.WRITE, raw_values))
+    for_each_session_open_transaction_of_type(context, transaction_types)
 
 
 @step("for each session, open transaction of type; throws exception")
 @step("for each session, open transaction(s) of type; throws exception")
 def step_impl(context):
     for session in context.sessions:
-        for row in context.table.headers + context.table.rows:
-            transaction_type = TransactionType.READ if row[0] == "read" else TransactionType.WRITE
+        for raw_type in [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows)):
+            transaction_type = TransactionType.READ if raw_type == "read" else TransactionType.WRITE
             try:
                 session.transaction(transaction_type)
                 assert False
@@ -82,7 +86,7 @@ def step_impl(context):
 @step("transaction commits; throws exception")
 def step_impl(context):
     try:
-        context.execute_steps("Then transaction commits")
+        context.sessions_to_transactions[context.sessions[0]][0].commit()
         assert False
     except GraknClientException:
         pass
@@ -116,22 +120,30 @@ def step_impl(context):
             transaction.close()
 
 
-@step("for each session, transaction has type:")
-@step("for each session, transactions have type:")
-def step_impl(context):
-    types = list(map(lambda row: TransactionType.READ if row[0] == "read" else TransactionType.WRITE, context.table.headers + context.table.rows))
+def for_each_session_transaction_has_type(context, transaction_types: list):
     for session in context.sessions:
         transactions = context.sessions_to_transactions[session]
-        assert len(types) == len(transactions)
+        assert len(transaction_types) == len(transactions)
         transactions_iterator = iter(transactions)
-        for type_ in types:
-            assert next(transactions_iterator).transaction_type() == type_
+        for transaction_type in transaction_types:
+            assert next(transactions_iterator).transaction_type() == transaction_type
 
 
+# NOTE: behave ignores trailing colons in feature files
+@step("for each session, transaction has type")
+@step("for each session, transactions have type")
+def step_impl(context):
+    raw_values = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    transaction_types = list(map(lambda raw: TransactionType.READ if raw == "read" else TransactionType.WRITE, raw_values))
+    for_each_session_transaction_has_type(context, transaction_types)
+
+
+# TODO: this is overcomplicated in some clients (has/have, transaction(s))
+@step("for each session, transaction has type: {transaction_type}")
 @step("session transaction has type: {transaction_type}")
 def step_impl(context, transaction_type):
     transaction_type = TransactionType.READ if transaction_type == "read" else TransactionType.WRITE
-    assert context.sessions_to_transactions[context.sessions[0]][0].transaction_type() == transaction_type
+    for_each_session_transaction_has_type(context, [transaction_type])
 
 
 ##############################################
@@ -139,16 +151,16 @@ def step_impl(context, transaction_type):
 ##############################################
 
 # TODO: transaction(s) in other implementations - simplify
-@step("for each session, open transactions in parallel of type:")
+@step("for each session, open transactions in parallel of type")
 def step_impl(context):
-    types = list(map(lambda row: TransactionType.READ if row[0] == "read" else TransactionType.WRITE, context.table.headers + context.table.rows))
+    raw_values = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    types = list(map(lambda raw: TransactionType.READ if raw == "read" else TransactionType.WRITE, raw_values))
     assert context.THREAD_POOL_SIZE >= len(types)
     with ThreadPoolExecutor(max_workers=context.THREAD_POOL_SIZE) as executor:
         for session in context.sessions:
-            transactions_parallel = []
+            context.sessions_to_transactions_parallel[session] = []
             for type_ in types:
-                transactions_parallel.append(executor.submit(lambda s: s.transaction(type_), args=session))
-            context.sessions_to_transactions_parallel[session] = transactions_parallel
+                context.sessions_to_transactions_parallel[session].append(executor.submit(partial(session.transaction, type_)))
 
 
 def for_each_session_transactions_in_parallel_are(context, assertion: Callable[[Transaction], None]):
@@ -170,15 +182,23 @@ def step_impl(context, is_open):
     for_each_session_transactions_in_parallel_are(context, lambda tx: assert_transaction_open(tx, is_open))
 
 
-@step("for each session, transactions in parallel have type:")
+@step("for each session, transactions in parallel have type")
 def step_impl(context):
-    types = list(map(lambda row: TransactionType.READ if row[0] == "read" else TransactionType.WRITE, context.table.headers + context.table.rows))
+    raw_values = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    types = list(map(lambda raw: TransactionType.READ if raw == "read" else TransactionType.WRITE, raw_values))
     for session in context.sessions:
         future_transactions = context.sessions_to_transactions_parallel[session]
         assert len(types) == len(future_transactions)
-        transactions_iterator = iter(future_transactions)
+        transactions = []
+        for future_tx in future_transactions:
+            transactions.append(future_tx.result())
+        print("types")
+        print(types)
+        print("transactions")
+        print(list(map(lambda tx: tx.transaction_type(), transactions)))
+        transactions_iter = iter(transactions)
         for type_ in types:
-            assert next(transactions_iterator).result().transaction_type() == type_
+            assert next(transactions_iter).transaction_type() == type_
 
 
 ############################################
