@@ -41,15 +41,6 @@ class Thing(Concept):
     def is_thing(self):
         return True
 
-    def is_entity(self):
-        return False
-
-    def is_attribute(self):
-        return False
-
-    def is_relation(self):
-        return False
-
     def __str__(self):
         return type(self).__name__ + "[iid:" + self.get_iid() + "]"
 
@@ -141,15 +132,6 @@ class RemoteThing(RemoteConcept):
 
     def is_thing(self):
         return True
-
-    def is_entity(self):
-        return False
-
-    def is_attribute(self):
-        return False
-
-    def is_relation(self):
-        return False
 
     def _thing_stream(self, method: concept_proto.Thing.Req, thing_list_getter: Callable[[concept_proto.Thing.Res], List[concept_proto.Thing]]):
         method.iid = concept_proto_builder.iid(self.get_iid())
