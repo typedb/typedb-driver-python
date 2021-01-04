@@ -45,21 +45,6 @@ class Type(Concept):
     def is_type(self):
         return True
 
-    def is_thing_type(self):
-        return False
-
-    def is_entity_type(self):
-        return False
-
-    def is_attribute_type(self):
-        return False
-
-    def is_relation_type(self):
-        return False
-
-    def is_role_type(self):
-        return False
-
     def __str__(self):
         return type(self).__name__ + "[label:" + self.get_label() + "]"
 
@@ -109,21 +94,6 @@ class RemoteType(RemoteConcept):
 
     def is_type(self):
         return True
-
-    def is_thing_type(self):
-        return False
-
-    def is_entity_type(self):
-        return False
-
-    def is_attribute_type(self):
-        return False
-
-    def is_relation_type(self):
-        return False
-
-    def is_role_type(self):
-        return False
 
     def set_supertype(self, _type: Type):
         req = concept_proto.Type.Req()
