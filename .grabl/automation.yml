@@ -30,13 +30,13 @@ build:
       branch: master
     dependency-analysis:
       image: graknlabs-ubuntu-20.04
-      script: |
+      command: |
         bazel run @graknlabs_dependencies//grabl/analysis:dependency-analysis
   correctness:
     build:
       image: graknlabs-ubuntu-20.04
       type: foreground
-      script: |
+      command: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
@@ -50,7 +50,7 @@ build:
 #    test-concept:
 #      image: graknlabs-ubuntu-20.04
 #      type: foreground
-#      script: |
+#      command: |
 #        pyenv global 3.6.10
 #        sudo unlink /usr/bin/python3
 #        sudo ln -s $(which python3) /usr/bin/python3
@@ -62,7 +62,7 @@ build:
 #    test-connection:
 #      image: graknlabs-ubuntu-20.04
 #      type: foreground
-#      script: |
+#      command: |
 #        pyenv global 3.6.10
 #        sudo unlink /usr/bin/python3
 #        sudo ln -s $(which python3) /usr/bin/python3
@@ -74,7 +74,7 @@ build:
 #    test-query:
 #      image: graknlabs-ubuntu-20.04
 #      type: foreground
-#      script: |
+#      command: |
 #        pyenv global 3.6.10
 #        sudo unlink /usr/bin/python3
 #        sudo ln -s $(which python3) /usr/bin/python3
@@ -91,7 +91,7 @@ build:
         owner: graknlabs
         branch: master
       type: foreground
-      script: |
+      command: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
@@ -110,7 +110,7 @@ build:
 #        owner: graknlabs
 #        branch: master
 #      type: foreground
-#      script: |
+#      command: |
 #        pyenv global 3.6.10
 #        sudo unlink /usr/bin/python3
 #        sudo ln -s $(which python3) /usr/bin/python3
@@ -135,11 +135,11 @@ release:
   validation:
     validate-dependencies:
       image: graknlabs-ubuntu-20.04
-      script: bazel test //:release-validate-python-deps --test_output=streamed
+      command: bazel test //:release-validate-python-deps --test_output=streamed
   deployment:
     deploy-github:
       image: graknlabs-ubuntu-20.04
-      script: |
+      command: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
@@ -152,7 +152,7 @@ release:
         bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
       image: graknlabs-ubuntu-20.04
-      script: |
+      command: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
