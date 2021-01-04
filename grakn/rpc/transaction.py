@@ -89,7 +89,10 @@ class Transaction(object):
         req = transaction_proto.Transaction.Req()
         commit_req = transaction_proto.Transaction.Commit.Req()
         req.commit_req.CopyFrom(commit_req)
-        self._execute(req)
+        try:
+            self._execute(req)
+        finally:
+            self.close()
 
     def rollback(self):
         req = transaction_proto.Transaction.Req()

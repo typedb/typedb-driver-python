@@ -75,3 +75,6 @@ class RemoteRelationType(RemoteThingType):
         unset_relates_req.label = role_label
         method.relation_type_unset_relates_req.CopyFrom(unset_relates_req)
         self._execute(method)
+
+    def is_relation_type(self):
+        return True

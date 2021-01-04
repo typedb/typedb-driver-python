@@ -23,7 +23,31 @@ class Concept(object):
     def is_type(self):
         return False
 
+    def is_thing_type(self):
+        return False
+
+    def is_entity_type(self):
+        return False
+
+    def is_attribute_type(self):
+        return False
+
+    def is_relation_type(self):
+        return False
+
+    def is_role_type(self):
+        return False
+
     def is_thing(self):
+        return False
+
+    def is_entity(self):
+        return False
+
+    def is_attribute(self):
+        return False
+
+    def is_relation(self):
         return False
 
     def is_remote(self):
@@ -44,5 +68,29 @@ class RemoteConcept(object):
     def is_type(self):
         return False
 
+    def is_thing_type(self):
+        return False
+
+    def is_entity_type(self):
+        return False
+
+    def is_attribute_type(self):
+        return False
+
+    def is_relation_type(self):
+        return False
+
+    def is_role_type(self):
+        return False
+
     def is_thing(self):
+        return False
+
+    def is_entity(self):
+        return False
+
+    def is_attribute(self):
+        return False
+
+    def is_relation(self):
         return False

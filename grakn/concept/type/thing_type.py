@@ -28,6 +28,9 @@ class ThingType(Type):
     def as_remote(self, transaction):
         return RemoteThingType(transaction, self.get_label(), self.is_root())
 
+    def is_thing_type(self):
+        return True
+
 
 class RemoteThingType(RemoteType):
 
