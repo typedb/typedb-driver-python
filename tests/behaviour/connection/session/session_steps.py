@@ -3,6 +3,7 @@ from functools import partial
 from typing import List
 
 from behave import *
+from hamcrest import *
 
 from grakn.rpc.session import SessionType
 from tests.behaviour.config.parameters import parse_bool, parse_list
@@ -50,7 +51,7 @@ def step_impl(context):
 @step("connection open sessions in parallel for databases")
 def step_impl(context):
     names = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
-    assert context.THREAD_POOL_SIZE >= len(names)
+    assert_that(len(names), is_(less_than_or_equal_to(context.THREAD_POOL_SIZE)))
     with ThreadPoolExecutor(max_workers=context.THREAD_POOL_SIZE) as executor:
         for name in names:
             context.sessions_parallel.append(executor.submit(partial(context.client.session, name, SessionType.DATA)))
@@ -68,7 +69,7 @@ def step_impl(context):
 def step_impl(context, is_null):
     is_null = parse_bool(is_null)
     for session in context.sessions:
-        assert (session is None) == is_null
+        assert_that(session is None, is_(is_null))
 
 
 @step("session is open: {is_open}")
@@ -76,40 +77,47 @@ def step_impl(context, is_null):
 def step_impl(context, is_open):
     is_open = parse_bool(is_open)
     for session in context.sessions:
-        assert session.is_open() == is_open
+        assert_that(session.is_open(), is_(is_open))
 
 
 @step("sessions in parallel are null: {is_null}")
 def step_impl(context, is_null):
     is_null = parse_bool(is_null)
     for future_session in context.sessions_parallel:
-        assert (future_session.result() is None) == is_null
+        assert_that(future_session.result() is None, is_(is_null))
 
 
 @step("sessions in parallel are open: {is_open}")
 def step_impl(context, is_open):
     is_open = parse_bool(is_open)
     for future_session in context.sessions_parallel:
-        assert future_session.result().is_open() == is_open
+        assert_that(future_session.result().is_open(), is_(is_open))
 
 
 def sessions_have_databases(context, names: List[str]):
-    assert len(names) == len(context.sessions)
+    assert_that(context.sessions, has_length(equal_to(len(names))))
     session_iter = iter(context.sessions)
     for name in names:
-        assert name == next(session_iter).database()
+        assert_that(next(session_iter).database(), is_(name))
 
 
 @step("session has database: {database_name}")
 @step("sessions have database: {database_name}")
 def step_impl(context, database_name: str):
-    sessions_have_databases(context, list(database_name))
+    sessions_have_databases(context, [database_name])
+
+
+# TODO: session(s) has/have databases in other implementations, simplify
+@step("sessions have databases")
+def step_impl(context):
+    database_names = parse_list(context.table)
+    sessions_have_databases(context, database_names)
 
 
 @step("sessions in parallel have databases")
 def step_impl(context):
     database_names = parse_list(context.table)
-    assert len(database_names) == len(context.sessions_parallel)
+    assert_that(context.sessions_parallel, has_length(equal_to(len(database_names))))
     future_session_iter = iter(context.sessions_parallel)
     for name in database_names:
-        assert name == next(future_session_iter).result().database()
+        assert_that(next(future_session_iter).result().database(), is_(name))
