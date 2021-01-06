@@ -39,6 +39,15 @@ class QueryManager(object):
         request.match_req.CopyFrom(match_req)
         return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.match_res.answers, options))
 
+    def matchAggregate(self, query: str, options=GraknOptions()):
+        raise AssertionError()
+
+    def matchGroup(self, query: str, options=GraknOptions()):
+        raise AssertionError()
+
+    def matchGroupAggregate(self, query: str, options=GraknOptions()):
+        raise AssertionError()
+
     def insert(self, query: str, options=GraknOptions()):
         request = query_proto.Query.Req()
         insert_req = query_proto.Graql.Insert.Req()
