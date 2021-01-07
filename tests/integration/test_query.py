@@ -41,7 +41,7 @@ class TestQuery(test_base):
             with session.transaction(TransactionType.WRITE) as tx:
                 tx.query().define("define lionfight sub relation, relates victor, relates loser;")
                 lionfight_type = tx.concepts().get_relation_type("lionfight")
-                print(lionfight_type._label)
+                print("define: " + lionfight_type._label)
                 tx.query().undefine("undefine lionfight sub relation;")
                 tx.commit()
 
@@ -53,7 +53,13 @@ class TestQuery(test_base):
         with client.session("grakn", SessionType.DATA) as session:
             with session.transaction(TransactionType.WRITE) as tx:
                 for answer in tx.query().insert("insert $a isa lion; $b isa lion; $c isa lion;"):
-                    print(answer)
+                    print("insert: " + answer)
+
+    def test_match_aggregate(self):
+        with client.session("grakn", SessionType.DATA) as session:
+            with session.transaction(TransactionType.READ) as tx:
+                answer = tx.query().matchAggregate("match $p isa lion; get $p; count;")
+                print("count: " + answer)
 
 
 if __name__ == "__main__":
