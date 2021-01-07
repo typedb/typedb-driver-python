@@ -28,7 +28,6 @@ from grakn.concept.concept import Concept
 
 class ConceptMap:
 
-    _CONCEPT_MAP = "concept_map"
     _THING = "thing"
 
     def __init__(self, mapping: Mapping[str, Concept], query_pattern: str):

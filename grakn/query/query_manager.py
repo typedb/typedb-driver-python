@@ -17,7 +17,7 @@
 # under the License.
 #
 
-from typing import Callable, List, Any
+from typing import Callable, List
 
 import graknprotocol.protobuf.query_pb2 as query_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
