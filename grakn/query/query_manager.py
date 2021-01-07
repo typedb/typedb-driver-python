@@ -17,7 +17,7 @@
 # under the License.
 #
 
-from typing import Callable, List
+from typing import Callable, List, Any
 
 import graknprotocol.protobuf.query_pb2 as query_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
@@ -40,7 +40,11 @@ class QueryManager(object):
         return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.match_res.answers, options))
 
     def matchAggregate(self, query: str, options=GraknOptions()):
-        raise AssertionError()
+        request = query_proto.Query.Req()
+        match_aggregate_req = query_proto.Query.MatchAggregate.Req()
+        match_aggregate_req.query = query
+        request.match_aggregate_req.CopyFrom(match_aggregate_req)
+        return self._run_query(request, options, lambda res: numeric.of(res.query_res.match_aggregate_res.answer))
 
     def matchGroup(self, query: str, options=GraknOptions()):
         raise AssertionError()
@@ -76,12 +80,13 @@ class QueryManager(object):
         request.undefine_req.CopyFrom(undefine_req)
         return self._run_query(request, options)
 
-    def _run_query(self, query_req: query_proto.Query.Req, options: GraknOptions):
+    def _run_query(self, query_req: query_proto.Query.Req, options: GraknOptions, mapper: Callable[[transaction_proto.Transaction.Res], Any] = None):
         req = transaction_proto.Transaction.Req()
         query_req.options.CopyFrom(grakn_proto_builder.options(options))
         req.query_req.CopyFrom(query_req)
         # Using stream makes this request asynchronous.
-        return self._transaction._stream(req)
+        res = self._transaction._stream(req)
+        return mapper(res) if mapper else res
 
     def _iterate_query(self, query_req: query_proto.Query.Req, response_reader: Callable[[transaction_proto.Transaction.Res], List], options: GraknOptions):
         req = transaction_proto.Transaction.Req()
