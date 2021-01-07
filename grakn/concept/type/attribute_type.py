@@ -265,6 +265,20 @@ class RemoteStringAttributeType(RemoteAttributeType):
     def get(self, value: str):
         return self._get_internal(concept_proto_builder.string_attribute_value(value))
 
+    def get_regex(self):
+        method = concept_proto.Type.Req()
+        get_regex_req = concept_proto.AttributeType.GetRegex.Req()
+        method.attribute_type_get_regex_req.CopyFrom(get_regex_req)
+        regex = self._execute(method).attribute_type_get_regex_res.regex
+        return None if len(regex) == 0 else regex
+
+    def set_regex(self, regex: str):
+        method = concept_proto.Type.Req()
+        set_regex_req = concept_proto.AttributeType.SetRegex.Req()
+        set_regex_req.regex = regex
+        method.attribute_type_set_regex_req.CopyFrom(set_regex_req)
+        self._execute(method)
+
     def is_string(self):
         return True
 

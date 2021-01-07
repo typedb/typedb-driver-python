@@ -31,12 +31,8 @@ class ConceptMap(Answer):
 
     _THING = "thing"
 
-    def __init__(self, mapping: Mapping[str, Concept], query_pattern: str):
+    def __init__(self, mapping: Mapping[str, Concept]):
         self._map = mapping
-        self._query_pattern = query_pattern
-
-    def query_pattern(self):
-        return self._query_pattern
 
     def map(self):
         return self._map
@@ -73,5 +69,4 @@ def _of(concept_map_proto: answer_proto.ConceptMap):
         else:
             concept = concept_proto_reader.type_(res_concept.type)
         variable_map[res_var] = concept
-    query_pattern = None if concept_map_proto.pattern == "" else concept_map_proto.pattern
-    return ConceptMap(variable_map, query_pattern)
+    return ConceptMap(variable_map)
