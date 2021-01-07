@@ -17,21 +17,19 @@
 # under the License.
 #
 
+from typing import List
 
-## Configuration options
-
-# --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple  # Allow importing of snapshots
-
-
-## Dependencies
-
-graknprotocol==2.0.0a4
-grpcio==1.33.2
-protobuf==3.6.1
-six>=1.11.0
+from grakn.rpc.transaction import TransactionType
 
 
-# Dev dependencies (not required to use the grakn-client package, but necessary for its development)
+def parse_bool(value: str) -> bool:
+    return value == "true"
 
-behave==1.2.6
-PyHamcrest==2.0.2
+
+def parse_list(table) -> List[str]:
+    return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
+
+
+def parse_transaction_type(value: str) -> TransactionType:
+    return TransactionType.READ if value == "read" else TransactionType.WRITE
+

@@ -17,21 +17,19 @@
 # under the License.
 #
 
+package(default_visibility = ["//tests/behaviour:__subpackages__"])
 
-## Configuration options
+load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-# --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple  # Allow importing of snapshots
+py_library(
+    name = "parameters",
+    srcs = ["parameters.py"],
+    deps = [],
+)
 
-
-## Dependencies
-
-graknprotocol==2.0.0a4
-grpcio==1.33.2
-protobuf==3.6.1
-six>=1.11.0
-
-
-# Dev dependencies (not required to use the grakn-client package, but necessary for its development)
-
-behave==1.2.6
-PyHamcrest==2.0.2
+checkstyle_test(
+    name = "checkstyle",
+    include = glob(["*"]),
+    license_type = "apache",
+    size = "small",
+)

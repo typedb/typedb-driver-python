@@ -17,6 +17,7 @@
 # under the License.
 #
 
+# Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
 load("@graknlabs_common//test/server:rules.bzl", "native_grakn_artifact")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
@@ -26,7 +27,7 @@ native_grakn_artifact(
     mac_artifact = "@graknlabs_grakn_core_artifact_mac//file",
     linux_artifact = "@graknlabs_grakn_core_artifact_linux//file",
     windows_artifact = "@graknlabs_grakn_core_artifact_windows//file",
-    visibility = ["//test:__subpackages__"],
+    visibility = ["//tests:__subpackages__"],
 )
 
 py_test(

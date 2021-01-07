@@ -51,28 +51,28 @@ class QueryManager(object):
         delete_req = query_proto.Graql.Delete.Req()
         delete_req.query = query
         request.delete_req.CopyFrom(delete_req)
-        self._run_query(request, options)
+        return self._run_query(request, options)
 
     def define(self, query: str, options=GraknOptions()):
         request = query_proto.Query.Req()
         define_req = query_proto.Graql.Define.Req()
         define_req.query = query
         request.define_req.CopyFrom(define_req)
-        self._run_query(request, options)
+        return self._run_query(request, options)
 
     def undefine(self, query: str, options=GraknOptions()):
         request = query_proto.Query.Req()
         undefine_req = query_proto.Graql.Undefine.Req()
         undefine_req.query = query
         request.undefine_req.CopyFrom(undefine_req)
-        self._run_query(request, options)
+        return self._run_query(request, options)
 
     def _run_query(self, query_req: query_proto.Query.Req, options: GraknOptions):
         req = transaction_proto.Transaction.Req()
         query_req.options.CopyFrom(grakn_proto_builder.options(options))
         req.query_req.CopyFrom(query_req)
         # Using stream makes this request asynchronous.
-        self._transaction._stream(req)
+        return self._transaction._stream(req)
 
     def _iterate_query(self, query_req: query_proto.Query.Req, response_reader: Callable[[transaction_proto.Transaction.Res], List], options: GraknOptions):
         req = transaction_proto.Transaction.Req()

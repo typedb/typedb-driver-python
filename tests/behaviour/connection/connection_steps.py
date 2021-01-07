@@ -17,21 +17,14 @@
 # under the License.
 #
 
-
-## Configuration options
-
-# --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple  # Allow importing of snapshots
+from behave import *
 
 
-## Dependencies
-
-graknprotocol==2.0.0a4
-grpcio==1.33.2
-protobuf==3.6.1
-six>=1.11.0
+@step("connection has been opened")
+def step_impl(context):
+    assert context.client and context.client.is_open()
 
 
-# Dev dependencies (not required to use the grakn-client package, but necessary for its development)
-
-behave==1.2.6
-PyHamcrest==2.0.2
+@step("connection does not have any database")
+def step_impl(context):
+    assert len(context.client.databases().all()) == 0

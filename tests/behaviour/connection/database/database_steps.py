@@ -16,22 +16,25 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import List
+
+from behave import *
+
+from tests.behaviour.config.parameters import parse_list
 
 
-## Configuration options
-
-# --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple  # Allow importing of snapshots
-
-
-## Dependencies
-
-graknprotocol==2.0.0a4
-grpcio==1.33.2
-protobuf==3.6.1
-six>=1.11.0
+def create_databases(context, names: List[str]):
+    for name in names:
+        context.client.databases().create(name)
 
 
-# Dev dependencies (not required to use the grakn-client package, but necessary for its development)
+@step("connection create database: {database_name}")
+def step_impl(context, database_name: str):
+    create_databases(context, [database_name])
 
-behave==1.2.6
-PyHamcrest==2.0.2
+
+# TODO: connection create database(s) in other implementations, simplify
+@step("connection create databases")
+def step_impl(context):
+    names = parse_list(context.table)
+    create_databases(context, names)
