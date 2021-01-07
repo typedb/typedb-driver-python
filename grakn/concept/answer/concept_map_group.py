@@ -23,9 +23,15 @@ from grakn.concept.proto.concept_proto_reader import concept
 
 class ConceptMapGroup:
     def __init__(self, owner, concept_maps):
-        self.owner = owner
-        self.concept_maps = concept_maps
+        self._owner = owner
+        self._concept_maps = concept_maps
+
+    def owner(self):
+        return self._owner
+
+    def concept_maps(self):
+        return self._concept_maps
 
 
 def _of(concept_map_group_proto: answer_proto.ConceptMapGroup):
-    return ConceptMapGroup(concept(concept_map_group_proto.owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))
+    return ConceptMapGroup(concept(concept_map_group_proto._owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))

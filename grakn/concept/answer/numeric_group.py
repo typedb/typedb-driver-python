@@ -23,8 +23,14 @@ from grakn.concept.proto.concept_proto_reader import concept
 
 class NumericGroup:
     def __init__(self, owner, numeric):
-        self.owner = owner
-        self.numeric = numeric
+        self._owner = owner
+        self._numeric = numeric
+
+    def owner(self):
+        return self._owner
+
+    def numeric(self):
+        return self._numeric
 
 
 def _of(numeric_group_proto: answer_proto.NumericGroup):

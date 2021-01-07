@@ -24,27 +24,27 @@ from grakn.common.exception import GraknClientException
 
 class Numeric:
     def __init__(self, int_value, float_value):
-        self.int_value = int_value
-        self.float_value = float_value
+        self._int_value = int_value
+        self._float_value = float_value
 
     def is_int(self):
-        return self.int_value is not None
+        return self._int_value is not None
 
     def is_float(self):
-        return self.float_value is not None
+        return self._float_value is not None
 
     def is_nan(self):
         return not self.is_int() and not self.is_float()
 
     def as_float(self):
         if (self.is_float()):
-            return self.float_value
+            return self._float_value
         else:
             raise GraknClientException("TODO")
 
     def as_int(self):
         if (self.is_int()):
-            return self.int_value
+            return self._int_value
         else:
             raise GraknClientException("TODO")
 
