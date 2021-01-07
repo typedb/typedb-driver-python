@@ -40,13 +40,13 @@ class Numeric:
         if (self.is_float()):
             return self._float_value
         else:
-            raise GraknClientException("TODO")
+            raise GraknClientException("Illegal casting operation to 'float'.")
 
     def as_int(self):
         if (self.is_int()):
             return self._int_value
         else:
-            raise GraknClientException("TODO")
+            raise GraknClientException("Illegal casting operation to 'int'.")
 
 
 def _of(numeric_proto: answer_proto.Numeric):
@@ -58,4 +58,4 @@ def _of(numeric_proto: answer_proto.Numeric):
     elif numeric_case == "nan":
         return Numeric(None, None)
     else:
-        raise GraknClientException("TODO")
+        raise GraknClientException("The answer type '" + numeric_case + "' was not recognised.")
