@@ -19,7 +19,7 @@
 
 import unittest
 from grakn.client import GraknClient, SessionType, TransactionType
-from test.integration.base import test_base, GraknServer
+from tests.integration.base import test_base, GraknServer
 
 
 class TestConnection(test_base):

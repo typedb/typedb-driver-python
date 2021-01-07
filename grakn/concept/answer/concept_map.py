@@ -23,12 +23,12 @@ import graknprotocol.protobuf.answer_pb2 as answer_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.proto import concept_proto_reader
-from grakn.concept.answer.answer import Answer
 from grakn.concept.concept import Concept
 
 
-class ConceptMap(Answer):
+class ConceptMap:
 
+    _CONCEPT_MAP = "concept_map"
     _THING = "thing"
 
     def __init__(self, mapping: Mapping[str, Concept], query_pattern: str):

@@ -49,13 +49,13 @@ class Numeric:
             raise GraknClientException("TODO")
 
 
-def of(self, numeric_proto: answer_proto.Numeric):
+def _of(numeric_proto: answer_proto.Numeric):
     numeric_case = numeric_proto.WhichOneof("value")
-    if numeric_proto == "long_value":
+    if numeric_case == "long_value":
         return Numeric(numeric_proto.long_value, None)
-    elif numeric_proto == "double_value":
+    elif numeric_case == "double_value":
         return Numeric(None, numeric_proto.double_value)
-    elif numeric_proto == "nan":
+    elif numeric_case == "nan":
         return Numeric(None, None)
     else:
         raise GraknClientException("TODO")
