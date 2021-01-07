@@ -20,6 +20,7 @@
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException
+from grakn.concept.answer.concept_map import ConceptMap
 from grakn.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
     DateTimeAttribute
 from grakn.concept.thing.entity import Entity
@@ -30,6 +31,14 @@ from grakn.concept.type.entity_type import EntityType
 from grakn.concept.type.relation_type import RelationType
 from grakn.concept.type.role_type import RoleType
 from grakn.concept.type.thing_type import ThingType
+
+
+def concept(con_proto: concept_proto.Concept):
+    if con_proto.HasField(ConceptMap._THING):
+        concept = thing(con_proto.thing)
+    else:
+        concept = type_(con_proto.type)
+    return concept
 
 
 def thing(thing_proto: concept_proto.Thing):

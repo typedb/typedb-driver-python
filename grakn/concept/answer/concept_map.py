@@ -67,11 +67,7 @@ class ConceptMap:
 def _of(concept_map_proto: answer_proto.ConceptMap):
     variable_map = {}
     for res_var in concept_map_proto.map:
-        res_concept = concept_map_proto.map[res_var]
-        if res_concept.HasField(ConceptMap._THING):
-            concept = concept_proto_reader.thing(res_concept.thing)
-        else:
-            concept = concept_proto_reader.type_(res_concept.type)
+        concept = concept_proto_reader.concept(concept_map_proto.map[res_var])
         variable_map[res_var] = concept
     query_pattern = None if concept_map_proto.pattern == "" else concept_map_proto.pattern
     return ConceptMap(variable_map, query_pattern)
