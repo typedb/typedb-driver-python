@@ -18,7 +18,7 @@
 #
 
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
-load("@graknlabs_common//tests/server:rules.bzl", "native_grakn_artifact")
+load("@graknlabs_common//test/server:rules.bzl", "native_grakn_artifact")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
