@@ -34,4 +34,4 @@ class ConceptMapGroup:
 
 
 def _of(concept_map_group_proto: answer_proto.ConceptMapGroup):
-    return ConceptMapGroup(concept(concept_map_group_proto._owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))
+    return ConceptMapGroup(concept(concept_map_group_proto.owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))
