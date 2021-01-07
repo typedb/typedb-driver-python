@@ -23,7 +23,7 @@ import graknprotocol.protobuf.query_pb2 as query_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn import grakn_proto_builder
-from grakn.concept.answer import concept_map
+from grakn.concept.answer import concept_map, numeric
 from grakn.options import GraknOptions
 
 
