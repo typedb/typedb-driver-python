@@ -23,7 +23,7 @@ import grakn
 from grakn import GraknClient, ValueType, Transaction
 from grakn import GraknError
 
-from test.integration.base import test_base, GraknServer
+from tests.integration.base import test_base, GraknServer
 
 
 # TODO: we should ensure that all these tests are migrated to BDD

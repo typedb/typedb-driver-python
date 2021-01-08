@@ -17,15 +17,21 @@
 # under the License.
 #
 
-load("@graknlabs_dependencies//distribution/artifact:rules.bzl", "native_artifact_files")
-load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
+import graknprotocol.protobuf.answer_pb2 as answer_proto
+from grakn.concept.answer import numeric
+from grakn.concept.proto.concept_proto_reader import concept
 
-def graknlabs_grakn_core_artifacts():
-    native_artifact_files(
-        name = "graknlabs_grakn_core_artifact",
-        group_name = "graknlabs_grakn_core",
-        artifact_name = "grakn-core-server-{platform}-{version}.{ext}",
-        tag_source = deployment["artifact.release"],
-        commit_source = deployment["artifact.snapshot"],
-        commit = "118eee244a4949c629de0277804155ebd4b316be",
-    )
+class NumericGroup:
+    def __init__(self, owner, numeric):
+        self._owner = owner
+        self._numeric = numeric
+
+    def owner(self):
+        return self._owner
+
+    def numeric(self):
+        return self._numeric
+
+
+def _of(numeric_group_proto: answer_proto.NumericGroup):
+    return NumericGroup(concept(numeric_group_proto.owner), numeric._of(numeric_group_proto.number))

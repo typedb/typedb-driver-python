@@ -23,11 +23,10 @@ import graknprotocol.protobuf.answer_pb2 as answer_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.proto import concept_proto_reader
-from grakn.concept.answer.answer import Answer
 from grakn.concept.concept import Concept
 
 
-class ConceptMap(Answer):
+class ConceptMap:
 
     _THING = "thing"
 
@@ -63,10 +62,6 @@ class ConceptMap(Answer):
 def _of(concept_map_proto: answer_proto.ConceptMap):
     variable_map = {}
     for res_var in concept_map_proto.map:
-        res_concept = concept_map_proto.map[res_var]
-        if res_concept.HasField(ConceptMap._THING):
-            concept = concept_proto_reader.thing(res_concept.thing)
-        else:
-            concept = concept_proto_reader.type_(res_concept.type)
+        concept = concept_proto_reader.concept(concept_map_proto.map[res_var])
         variable_map[res_var] = concept
     return ConceptMap(variable_map)

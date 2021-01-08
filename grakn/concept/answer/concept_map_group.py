@@ -18,18 +18,20 @@
 #
 
 import graknprotocol.protobuf.answer_pb2 as answer_proto
-
-from grakn.common.exception import GraknClientException
 from grakn.concept.answer import concept_map
+from grakn.concept.proto.concept_proto_reader import concept
+
+class ConceptMapGroup:
+    def __init__(self, owner, concept_maps):
+        self._owner = owner
+        self._concept_maps = concept_maps
+
+    def owner(self):
+        return self._owner
+
+    def concept_maps(self):
+        return self._concept_maps
 
 
-class Answer(object):
-
-    _CONCEPT_MAP = "concept_map"
-
-
-def _of(proto_answer: answer_proto.Answer):
-    answer_case = proto_answer.WhichOneof("answer")
-    if answer_case == Answer._CONCEPT_MAP:
-        return concept_map._of(proto_answer.concept_map)
-    raise GraknClientException("The answer type " + answer_case + " was not recognised.")
+def _of(concept_map_group_proto: answer_proto.ConceptMapGroup):
+    return ConceptMapGroup(concept(concept_map_group_proto.owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))

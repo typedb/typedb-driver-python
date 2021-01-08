@@ -22,7 +22,7 @@ from datetime import datetime
 
 from grakn.client import GraknClient, SessionType, TransactionType, ValueType
 from grakn.common.exception import GraknClientException
-from test.integration.base import test_base, GraknServer
+from tests.integration.base import test_base, GraknServer
 
 
 class TestConcept(test_base):
