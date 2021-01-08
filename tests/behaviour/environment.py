@@ -20,14 +20,15 @@ from behave import *
 from behave.model_core import Status
 
 from grakn.client import GraknClient
+from tests.behaviour.context import Context
 
 
-def before_all(context):
+def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
     context.client = GraknClient()
 
 
-def before_scenario(context, scenario):
+def before_scenario(context: Context, scenario):
     for tag in ["ignore", "ignore-client-python"]:
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
@@ -41,9 +42,10 @@ def before_scenario(context, scenario):
     context.sessions_to_transactions_parallel = {}
     context.sessions_parallel_to_transactions_parallel = {}
     context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
+    context.things = {}
 
 
-def after_scenario(context, scenario):
+def after_scenario(context: Context, scenario):
     if scenario.status == Status.skipped:
         return
 
@@ -55,5 +57,5 @@ def after_scenario(context, scenario):
         context.client.databases().delete(database)
 
 
-def after_all(context):
+def after_all(context: Context):
     context.client.close()

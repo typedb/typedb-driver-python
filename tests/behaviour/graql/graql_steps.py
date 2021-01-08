@@ -24,18 +24,21 @@ from grakn.common.exception import GraknClientException
 
 
 # TODO
+from tests.behaviour.context import Context
+
+
 @step("the integrity is validated")
-def step_impl(context):
+def step_impl(context: Context):
     pass
 
 
 @step("graql define")
-def step_impl(context):
+def step_impl(context: Context):
     context.tx().query().define(context.text)
 
 
 @step("graql define; throws exception")
-def step_impl(context):
+def step_impl(context: Context):
     try:
         next(context.tx().query().define(context.text))
         assert False
@@ -44,7 +47,7 @@ def step_impl(context):
 
 
 @step("graql define; throws exception containing \"{exception}\"")
-def step_impl(context, exception: str):
+def step_impl(context: Context, exception: str):
     try:
         next(context.tx().query().define(context.text))
         assert False
@@ -53,12 +56,12 @@ def step_impl(context, exception: str):
 
 
 @step("graql undefine")
-def step_impl(context):
+def step_impl(context: Context):
     context.tx().query().undefine(context.text)
 
 
 @step("graql undefine; throws exception")
-def step_impl(context):
+def step_impl(context: Context):
     try:
         next(context.tx().query().undefine(context.text))
         assert False
@@ -67,7 +70,7 @@ def step_impl(context):
 
 
 @step("graql undefine; throws exception containing \"{exception}\"")
-def step_impl(context, exception: str):
+def step_impl(context: Context, exception: str):
     try:
         next(context.tx().query().undefine(context.text))
         assert False
@@ -76,12 +79,12 @@ def step_impl(context, exception: str):
 
 
 @step("graql insert")
-def step_impl(context):
+def step_impl(context: Context):
     context.tx().query().insert(context.text)
 
 
 @step("graql insert; throws exception")
-def step_impl(context):
+def step_impl(context: Context):
     try:
         next(context.tx().query().insert(context.text))
         assert False
@@ -90,7 +93,7 @@ def step_impl(context):
 
 
 @step("graql insert; throws exception containing \"{exception}\"")
-def step_impl(context, exception: str):
+def step_impl(context: Context, exception: str):
     try:
         next(context.tx().query().insert(context.text))
         assert False
@@ -99,12 +102,12 @@ def step_impl(context, exception: str):
 
 
 @step("graql delete")
-def step_impl(context):
+def step_impl(context: Context):
     context.tx().query().delete(context.text)
 
 
 @step("graql delete; throws exception")
-def step_impl(context):
+def step_impl(context: Context):
     try:
         next(context.tx().query().delete(context.text))
         assert False
@@ -113,7 +116,7 @@ def step_impl(context):
 
 
 @step("graql delete; throws exception containing \"{exception}\"")
-def step_impl(context, exception: str):
+def step_impl(context: Context, exception: str):
     try:
         next(context.tx().query().delete(context.text))
         assert False

@@ -17,31 +17,17 @@
 # under the License.
 #
 
-package(default_visibility = ["//tests/behaviour:__subpackages__"])
+from behave import *
+from hamcrest import *
 
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
+from grakn.concept.thing.thing import Thing
+from tests.behaviour.config.parameters import parse_bool
+from tests.behaviour.context import Context
 
-py_library(
-    name = "background",
-    srcs = ["environment.py"],
-    deps = [],
-)
 
-py_library(
-    name = "context",
-    srcs = ["context.py"],
-    deps = [],
-)
+def get(context: Context, variable: str):
+    return context.things[variable]
 
-py_library(
-    name = "util",
-    srcs = ["util.py"],
-    deps = [],
-)
 
-checkstyle_test(
-    name = "checkstyle",
-    include = glob(["*"]),
-    license_type = "apache",
-    size = "small",
-)
+def put(context: Context, variable: str, thing: Thing):
+    context.things[variable] = thing

@@ -19,6 +19,9 @@
 
 from typing import List
 
+from behave.model import Table
+
+from grakn.concept.type.value_type import ValueType
 from grakn.rpc.transaction import TransactionType
 
 
@@ -26,10 +29,20 @@ def parse_bool(value: str) -> bool:
     return value == "true"
 
 
-def parse_list(table) -> List[str]:
+def parse_list(table: Table) -> List[str]:
     return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
 
 
 def parse_transaction_type(value: str) -> TransactionType:
     return TransactionType.READ if value == "read" else TransactionType.WRITE
 
+
+def parse_value_type(value: str) -> ValueType:
+    mapping = {
+        "long": ValueType.LONG,
+        "double": ValueType.DOUBLE,
+        "string": ValueType.STRING,
+        "boolean": ValueType.BOOLEAN,
+        "datetime": ValueType.DATETIME
+    }
+    return mapping[value]

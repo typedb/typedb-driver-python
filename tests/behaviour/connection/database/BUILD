@@ -24,9 +24,7 @@ load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 py_library(
     name = "steps",
     srcs = ["database_steps.py"],
-    deps = [
-        "//tests/behaviour:util",
-    ],
+    deps = [],
 )
 
 py_behave_test(
@@ -42,6 +40,7 @@ py_behave_test(
     deps = [
         "//:client_python",
         "//tests/behaviour/config:parameters",
+        "//tests/behaviour:context",
         "//tests/behaviour:util",
     ],
     size = "small",

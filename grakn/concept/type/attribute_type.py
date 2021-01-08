@@ -63,7 +63,7 @@ class AttributeType(ThingType):
         if other is self:
             return True
         # root "attribute" should always be equal to itself regardless of which value class it holds
-        if not other or not isinstance(AttributeType, other):
+        if not other or not isinstance(other, AttributeType):
             return False
         return self.get_label() == other.get_label()
 

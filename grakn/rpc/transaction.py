@@ -55,9 +55,7 @@ class Transaction(object):
 
         self._grpc_stub = GraknStub(channel)
         self._request_iterator = RequestIterator()
-        print("Opening bidi stream...")
         self._response_iterator = self._grpc_stub.transaction(self._request_iterator)
-        print("Opened bidi stream")
         self._transaction_was_closed = False
 
         open_req = transaction_proto.Transaction.Open.Req()

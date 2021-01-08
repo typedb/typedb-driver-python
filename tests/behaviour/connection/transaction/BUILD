@@ -41,6 +41,7 @@ py_behave_test(
     deps = [
         "//:client_python",
         "//tests/behaviour/config:parameters",
+        "//tests/behaviour:context",
         "//tests/behaviour:util",
     ],
     size = "small",
