@@ -16,26 +16,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from collections import Counter
 
-package(default_visibility = ["//tests/behaviour:__subpackages__"])
+from hamcrest import *
 
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-py_library(
-    name = "background",
-    srcs = ["environment.py"],
-    deps = [],
-)
-
-py_library(
-    name = "util",
-    srcs = ["util.py"],
-    deps = [],
-)
-
-checkstyle_test(
-    name = "checkstyle",
-    include = glob(["*"]),
-    license_type = "apache",
-    size = "small",
-)
+def assert_collections_equal(collection1: list, collection2: list):
+    assert_that(Counter(collection1), is_(equal_to(Counter(collection2))))

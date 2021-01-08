@@ -49,7 +49,7 @@ def step_impl(context, database_name: str):
 @step("connection open schema sessions for database")
 @step("connection open schema sessions for databases")
 def step_impl(context):
-    names = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    names = parse_list(context.table)
     open_sessions_for_databases(context, names, SessionType.SCHEMA)
 
 
@@ -62,14 +62,14 @@ def step_impl(context):
 @step("connection open sessions for database")
 @step("connection open sessions for databases")
 def step_impl(context):
-    names = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    names = parse_list(context.table)
     open_sessions_for_databases(context, names, SessionType.DATA)
 
 
 @step("connection open data sessions in parallel for databases")
 @step("connection open sessions in parallel for databases")
 def step_impl(context):
-    names = [context.table.headings[0]] + list(map(lambda row: row[0], context.table.rows))
+    names = parse_list(context.table)
     assert_that(len(names), is_(less_than_or_equal_to(context.THREAD_POOL_SIZE)))
     with ThreadPoolExecutor(max_workers=context.THREAD_POOL_SIZE) as executor:
         for name in names:

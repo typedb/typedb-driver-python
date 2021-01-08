@@ -24,22 +24,28 @@ load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 py_library(
     name = "steps",
     srcs = ["database_steps.py"],
-    deps = [],
+    deps = [
+        "//tests/behaviour:util",
+    ],
 )
 
-#py_behave_test(
-#    name = "test",
-#    feats = ["transaction.feature"],
-#    background = ["//tests/behaviour:background"],
-#    steps = [
-#        ":steps",
-#        "//tests/behaviour/connection:steps",
-#    ],
-#    deps = [
-#        "//:client_python",
-#    ],
-#    size = "small",
-#)
+py_behave_test(
+    name = "test",
+    feats = ["@graknlabs_behaviour//connection:database.feature"],
+    background = ["//tests/behaviour:background"],
+    steps = [
+        ":steps",
+        "//tests/behaviour/connection:steps",
+        "//tests/behaviour/connection/session:steps",
+        "//tests/behaviour/connection/transaction:steps",
+    ],
+    deps = [
+        "//:client_python",
+        "//tests/behaviour/config:parameters",
+        "//tests/behaviour:util",
+    ],
+    size = "small",
+)
 
 checkstyle_test(
     name = "checkstyle",

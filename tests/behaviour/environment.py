@@ -17,6 +17,7 @@
 # under the License.
 #
 from behave import *
+from behave.model_core import Status
 
 from grakn.client import GraknClient
 
@@ -27,6 +28,11 @@ def before_all(context):
 
 
 def before_scenario(context, scenario):
+    for tag in ["ignore", "ignore-client-python"]:
+        if tag in scenario.effective_tags:
+            scenario.skip("tagged with @" + tag)
+            return
+
     for database in context.client.databases().all():
         context.client.databases().delete(database)
     context.sessions = []
@@ -38,8 +44,13 @@ def before_scenario(context, scenario):
 
 
 def after_scenario(context, scenario):
+    if scenario.status == Status.skipped:
+        return
+
     for session in context.sessions:
         session.close()
+    for future_session in context.sessions_parallel:
+        future_session.result().close()
     for database in context.client.databases().all():
         context.client.databases().delete(database)
 
