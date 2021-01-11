@@ -18,9 +18,11 @@
 #
 
 from datetime import datetime
+from typing import Optional
 
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
+from grakn.common.exception import GraknClientException
 from grakn.concept.proto import concept_proto_builder, concept_proto_reader
 from grakn.concept.type.thing_type import ThingType, RemoteThingType
 from grakn.concept.type.value_type import ValueType
@@ -31,6 +33,8 @@ def is_keyable(value_type: ValueType):
 
 
 class AttributeType(ThingType):
+
+    ROOT_LABEL = "attribute"
 
     def as_remote(self, transaction):
         return RemoteAttributeType(transaction, self.get_label(), self.is_root())
@@ -59,6 +63,31 @@ class AttributeType(ThingType):
     def is_datetime(self):
         return False
 
+    def as_boolean(self):
+        if self.is_root():
+            return BooleanAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + BooleanAttributeType.__name__)
+
+    def as_long(self):
+        if self.is_root():
+            return LongAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + LongAttributeType.__name__)
+
+    def as_double(self):
+        if self.is_root():
+            return DoubleAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + DoubleAttributeType.__name__)
+
+    def as_string(self):
+        if self.is_root():
+            return StringAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + StringAttributeType.__name__)
+
+    def as_datetime(self):
+        if self.is_root():
+            return DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + DateTimeAttributeType.__name__)
+
     def __eq__(self, other):
         if other is self:
             return True
@@ -73,6 +102,8 @@ class AttributeType(ThingType):
 
 class RemoteAttributeType(RemoteThingType):
 
+    ROOT_LABEL = "attribute"
+
     def get_value_type(self):
         return ValueType.OBJECT
 
@@ -81,6 +112,13 @@ class RemoteAttributeType(RemoteThingType):
 
     def as_remote(self, transaction):
         return RemoteAttributeType(transaction, self.get_label(), self.is_root())
+
+    def get_subtypes(self):
+        stream = super(RemoteAttributeType, self).get_subtypes()
+        if self.is_root() and self.get_value_type() is not ValueType.OBJECT:
+            return [subtype for subtype in stream if subtype.get_value_type() is self.get_value_type() or subtype.get_label() == self.get_label()]
+        else:
+            return stream
 
     def get_owners(self, only_key=False):
         method = concept_proto.Type.Req()
@@ -122,6 +160,31 @@ class RemoteAttributeType(RemoteThingType):
     def is_datetime(self):
         return False
 
+    def as_boolean(self):
+        if self.is_root():
+            return BooleanAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + BooleanAttributeType.__name__)
+
+    def as_long(self):
+        if self.is_root():
+            return LongAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + LongAttributeType.__name__)
+
+    def as_double(self):
+        if self.is_root():
+            return DoubleAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + DoubleAttributeType.__name__)
+
+    def as_string(self):
+        if self.is_root():
+            return StringAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + StringAttributeType.__name__)
+
+    def as_datetime(self):
+        if self.is_root():
+            return DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
+        raise GraknClientException("Invalid conversion to " + DateTimeAttributeType.__name__)
+
     def __eq__(self, other):
         if other is self:
             return True
@@ -148,6 +211,9 @@ class BooleanAttributeType(AttributeType):
     def is_boolean(self):
         return True
 
+    def as_boolean(self):
+        return self
+
 
 class RemoteBooleanAttributeType(RemoteAttributeType):
 
@@ -166,6 +232,9 @@ class RemoteBooleanAttributeType(RemoteAttributeType):
     def is_boolean(self):
         return True
 
+    def as_boolean(self):
+        return self
+
 
 class LongAttributeType(AttributeType):
 
@@ -181,6 +250,9 @@ class LongAttributeType(AttributeType):
 
     def is_long(self):
         return True
+
+    def as_long(self):
+        return self
 
 
 class RemoteLongAttributeType(RemoteAttributeType):
@@ -200,6 +272,9 @@ class RemoteLongAttributeType(RemoteAttributeType):
     def is_long(self):
         return True
 
+    def as_long(self):
+        return self
+
 
 class DoubleAttributeType(AttributeType):
 
@@ -215,6 +290,9 @@ class DoubleAttributeType(AttributeType):
 
     def is_double(self):
         return True
+
+    def as_double(self):
+        return self
 
 
 class RemoteDoubleAttributeType(RemoteAttributeType):
@@ -234,6 +312,9 @@ class RemoteDoubleAttributeType(RemoteAttributeType):
     def is_double(self):
         return True
 
+    def as_double(self):
+        return self
+
 
 class StringAttributeType(AttributeType):
 
@@ -249,6 +330,9 @@ class StringAttributeType(AttributeType):
 
     def is_string(self):
         return True
+
+    def as_string(self):
+        return self
 
 
 class RemoteStringAttributeType(RemoteAttributeType):
@@ -272,7 +356,9 @@ class RemoteStringAttributeType(RemoteAttributeType):
         regex = self._execute(method).attribute_type_get_regex_res.regex
         return None if len(regex) == 0 else regex
 
-    def set_regex(self, regex: str):
+    def set_regex(self, regex: Optional[str]):
+        if regex is None:
+            regex = ""
         method = concept_proto.Type.Req()
         set_regex_req = concept_proto.AttributeType.SetRegex.Req()
         set_regex_req.regex = regex
@@ -281,6 +367,9 @@ class RemoteStringAttributeType(RemoteAttributeType):
 
     def is_string(self):
         return True
+
+    def as_string(self):
+        return self
 
 
 class DateTimeAttributeType(AttributeType):
@@ -297,6 +386,9 @@ class DateTimeAttributeType(AttributeType):
 
     def is_datetime(self):
         return True
+
+    def as_datetime(self):
+        return self
 
 
 class RemoteDateTimeAttributeType(RemoteAttributeType):
@@ -315,3 +407,6 @@ class RemoteDateTimeAttributeType(RemoteAttributeType):
 
     def is_datetime(self):
         return True
+
+    def as_datetime(self):
+        return self

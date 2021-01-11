@@ -18,12 +18,33 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
+load("//tools:behave_rule.bzl", "py_behave_test")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
     name = "steps",
     srcs = ["thing_type_steps.py"],
     deps = [],
+)
+
+py_behave_test(
+    name = "test",
+    feats = ["@graknlabs_behaviour//concept/type:thingtype.feature"],
+    background = ["//tests/behaviour:background"],
+    steps = [
+        ":steps",
+        "//tests/behaviour/connection:steps",
+        "//tests/behaviour/connection/database:steps",
+        "//tests/behaviour/connection/session:steps",
+        "//tests/behaviour/connection/transaction:steps",
+    ],
+    deps = [
+        "//:client_python",
+        "//tests/behaviour:context",
+        "//tests/behaviour:util",
+        "//tests/behaviour/config:parameters",
+    ],
+    size = "medium",
 )
 
 checkstyle_test(

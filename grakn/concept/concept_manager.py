@@ -52,7 +52,7 @@ class ConceptManager(object):
 
     def get_entity_type(self, label: str):
         _type = self._get_thing_type(label)
-        return _type if _type.is_entity_type() else None
+        return _type if _type and _type.is_entity_type() else None
 
     def put_relation_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
@@ -64,7 +64,7 @@ class ConceptManager(object):
 
     def get_relation_type(self, label: str):
         _type = self._get_thing_type(label)
-        return _type if _type.is_relation_type() else None
+        return _type if _type and _type.is_relation_type() else None
 
     def put_attribute_type(self, label: str, value_type):
         req = concept_proto.ConceptManager.Req()
@@ -77,7 +77,7 @@ class ConceptManager(object):
 
     def get_attribute_type(self, label: str):
         _type = self._get_thing_type(label)
-        return _type if _type.is_attribute_type() else None
+        return _type if _type and _type.is_attribute_type() else None
 
     def get_thing(self, iid: str):
         req = concept_proto.ConceptManager.Req()

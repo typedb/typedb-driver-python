@@ -21,18 +21,12 @@ package(default_visibility = ["//tests/behaviour:__subpackages__"])
 load("//tools:behave_rule.bzl", "py_behave_test")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-py_library(
-    name = "steps",
-    srcs = ["attribute_type_steps.py"],
-    deps = [],
-)
-
 py_behave_test(
     name = "test",
-    feats = ["@graknlabs_behaviour//concept/type:attributetype.feature"],
+    feats = ["@graknlabs_behaviour//concept/type:entitytype.feature"],
     background = ["//tests/behaviour:background"],
     steps = [
-        ":steps",
+        "//tests/behaviour/concept/type/attributetype:steps",
         "//tests/behaviour/concept/type/thingtype:steps",
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",

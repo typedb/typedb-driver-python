@@ -20,7 +20,8 @@
 from behave import *
 from hamcrest import *
 
-from tests.behaviour.config.parameters import parse_value_type
+from grakn.concept.type.value_type import ValueType
+from tests.behaviour.config.parameters import parse_value_type, parse_list
 from tests.behaviour.context import Context
 
 
@@ -38,3 +39,110 @@ def step_impl(context: Context, type_label: str, value_type: str):
 def step_impl(context: Context, type_label: str, value_type: str):
     supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_supertype()
     assert_that(supertype.get_value_type(), is_(parse_value_type(value_type)))
+
+
+def attribute_type_as_value_type(context: Context, type_label: str, value_type: ValueType):
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    if value_type is ValueType.OBJECT:
+        return attribute_type
+    elif value_type is ValueType.BOOLEAN:
+        return attribute_type.as_boolean()
+    elif value_type is ValueType.LONG:
+        return attribute_type.as_long()
+    elif value_type is ValueType.DOUBLE:
+        return attribute_type.as_double()
+    elif value_type is ValueType.STRING:
+        return attribute_type.as_string()
+    elif value_type is ValueType.DATETIME:
+        return attribute_type.as_datetime()
+    else:
+        raise ValueError("Unrecognised value type: " + str(value_type))
+
+
+@step("attribute({type_label}) as({value_type}) get subtypes contain")
+def step_impl(context: Context, type_label: str, value_type: str):
+    sub_labels = parse_list(context.table)
+    attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
+    for sub_label in sub_labels:
+        assert_that(sub_label, is_in(actuals))
+
+
+@step("attribute({type_label}) as({value_type}) get subtypes do not contain")
+def step_impl(context: Context, type_label: str, value_type: str):
+    sub_labels = parse_list(context.table)
+    attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
+    print(parse_value_type(value_type))
+    print(attribute_type)
+    print(actuals)
+    for sub_label in sub_labels:
+        assert_that(sub_label, not_(is_in(actuals)))
+
+
+@step("attribute({type_label}) as({value_type}) set regex: {regex}")
+def step_impl(context: Context, type_label: str, value_type, regex: str):
+    value_type = parse_value_type(value_type)
+    assert_that(value_type, is_(ValueType.STRING))
+    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
+    attribute_type.as_remote(context.tx()).set_regex(regex)
+
+
+@step("attribute({type_label}) as({value_type}) unset regex")
+def step_impl(context: Context, type_label: str, value_type):
+    value_type = parse_value_type(value_type)
+    assert_that(value_type, is_(ValueType.STRING))
+    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
+    attribute_type.as_remote(context.tx()).set_regex(None)
+
+
+@step("attribute({type_label}) as({value_type}) get regex: {regex}")
+def step_impl(context: Context, type_label: str, value_type, regex: str):
+    value_type = parse_value_type(value_type)
+    assert_that(value_type, is_(ValueType.STRING))
+    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
+    assert_that(attribute_type.as_remote(context.tx()).get_regex(), is_(regex))
+
+
+@step("attribute({type_label}) as({value_type}) does not have any regex")
+def step_impl(context: Context, type_label: str, value_type):
+    value_type = parse_value_type(value_type)
+    assert_that(value_type, is_(ValueType.STRING))
+    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
+    assert_that(attribute_type.as_remote(context.tx()).get_regex(), is_(None))
+
+
+@step("attribute({type_label}) get key owners contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = parse_list(context.table)
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
+    for owner_label in owner_labels:
+        assert_that(owner_label, is_in(actuals))
+
+
+@step("attribute({type_label}) get key owners do not contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = parse_list(context.table)
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
+    for owner_label in owner_labels:
+        assert_that(owner_label, not_(is_in(actuals)))
+
+
+@step("attribute({type_label}) get attribute owners contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = parse_list(context.table)
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
+    for owner_label in owner_labels:
+        assert_that(owner_label, is_in(actuals))
+
+
+@step("attribute({type_label}) get attribute owners do not contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = parse_list(context.table)
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
+    for owner_label in owner_labels:
+        assert_that(owner_label, not_(is_in(actuals)))
