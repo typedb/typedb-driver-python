@@ -23,18 +23,19 @@ load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
     name = "steps",
-    srcs = ["thing_type_steps.py"],
+    srcs = ["entity_steps.py"],
     deps = [],
 )
 
 py_behave_test(
     name = "test",
-    feats = ["@graknlabs_behaviour//concept/type:thingtype.feature"],
+    feats = ["@graknlabs_behaviour//concept/thing:entity.feature"],
     background = ["//tests/behaviour:background"],
     steps = [
         ":steps",
+        "//tests/behaviour/concept/thing:steps",
         "//tests/behaviour/concept/type/attributetype:steps",
-        "//tests/behaviour/concept/type/relationtype:steps",
+        "//tests/behaviour/concept/type/thingtype:steps",
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",
         "//tests/behaviour/connection/session:steps",

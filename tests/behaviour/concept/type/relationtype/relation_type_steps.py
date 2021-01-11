@@ -26,6 +26,20 @@ from tests.behaviour.config.parameters import parse_value_type, parse_list, pars
 from tests.behaviour.context import Context
 
 
+@step("relation({relation_label}) set relates role: {role_label} as {super_role}; throws exception")
+def step_impl(context: Context, relation_label: str, role_label: str, super_role: str):
+    try:
+        context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label, overridden_label=super_role)
+        assert False
+    except GraknClientException:
+        pass
+
+
+@step("relation({relation_label}) set relates role: {role_label} as {super_role}")
+def step_impl(context: Context, relation_label: str, role_label: str, super_role: str):
+    context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label, overridden_label=super_role)
+
+
 @step("relation({relation_label}) set relates role: {role_label}; throws exception")
 def step_impl(context: Context, relation_label: str, role_label: str):
     try:
@@ -54,20 +68,6 @@ def step_impl(context: Context, relation_label: str, role_label: str):
     context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).unset_relates(role_label)
 
 
-@step("relation({relation_label}) set relates role: {role_label} as {super_role}; throws exception")
-def step_impl(context: Context, relation_label: str, role_label: str, super_role: str):
-    try:
-        context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label, overridden_label=super_role)
-        assert False
-    except GraknClientException:
-        pass
-
-
-@step("relation({relation_label}) set relates role: {role_label} as {super_role}")
-def step_impl(context: Context, relation_label: str, role_label: str, super_role: str):
-    context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label, overridden_label=super_role)
-
-
 @step("relation({relation_label}) remove related role: {role_label}")
 def step_impl(context: Context, relation_label: str, role_label: str):
     context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).delete()
@@ -77,3 +77,105 @@ def step_impl(context: Context, relation_label: str, role_label: str):
 def step_impl(context: Context, relation_label: str, role_label: str, is_null):
     is_null = parse_bool(is_null)
     assert_that(context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label) is None, is_(is_null))
+
+
+@step("relation({relation_label}) get role({role_label}) set label: {new_label}")
+def step_impl(context: Context, relation_label: str, role_label: str, new_label: str):
+    context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).set_label(new_label)
+
+
+@step("relation({relation_label}) get role({role_label}) get label: {get_label}")
+def step_impl(context: Context, relation_label: str, role_label: str, get_label: str):
+    assert_that(context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_label(), is_(get_label))
+
+
+@step("relation({relation_label}) get role({role_label}) is abstract: {is_abstract}")
+def step_impl(context: Context, relation_label: str, role_label: str, is_abstract):
+    is_abstract = parse_bool(is_abstract)
+    assert_that(context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).is_abstract(), is_(is_abstract))
+
+
+def get_actual_related_role_scoped_labels(context: Context, relation_label: str):
+    return [r.get_scoped_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates()]
+
+
+@step("relation({relation_label}) get related roles contain")
+def step_impl(context: Context, relation_label: str):
+    role_labels = parse_list(context.table)
+    actuals = get_actual_related_role_scoped_labels(context, relation_label)
+    for role_label in role_labels:
+        assert_that(role_label, is_in(actuals))
+
+
+@step("relation({relation_label}) get related roles do not contain")
+def step_impl(context: Context, relation_label: str):
+    role_labels = parse_list(context.table)
+    actuals = get_actual_related_role_scoped_labels(context, relation_label)
+    for role_label in role_labels:
+        assert_that(role_label, not_(is_in(actuals)))
+
+
+@step("relation({relation_label}) get role({role_label}) get supertype: {super_scope}:{super_label}")
+def step_impl(context: Context, relation_label: str, role_label: str, super_scope: str, super_label: str):
+    supertype = context.tx().concepts().get_relation_type(super_scope).as_remote(context.tx()).get_relates(super_label)
+    assert_that(supertype, is_(context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_supertype()))
+
+
+def get_actual_related_role_supertypes_scoped_labels(context: Context, relation_label: str, role_label: str):
+    return [r.get_scoped_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_supertypes()]
+
+
+@step("relation({relation_label}) get role({role_label}) get supertypes contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    super_labels = parse_list(context.table)
+    actuals = get_actual_related_role_supertypes_scoped_labels(context, relation_label, role_label)
+    for super_label in super_labels:
+        assert_that(super_label, is_in(actuals))
+
+
+@step("relation({relation_label}) get role({role_label}) get supertypes do not contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    super_labels = parse_list(context.table)
+    actuals = get_actual_related_role_supertypes_scoped_labels(context, relation_label, role_label)
+    for super_label in super_labels:
+        assert_that(super_label, not_(is_in(actuals)))
+
+
+def get_actual_related_role_players_scoped_labels(context: Context, relation_label: str, role_label: str):
+    return [r.get_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_players()]
+
+
+@step("relation({relation_label}) get role({role_label}) get players contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    player_labels = parse_list(context.table)
+    actuals = get_actual_related_role_players_scoped_labels(context, relation_label, role_label)
+    for player_label in player_labels:
+        assert_that(player_label, is_in(actuals))
+
+
+@step("relation({relation_label}) get role({role_label}) get players do not contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    player_labels = parse_list(context.table)
+    actuals = get_actual_related_role_players_scoped_labels(context, relation_label, role_label)
+    for player_label in player_labels:
+        assert_that(player_label, is_in(actuals))
+
+
+def get_actual_related_role_subtypes_scoped_labels(context: Context, relation_label: str, role_label: str):
+    return [r.get_scoped_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_subtypes()]
+
+
+@step("relation({relation_label}) get role({role_label}) get subtypes contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    sub_labels = parse_list(context.table)
+    actuals = get_actual_related_role_subtypes_scoped_labels(context, relation_label, role_label)
+    for sub_label in sub_labels:
+        assert_that(sub_label, is_in(actuals))
+
+
+@step("relation({relation_label}) get role({role_label}) get subtypes do not contain")
+def step_impl(context: Context, relation_label: str, role_label: str):
+    sub_labels = parse_list(context.table)
+    actuals = get_actual_related_role_subtypes_scoped_labels(context, relation_label, role_label)
+    for sub_label in sub_labels:
+        assert_that(sub_label, not_(is_in(actuals)))
