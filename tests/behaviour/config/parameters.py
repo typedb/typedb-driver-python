@@ -16,13 +16,51 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
+from enum import Enum
 from typing import List
 
+import parse
+from behave import register_type
 from behave.model import Table
 
 from grakn.concept.type.value_type import ValueType
 from grakn.rpc.transaction import TransactionType
+
+
+def parse_int(text: str):
+    return int(text)
+
+
+register_type(Int=parse_int)
+
+
+class RootLabel(Enum):
+    ENTITY = 0,
+    ATTRIBUTE = 1,
+    RELATION = 2
+
+
+@parse.with_pattern(r"entity|attribute|relation")
+def parse_root_label(text: str):
+    if text == "entity":
+        return RootLabel.ENTITY
+    elif text == "attribute":
+        return RootLabel.ATTRIBUTE
+    elif text == "relation":
+        return RootLabel.RELATION
+    else:
+        raise ValueError("Unrecognised root label: " + text)
+
+
+register_type(RootLabel=parse_root_label)
+
+
+@parse.with_pattern(r"\$([a-zA-Z0-9]+)")
+def parse_var(text: str):
+    return text
+
+
+register_type(Var=parse_var)
 
 
 def parse_bool(value: str) -> bool:

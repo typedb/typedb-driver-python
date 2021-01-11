@@ -20,6 +20,8 @@ from behave import *
 from behave.model_core import Status
 
 from grakn.client import GraknClient
+from grakn.concept.thing.thing import Thing
+from tests.behaviour.config.parameters import RootLabel
 from tests.behaviour.context import Context
 
 
@@ -43,6 +45,24 @@ def before_scenario(context: Context, scenario):
     context.sessions_parallel_to_transactions_parallel = {}
     context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
     context.things = {}
+    context.get = lambda var: context.things[var]
+    context.put = lambda var, thing: _put_impl(context, var, thing)
+    context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
+
+
+def _put_impl(context: Context, variable: str, thing: Thing):
+    context.things[variable] = thing
+
+
+def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: str):
+    if root_label == RootLabel.ENTITY:
+        return context.tx().concepts().get_entity_type(type_label)
+    elif root_label == RootLabel.ATTRIBUTE:
+        return context.tx().concepts().get_attribute_type(type_label)
+    elif root_label == RootLabel.RELATION:
+        return context.tx().concepts().get_relation_type(type_label)
+    else:
+        raise ValueError("Unrecognised value")
 
 
 def after_scenario(context: Context, scenario):
