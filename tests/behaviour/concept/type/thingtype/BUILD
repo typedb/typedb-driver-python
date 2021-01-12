@@ -33,6 +33,10 @@ py_behave_test(
     background = ["//tests/behaviour:background"],
     steps = [
         ":steps",
+        "//tests/behaviour/concept/thing:steps",
+        "//tests/behaviour/concept/thing/entity:steps",
+        "//tests/behaviour/concept/thing/attribute:steps",
+        "//tests/behaviour/concept/thing/relation:steps",
         "//tests/behaviour/concept/type/attributetype:steps",
         "//tests/behaviour/concept/type/relationtype:steps",
         "//tests/behaviour/connection:steps",

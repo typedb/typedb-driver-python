@@ -22,13 +22,16 @@ from typing import List, Union
 import behave.runner
 
 from grakn.client import GraknClient
-from grakn.concept.thing.attribute import Attribute
+from grakn.concept.thing.attribute import Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
+    DateTimeAttribute
 from grakn.concept.thing.entity import Entity
 from grakn.concept.thing.relation import Relation
 from grakn.concept.thing.thing import Thing
 from grakn.rpc.session import Session
 from grakn.rpc.transaction import Transaction
 
+
+ThingSubtype: Thing = Union[Entity, Relation, BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]
 
 class Context(behave.runner.Context):
     """
@@ -43,13 +46,13 @@ class Context(behave.runner.Context):
         self.sessions_to_transactions: dict[Session, List[Transaction]] = {}
         self.sessions_parallel: List[Future[Session]] = []
         self.sessions_parallel_to_transactions_parallel: dict[Future[Session], List[Transaction]] = {}
-        self.things: dict[str, Union[Entity, Attribute, Relation]] = {}
+        self.things: dict[str, ThingSubtype] = {}
 
     def tx(self) -> Transaction:
         return self.sessions_to_transactions[self.sessions[0]][0]
 
-    def put(self, var: str, thing: Union[Entity, Attribute, Relation]) -> None:
+    def put(self, var: str, thing: ThingSubtype) -> None:
         pass
 
-    def get(self, var: str) -> Union[Entity, Attribute, Relation]:
+    def get(self, var: str) -> ThingSubtype:
         pass

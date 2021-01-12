@@ -26,7 +26,12 @@ py_behave_test(
     feats = ["@graknlabs_behaviour//concept/type:entitytype.feature"],
     background = ["//tests/behaviour:background"],
     steps = [
+        "//tests/behaviour/concept/thing:steps",
+        "//tests/behaviour/concept/thing/entity:steps",
+        "//tests/behaviour/concept/thing/attribute:steps",
+        "//tests/behaviour/concept/thing/relation:steps",
         "//tests/behaviour/concept/type/attributetype:steps",
+        "//tests/behaviour/concept/type/relationtype:steps",
         "//tests/behaviour/concept/type/thingtype:steps",
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",

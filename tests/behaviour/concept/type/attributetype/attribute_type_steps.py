@@ -118,7 +118,7 @@ def step_impl(context: Context, type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
     for owner_label in owner_labels:
-        assert_that(owner_label, is_in(actuals))
+        assert_that(actuals, has_item(owner_label))
 
 
 @step("attribute({type_label}) get key owners do not contain")
@@ -127,7 +127,7 @@ def step_impl(context: Context, type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
     for owner_label in owner_labels:
-        assert_that(owner_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(owner_label)))
 
 
 @step("attribute({type_label}) get attribute owners contain")
@@ -136,7 +136,7 @@ def step_impl(context: Context, type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
     for owner_label in owner_labels:
-        assert_that(owner_label, is_in(actuals))
+        assert_that(actuals, has_item(owner_label))
 
 
 @step("attribute({type_label}) get attribute owners do not contain")
@@ -145,4 +145,4 @@ def step_impl(context: Context, type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
     for owner_label in owner_labels:
-        assert_that(owner_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(owner_label)))

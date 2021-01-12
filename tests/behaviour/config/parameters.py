@@ -16,8 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 import parse
 from behave import register_type
@@ -26,12 +27,36 @@ from behave.model import Table
 from grakn.concept.type.value_type import ValueType
 from grakn.rpc.transaction import TransactionType
 
+# TODO: We aren't consistently using typed parameters in step implementations - we should be.
 
-def parse_int(text: str):
+@parse.with_pattern(r"true|false")
+def parse_bool(value: str) -> bool:
+    return value == "true"
+
+
+register_type(Bool=parse_bool)
+
+
+def parse_int(text: str) -> int:
     return int(text)
 
 
 register_type(Int=parse_int)
+
+
+def parse_float(text: str) -> float:
+    return float(text)
+
+
+register_type(Float=parse_float)
+
+
+@parse.with_pattern(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d")
+def parse_datetime(text: str) -> datetime:
+    return datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+
+
+register_type(DateTime=parse_datetime)
 
 
 class RootLabel(Enum):
@@ -41,7 +66,7 @@ class RootLabel(Enum):
 
 
 @parse.with_pattern(r"entity|attribute|relation")
-def parse_root_label(text: str):
+def parse_root_label(text: str) -> RootLabel:
     if text == "entity":
         return RootLabel.ENTITY
     elif text == "attribute":
@@ -63,18 +88,7 @@ def parse_var(text: str):
 register_type(Var=parse_var)
 
 
-def parse_bool(value: str) -> bool:
-    return value == "true"
-
-
-def parse_list(table: Table) -> List[str]:
-    return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
-
-
-def parse_transaction_type(value: str) -> TransactionType:
-    return TransactionType.READ if value == "read" else TransactionType.WRITE
-
-
+@parse.with_pattern(r"long|double|string|boolean|datetime")
 def parse_value_type(value: str) -> ValueType:
     mapping = {
         "long": ValueType.LONG,
@@ -84,3 +98,27 @@ def parse_value_type(value: str) -> ValueType:
         "datetime": ValueType.DATETIME
     }
     return mapping[value]
+
+
+register_type(ValueType=parse_value_type)
+
+
+@parse.with_pattern("read|write")
+def parse_transaction_type(value: str) -> TransactionType:
+    return TransactionType.READ if value == "read" else TransactionType.WRITE
+
+
+register_type(TransactionType=parse_transaction_type)
+
+
+def parse_list(table: Table) -> List[str]:
+    return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
+
+
+def parse_dict(table: Table) -> Dict[str, str]:
+    print(table.headings)
+    print(table.rows)
+    result = {table.headings[0]: table.headings[1]}
+    for row in table.rows:
+        result[row[0]] = row[1]
+    return result

@@ -34,6 +34,7 @@ py_behave_test(
     steps = [
         ":steps",
         "//tests/behaviour/concept/thing:steps",
+        "//tests/behaviour/concept/thing/attribute:steps",
         "//tests/behaviour/concept/type/attributetype:steps",
         "//tests/behaviour/concept/type/thingtype:steps",
         "//tests/behaviour/connection:steps",

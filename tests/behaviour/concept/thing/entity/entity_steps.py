@@ -26,11 +26,7 @@ from tests.behaviour.context import Context
 
 @step("entity({type_label}) create new instance; throws exception")
 def step_impl(context: Context, type_label: str):
-    try:
-        context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).create()
-        assert False
-    except GraknClientException:
-        pass
+    assert_that(calling(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).create), raises(GraknClientException))
 
 
 @step("{var:Var} = entity({type_label}) create new instance")
@@ -48,16 +44,16 @@ def step_impl(context: Context, var: str, type_label: str, key_type: str, key_va
 
 @step("{var:Var} = entity({type_label}) get instance with key({key_type}): {key_value}")
 def step_impl(context: Context, var: str, type_label: str, key_type: str, key_value: str):
-    context.put(var, next(iter([owner for owner in context.tx().concepts().get_attribute_type(key_type).as_string()
-                           .as_remote(context.tx()).get(key_value).as_remote(context.tx()).get_owners()
-                            if owner.as_remote(context.tx()).get_type() == context.tx().concepts().get_entity_type(type_label)]), None))
+    context.put(var, next((owner for owner in context.tx().concepts().get_attribute_type(key_type).as_string()
+                          .as_remote(context.tx()).get(key_value).as_remote(context.tx()).get_owners()
+                           if owner.as_remote(context.tx()).get_type() == context.tx().concepts().get_entity_type(type_label)), None))
 
 
 @step("entity({type_label}) get instances contain: {var:Var}")
 def step_impl(context: Context, type_label: str, var: str):
-    assert_that(context.get(var), is_in(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).get_instances()))
+    assert_that(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).get_instances(), has_item(context.get(var)))
 
 
 @step("entity({type_label}) get instances is empty")
 def step_impl(context: Context, type_label: str):
-    assert_that(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).get_instances(), has_length(0))
+    assert_that(calling(next).with_args(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).get_instances()), raises(StopIteration))
