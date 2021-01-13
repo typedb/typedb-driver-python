@@ -1,7 +1,7 @@
 PyPI package: https://pypi.org/project/grakn-client
 Documentation: https://dev.docs.grakn.ai/docs/client-api/python
 
-### Distribution
+## Distribution
 
 Available through https://pypi.org
 ```
