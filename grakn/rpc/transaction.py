@@ -135,7 +135,6 @@ class Transaction(object):
             try:
                 response = next(self._response_iterator)
             except grpc.RpcError as e:
-                print("Raising RpcError as GraknClientException")
                 self._transaction_was_closed = True
                 grakn_exception = GraknClientException(e.details())
                 for response_queue in self._response_queues.values():
@@ -143,12 +142,7 @@ class Transaction(object):
                 # noinspection PyUnresolvedReferences
                 raise grakn_exception
             except StopIteration:
-                print("Raising transaction closed as GraknClientException")
                 raise GraknClientException("The transaction has been closed and no further operation is allowed.")
-            except Exception as e:
-                print("Raising Exception")
-                print(e)
-                raise e
 
             if isinstance(response, GraknClientException):
                 raise response

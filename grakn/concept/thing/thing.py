@@ -41,9 +41,6 @@ class Thing(Concept):
     def is_thing(self):
         return True
 
-    def as_remote(self, transaction):
-        pass
-
     def __str__(self):
         return type(self).__name__ + "[iid:" + self.get_iid() + "]"
 
