@@ -25,13 +25,16 @@ from tests.behaviour.config.parameters import RootLabel
 from tests.behaviour.context import Context
 
 
+IGNORE_TAGS = ["ignore", "ignore-client-python"]
+
+
 def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
     context.client = GraknClient()
 
 
 def before_scenario(context: Context, scenario):
-    for tag in ["ignore", "ignore-client-python"]:
+    for tag in IGNORE_TAGS:
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
             return
