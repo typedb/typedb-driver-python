@@ -22,11 +22,10 @@ from hamcrest import *
 
 from grakn.common.exception import GraknClientException
 
-
-# TODO
 from tests.behaviour.context import Context
 
 
+# TODO
 @step("the integrity is validated")
 def step_impl(context: Context):
     pass
