@@ -27,19 +27,24 @@ py_library(
     deps = [],
 )
 
-#py_behave_test(
-#    name = "test",
-#    feats = ["transaction.feature"],
-#    background = ["//tests/behaviour:background"],
-#    steps = [
-#        ":steps",
-#        "//tests/behaviour/connection:steps",
-#    ],
-#    deps = [
-#        "//:client_python",
-#    ],
-#    size = "small",
-#)
+py_behave_test(
+    name = "test",
+    feats = ["@graknlabs_behaviour//connection:database.feature"],
+    background = ["//tests/behaviour:background"],
+    steps = [
+        ":steps",
+        "//tests/behaviour/connection:steps",
+        "//tests/behaviour/connection/session:steps",
+        "//tests/behaviour/connection/transaction:steps",
+    ],
+    deps = [
+        "//:client_python",
+        "//tests/behaviour/config:parameters",
+        "//tests/behaviour:context",
+        "//tests/behaviour:util",
+    ],
+    size = "small",
+)
 
 checkstyle_test(
     name = "checkstyle",

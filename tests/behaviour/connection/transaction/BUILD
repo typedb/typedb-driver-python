@@ -36,10 +36,13 @@ py_behave_test(
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",
         "//tests/behaviour/connection/session:steps",
+        "//tests/behaviour/graql:steps",
     ],
     deps = [
         "//:client_python",
         "//tests/behaviour/config:parameters",
+        "//tests/behaviour:context",
+        "//tests/behaviour:util",
     ],
     size = "small",
 )

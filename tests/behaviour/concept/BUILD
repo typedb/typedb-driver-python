@@ -17,35 +17,7 @@
 # under the License.
 #
 
-package(default_visibility = ["//tests/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "py_behave_test")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
-
-py_library(
-    name = "steps",
-    srcs = ["session_steps.py"],
-    deps = [],
-)
-
-py_behave_test(
-    name = "test",
-    feats = ["@graknlabs_behaviour//connection:session.feature"],
-    background = ["//tests/behaviour:background"],
-    steps = [
-        ":steps",
-        "//tests/behaviour/connection:steps",
-        "//tests/behaviour/connection/database:steps",
-        "//tests/behaviour/connection/transaction:steps",
-        "//tests/behaviour/graql:steps",
-    ],
-    deps = [
-        "//:client_python",
-        "//tests/behaviour/config:parameters",
-        "//tests/behaviour:context",
-        "//tests/behaviour:util",
-    ],
-    size = "small",
-)
 
 checkstyle_test(
     name = "checkstyle",

@@ -19,7 +19,9 @@
 
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.database_pb2 as database_proto
-from grpc import Channel
+from grpc import Channel, RpcError
+
+from grakn.common.exception import GraknClientException
 
 
 class DatabaseManager(object):
@@ -30,17 +32,29 @@ class DatabaseManager(object):
     def contains(self, name: str):
         request = database_proto.Database.Contains.Req()
         request.name = name
-        return self._grpc_stub.database_contains(request).contains
+        try:
+            return self._grpc_stub.database_contains(request).contains
+        except RpcError as e:
+            raise GraknClientException(e)
 
     def create(self, name: str):
         request = database_proto.Database.Create.Req()
         request.name = name
-        self._grpc_stub.database_create(request)
+        try:
+            self._grpc_stub.database_create(request)
+        except RpcError as e:
+            raise GraknClientException(e)
 
     def delete(self, name: str):
         request = database_proto.Database.Delete.Req()
         request.name = name
-        self._grpc_stub.database_delete(request)
+        try:
+            self._grpc_stub.database_delete(request)
+        except RpcError as e:
+            raise GraknClientException(e)
 
     def all(self):
-        return list(self._grpc_stub.database_all(database_proto.Database.All.Req()).names)
+        try:
+            return list(self._grpc_stub.database_all(database_proto.Database.All.Req()).names)
+        except RpcError as e:
+            raise GraknClientException(e)

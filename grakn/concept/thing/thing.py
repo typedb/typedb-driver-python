@@ -99,7 +99,7 @@ class RemoteThing(RemoteConcept):
         req.thing_get_plays_req.CopyFrom(concept_proto.Thing.GetPlays.Req())
         return self._type_stream(req, lambda res: res.thing_get_plays_res.role_types)
 
-    def get_relations(self, role_types=None):
+    def get_relations(self, role_types: list = None):
         if not role_types:
             role_types = []
         method = concept_proto.Thing.Req()
@@ -124,7 +124,7 @@ class RemoteThing(RemoteConcept):
 
     def delete(self):
         method = concept_proto.Thing.Req()
-        method.thing_delete_req.CopyFrom(method.concept_proto.Thing.Delete.Req())
+        method.thing_delete_req.CopyFrom(concept_proto.Thing.Delete.Req())
         self._execute(method)
 
     def is_deleted(self):

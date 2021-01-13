@@ -17,16 +17,28 @@
 # under the License.
 #
 from behave import *
+from behave.model_core import Status
 
 from grakn.client import GraknClient
+from grakn.concept.thing.thing import Thing
+from tests.behaviour.config.parameters import RootLabel
+from tests.behaviour.context import Context
 
 
-def before_all(context):
+IGNORE_TAGS = ["ignore", "ignore-client-python"]
+
+
+def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
     context.client = GraknClient()
 
 
-def before_scenario(context, scenario):
+def before_scenario(context: Context, scenario):
+    for tag in IGNORE_TAGS:
+        if tag in scenario.effective_tags:
+            scenario.skip("tagged with @" + tag)
+            return
+
     for database in context.client.databases().all():
         context.client.databases().delete(database)
     context.sessions = []
@@ -35,14 +47,38 @@ def before_scenario(context, scenario):
     context.sessions_to_transactions_parallel = {}
     context.sessions_parallel_to_transactions_parallel = {}
     context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
+    context.things = {}
+    context.get = lambda var: context.things[var]
+    context.put = lambda var, thing: _put_impl(context, var, thing)
+    context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
 
 
-def after_scenario(context, scenario):
+def _put_impl(context: Context, variable: str, thing: Thing):
+    context.things[variable] = thing
+
+
+def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: str):
+    if root_label == RootLabel.ENTITY:
+        return context.tx().concepts().get_entity_type(type_label)
+    elif root_label == RootLabel.ATTRIBUTE:
+        return context.tx().concepts().get_attribute_type(type_label)
+    elif root_label == RootLabel.RELATION:
+        return context.tx().concepts().get_relation_type(type_label)
+    else:
+        raise ValueError("Unrecognised value")
+
+
+def after_scenario(context: Context, scenario):
+    if scenario.status == Status.skipped:
+        return
+
     for session in context.sessions:
         session.close()
+    for future_session in context.sessions_parallel:
+        future_session.result().close()
     for database in context.client.databases().all():
         context.client.databases().delete(database)
 
 
-def after_all(context):
+def after_all(context: Context):
     context.client.close()

@@ -24,7 +24,10 @@ from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.session_pb2 as session_proto
 import enum
 
+from grpc import RpcError
+
 from grakn import grakn_proto_builder
+from grakn.common.exception import GraknClientException
 from grakn.options import GraknOptions
 from grakn.rpc.transaction import Transaction, TransactionType
 
@@ -71,7 +74,10 @@ class Session(object):
             self._scheduler.empty()
             req = session_proto.Session.Close.Req()
             req.session_id = self._session_id
-            self._grpc_stub.session_close(req)
+            try:
+                self._grpc_stub.session_close(req)
+            except RpcError as e:
+                raise GraknClientException(e)
 
     def database(self): return self._database
 
