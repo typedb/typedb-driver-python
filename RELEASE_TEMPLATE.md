@@ -4,6 +4,7 @@ Documentation: https://dev.docs.grakn.ai/docs/client-api/python
 ## Distribution
 
 Available through https://pypi.org
+
 ```
 pip install grakn-client=={version}
 ```
