@@ -17,13 +17,15 @@
 # under the License.
 #
 import re
-from typing import Dict, List, Tuple
+from collections import defaultdict
+from typing import Dict, List, Tuple, Union, Optional
 
 from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.answer.concept_map import ConceptMap
+from grakn.concept.answer.numeric import Numeric
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table
 from tests.behaviour.context import Context, ConceptSubtype, AttributeSubtype
 
@@ -244,6 +246,109 @@ def step_impl(context: Context):
     for (answer_identifier, answers) in result_set:
         assert_that(answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers "
                                             "matched the identifier [%s]." % (len(answers), answer_identifier))
+
+
+@step("order of answer concepts is")
+def step_impl(context: Context):
+    answer_identifiers = parse_table(context.table)
+    assert_that(context.answers, has_length(len(answer_identifiers)),
+                "The number of answers [%d] should match the number of answer identifiers [%d]." % (len(context.answers), len(answer_identifiers)))
+    for i in range(len(context.answers)):
+        answer = context.answers[i]
+        answer_identifier = answer_identifiers[i]
+        assert_that(answer_concepts_match(context, answer_identifier, answer),
+                    reason="The answer at index [%d] does not match the identifier [%s]." % (i, answer_identifier))
+
+
+def get_numeric_value(numeric: Numeric):
+    if numeric.is_int():
+        return numeric.as_int()
+    elif numeric.is_float():
+        return numeric.as_float()
+    else:
+        return None
+
+
+def assert_numeric_value(numeric: Numeric, expected_answer: Union[int, float], reason: Optional[str] = None):
+    if numeric.is_int():
+        assert_that(numeric.as_int(), is_(expected_answer), reason)
+    elif numeric.is_float():
+        assert_that(numeric.as_float(), is_(close_to(expected_answer, delta=0.001)), reason)
+    else:
+        assert False
+
+
+@step("aggregate value is: {expected_answer:Float}")
+def step_impl(context: Context, expected_answer: float):
+    assert_that(context.numeric_answer is not None, reason="The last query executed was not an aggregate query.")
+    assert_numeric_value(context.numeric_answer, expected_answer)
+
+
+@step("aggregate answer is not a number")
+def step_impl(context: Context):
+    assert_that(context.numeric_answer.is_nan())
+
+
+class AnswerIdentifierGroup(object):
+
+    GROUP_COLUMN_NAME = "owner"
+
+    def __init__(self, raw_answer_identifiers: List[List[Tuple[str, str]]]):
+        self.owner_identifier = next(entry[1] for entry in raw_answer_identifiers[0] if entry[0] == self.GROUP_COLUMN_NAME)
+        self.answer_identifiers = [[(var, concept_identifier) for (var, concept_identifier) in raw_answer_identifier if var != self.GROUP_COLUMN_NAME]
+                                   for raw_answer_identifier in raw_answer_identifiers]
+
+
+@step("answer groups are")
+def step_impl(context: Context):
+    raw_answer_identifiers = parse_table(context.table)
+    grouped_answer_identifiers = defaultdict(list)
+    for raw_answer_identifier in raw_answer_identifiers:
+        owner = next(entry[1] for entry in raw_answer_identifier if entry[0] == AnswerIdentifierGroup.GROUP_COLUMN_NAME)
+        grouped_answer_identifiers[owner].append(raw_answer_identifier)
+    answer_identifier_groups = [AnswerIdentifierGroup(raw_identifiers) for raw_identifiers in grouped_answer_identifiers.values()]
+
+    assert_that(context.answer_groups, has_length(len(answer_identifier_groups)),
+                "Expected [%d] answer groups, but found [%d]." % (len(answer_identifier_groups), len(context.answer_groups)))
+
+    for answer_identifier_group in answer_identifier_groups:
+        identifier = parse_concept_identifier(answer_identifier_group.owner_identifier)
+        answer_group = next((group for group in context.answer_groups if identifier.matches(context, group.owner())), None)
+        assert_that(answer_group is not None,
+                    reason="The group identifier [%s] does not match any of the answer group owners." % answer_identifier_group.owner_identifier)
+
+        result_set = [(ai, []) for ai in answer_identifier_group.answer_identifiers]
+        for answer in answer_group.concept_maps():
+            for (answer_identifier, matched_answers) in result_set:
+                if answer_concepts_match(context, answer_identifier, answer):
+                    matched_answers.append(answer)
+
+        for (answer_identifier, answers) in result_set:
+            assert_that(answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers "
+                                                "matched the identifier [%s]." % (len(answers), answer_identifier))
+
+
+@step("group aggregate values are")
+def step_impl(context: Context):
+    raw_answer_identifiers = parse_table(context.table)
+    expectations = {}
+    for raw_answer_identifier in raw_answer_identifiers:
+        owner = next(entry[1] for entry in raw_answer_identifier if entry[0] == AnswerIdentifierGroup.GROUP_COLUMN_NAME)
+        expected_answer = parse_float(next(entry[1] for entry in raw_answer_identifier if entry[0] == "value"))
+        expectations[owner] = expected_answer
+
+    assert_that(context.numeric_answer_groups, has_length(len(expectations)),
+                reason="Expected [%d] answer groups, but found [%d]." % (len(expectations), len(context.numeric_answer_groups)))
+
+    for (owner_identifier, expected_answer) in expectations.items():
+        identifier = parse_concept_identifier(owner_identifier)
+        numeric_group = next((group for group in context.numeric_answer_groups if identifier.matches(context, group.owner())), None)
+        assert_that(numeric_group is not None,
+                    reason="The group identifier [%s] does not match any of the answer group owners." % owner_identifier)
+
+        actual_answer = get_numeric_value(numeric_group.numeric())
+        assert_numeric_value(numeric_group.numeric(), expected_answer,
+                             reason="Expected answer [%f] for group [%s], but got [%f]" % (expected_answer, owner_identifier, actual_answer))
 
 
 def variable_from_template_placeholder(placeholder: str):
