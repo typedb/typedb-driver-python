@@ -96,7 +96,7 @@ def value_type(value_type_: ValueType):
 
 
 def iid(iid_: str):
-    return bytes.fromhex(iid_)
+    return bytes.fromhex(iid_[2:])
 
 
 def thing_encoding(thing_):

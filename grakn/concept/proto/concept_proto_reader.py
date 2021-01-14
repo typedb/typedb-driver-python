@@ -33,6 +33,10 @@ from grakn.concept.type.role_type import RoleType
 from grakn.concept.type.thing_type import ThingType
 
 
+def iid(iid_proto: bytes):
+    return "0x" + iid_proto.hex()
+
+
 def concept(con_proto: concept_proto.Concept):
     if con_proto.HasField(ConceptMap._THING):
         concept = thing(con_proto.thing)
