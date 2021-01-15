@@ -26,9 +26,13 @@ from grakn.common.exception import GraknClientException
 from grakn.concept.type.value_type import ValueType
 
 
+def iid(iid_: str):
+    return bytes.fromhex(iid_.lstrip("0x"))
+
+
 def thing(thing_):
     proto_thing = concept_proto.Thing()
-    proto_thing.iid = bytes.fromhex(thing_.get_iid())
+    proto_thing.iid = iid(thing_.get_iid())
     proto_thing.encoding = thing_encoding(thing_)
     return proto_thing
 
@@ -93,10 +97,6 @@ def value_type(value_type_: ValueType):
         return concept_proto.AttributeType.ValueType.Value("OBJECT")
     else:
         raise GraknClientException("Unrecognised value type: " + str(value_type_))
-
-
-def iid(iid_: str):
-    return bytes.fromhex(iid_.lstrip("0x"))
 
 
 def thing_encoding(thing_):
