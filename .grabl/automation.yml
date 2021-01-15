@@ -61,7 +61,7 @@ build:
         bazel test //tests/behaviour/graql/language/define/... --test_output=streamed
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
-      dependencies: [build, test-behaviour]
+#      dependencies: [build, test-behaviour]
 #      filter:
 #        owner: graknlabs
 #        branch: master
