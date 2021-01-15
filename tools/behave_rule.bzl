@@ -26,11 +26,11 @@
 # * http://pythonhosted.org/behave/gherkin.html
 # =============================================================================
 
-# TODO: this should probably live in graknlabs_dependencies
-"""
-Implementation of the rule py_behave_test.
-"""
+# TODO: We should split this rule up into grakn_py_behave_test and py_behave_test.
 def _rule_implementation(ctx):
+    """
+    Implementation of the rule py_behave_test.
+    """
 
     # Store the path of the first feature file. It is recommended to only have one feature file.
     feats_dir = ctx.files.feats[0].dirname
@@ -38,11 +38,51 @@ def _rule_implementation(ctx):
     # behave requires a 'steps' folder to exist in the test root directory.
     steps_out_dir = ctx.files.feats[0].dirname + "/steps"
 
+    core_distro = str(ctx.files.native_grakn_artifact[0].path)
+
+    cmd = "set -e"
+    cmd += " && echo %s" % core_distro
+    cmd += " && CORE_DISTRO=%s" % core_distro
+    cmd += """
+
+           if test -f grakn_core_distribution; then
+             echo Existing distribution detected. Cleaning.
+             rm -rf grakn_core_distribution
+           fi
+           mkdir grakn_core_distribution
+           echo Attempting to unarchive Grakn Core distribution from $CORE_DISTRO
+           pwd
+           ls
+           ls tests
+           if [[ ${CORE_DISTRO: -7} == ".tar.gz" ]]; then
+             tar -xf $CORE_DISTRO -C ./grakn_core_distribution
+           else
+             if [[ ${CORE_DISTRO: -4} == ".zip" ]]; then
+               unzip -q $CORE_DISTRO -d ./grakn_core_distribution
+             else
+               echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
+               exit 1
+             fi
+           fi
+           DIRECTORY=$(ls ./grakn_core_distribution)
+           echo Successfully unarchived Grakn Core distribution.
+           echo Starting Grakn Core Server
+           mkdir ./grakn_core_distribution/"$DIRECTORY"/grakn_core_test
+           ./grakn_core_distribution/"$DIRECTORY"/grakn server --data grakn_core_test &
+           sleep 10
+
+           """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
-    cmd = "cp %s %s" % (ctx.files.background[0].path, feats_dir)
+    cmd += "cp %s %s" % (ctx.files.background[0].path, feats_dir)
     cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
-    cmd += " && behave %s" % feats_dir
+    cmd += " && behave %s && export RESULT=0 || export RESULT=1" % feats_dir
+    cmd += """
+           echo Tests concluded with exit value $RESULT
+           echo Stopping server.
+           kill $(jps | awk '/GraknServer/ {print $1}')
+           exit $RESULT
+           """
 
     # We want a test target so make it create an executable output.
     # https://bazel.build/versions/master/docs/skylark/rules.html#test-rules
@@ -85,6 +125,7 @@ py_behave_test = rule(
         "steps": attr.label_list(mandatory=True,allow_empty=False),
         "background": attr.label_list(mandatory=True,allow_empty=False),
         "deps": attr.label_list(mandatory=True,allow_empty=False),
+        "native_grakn_artifact": attr.label(mandatory=True)
     },
     test=True,
 )
