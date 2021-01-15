@@ -23,7 +23,7 @@ import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 from grakn.logic.rule import Rule
 
 
-class LogicManager(object):
+class LogicManager:
 
     def __init__(self, transaction):
         self._transaction = transaction

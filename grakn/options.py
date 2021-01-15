@@ -18,7 +18,7 @@
 #
 
 
-class GraknOptions(object):
+class GraknOptions:
 
     def __init__(self):
         self.infer = None

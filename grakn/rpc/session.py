@@ -37,7 +37,7 @@ class SessionType(enum.Enum):
     SCHEMA = 1
 
 
-class Session(object):
+class Session:
 
     _PULSE_FREQUENCY_SECONDS = 5
 

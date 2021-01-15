@@ -29,7 +29,7 @@ from grakn.concept.type.attribute_type import ValueType  # noqa # pylint: disabl
 from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
 
 
-class GraknClient(object):
+class GraknClient:
     DEFAULT_URI = "localhost:1729"
 
     def __init__(self, address=DEFAULT_URI):

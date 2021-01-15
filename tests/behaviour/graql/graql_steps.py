@@ -136,7 +136,7 @@ def step_impl(context: Context, expected_size: int):
     assert_that(context.answers, has_length(expected_size), "Expected [%d] answers, but got [%d]" % (expected_size, len(context.answers)))
 
 
-class ConceptMatcher(object):
+class ConceptMatcher:
 
     def matches(self, context: Context, concept: ConceptSubtype):
         return False
@@ -161,8 +161,7 @@ class AttributeMatcher(ConceptMatcher):
     def __init__(self, type_and_value: str):
         s = type_and_value.split(":")
         assert_that(s, has_length(2), "[%s] is not a valid attribute identifier. It should have format \"type_label:value\"." % type_and_value)
-        self.type_label = s[0]
-        self.value = s[1]
+        self.type_label, self.value = s
 
     def check(self, attribute: AttributeSubtype):
         if attribute.is_boolean():
@@ -209,9 +208,7 @@ class ThingKeyMatcher(AttributeMatcher):
 
 
 def parse_concept_identifier(value: str):
-    concept_identifier_parts: List[str] = value.split(":", 1)
-    identifier_type = concept_identifier_parts[0]
-    identifier_body = concept_identifier_parts[1]
+    identifier_type, identifier_body = value.split(":", 1)
     if identifier_type == "label":
         return TypeLabelMatcher(label=identifier_body)
     elif identifier_type == "key":
@@ -223,7 +220,7 @@ def parse_concept_identifier(value: str):
 
 
 def answer_concepts_match(context: Context, answer_identifier: List[Tuple[str, str]], answer: ConceptMap) -> bool:
-    for (var, concept_identifier) in answer_identifier:
+    for var, concept_identifier in answer_identifier:
         matcher = parse_concept_identifier(concept_identifier)
         if not matcher.matches(context, answer.get(var)):
             return False
@@ -239,11 +236,11 @@ def step_impl(context: Context):
 
     result_set = [(ai, []) for ai in answer_identifiers]
     for answer in context.answers:
-        for (answer_identifier, matched_answers) in result_set:
+        for answer_identifier, matched_answers in result_set:
             if answer_concepts_match(context, answer_identifier, answer):
                 matched_answers.append(answer)
 
-    for (answer_identifier, answers) in result_set:
+    for answer_identifier, answers in result_set:
         assert_that(answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers "
                                             "matched the identifier [%s]." % (len(answers), answer_identifier))
 
@@ -289,7 +286,7 @@ def step_impl(context: Context):
     assert_that(context.numeric_answer.is_nan())
 
 
-class AnswerIdentifierGroup(object):
+class AnswerIdentifierGroup:
 
     GROUP_COLUMN_NAME = "owner"
 

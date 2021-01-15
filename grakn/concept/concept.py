@@ -18,7 +18,7 @@
 #
 
 
-class Concept(object):
+class Concept:
 
     def is_type(self):
         return False
@@ -54,7 +54,7 @@ class Concept(object):
         return False
 
 
-class RemoteConcept(object):
+class RemoteConcept:
 
     def is_remote(self):
         return True
