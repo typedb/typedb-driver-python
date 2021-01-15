@@ -59,6 +59,7 @@ build:
         ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME \
         ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD \
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        sudo pip3 install -r requirements_dev.txt
         bazel test //tests/behaviour/connection/... --test_output=streamed --jobs=1
         bazel test //tests/behaviour/concept/... --test_output=streamed
         bazel test //tests/behaviour/graql/language/match/... --test_output=streamed
