@@ -55,10 +55,11 @@ build:
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
         bazel test //tests/behaviour/connection/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/concept/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/match/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/get/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/define/... --test_output=errors
+        bazel test //tests/behaviour/concept/... --test_output=errors --jobs=1
+        bazel test //tests/behaviour/graql/language/match/... --test_output=errors --jobs=1
+        bazel test //tests/behaviour/graql/language/get/... --test_output=errors --jobs=1
+        bazel test //tests/behaviour/graql/language/define/... --test_output=errors --jobs=1
+      # TODO: remove --jobs=1 from Concept and Graql tests once Grakn runner is parallelisable
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
 #      dependencies: [build, test-behaviour]
