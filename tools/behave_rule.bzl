@@ -64,7 +64,7 @@ def _rule_implementation(ctx):
            echo Starting Grakn Core Server
            mkdir ./grakn_core_distribution/"$DIRECTORY"/grakn_core_test
            ./grakn_core_distribution/"$DIRECTORY"/grakn server --data grakn_core_test &
-           sleep 10
+           sleep 3
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
