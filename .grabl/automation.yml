@@ -90,7 +90,9 @@ build:
         bazel run //tests:grakn-extractor -- grakn-core-all-linux
         ./grakn-core-all-linux/grakn server &
         pip install --index-url https://repo.grakn.ai/repository/pypi-snapshot/simple grakn-client==$GRABL_COMMIT
-        cd test/deployment/ && python -m unittest test
+        cd test/deployment/ && python -m unittest test && export TEST_SUCCESS=0 || export TEST_SUCCESS=1
+        kill $(jps | awk '/GraknServer/ {print $1}')
+        exit $TEST_SUCCESS
 
 
 release:
