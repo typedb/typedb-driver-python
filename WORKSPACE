@@ -106,7 +106,7 @@ graknlabs_grakn_core_artifacts()
 
 pip3_import(
     name = "graknlabs_client_python_pip",
-    requirements = "//:requirements.txt",
+    requirements = "//:requirements_dev.txt",
 )
 load("@graknlabs_client_python_pip//:requirements.bzl",
 graknlabs_client_python_pip_install = "pip_install")
