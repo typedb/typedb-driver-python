@@ -53,7 +53,6 @@ build:
       type: foreground
       command: |
         pyenv global 3.6.10
-        pip install -r requirements_dev.txt
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
