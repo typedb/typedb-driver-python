@@ -18,6 +18,7 @@
 #
 
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
+load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 load("@graknlabs_common//test/server:rules.bzl", "native_grakn_artifact")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
@@ -30,58 +31,6 @@ native_grakn_artifact(
     visibility = ["//tests:__subpackages__"],
 )
 
-py_test(
-    name = "test_concept",
-    srcs = [
-        "integration/base.py",
-        "integration/test_concept.py"
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    data = [":native-grakn-artifact"],
-    args = ["$(location :native-grakn-artifact)"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_connection",
-    srcs = [
-        "integration/base.py",
-        "integration/test_connection.py"
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    data = [":native-grakn-artifact"],
-    args = ["$(location :native-grakn-artifact)"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_query",
-    srcs = [
-        "integration/base.py",
-        "integration/test_query.py"
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    size = "large",
-    data = [":native-grakn-artifact"],
-    args = ["$(location :native-grakn-artifact)"],
-    python_version = "PY3"
-)
-
-test_suite(
-    name = "test_integration",
-    tests = [
-        ":test_concept",
-        ":test_connection",
-        ":test_query",
-    ]
-)
-
 checkstyle_test(
     name = "checkstyle",
     include = glob([
@@ -90,4 +39,10 @@ checkstyle_test(
         "integration/*",
     ]),
     license_type = "apache",
+    size = "small",
+)
+
+artifact_extractor(
+    name = "grakn-extractor",
+    artifact = ":native-grakn-artifact",
 )

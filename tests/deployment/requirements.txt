@@ -17,4 +17,6 @@
 # under the License.
 #
 
-https://repo.grakn.ai/repository/pypi-snapshot-group/packages/grakn-client/CLIENT_PYTHON_VERSION_MARKER/grakn-client-CLIENT_PYTHON_VERSION_MARKER.tar.gz
+--extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
+
+grakn-client==CLIENT_PYTHON_VERSION_MARKER

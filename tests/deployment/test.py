@@ -6,9 +6,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-#
+# 
 #   http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,40 +17,70 @@
 # under the License.
 #
 
+import unittest
 from unittest import TestCase
-from grakn.client import GraknClient
+
+from grakn.client import GraknClient, SessionType, TransactionType
 
 
-class PythonApplicationTest(TestCase):
-    """ Very basic tests to ensure no error occur when performing simple operations with the test grakn-client distribution"""
+class TestClientPython(TestCase):
+    """
+    Very basic tests to ensure no error occur when performing simple operations with the grakn-client distribution
+    """
 
-    def test_define_schema(self):
-        client = GraknClient("localhost:48555")
-        session = client.session("define_schema")
-        with session.transaction().write() as tx:
-            tx.query("define person sub entity, has name; name sub attribute, value string;")
-            tx.commit()
-        session.close()
+    @classmethod
+    def setUpClass(cls):
+        super(TestClientPython, cls).setUpClass()
+        global client
+        client = GraknClient()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(TestClientPython, cls).tearDownClass()
+        global client
         client.close()
 
-    def test_match_query(self):
-        client = GraknClient("localhost:48555")
-        session = client.session("define_schema")
-        with session.transaction().read() as tx:
-            tx.query("match $s sub thing; get;")
+    def setUp(self):
+        if "grakn" not in client.databases().all():
+            client.databases().create("grakn")
+
+    def test_database(self):
+        dbs = client.databases().all()
+        if "grakn" in dbs:
+            client.databases().delete("grakn")
+        client.databases().create("grakn")
+        dbs = client.databases().all()
+        self.assertTrue("grakn" in dbs)
+
+    def test_session(self):
+        session = client.session("grakn", SessionType.SCHEMA)
         session.close()
-        client.close()
+
+    def test_transaction(self):
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
+                pass
+
+    def test_define_and_undef_relation_type(self):
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
+                tx.query().define("define lionfight sub relation, relates victor, relates loser;")
+                lionfight_type = tx.concepts().get_relation_type("lionfight")
+                print("define: " + lionfight_type._label)
+                tx.query().undefine("undefine lionfight sub relation;")
+                tx.commit()
+
+    def test_insert_some_entities(self):
+        with client.session("grakn", SessionType.SCHEMA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
+                tx.query().define("define lion sub entity;")
+                tx.commit()
+        with client.session("grakn", SessionType.DATA) as session:
+            with session.transaction(TransactionType.WRITE) as tx:
+                for answer in tx.query().insert("insert $a isa lion; $b isa lion; $c isa lion;"):
+                    print("insert: " + str(answer))
+                    tx.commit()
 
 
-    def test_insert_query(self):
-        client = GraknClient("localhost:48555")
-        session = client.session("define_schema")
-        with session.transaction().write() as tx:
-            tx.query("define person sub entity, has name; name sub attribute, value string;")
-            tx.commit()
-        with session.transaction().write() as tx:
-            tx.query("insert $x isa person, has name \"john\";")
-            tx.commit()
-        session.close()
-        client.close()
-
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
