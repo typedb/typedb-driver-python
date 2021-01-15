@@ -19,6 +19,7 @@
 
 import graknprotocol.protobuf.concept_pb2 as concept_proto
 
+from grakn.concept.proto import concept_proto_reader
 from grakn.concept.thing.thing import Thing, RemoteThing
 
 
@@ -26,7 +27,7 @@ class Entity(Thing):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return Entity(thing_proto.iid.hex())
+        return Entity(concept_proto_reader.iid(thing_proto.iid))
 
     def as_remote(self, transaction):
         return RemoteEntity(transaction, self._iid)

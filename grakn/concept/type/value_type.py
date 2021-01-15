@@ -19,12 +19,18 @@
 
 import enum
 
+from datetime import datetime
+from typing import Union
 
-# This lives here to avoid circular imports.
+
 class ValueType(enum.Enum):
+    # This lives here to avoid circular imports.
     OBJECT = 0
     BOOLEAN = 1
     LONG = 2
     DOUBLE = 3
     STRING = 4
     DATETIME = 5
+
+
+ValueClass = Union[bool, int, float, str, datetime]

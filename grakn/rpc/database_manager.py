@@ -24,7 +24,7 @@ from grpc import Channel, RpcError
 from grakn.common.exception import GraknClientException
 
 
-class DatabaseManager(object):
+class DatabaseManager:
 
     def __init__(self, channel: Channel):
         self._grpc_stub = GraknStub(channel)

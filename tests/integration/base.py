@@ -29,7 +29,7 @@ import tarfile
 
 
 # TODO: update to work with Grakn 2.0
-class GraknServer(object):
+class GraknServer:
     DISTRIBUTION_LOCATION = sys.argv.pop()
 
     def __init__(self):

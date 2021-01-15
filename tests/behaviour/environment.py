@@ -20,10 +20,8 @@ from behave import *
 from behave.model_core import Status
 
 from grakn.client import GraknClient
-from grakn.concept.thing.thing import Thing
 from tests.behaviour.config.parameters import RootLabel
-from tests.behaviour.context import Context
-
+from tests.behaviour.context import Context, ThingSubtype
 
 IGNORE_TAGS = ["ignore", "ignore-client-python"]
 
@@ -51,9 +49,10 @@ def before_scenario(context: Context, scenario):
     context.get = lambda var: context.things[var]
     context.put = lambda var, thing: _put_impl(context, var, thing)
     context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
+    context.clear_answers = lambda: _clear_answers_impl(context)
 
 
-def _put_impl(context: Context, variable: str, thing: Thing):
+def _put_impl(context: Context, variable: str, thing: ThingSubtype):
     context.things[variable] = thing
 
 
@@ -66,6 +65,13 @@ def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: st
         return context.tx().concepts().get_relation_type(type_label)
     else:
         raise ValueError("Unrecognised value")
+
+
+def _clear_answers_impl(context: Context):
+    context.answers = None
+    context.numeric_answer = None
+    context.answer_groups = None
+    context.numeric_answer_groups = None
 
 
 def after_scenario(context: Context, scenario):

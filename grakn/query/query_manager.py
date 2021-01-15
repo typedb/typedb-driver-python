@@ -27,7 +27,7 @@ from grakn.concept.answer import concept_map, concept_map_group, numeric, numeri
 from grakn.options import GraknOptions
 
 
-class QueryManager(object):
+class QueryManager:
 
     def __init__(self, transaction):
         self._transaction = transaction

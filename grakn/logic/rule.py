@@ -23,7 +23,7 @@ import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 from grakn.common.exception import GraknClientException
 
 
-class Rule(object):
+class Rule:
 
     def __init__(self, label: str, when: str, then: str):
         if not label:

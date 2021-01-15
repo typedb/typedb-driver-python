@@ -18,7 +18,7 @@
 #
 from datetime import datetime
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import parse
 from behave import register_type
@@ -51,9 +51,12 @@ def parse_float(text: str) -> float:
 register_type(Float=parse_float)
 
 
-@parse.with_pattern(r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d")
+@parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
 def parse_datetime(text: str) -> datetime:
-    return datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+    try:
+        return datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return datetime.strptime(text, "%Y-%m-%d")
 
 
 register_type(DateTime=parse_datetime)
@@ -116,9 +119,27 @@ def parse_list(table: Table) -> List[str]:
 
 
 def parse_dict(table: Table) -> Dict[str, str]:
-    print(table.headings)
-    print(table.rows)
     result = {table.headings[0]: table.headings[1]}
     for row in table.rows:
         result[row[0]] = row[1]
     return result
+
+
+def parse_table(table: Table) -> List[List[Tuple[str, str]]]:
+    """
+    Extracts the rows of a Table as lists of Tuples, where each Tuple contains the column header and the cell value.
+
+    For example, the table::
+
+        | x         | type         |
+        | key:ref:0 | label:person |
+        | key:ref:2 | label:dog    |
+
+    is converted to::
+
+        [
+            [('x', 'key:ref:0'), ('type', 'label:person')],
+            [('x', 'key:ref:2'), ('type', 'label:dog')]
+        ]
+    """
+    return [[(table.headings[idx], row[idx]) for idx in range(len(row))] for row in table.rows]

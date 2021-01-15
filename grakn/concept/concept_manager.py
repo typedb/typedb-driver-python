@@ -25,7 +25,7 @@ from grakn.concept.type.entity_type import EntityType
 from grakn.concept.type.relation_type import RelationType
 
 
-class ConceptManager(object):
+class ConceptManager:
 
     def __init__(self, transaction):
         self._transaction = transaction

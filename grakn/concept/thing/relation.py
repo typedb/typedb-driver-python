@@ -28,7 +28,7 @@ class Relation(Thing):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return Relation(thing_proto.iid.hex())
+        return Relation(concept_proto_reader.iid(thing_proto.iid))
 
     def as_remote(self, transaction):
         return RemoteRelation(transaction, self.get_iid())

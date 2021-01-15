@@ -44,7 +44,7 @@ class TransactionType(enum.Enum):
     WRITE = 1
 
 
-class Transaction(object):
+class Transaction:
 
     def __init__(self, channel: grpc.Channel, session_id: str, transaction_type: TransactionType, options=GraknOptions()):
         self._transaction_type = transaction_type
