@@ -38,11 +38,9 @@ def _rule_implementation(ctx):
     # behave requires a 'steps' folder to exist in the test root directory.
     steps_out_dir = ctx.files.feats[0].dirname + "/steps"
 
-    core_distro = str(ctx.files.native_grakn_artifact[0].path)
+    core_distro = str(ctx.files.native_grakn_artifact[0].short_path)
 
-    cmd = "set -e"
-    cmd += " && echo %s" % core_distro
-    cmd += " && CORE_DISTRO=%s" % core_distro
+    cmd = "set -e && CORE_DISTRO=%s" % core_distro
     cmd += """
 
            if test -f grakn_core_distribution; then
@@ -51,9 +49,6 @@ def _rule_implementation(ctx):
            fi
            mkdir grakn_core_distribution
            echo Attempting to unarchive Grakn Core distribution from $CORE_DISTRO
-           pwd
-           ls
-           ls tests
            if [[ ${CORE_DISTRO: -7} == ".tar.gz" ]]; then
              tar -xf $CORE_DISTRO -C ./grakn_core_distribution
            else
@@ -99,7 +94,7 @@ def _rule_implementation(ctx):
     # https://bazel.build/versions/master/docs/skylark/rules.html#runfiles
     return [DefaultInfo(
         # The shell executable - the output of this rule - can use these files at runtime.
-        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps)
+        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps + ctx.files.native_grakn_artifact)
     )]
 
 """
