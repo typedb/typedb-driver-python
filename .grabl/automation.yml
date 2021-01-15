@@ -89,7 +89,7 @@ build:
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
         bazel run //tests:grakn-extractor -- grakn-core-all-linux
         ./grakn-core-all-linux/grakn server &
-        pip install --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple grakn-client==$GRABL_COMMIT
+        pip install --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple grakn-client==0.0.0-$GRABL_COMMIT
         cd tests/deployment/ && python -m unittest test && export TEST_SUCCESS=0 || export TEST_SUCCESS=1
         kill $(jps | awk '/GraknServer/ {print $1}')
         exit $TEST_SUCCESS
