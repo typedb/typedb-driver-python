@@ -48,7 +48,7 @@ build:
         bazel build //...
         bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
         bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
-    test-integration:
+    test-behaviour:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
@@ -66,8 +66,7 @@ build:
         bazel test //tests/behaviour/graql/language/define/... --test_output=streamed
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
-      # TODO: should depend on tests
-      dependencies: [build]
+      dependencies: [build, test-behaviour]
       filter:
         owner: graknlabs
         branch: master
