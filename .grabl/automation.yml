@@ -62,10 +62,10 @@ build:
       # TODO: remove --jobs=1 from Concept and Graql tests once Grakn runner is parallelisable
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
-#      dependencies: [build, test-behaviour]
-#      filter:
-#        owner: graknlabs
-#        branch: master
+      dependencies: [build, test-behaviour]
+      filter:
+        owner: graknlabs
+        branch: master
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -78,9 +78,9 @@ build:
     test-deployment-pip:
       image: graknlabs-ubuntu-20.04
       dependencies: [deploy-pip-snapshot]
-#      filter:
-#        owner: graknlabs
-#        branch: master
+      filter:
+        owner: graknlabs
+        branch: master
       type: foreground
       command: |
         pyenv global 3.6.10
