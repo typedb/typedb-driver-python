@@ -25,7 +25,6 @@ load("@graknlabs_client_python_pip//:requirements.bzl",
 load("@graknlabs_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
 load("@graknlabs_bazel_distribution_pip//:requirements.bzl", graknlabs_bazel_distribution_requirement = "requirement")
 load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
-load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 
 load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_python_deps")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
@@ -102,11 +101,6 @@ deploy_github(
     organisation = github_deployment["github.organisation"],
     repository = github_deployment["github.repository"],
     draft = False
-)
-
-artifact_extractor(
-    name = "grakn-extractor",
-    artifact = "@graknlabs_grakn_core_artifact_linux//file",
 )
 
 release_validate_python_deps(

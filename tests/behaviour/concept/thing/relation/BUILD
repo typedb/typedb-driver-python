@@ -50,6 +50,7 @@ py_behave_test(
         "//tests/behaviour:util",
         "//tests/behaviour/config:parameters",
     ],
+    native_grakn_artifact = "//tests:native-grakn-artifact",
     size = "medium",
 )
 
