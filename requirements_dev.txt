@@ -19,12 +19,13 @@
 
 ## Configuration options
 
-# --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple  # Allow importing of snapshots
+# Uncomment next line to allow importing of snapshots
+--extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
 
 
 ## Dependencies
 
-graknprotocol==2.0.0a5
+grakn-protocol==0.0.0-fbebfee7e515ddec4266cce44848b9933fdaf787
 grpcio==1.33.2
 protobuf==3.6.1
 six>=1.11.0
