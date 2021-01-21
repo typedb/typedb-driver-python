@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Callable, List
 
 import graknprotocol.protobuf.logic_pb2 as logic_proto
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
@@ -47,7 +48,17 @@ class LogicManager:
         response = self._execute(req)
         return Rule._of(response.get_rule_res.rule) if response.get_rule_res.WhichOneof("res") == "rule" else None
 
+    def get_rules(self):
+        method = logic_proto.LogicManager.Req()
+        method.get_rules_req.CopyFrom(logic_proto.LogicManager.GetRules.Req())
+        return self._rule_stream(method, lambda res: res.get_rules_res.rules)
+
     def _execute(self, request: logic_proto.LogicManager.Req):
         req = transaction_proto.Transaction.Req()
         req.logic_manager_req.CopyFrom(request)
         return self._transaction._execute(req).logic_manager_res
+
+    def _rule_stream(self, method: logic_proto.LogicManager.Req, rule_list_getter: Callable[[logic_proto.LogicManager.Res], List[logic_proto.Rule]]):
+        request = transaction_proto.Transaction.Req()
+        request.logic_manager_req.CopyFrom(method)
+        return map(Rule._of, self._transaction._stream(request, lambda res: rule_list_getter(res.logic_manager_res)))
