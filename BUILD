@@ -107,7 +107,7 @@ release_validate_python_deps(
     name = "release-validate-python-deps",
     requirements = "//:requirements.txt",
     tagged_deps = [
-        "graknprotocol",
+        "grakn-protocol",
     ],
 )
 
