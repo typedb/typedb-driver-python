@@ -21,11 +21,10 @@ import enum
 from typing import Callable, List
 
 import grpc
-import six
 import time
 import uuid
 
-from six.moves import queue
+import queue
 
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
@@ -172,7 +171,7 @@ class Transaction:
             return transaction_proto.Transaction.Type.Value("WRITE")
 
 
-class RequestIterator(six.Iterator):
+class RequestIterator:
     CLOSE_STREAM = "CLOSE_STREAM"
 
     def __init__(self):
