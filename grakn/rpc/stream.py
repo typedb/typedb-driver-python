@@ -19,14 +19,12 @@
 
 from typing import Callable, List
 
-import six
-
 import graknprotocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
 
 
-class Stream(six.Iterator):
+class Stream:
 
     _CONTINUE = "continue"
     _DONE = "done"

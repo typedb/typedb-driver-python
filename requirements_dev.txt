@@ -28,7 +28,6 @@
 grakn-protocol==0.0.0-fbebfee7e515ddec4266cce44848b9933fdaf787
 grpcio==1.33.2
 protobuf==3.6.1
-six>=1.11.0
 
 
 # Dev dependencies (not required to use the grakn-client package, but necessary for its development)

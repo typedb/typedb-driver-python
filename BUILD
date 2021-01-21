@@ -40,7 +40,6 @@ py_library(
         graknlabs_client_python_requirement("grakn-protocol"),
         graknlabs_client_python_requirement("protobuf"),
         graknlabs_client_python_requirement("grpcio"),
-        graknlabs_client_python_requirement("six"),
     ],
     visibility = ["//visibility:public"]
 )

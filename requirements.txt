@@ -28,4 +28,3 @@
 graknprotocol==2.0.0a5
 grpcio==1.33.2
 protobuf==3.6.1
-six>=1.11.0
