@@ -43,7 +43,7 @@ def _rule_implementation(ctx):
     cmd = "set -e && CORE_DISTRO=%s" % core_distro
     cmd += """
 
-           if test -f grakn_core_distribution; then
+           if test -d grakn_core_distribution; then
              echo Existing distribution detected. Cleaning.
              rm -rf grakn_core_distribution
            fi
@@ -69,6 +69,7 @@ def _rule_implementation(ctx):
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
     cmd += "cp %s %s" % (ctx.files.background[0].path, feats_dir)
+    cmd += " && rm -rf " + steps_out_dir
     cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
     cmd += " && behave %s && export RESULT=0 || export RESULT=1" % feats_dir
