@@ -42,9 +42,9 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        bazel build //...
-        bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
-        bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
+        bazel build --config=rbe //...
+        bazel run --config=rbe @graknlabs_dependencies//tool/checkstyle:test-coverage
+        bazel test --config=rbe $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
     test-behaviour:
       image: graknlabs-ubuntu-20.04
       type: foreground
@@ -54,11 +54,11 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        bazel test //tests/behaviour/connection/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/concept/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/graql/language/match/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/graql/language/get/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/graql/language/define/... --test_output=errors --jobs=1
+        bazel test --config=rbe //tests/behaviour/connection/... --test_output=errors --jobs=1
+        bazel test --config=rbe //tests/behaviour/concept/... --test_output=errors --jobs=1
+        bazel test --config=rbe //tests/behaviour/graql/language/match/... --test_output=errors --jobs=1
+        bazel test --config=rbe //tests/behaviour/graql/language/get/... --test_output=errors --jobs=1
+        bazel test --config=rbe //tests/behaviour/graql/language/define/... --test_output=errors --jobs=1
       # TODO: remove --jobs=1 from Concept and Graql tests once Grakn runner is parallelisable
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
@@ -74,7 +74,7 @@ build:
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
         export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
+        bazel run --config=rbe --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
     test-deployment-pip:
       image: graknlabs-ubuntu-20.04
       dependencies: [deploy-pip-snapshot]
@@ -116,7 +116,7 @@ release:
         bazel run @graknlabs_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
         bazel clean --expunge
         export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
-        bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
+        bazel run --config=rbe --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
       image: graknlabs-ubuntu-20.04
       command: |
@@ -126,5 +126,5 @@ release:
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
         export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
-        bazel run --define version=$(cat VERSION) //:deploy-pip -- release
+        bazel run --config=rbe --define version=$(cat VERSION) //:deploy-pip -- release
       dependencies: [deploy-github]
