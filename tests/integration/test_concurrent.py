@@ -28,16 +28,10 @@ from grakn.rpc.session import Session
 
 class TestConcurrent(TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestConcurrent, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super(TestConcurrent, cls).tearDownClass()
-
     def setUp(self):
-        pass
+        with GraknClient() as client:
+            if "grakn" not in client.databases().all():
+                client.databases().create("grakn")
 
     def open_tx(self, session: Session, *args):
         tx = session.transaction(TransactionType.WRITE)
