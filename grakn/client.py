@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
 
 import grpc
 
@@ -29,34 +30,65 @@ from grakn.concept.type.attribute_type import ValueType  # noqa # pylint: disabl
 from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
 
 
+class Client(ABC):
+
+    @abstractmethod
+    def session(self, database: str, session_type: SessionType, options=GraknOptions()) -> _Session:
+        pass
+
+    @abstractmethod
+    def databases(self) -> _DatabaseManager:
+        pass
+
+    @abstractmethod
+    def is_open(self) -> bool:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+
 class GraknClient:
-    DEFAULT_URI = "localhost:1729"
+    DEFAULT_ADDRESS = "localhost:1729"
 
-    def __init__(self, address=DEFAULT_URI):
-        self._address = address
-        self._channel = grpc.insecure_channel(self._address)
-        self._databases = _DatabaseManager(self._channel)
-        self._is_open = True
+    @staticmethod
+    def core(address=DEFAULT_ADDRESS):
+        return GraknClient.Core(address)
 
-    def session(self, database: str, session_type: SessionType, options=GraknOptions()):
-        return _Session(self, database, session_type, options)
+    @staticmethod
+    def cluster(address=DEFAULT_ADDRESS):
+        return GraknClient.Cluster(address)
 
-    def databases(self):
-        return self._databases
+    class Core(Client):
+        def __init__(self, address):
+            self._address = address
+            self._channel = grpc.insecure_channel(self._address)
+            self._databases = _DatabaseManager(self._channel)
+            self._is_open = True
 
-    def close(self):
-        self._channel.close()
-        self._is_open = False
+        def session(self, database: str, session_type: SessionType, options=GraknOptions()):
+            return _Session(self, database, session_type, options)
 
-    def is_open(self):
-        return self._is_open
+        def databases(self):
+            return self._databases
 
-    def __enter__(self):
-        return self
+        def close(self):
+            self._channel.close()
+            self._is_open = False
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        if exc_tb is None:
-            pass
-        else:
-            return False
+        def is_open(self):
+            return self._is_open
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.close()
+            if exc_tb is None:
+                pass
+            else:
+                return False
+
+    class Cluster:
+        pass
