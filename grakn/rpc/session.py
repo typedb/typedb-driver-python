@@ -21,6 +21,7 @@ import time
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
+import grpc
 from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
 import graknprotocol.protobuf.session_pb2 as session_proto
 import enum
@@ -43,7 +44,8 @@ class Session:
     _PULSE_FREQUENCY_SECONDS = 5
 
     def __init__(self, client, database: str, session_type: SessionType, options=GraknOptions()):
-        self._channel = client._channel
+        self._address = client._address
+        self._channel = grpc.insecure_channel(client._address)
         self._scheduler = sched.scheduler(time.time, time.sleep)
         self._database = database
         self._session_type = session_type
@@ -61,7 +63,7 @@ class Session:
         self._pulse_thread_pool.submit(self._scheduler.run)
 
     def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
-        return Transaction(self._channel, self._session_id, transaction_type, options)
+        return Transaction(self._address, self._session_id, transaction_type, options)
 
     def session_type(self): return self._session_type
 
@@ -77,6 +79,8 @@ class Session:
                 self._grpc_stub.session_close(req)
             except RpcError as e:
                 raise GraknClientException(e)
+            finally:
+                self._channel.close()
 
     def database(self): return self._database
 

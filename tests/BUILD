@@ -42,6 +42,17 @@ checkstyle_test(
     size = "small",
 )
 
+py_test(
+    name = "test_concurrent",
+    srcs = [
+        "integration/test_concurrent.py",
+    ],
+    deps = [
+        "//:client_python",
+    ],
+    python_version = "PY3"
+)
+
 artifact_extractor(
     name = "grakn-extractor",
     artifact = ":native-grakn-artifact",

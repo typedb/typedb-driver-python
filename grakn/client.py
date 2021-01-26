@@ -33,7 +33,8 @@ class GraknClient:
     DEFAULT_URI = "localhost:1729"
 
     def __init__(self, address=DEFAULT_URI):
-        self._channel = grpc.insecure_channel(address)
+        self._address = address
+        self._channel = grpc.insecure_channel(self._address)
         self._databases = _DatabaseManager(self._channel)
         self._is_open = True
 

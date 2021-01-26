@@ -45,14 +45,14 @@ class TransactionType(enum.Enum):
 
 class Transaction:
 
-    def __init__(self, channel: grpc.Channel, session_id: str, transaction_type: TransactionType, options=GraknOptions()):
+    def __init__(self, address: str, session_id: str, transaction_type: TransactionType, options=GraknOptions()):
         self._transaction_type = transaction_type
         self._concept_manager = ConceptManager(self)
         self._query_manager = QueryManager(self)
         self._logic_manager = LogicManager(self)
         self._response_queues = {}
 
-        self._grpc_stub = GraknStub(channel)
+        self._grpc_stub = GraknStub(grpc.insecure_channel(address))
         self._request_iterator = RequestIterator()
         self._response_iterator = self._grpc_stub.transaction(self._request_iterator)
         self._transaction_was_closed = False
