@@ -17,8 +17,8 @@
 # under the License.
 #
 
-from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
-import graknprotocol.protobuf.database_pb2 as database_proto
+from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
+import grakn_protocol.protobuf.database_pb2 as database_proto
 from grpc import Channel, RpcError
 
 from grakn.common.exception import GraknClientException

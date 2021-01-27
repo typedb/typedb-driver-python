@@ -20,7 +20,7 @@
 from datetime import datetime
 from typing import List
 
-import graknprotocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.type.value_type import ValueType

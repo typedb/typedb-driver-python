@@ -17,7 +17,7 @@
 # under the License.
 #
 
-import graknprotocol.protobuf.options_pb2 as options_proto
+import grakn_protocol.protobuf.options_pb2 as options_proto
 
 from grakn.options import GraknOptions
 

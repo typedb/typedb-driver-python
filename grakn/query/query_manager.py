@@ -19,8 +19,8 @@
 
 from typing import Callable, List
 
-import graknprotocol.protobuf.query_pb2 as query_proto
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.protobuf.query_pb2 as query_proto
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn import grakn_proto_builder
 from grakn.concept.answer import concept_map, concept_map_group, numeric, numeric_group

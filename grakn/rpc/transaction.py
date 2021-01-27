@@ -26,8 +26,8 @@ import uuid
 
 import queue
 
-from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn import grakn_proto_builder
 from grakn.common.exception import GraknClientException

@@ -19,7 +19,7 @@
 
 from datetime import datetime
 
-import graknprotocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.concept.proto import concept_proto_builder, concept_proto_reader
 from grakn.concept.thing.thing import Thing, RemoteThing

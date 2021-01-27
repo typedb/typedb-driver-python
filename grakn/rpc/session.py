@@ -22,8 +22,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Thread
 
 import grpc
-from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
-import graknprotocol.protobuf.session_pb2 as session_proto
+from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
+import grakn_protocol.protobuf.session_pb2 as session_proto
 import enum
 
 from grpc import RpcError
