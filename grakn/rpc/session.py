@@ -16,16 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import enum
 import sched
 import time
+from abc import ABC, abstractmethod
 from concurrent.futures.thread import ThreadPoolExecutor
-from threading import Thread
 
+import grakn_protocol.protobuf.session_pb2 as session_proto
 import grpc
 from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
-import grakn_protocol.protobuf.session_pb2 as session_proto
-import enum
-
 from grpc import RpcError
 
 from grakn import grakn_proto_builder
@@ -39,8 +38,45 @@ class SessionType(enum.Enum):
     SCHEMA = 1
 
 
-class Session:
+def _session_type_proto(session_type: SessionType):
+    if session_type == SessionType.DATA:
+        return session_proto.Session.Type.Value("DATA")
+    if session_type == SessionType.SCHEMA:
+        return session_proto.Session.Type.Value("SCHEMA")
 
+
+class Session(ABC):
+
+    @abstractmethod
+    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
+        pass
+
+    @abstractmethod
+    def session_type(self) -> SessionType:
+        pass
+
+    @abstractmethod
+    def is_open(self) -> bool:
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    @abstractmethod
+    def database(self) -> str:
+        pass
+
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class _RPCSession(Session):
     _PULSE_FREQUENCY_SECONDS = 5
 
     def __init__(self, client, database: str, session_type: SessionType, options=GraknOptions()):
@@ -53,7 +89,7 @@ class Session:
 
         open_req = session_proto.Session.Open.Req()
         open_req.database = database
-        open_req.type = Session._session_type_proto(session_type)
+        open_req.type = _session_type_proto(session_type)
         open_req.options.CopyFrom(grakn_proto_builder.options(options))
 
         self._session_id = self._grpc_stub.session_open(open_req).session_id
@@ -62,14 +98,16 @@ class Session:
         self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
         self._pulse_thread_pool.submit(self._scheduler.run)
 
-    def transaction(self, transaction_type: TransactionType, options=GraknOptions()):
+    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
+        if not options:
+            options = GraknOptions.core()
         return Transaction(self._address, self._session_id, transaction_type, options)
 
-    def session_type(self): return self._session_type
+    def session_type(self) -> SessionType: return self._session_type
 
-    def is_open(self): return self._is_open
+    def is_open(self) -> bool: return self._is_open
 
-    def close(self):
+    def close(self) -> None:
         if self._is_open:
             self._is_open = False
             self._pulse_thread_pool.shutdown(wait=False)
@@ -82,9 +120,9 @@ class Session:
             finally:
                 self._channel.close()
 
-    def database(self): return self._database
+    def database(self) -> str: return self._database
 
-    def _transmit_pulse(self):
+    def _transmit_pulse(self) -> None:
         if not self._is_open:
             return
         pulse_req = session_proto.Session.Pulse.Req()
@@ -105,10 +143,3 @@ class Session:
             pass
         else:
             return False
-
-    @staticmethod
-    def _session_type_proto(session_type: SessionType):
-        if session_type == SessionType.DATA:
-            return session_proto.Session.Type.Value("DATA")
-        if session_type == SessionType.SCHEMA:
-            return session_proto.Session.Type.Value("SCHEMA")

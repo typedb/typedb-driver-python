@@ -16,39 +16,29 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Optional
+
+from grakn.rpc.session import Session, SessionType
+from grakn.rpc.transaction import TransactionType, Transaction
 
 
-class GraknOptions(ABC):
-    infer: Optional[bool]
-    explain: Optional[bool]
-    batch_size: Optional[int]
-
-    @staticmethod
-    def core() -> "GraknOptions":
-        return _GraknOptions()
-
-    @staticmethod
-    def cluster() -> "GraknClusterOptions":
-        return _GraknClusterOptions()
-
-    @abstractmethod
-    def is_cluster(self) -> bool:
+class _RPCSessionCluster(Session):
+    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
         pass
 
+    def session_type(self) -> SessionType:
+        pass
 
-class GraknClusterOptions(GraknOptions, ABC):
-    allow_secondary_replica: Optional[bool]
+    def is_open(self) -> bool:
+        pass
 
+    def close(self) -> None:
+        pass
 
-class _GraknOptions(GraknOptions):
+    def database(self) -> str:
+        pass
 
-    def is_cluster(self) -> bool:
-        return False
+    def __enter__(self):
+        pass
 
-
-class _GraknClusterOptions(GraknClusterOptions):
-
-    def is_cluster(self) -> bool:
-        return True
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
