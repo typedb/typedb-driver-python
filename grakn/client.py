@@ -19,11 +19,13 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Set
 
+import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
 import grpc
+from grpc import RpcError
 from grakn_protocol.protobuf.cluster.grakn_cluster_pb2_grpc import GraknClusterStub
 
 from grakn.options import GraknOptions, GraknClusterOptions
-from grakn.rpc.cluster.address import Address
+from grakn.rpc.cluster.address import Address, parse_server_address
 from grakn.rpc.cluster.database_manager import _RPCDatabaseManagerCluster
 from grakn.rpc.cluster.session import _RPCSessionCluster
 from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
@@ -104,6 +106,9 @@ class _RPCGraknClient:
         else:
             return False
 
+    def channel(self):
+        return self._channel
+
 
 # _RPCGraknClientCluster must live in this package because of circular ref with GraknClient
 class _RPCGraknClientCluster(GraknClient):
@@ -113,7 +118,10 @@ class _RPCGraknClientCluster(GraknClient):
     _is_open: bool
 
     def __init__(self, address: str):
-        self._core_clients = discover_cluster(address) # TODO
+        self._core_clients = {addr: _RPCGraknClient(addr.client()) for addr in self._discover_cluster([address])}
+        self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
+        self._databases = _RPCDatabaseManagerCluster({addr: client.databases() for (addr, client) in self._core_clients.items()})
+        self._is_open = True
 
     def session(self, database: str, session_type: SessionType, options=None) -> Session:
         if not options:
@@ -146,5 +154,14 @@ class _RPCGraknClientCluster(GraknClient):
 
     def _discover_cluster(self, addresses: List[str]) -> Set[Address.Server]:
         for address in addresses:
-            with _RPCGraknClient(address) as client:
-                
+            try:
+                with _RPCGraknClient(address) as client:
+                    print("Performing cluster discovery to %s..." % address)
+                    grakn_cluster_stub = GraknClusterStub(client.channel())
+                    res = grakn_cluster_stub.cluster_discover(cluster_proto.Cluster.Discover.Req())
+                    members = set([parse_server_address(srv) for srv in res.servers])
+                    print("Discovered %s" % str(members))
+                    return members
+            except RpcError:
+                print("Cluster discovery to %s failed." % address)
+        raise GraknClientException("Unable to connect to Grakn Cluster. Attempted connecting to the cluster members, but none are available: %s" % str(addresses))
