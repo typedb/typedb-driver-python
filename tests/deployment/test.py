@@ -32,7 +32,7 @@ class TestClientPython(TestCase):
     def setUpClass(cls):
         super(TestClientPython, cls).setUpClass()
         global client
-        client = GraknClient()
+        client = GraknClient.core()
 
     @classmethod
     def tearDownClass(cls):

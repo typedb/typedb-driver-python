@@ -28,7 +28,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python"]
 
 def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
-    context.client = GraknClient()
+    context.client = GraknClient.core()
 
 
 def before_scenario(context: Context, scenario):
