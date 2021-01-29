@@ -21,9 +21,11 @@ from typing import Optional
 
 
 class GraknOptions(ABC):
-    infer: Optional[bool]
-    explain: Optional[bool]
-    batch_size: Optional[int]
+
+    def __init__(self):
+        self.infer: Optional[bool] = None
+        self.explain: Optional[bool] = None
+        self.batch_size: Optional[int] = None
 
     @staticmethod
     def core() -> "GraknOptions":
@@ -39,7 +41,10 @@ class GraknOptions(ABC):
 
 
 class GraknClusterOptions(GraknOptions, ABC):
-    allow_secondary_replica: Optional[bool]
+
+    def __init__(self):
+        super().__init__()
+        self.allow_secondary_replica: Optional[bool] = None
 
 
 class _GraknOptions(GraknOptions):

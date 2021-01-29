@@ -17,23 +17,22 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Dict, List, Set
+from typing import List, Set, Dict
 
 import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
 import grpc
-from grpc import RpcError
 from grakn_protocol.protobuf.cluster.grakn_cluster_pb2_grpc import GraknClusterStub
-
-from grakn.options import GraknOptions, GraknClusterOptions
-from grakn.rpc.cluster.address import Address, parse_server_address
-from grakn.rpc.cluster.database_manager import _RPCDatabaseManagerCluster
-from grakn.rpc.cluster.session import _RPCSessionCluster
-from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
-from grakn.rpc.session import Session, SessionType, _RPCSession
+from grpc import RpcError
 
 # Repackaging these symbols allows them to be imported from "grakn.client"
 from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
 from grakn.concept.type.attribute_type import ValueType  # noqa # pylint: disable=unused-import
+from grakn.options import GraknOptions
+from grakn.rpc.cluster.address import Address
+from grakn.rpc.cluster.database_manager import _RPCDatabaseManagerCluster
+from grakn.rpc.cluster.session import _RPCSessionCluster
+from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
+from grakn.rpc.session import Session, SessionType, _RPCSession
 from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
 
 
@@ -42,11 +41,11 @@ class GraknClient(ABC):
 
     @staticmethod
     def core(address=DEFAULT_ADDRESS) -> "GraknClient":
-        return _RPCGraknClient.Core(address)
+        return _RPCGraknClient(address)
 
     @staticmethod
     def cluster(address=DEFAULT_ADDRESS) -> "GraknClient":
-        return _RPCGraknClient.Cluster(address)
+        return _RPCGraknClientCluster(address)
 
     @abstractmethod
     def session(self, database: str, session_type: SessionType, options: GraknOptions = None) -> Session:
@@ -73,7 +72,7 @@ class GraknClient(ABC):
         pass
 
 
-class _RPCGraknClient:
+class _RPCGraknClient(GraknClient):
 
     def __init__(self, address: str):
         self._address = address
@@ -112,13 +111,9 @@ class _RPCGraknClient:
 
 # _RPCGraknClientCluster must live in this package because of circular ref with GraknClient
 class _RPCGraknClientCluster(GraknClient):
-    _core_clients: Dict[Address.Server, _RPCGraknClient]
-    _grakn_cluster_grpc_stubs: Dict[Address.Server, GraknClusterStub]
-    _databases: _RPCDatabaseManagerCluster
-    _is_open: bool
 
     def __init__(self, address: str):
-        self._core_clients = {addr: _RPCGraknClient(addr.client()) for addr in self._discover_cluster([address])}
+        self._core_clients: Dict[Address.Server, _RPCGraknClient] = {addr: _RPCGraknClient(addr.client()) for addr in self._discover_cluster([address])}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
         self._databases = _RPCDatabaseManagerCluster({addr: client.databases() for (addr, client) in self._core_clients.items()})
         self._is_open = True
@@ -129,19 +124,21 @@ class _RPCGraknClientCluster(GraknClient):
         return _RPCSessionCluster(self, database, session_type, options)
 
     def databases(self) -> DatabaseManager:
-        pass
+        return self._databases
 
     def is_open(self) -> bool:
-        pass
+        return self._is_open
 
     def close(self) -> None:
-        pass
+        for client in self._core_clients.values():
+            client.close()
+        self._is_open = False
 
     def __enter__(self):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        self.close()
 
     def cluster_members(self) -> Set[Address.Server]:
         return set(self._core_clients.keys())
@@ -159,7 +156,7 @@ class _RPCGraknClientCluster(GraknClient):
                     print("Performing cluster discovery to %s..." % address)
                     grakn_cluster_stub = GraknClusterStub(client.channel())
                     res = grakn_cluster_stub.cluster_discover(cluster_proto.Cluster.Discover.Req())
-                    members = set([parse_server_address(srv) for srv in res.servers])
+                    members = set([Address.Server.parse(srv) for srv in res.servers])
                     print("Discovered %s" % str(members))
                     return members
             except RpcError:

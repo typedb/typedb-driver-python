@@ -54,7 +54,7 @@ class Address:
         def __str__(self):
             return "%s:%d:%d" % (self._host, self._client_port, self._server_port)
 
-
-def parse_server_address(address: str) -> Address.Server:
-    s = address.split(":")
-    return Address.Server(host=s[0], client_port=int(s[1]), server_port=int(s[2]))
+        @staticmethod
+        def parse(address: str) -> "Address.Server":
+            s = address.split(":")
+            return Address.Server(host=s[0], client_port=int(s[1]), server_port=int(s[2]))
