@@ -23,7 +23,6 @@ from typing import Dict
 import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 from grpc import RpcError, Call, StatusCode
 
-from grakn.client import _RPCGraknClientCluster
 from grakn.common.exception import GraknClientException
 from grakn.options import GraknClusterOptions, GraknOptions
 from grakn.rpc.cluster.address import Address
@@ -35,7 +34,7 @@ class _RPCSessionCluster(Session):
     MAX_RETRY_PER_REPLICA = 10
     WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS: float = 2
 
-    def __init__(self, cluster_client: _RPCGraknClientCluster, database: str, session_type: SessionType, options: GraknClusterOptions):
+    def __init__(self, cluster_client, database: str, session_type: SessionType, options: GraknClusterOptions):
         self._lock = Lock()
         self._cluster_client = cluster_client
         self._db_name = database

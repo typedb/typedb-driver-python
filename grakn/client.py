@@ -26,7 +26,7 @@ from grpc import RpcError
 
 # Repackaging these symbols allows them to be imported from "grakn.client"
 from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
-from grakn.concept.type.attribute_type import ValueType  # noqa # pylint: disable=unused-import
+from grakn.concept.type.value_type import ValueType  # noqa # pylint: disable=unused-import
 from grakn.options import GraknOptions
 from grakn.rpc.cluster.address import Address
 from grakn.rpc.cluster.database_manager import _RPCDatabaseManagerCluster

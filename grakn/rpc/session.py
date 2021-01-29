@@ -79,7 +79,9 @@ class Session(ABC):
 class _RPCSession(Session):
     _PULSE_FREQUENCY_SECONDS = 5
 
-    def __init__(self, client, database: str, session_type: SessionType, options=GraknOptions()):
+    def __init__(self, client, database: str, session_type: SessionType, options: GraknOptions = None):
+        if not options:
+            options = GraknOptions.core()
         self._address = client._address
         self._channel = grpc.insecure_channel(client._address)
         self._scheduler = sched.scheduler(time.time, time.sleep)
