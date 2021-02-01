@@ -38,32 +38,32 @@ def _rule_implementation(ctx):
     # behave requires a 'steps' folder to exist in the test root directory.
     steps_out_dir = ctx.files.feats[0].dirname + "/steps"
 
-    core_distro = str(ctx.files.native_grakn_artifact[0].short_path)
+    grakn_distro = str(ctx.files.native_grakn_artifact[0].short_path)
 
-    cmd = "set -e && CORE_DISTRO=%s" % core_distro
+    cmd = "set -e && GRAKN_DISTRO=%s" % grakn_distro
     cmd += """
 
-           if test -d grakn_core_distribution; then
+           if test -d grakn_distribution; then
              echo Existing distribution detected. Cleaning.
-             rm -rf grakn_core_distribution
+             rm -rf grakn_distribution
            fi
-           mkdir grakn_core_distribution
-           echo Attempting to unarchive Grakn Core distribution from $CORE_DISTRO
-           if [[ ${CORE_DISTRO: -7} == ".tar.gz" ]]; then
-             tar -xf $CORE_DISTRO -C ./grakn_core_distribution
+           mkdir grakn_distribution
+           echo Attempting to unarchive Grakn distribution from $GRAKN_DISTRO
+           if [[ ${GRAKN_DISTRO: -7} == ".tar.gz" ]]; then
+             tar -xf $GRAKN_DISTRO -C ./grakn_distribution
            else
-             if [[ ${CORE_DISTRO: -4} == ".zip" ]]; then
-               unzip -q $CORE_DISTRO -d ./grakn_core_distribution
+             if [[ ${GRAKN_DISTRO: -4} == ".zip" ]]; then
+               unzip -q $GRAKN_DISTRO -d ./grakn_distribution
              else
                echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
                exit 1
              fi
            fi
-           DIRECTORY=$(ls ./grakn_core_distribution)
-           echo Successfully unarchived Grakn Core distribution.
-           echo Starting Grakn Core Server
-           mkdir ./grakn_core_distribution/"$DIRECTORY"/grakn_core_test
-           ./grakn_core_distribution/"$DIRECTORY"/grakn server --data grakn_core_test &
+           DIRECTORY=$(ls ./grakn_distribution)
+           echo Successfully unarchived Grakn distribution.
+           echo Starting Grakn Server
+           mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
+           ./grakn_distribution/"$DIRECTORY"/grakn server --data grakn_test &
            sleep 8
 
            """
