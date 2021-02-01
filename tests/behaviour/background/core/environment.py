@@ -17,29 +17,23 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-
-from grakn.concept.proto import concept_proto_reader
-from grakn.concept.thing.thing import Thing, RemoteThing
-
-
-class Entity(Thing):
-
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return Entity(concept_proto_reader.iid(thing_proto.iid))
-
-    def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid)
-
-    def is_entity(self):
-        return True
+from tests.behaviour.background import environment_base
+from grakn.client import GraknClient
+from tests.behaviour.context import Context
 
 
-class RemoteEntity(RemoteThing):
+def before_all(context: Context):
+    environment_base.before_all(context)
+    context.client = GraknClient.core()
 
-    def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid)
 
-    def is_entity(self):
-        return True
+def before_scenario(context: Context, scenario):
+    environment_base.before_scenario(context, scenario)
+
+
+def after_scenario(context: Context, scenario):
+    environment_base.after_scenario(context, scenario)
+
+
+def after_all(context: Context):
+    environment_base.after_all(context)

@@ -16,13 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Type, Union
 
-import graknprotocol.protobuf.options_pb2 as options_proto
+import grakn_protocol.protobuf.options_pb2 as options_proto
 
-from grakn.options import GraknOptions
+from grakn.options import GraknOptions, GraknClusterOptions
 
 
-def options(opts: GraknOptions):
+def options(opts: Union[GraknOptions, GraknClusterOptions]):
     proto_options = options_proto.Options()
     if opts.infer is not None:
         proto_options.infer = opts.infer
@@ -30,4 +31,6 @@ def options(opts: GraknOptions):
         proto_options.explain = opts.explain
     if opts.batch_size is not None:
         proto_options.batch_size = opts.batch_size
+    if opts.is_cluster() and opts.allow_secondary_replica is not None:
+        proto_options.allow_secondary_replica = opts.allow_secondary_replica
     return proto_options

@@ -18,8 +18,8 @@
 #
 from typing import Callable, List
 
-import graknprotocol.protobuf.logic_pb2 as logic_proto
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.protobuf.logic_pb2 as logic_proto
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.logic.rule import Rule
 

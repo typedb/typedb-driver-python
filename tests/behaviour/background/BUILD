@@ -18,36 +18,30 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "grakn_behaviour_py_test")
+
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-grakn_behaviour_py_test(
-    name = "test",
-    feats = ["@graknlabs_behaviour//graql/language:define.feature"],
-    background_core = ["//tests/behaviour/background:core"],
-    background_cluster = ["//tests/behaviour/background:cluster"],
-    steps = [
-        "//tests/behaviour/connection:steps",
-        "//tests/behaviour/connection/database:steps",
-        "//tests/behaviour/connection/session:steps",
-        "//tests/behaviour/connection/transaction:steps",
-        "//tests/behaviour/graql:steps",
-    ],
-    deps = [
-        "//:client_python",
-        "//tests/behaviour:context",
-        "//tests/behaviour:util",
-        "//tests/behaviour/config:parameters",
-        "//tests/behaviour/background",
-    ],
-    native_grakn_artifact_core = "//tests:native-grakn-core-artifact",
-    native_grakn_artifact_cluster = "//tests:native-grakn-cluster-artifact",
-    size = "medium",
+py_library(
+    name = "background",
+    srcs = ["environment_base.py"],
+    deps = [],
+)
+
+py_library(
+    name = "core",
+    srcs = ["core/environment.py"],
+    deps = [],
+)
+
+py_library(
+    name = "cluster",
+    srcs = ["cluster/environment.py"],
+    deps = [],
 )
 
 checkstyle_test(
     name = "checkstyle",
-    include = glob(["*"]),
+    include = glob(["**/*"]),
     license_type = "apache",
     size = "small",
 )

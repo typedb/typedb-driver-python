@@ -19,7 +19,7 @@
 
 from typing import Mapping
 
-import graknprotocol.protobuf.answer_pb2 as answer_proto
+import grakn_protocol.protobuf.answer_pb2 as answer_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.proto import concept_proto_reader

@@ -19,7 +19,7 @@
 
 from typing import Callable, List
 
-import graknprotocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.concept.proto import concept_proto_reader
 from grakn.concept.type.type import Type, RemoteType

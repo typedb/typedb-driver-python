@@ -19,8 +19,8 @@
 
 from typing import Callable, List
 
-import graknprotocol.protobuf.concept_pb2 as concept_proto
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
 from grakn.concept.proto import concept_proto_reader, concept_proto_builder

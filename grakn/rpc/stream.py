@@ -19,7 +19,7 @@
 
 from typing import Callable, List
 
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.common.exception import GraknClientException
 

@@ -16,11 +16,44 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
+from typing import Optional
 
 
-class GraknOptions:
+class GraknOptions(ABC):
 
     def __init__(self):
-        self.infer = None
-        self.explain = None
-        self.batch_size = None
+        self.infer: Optional[bool] = None
+        self.explain: Optional[bool] = None
+        self.batch_size: Optional[int] = None
+
+    @staticmethod
+    def core() -> "GraknOptions":
+        return _GraknOptions()
+
+    @staticmethod
+    def cluster() -> "GraknClusterOptions":
+        return _GraknClusterOptions()
+
+    @abstractmethod
+    def is_cluster(self) -> bool:
+        pass
+
+
+class GraknClusterOptions(GraknOptions, ABC):
+
+    def __init__(self):
+        super().__init__()
+        self.allow_secondary_replica: Optional[bool] = None
+
+
+class _GraknOptions(GraknOptions):
+
+    def is_cluster(self) -> bool:
+        return False
+
+
+class _GraknClusterOptions(GraknClusterOptions):
+
+    def is_cluster(self) -> bool:
+        return True

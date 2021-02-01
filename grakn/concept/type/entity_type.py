@@ -17,7 +17,7 @@
 # under the License.
 #
 
-import graknprotocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
 from grakn.concept.thing.entity import Entity
 from grakn.concept.type.thing_type import ThingType, RemoteThingType

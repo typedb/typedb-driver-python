@@ -26,8 +26,8 @@ import uuid
 
 import queue
 
-from graknprotocol.protobuf.grakn_pb2_grpc import GraknStub
-import graknprotocol.protobuf.transaction_pb2 as transaction_proto
+from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn import grakn_proto_builder
 from grakn.common.exception import GraknClientException
@@ -45,7 +45,9 @@ class TransactionType(enum.Enum):
 
 class Transaction:
 
-    def __init__(self, address: str, session_id: str, transaction_type: TransactionType, options=GraknOptions()):
+    def __init__(self, address: str, session_id: str, transaction_type: TransactionType, options: GraknOptions = None):
+        if not options:
+            options = GraknOptions.core()
         self._transaction_type = transaction_type
         self._concept_manager = ConceptManager(self)
         self._query_manager = QueryManager(self)

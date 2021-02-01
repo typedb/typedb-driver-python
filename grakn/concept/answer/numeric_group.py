@@ -17,7 +17,7 @@
 # under the License.
 #
 
-import graknprotocol.protobuf.answer_pb2 as answer_proto
+import grakn_protocol.protobuf.answer_pb2 as answer_proto
 from grakn.concept.answer import numeric
 from grakn.concept.proto.concept_proto_reader import concept
 
