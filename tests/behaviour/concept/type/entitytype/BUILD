@@ -44,6 +44,7 @@ grakn_behaviour_py_test(
         "//tests/behaviour:context",
         "//tests/behaviour:util",
         "//tests/behaviour/config:parameters",
+        "//tests/behaviour/background",
     ],
     native_grakn_artifact_core = "//tests:native-grakn-core-artifact",
     native_grakn_artifact_cluster = "//tests:native-grakn-cluster-artifact",
