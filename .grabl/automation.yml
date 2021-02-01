@@ -64,7 +64,7 @@ build:
         bazel test //tests/behaviour/concept/... --test_output=errors --jobs=1
         bazel test //tests/behaviour/graql/language/match/... --test_output=errors --jobs=1
         bazel test //tests/behaviour/graql/language/get/... --test_output=errors --jobs=1
-        bazel test //tests/behaviour/graql/language/define/... --test_output=errors --jobs=1
+      # TODO: add other Graql Language tests once they are stable
       # TODO: remove --jobs=1 from Concept and Graql tests once Grakn runner is parallelisable
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
