@@ -18,6 +18,7 @@
 #
 
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
+load("//tools:cluster_test_rule.bzl", "grakn_cluster_py_test")
 load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 load("@graknlabs_common//test/server:rules.bzl", "native_grakn_artifact")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
@@ -61,6 +62,17 @@ py_test(
         "//:client_python",
     ],
     python_version = "PY3"
+)
+
+grakn_cluster_py_test(
+    name = "test_cluster_failover",
+    srcs = [
+        "integration/test_cluster_failover.py",
+    ],
+    deps = [
+        "//:client_python",
+    ],
+    native_grakn_cluster_artifact = ":native-grakn-cluster-artifact",
 )
 
 artifact_extractor(
