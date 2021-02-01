@@ -21,7 +21,7 @@ from threading import Lock
 from typing import Dict
 
 import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
-from grpc import RpcError, Call, StatusCode
+from grpc import RpcError, StatusCode
 
 from grakn.common.exception import GraknClientException
 from grakn.options import GraknClusterOptions, GraknOptions
@@ -64,7 +64,7 @@ class _RPCSessionCluster(Session):
         return self._db_name
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
@@ -76,8 +76,9 @@ class _RPCSessionCluster(Session):
                 try:
                     primary_replica_id = self._database.primary_replica().replica_id()
                     with self._lock:
-                        primary_replica_session = self._core_sessions[primary_replica_id]
-                        if not primary_replica_session:
+                        if primary_replica_id in self._core_sessions:
+                            primary_replica_session = self._core_sessions[primary_replica_id]
+                        else:
                             print("Opening a session to primary replica '%s'" % primary_replica_id)
                             primary_replica_client = self._cluster_client.core_client(primary_replica_id.address())
                             self._core_sessions[primary_replica_id] = primary_replica_client.session(primary_replica_id.database(), self._session_type, self._options)
@@ -97,8 +98,8 @@ class _RPCSessionCluster(Session):
                         self._database = self._discover_database(replica.replica_id().address())
                     else:
                         raise e
-                # TODO: needs testing, + would be nicer to introduce a special type that extends RpcError and Call
-                except Call as e:
+                # TODO: introduce a special type that extends RpcError and Call
+                except RpcError as e:
                     # TODO: this logic should be extracted into GraknClientException
                     if e.code() == StatusCode.UNAVAILABLE:
                         print("Unable to open a session or transaction to %s. Attempting next replica. %s" % (str(replica.replica_id()), str(e)))
@@ -112,15 +113,16 @@ class _RPCSessionCluster(Session):
             try:
                 replica_id = replica.replica_id()
                 with self._lock:
-                    selected_session = self._core_sessions[replica_id]
-                    if not selected_session:
+                    if replica_id in self._core_sessions:
+                        selected_session = self._core_sessions[replica_id]
+                    else:
                         print("Opening a session to '%s'" % replica_id)
                         client = self._cluster_client.core_client(replica_id.address())
                         self._core_sessions[replica_id] = client.session(replica_id.database(), self._session_type, self._options)
                         selected_session = self._core_sessions[replica_id]
                 print("Opening read secondary transaction to secondary replica '%s'" % replica.replica_id())
                 return selected_session.transaction(transaction_type, options)
-            except Call as e:
+            except RpcError as e:
                 if e.code() == StatusCode.UNAVAILABLE:
                     print("Unable to open a session or transaction to %s. Attempting next replica. %s" % (str(replica.replica_id()), str(e)))
                 else:

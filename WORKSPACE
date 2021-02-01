@@ -97,8 +97,9 @@ graknlabs_common()
 graknlabs_behaviour()
 
 # Load artifacts
-load("//dependencies/graknlabs:artifacts.bzl", "graknlabs_grakn_core_artifacts")
+load("//dependencies/graknlabs:artifacts.bzl", "graknlabs_grakn_core_artifacts", "graknlabs_grakn_cluster_artifacts")
 graknlabs_grakn_core_artifacts()
+graknlabs_grakn_cluster_artifacts()
 
 #################################
 # Load @graknlabs_client_python #

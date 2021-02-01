@@ -22,12 +22,6 @@ package(default_visibility = ["//tests/behaviour:__subpackages__"])
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
-    name = "background",
-    srcs = ["environment.py"],
-    deps = [],
-)
-
-py_library(
     name = "context",
     srcs = ["context.py"],
     deps = [],

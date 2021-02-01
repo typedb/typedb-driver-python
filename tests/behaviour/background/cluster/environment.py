@@ -16,21 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Type, Union
 
-import grakn_protocol.protobuf.options_pb2 as options_proto
+from tests.behaviour.background import environment_base
+from grakn.client import GraknClient
+from tests.behaviour.context import Context
 
-from grakn.options import GraknOptions, GraknClusterOptions
+
+def before_all(context: Context):
+    environment_base.before_all(context)
+    context.client = GraknClient.cluster()
 
 
-def options(opts: Union[GraknOptions, GraknClusterOptions]):
-    proto_options = options_proto.Options()
-    if opts.infer is not None:
-        proto_options.infer = opts.infer
-    if opts.explain is not None:
-        proto_options.explain = opts.explain
-    if opts.batch_size is not None:
-        proto_options.batch_size = opts.batch_size
-    if opts.is_cluster() and opts.allow_secondary_replica is not None:
-        proto_options.allow_secondary_replica = opts.allow_secondary_replica
-    return proto_options
+def before_scenario(context: Context, scenario):
+    environment_base.before_scenario(context, scenario)
+
+
+def after_scenario(context: Context, scenario):
+    environment_base.after_scenario(context, scenario)
+
+
+def after_all(context: Context):
+    environment_base.after_all(context)
