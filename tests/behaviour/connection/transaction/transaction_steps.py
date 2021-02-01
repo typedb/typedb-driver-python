@@ -125,11 +125,7 @@ def step_impl(context: Context):
 
 @step("transaction commits; throws exception containing \"{exception}\"")
 def step_impl(context: Context, exception: str):
-    try:
-        context.tx().commit()
-        assert False
-    except GraknClientException as e:
-        assert_that(exception, is_in(str(e)))
+    assert_that(calling(context.tx().commit), raises(GraknClientException, exception))
 
 
 @step("for each session, transaction commits")

@@ -125,3 +125,26 @@ py_behave_test = rule(
     },
     test=True,
 )
+
+
+def grakn_behaviour_py_test(
+        name,
+        background_core,
+        background_cluster,
+        native_grakn_artifact_core,
+        native_grakn_artifact_cluster,
+        **kwargs):
+
+    py_behave_test(
+        name = name + "-core",
+        background = background_core,
+        native_grakn_artifact = native_grakn_artifact_core,
+        **kwargs,
+    )
+
+    py_behave_test(
+        name = name + "-cluster",
+        background = background_cluster,
+        native_grakn_artifact = native_grakn_artifact_cluster,
+        **kwargs,
+    )

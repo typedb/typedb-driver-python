@@ -17,25 +17,23 @@
 # under the License.
 #
 
-package(default_visibility = ["//tests/behaviour:__subpackages__"])
+from tests.behaviour.background import environment_base
+from grakn.client import GraknClient
+from tests.behaviour.context import Context
 
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-py_library(
-    name = "context",
-    srcs = ["context.py"],
-    deps = [],
-)
+def before_all(context: Context):
+    environment_base.before_all(context)
+    context.client = GraknClient.cluster()
 
-py_library(
-    name = "util",
-    srcs = ["util.py"],
-    deps = [],
-)
 
-checkstyle_test(
-    name = "checkstyle",
-    include = glob(["*"]),
-    license_type = "apache",
-    size = "small",
-)
+def before_scenario(context: Context, scenario):
+    environment_base.before_scenario(context, scenario)
+
+
+def after_scenario(context: Context, scenario):
+    environment_base.after_scenario(context, scenario)
+
+
+def after_all(context: Context):
+    environment_base.after_all(context)

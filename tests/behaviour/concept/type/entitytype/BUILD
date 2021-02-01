@@ -18,13 +18,14 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "py_behave_test")
+load("//tools:behave_rule.bzl", "grakn_behaviour_py_test")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-py_behave_test(
+grakn_behaviour_py_test(
     name = "test",
     feats = ["@graknlabs_behaviour//concept/type:entitytype.feature"],
-    background = ["//tests/behaviour:background"],
+    background_core = ["//tests/behaviour/background:core"],
+    background_cluster = ["//tests/behaviour/background:cluster"],
     steps = [
         "//tests/behaviour/concept/thing:steps",
         "//tests/behaviour/concept/thing/entity:steps",
@@ -44,7 +45,8 @@ py_behave_test(
         "//tests/behaviour:util",
         "//tests/behaviour/config:parameters",
     ],
-    native_grakn_artifact = "//tests:native-grakn-artifact",
+    native_grakn_artifact_core = "//tests:native-grakn-core-artifact",
+    native_grakn_artifact_cluster = "//tests:native-grakn-cluster-artifact",
     size = "medium",
 )
 
