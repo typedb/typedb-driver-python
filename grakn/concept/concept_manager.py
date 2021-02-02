@@ -31,7 +31,7 @@ class ConceptManager:
         self._transaction = transaction
 
     def get_root_thing_type(self):
-        return self._get_thing_type("thing")
+        return self.get_thing_type("thing")
 
     def get_root_entity_type(self):
         return self.get_entity_type("entity")
@@ -51,7 +51,7 @@ class ConceptManager:
         return EntityType._of(res.put_entity_type_res.entity_type)
 
     def get_entity_type(self, label: str):
-        _type = self._get_thing_type(label)
+        _type = self.get_thing_type(label)
         return _type if _type and _type.is_entity_type() else None
 
     def put_relation_type(self, label: str):
@@ -63,7 +63,7 @@ class ConceptManager:
         return RelationType._of(res.put_relation_type_res.relation_type)
 
     def get_relation_type(self, label: str):
-        _type = self._get_thing_type(label)
+        _type = self.get_thing_type(label)
         return _type if _type and _type.is_relation_type() else None
 
     def put_attribute_type(self, label: str, value_type):
@@ -76,7 +76,7 @@ class ConceptManager:
         return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
 
     def get_attribute_type(self, label: str):
-        _type = self._get_thing_type(label)
+        _type = self.get_thing_type(label)
         return _type if _type and _type.is_attribute_type() else None
 
     def get_thing(self, iid: str):
@@ -88,7 +88,7 @@ class ConceptManager:
         response = self._execute(req)
         return concept_proto_reader.thing(response.get_thing_res.thing) if response.get_thing_res.WhichOneof("res") == "thing" else None
 
-    def _get_thing_type(self, label: str):
+    def get_thing_type(self, label: str):
         req = concept_proto.ConceptManager.Req()
         get_thing_type_req = concept_proto.ConceptManager.GetThingType.Req()
         get_thing_type_req.label = label
