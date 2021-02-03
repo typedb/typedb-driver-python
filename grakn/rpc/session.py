@@ -97,9 +97,7 @@ class _RPCSession(Session):
         self._session_id = self._grpc_stub.session_open(open_req).session_id
         self._is_open = True
         self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-        # TODO: This thread blocks the process from closing. We should try cancelling the scheduled task when the
-        #       session closes. If that doesn't work, we need some other way of getting the thread to exit.
-        Thread(target=self._scheduler.run, daemon=True).start()
+        Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
     def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
         if not options:
@@ -134,7 +132,7 @@ class _RPCSession(Session):
         res = self._grpc_stub.session_pulse(pulse_req)
         if res.alive:
             self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-            Thread(target=self._scheduler.run, daemon=True).start()
+            Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
     def __enter__(self):
         return self
