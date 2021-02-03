@@ -157,7 +157,7 @@ class _RPCGraknClientCluster(GraknClient):
                     grakn_cluster_stub = GraknClusterStub(client.channel())
                     res = grakn_cluster_stub.cluster_discover(cluster_proto.Cluster.Discover.Req())
                     members = set([Address.Server.parse(srv) for srv in res.servers])
-                    print("Discovered %s" % str(members))
+                    print("Discovered %s" % [str(member) for member in members])
                     return members
             except RpcError:
                 print("Cluster discovery to %s failed." % address)

@@ -16,13 +16,20 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
+import subprocess
 import unittest
 from functools import partial
 from multiprocessing.pool import ThreadPool
+from time import sleep
 from unittest import TestCase
 
+import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
+import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
+import grpc
+from grakn_protocol.protobuf.cluster.grakn_cluster_pb2_grpc import GraknClusterStub
+
 from grakn.client import GraknClient, SessionType, TransactionType
+from grakn.rpc.cluster.session import _RPCSessionCluster
 from grakn.rpc.session import Session
 
 
@@ -30,12 +37,49 @@ class TestClusterFailover(TestCase):
 
     def setUp(self):
         with GraknClient.cluster("localhost:11729") as client:
-            if "grakn" not in client.databases().all():
-                client.databases().create("grakn")
+            if "grakn" in client.databases().all():
+                client.databases().delete("grakn")
+            client.databases().create("grakn")
 
-    def test_hello_world(self):
+    # def test_hello_world(self):
+    #     with GraknClient.cluster("localhost:11729") as client:
+    #         print("Hello World")
+
+    def get_primary_replica(self):
+        channel = grpc.insecure_channel("localhost:11729")
+        cluster_grpc_stub = GraknClusterStub(channel)
+        while True:
+            db_discover_req = database_proto.Database.Discover.Req()
+            db_discover_req.database = "grakn"
+            print("Discovering replicas for database 'grakn'...")
+            res = cluster_grpc_stub.database_discover(db_discover_req)
+            dbs = _RPCSessionCluster.Database.of_proto(res)
+            print("Discovered " + str([str(replica) for replica in dbs.replicas()]))
+            primary_replica = next(iter([replica for replica in dbs.replicas() if replica.is_primary()]), None)
+            if primary_replica:
+                return primary_replica
+            else:
+                print("There is no primary replica yet. Retrying in 2s...")
+                sleep(2)
+                return self.get_primary_replica()
+
+    # def test_discover_database(self):
+    #     self.get_primary_replica()
+
+    def test_put_entity_type_to_crashed_primary_replica(self):
         with GraknClient.cluster("localhost:11729") as client:
-            print("Hello World")
+            assert client.databases().contains("grakn")
+            primary_replica = self.get_primary_replica()
+            print("Performing operations against the primary replica " + primary_replica)
+            with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.WRITE) as tx:
+                tx.concepts().put_entity_type("person")
+                tx.commit()
+            with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
+                person = tx.concepts().get_entity_type("person")
+                assert person.get_label() == "person"
+            print("Stopping primary replica")
+            port = primary_replica.replica_id().address().server_port()
+            subprocess.run(["lsof", "-i", ":" + port])
 
 
 if __name__ == "__main__":
