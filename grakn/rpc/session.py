@@ -20,7 +20,7 @@ import enum
 import sched
 import time
 from abc import ABC, abstractmethod
-from concurrent.futures.thread import ThreadPoolExecutor
+from threading import Thread
 
 import grakn_protocol.protobuf.session_pb2 as session_proto
 import grpc
@@ -96,9 +96,8 @@ class _RPCSession(Session):
 
         self._session_id = self._grpc_stub.session_open(open_req).session_id
         self._is_open = True
-        self._pulse_thread_pool = ThreadPoolExecutor(thread_name_prefix='session_pulse_{}'.format(self._session_id.hex()))
-        self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-        self._pulse_thread_pool.submit(self._scheduler.run)
+        self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+        Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
     def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
         if not options:
@@ -112,7 +111,8 @@ class _RPCSession(Session):
     def close(self) -> None:
         if self._is_open:
             self._is_open = False
-            self._pulse_thread_pool.shutdown(wait=False)
+            self._scheduler.cancel(self._pulse)
+            self._scheduler.empty()
             req = session_proto.Session.Close.Req()
             req.session_id = self._session_id
             try:
@@ -131,10 +131,8 @@ class _RPCSession(Session):
         pulse_req.session_id = self._session_id
         res = self._grpc_stub.session_pulse(pulse_req)
         if res.alive:
-            self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-            self._pulse_thread_pool.submit(self._scheduler.run)
-        else:
-            self._is_open = False
+            self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+            Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
     def __enter__(self):
         return self
