@@ -70,16 +70,23 @@ class TestClusterFailover(TestCase):
         with GraknClient.cluster("localhost:11729") as client:
             assert client.databases().contains("grakn")
             primary_replica = self.get_primary_replica()
-            print("Performing operations against the primary replica " + primary_replica)
+            print("Performing operations against the primary replica " + str(primary_replica))
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.WRITE) as tx:
                 tx.concepts().put_entity_type("person")
                 tx.commit()
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                 person = tx.concepts().get_entity_type("person")
                 assert person.get_label() == "person"
-            print("Stopping primary replica")
+            print("Stopping primary replica...")
             port = primary_replica.replica_id().address().server_port()
-            subprocess.run(["lsof", "-i", ":" + port])
+            lsof = subprocess.check_output(["lsof", "-i", ":%d" % port])
+            primary_replica_server_pid = [conn.split()[1] for conn in lsof.decode("utf-8").split("\n") if "LISTEN" in conn][0]
+            print("Primary replica is hosted by server with PID %s" % primary_replica_server_pid)
+            subprocess.check_call(["kill", primary_replica_server_pid])
+            print("Primary replica stopped successfully.")
+            with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
+                person = tx.concepts().get_entity_type("person")
+                assert person.get_label() == "person"
 
 
 if __name__ == "__main__":

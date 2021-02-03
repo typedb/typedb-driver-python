@@ -56,7 +56,7 @@ def _rule_implementation(ctx):
            ./1/grakn server --data data --address=127.0.0.1:11729:11730 --peers=127.0.0.1:11729:11730,127.0.0.1:21729:21730,127.0.0.1:31729:31730 &
            ./2/grakn server --data data --address=127.0.0.1:21729:21730 --peers=127.0.0.1:11729:11730,127.0.0.1:21729:21730,127.0.0.1:31729:31730 &
            ./3/grakn server --data data --address=127.0.0.1:31729:31730 --peers=127.0.0.1:11729:11730,127.0.0.1:21729:21730,127.0.0.1:31729:31730 &
-           sleep 10
+           sleep 11
 
            """
 
@@ -65,7 +65,6 @@ def _rule_implementation(ctx):
            echo Tests concluded with exit value $RESULT
            echo Stopping servers.
            kill $(jps | awk '/GraknServer/ {print $1}' | paste -sd " " -)
-#           kill $(lsof -i :11730 | grep LISTEN | awk '{print $2}')
            exit $RESULT
            """
 
