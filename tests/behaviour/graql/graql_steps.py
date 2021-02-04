@@ -150,11 +150,11 @@ def step_impl(context: Context, expected_size: int):
     assert_that(context.answers, has_length(expected_size), "Expected [%d] answers, but got [%d]" % (expected_size, len(context.answers)))
 
 
-@step("rules contain: {rule_label:Str}")
+@step("rules contain: {rule_label}")
 def step_impl(context: Context, rule_label: str):
     return rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()]
 
-@step("rules do not contain: {rule_label:Str}")
+@step("rules do not contain: {rule_label}")
 def step_impl(context: Context, rule_label: str):
     return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
 
