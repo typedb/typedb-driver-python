@@ -78,9 +78,16 @@ def step_impl(context: Context, var1: str, role_label: str, var2: str):
 
 @step("relation {var1:Var} add player for role({role_label}): {var2:Var}; throws exception")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    assert_that(calling(context.get(var1).as_remote(context.tx()).add_player)
-                .with_args(context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2)),
-                raises(GraknClientException))
+    adding_player_throws_exception(context, var1, role_label, var2)
+
+def adding_player_throws_exception(context: Context, var1: str, role_label: str, var2: str):
+    try:
+        context.get(var1).as_remote(context.tx()).add_player(
+            context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label),
+            context.get(var2))
+        assert False;
+    except GraknClientException:
+        pass
 
 
 
