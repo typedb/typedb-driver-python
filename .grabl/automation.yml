@@ -88,7 +88,7 @@ build:
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
         bazel test //test/behaviour/graql/language/match/... --test_output=streamed
         bazel test //test/behaviour/graql/language/get/... --test_output=streamed
-    test-behaviour-writeable:
+    test-behaviour-writable:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
@@ -103,7 +103,7 @@ build:
         bazel test //test/behaviour/graql/language/insert/... --test_output=streamed
         bazel test //test/behaviour/graql/language/delete/... --test_output=streamed
         bazel test //test/behaviour/graql/language/update/... --test_output=streamed
-    test-behaviour-defineable:
+    test-behaviour-definable:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
@@ -134,7 +134,7 @@ build:
         bazel test //tests:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
-      dependencies: [build, test-behaviour, test-cluster-failover]
+      dependencies: [build, test-behaviour-connection, test-behaviour-concept, test-behaviour-match, test-behaviour-writable, test-behaviour-definable test-cluster-failover]
       filter:
         owner: graknlabs
         branch: master
