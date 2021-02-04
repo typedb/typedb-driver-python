@@ -86,8 +86,8 @@ build:
         export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
         export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //test/behaviour/graql/language/match/... --test_output=streamed
-        bazel test //test/behaviour/graql/language/get/... --test_output=streamed
+        bazel test //tests/behaviour/graql/language/match/... --test_output=streamed
+        bazel test //tests/behaviour/graql/language/get/... --test_output=streamed
     test-behaviour-writable:
       image: graknlabs-ubuntu-20.04
       type: foreground
@@ -100,9 +100,9 @@ build:
         export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
         export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //test/behaviour/graql/language/insert/... --test_output=streamed
-        bazel test //test/behaviour/graql/language/delete/... --test_output=streamed
-        bazel test //test/behaviour/graql/language/update/... --test_output=streamed
+        bazel test //tests/behaviour/graql/language/insert/... --test_output=streamed
+        bazel test //tests/behaviour/graql/language/delete/... --test_output=streamed
+        bazel test //tests/behaviour/graql/language/update/... --test_output=streamed
     test-behaviour-definable:
       image: graknlabs-ubuntu-20.04
       type: foreground
@@ -115,10 +115,10 @@ build:
         export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
         export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //test/behaviour/graql/language/define:checkstyle --test_output=streamed
-        bazel test //test/behaviour/graql/language/define:test-core --test_output=streamed --jobs=1
-        bazel test //test/behaviour/graql/language/undefine:checkstyle --test_output=streamed
-        bazel test //test/behaviour/graql/language/undefine:test-core --test_output=streamed --jobs=1
+        bazel test //tests/behaviour/graql/language/define:checkstyle --test_output=streamed
+        bazel test //tests/behaviour/graql/language/define:test-core --test_output=streamed --jobs=1
+        bazel test //tests/behaviour/graql/language/undefine:checkstyle --test_output=streamed
+        bazel test //tests/behaviour/graql/language/undefine:test-core --test_output=streamed --jobs=1
     test-cluster-failover:
       image: graknlabs-ubuntu-20.04
       type: foreground
