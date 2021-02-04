@@ -26,6 +26,7 @@ from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
 class _RPCDatabaseManagerCluster(DatabaseManager):
 
     def __init__(self, database_managers: Dict[Address.Server, "_RPCDatabaseManager"]):
+        assert database_managers
         self._database_managers = database_managers
 
     def contains(self, name: str) -> bool:
