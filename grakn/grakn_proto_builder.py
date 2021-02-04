@@ -31,6 +31,6 @@ def options(opts: Union[GraknOptions, GraknClusterOptions]):
         proto_options.explain = opts.explain
     if opts.batch_size is not None:
         proto_options.batch_size = opts.batch_size
-    if opts.is_cluster() and opts.allow_secondary_replica is not None:
-        proto_options.allow_secondary_replica = opts.allow_secondary_replica
+    if opts.is_cluster() and opts.read_any_replica is not None:
+        proto_options.read_any_replica = opts.read_any_replica
     return proto_options

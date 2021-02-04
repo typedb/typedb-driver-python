@@ -44,7 +44,7 @@ class GraknClusterOptions(GraknOptions, ABC):
 
     def __init__(self):
         super().__init__()
-        self.allow_secondary_replica: Optional[bool] = None
+        self.read_any_replica: Optional[bool] = None
 
 
 class _GraknOptions(GraknOptions):

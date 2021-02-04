@@ -48,7 +48,7 @@ class _RPCSessionCluster(Session):
     def transaction(self, transaction_type: TransactionType, options: GraknClusterOptions = None) -> Transaction:
         if not options:
             options = GraknOptions.cluster()
-        return self._transaction_secondary_replica(transaction_type, options) if options.allow_secondary_replica else self._transaction_primary_replica(transaction_type, options)
+        return self._transaction_secondary_replica(transaction_type, options) if options.read_any_replica else self._transaction_primary_replica(transaction_type, options)
 
     def session_type(self) -> SessionType:
         return self._session_type
