@@ -26,13 +26,14 @@ from grpc import RpcError, StatusCode
 from grakn.common.exception import GraknClientException
 from grakn.options import GraknClusterOptions, GraknOptions
 from grakn.rpc.cluster.address import Address
-from grakn.rpc.session import Session, SessionType
+from grakn.rpc.session import Session, SessionType, _RPCSession
 from grakn.rpc.transaction import TransactionType, Transaction
 
 
 class _RPCSessionCluster(Session):
     MAX_RETRY_PER_REPLICA = 10
     WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS: float = 2
+    WAIT_AFTER_NETWORK_FAILURE_SECONDS: float = 1
 
     def __init__(self, cluster_client, database: str, session_type: SessionType, options: GraknClusterOptions):
         self._lock = Lock()
@@ -41,7 +42,7 @@ class _RPCSessionCluster(Session):
         self._session_type = session_type
         self._options = options
         self._database = self._discover_database()
-        self._core_sessions: Dict["_RPCSessionCluster.Replica.Id", Session] = {}
+        self._core_sessions: Dict["_RPCSessionCluster.Replica.Id", _RPCSession] = {}
         self._is_open = True
 
     def transaction(self, transaction_type: TransactionType, options: GraknClusterOptions = None) -> Transaction:
@@ -70,17 +71,16 @@ class _RPCSessionCluster(Session):
         self.close()
 
     def _transaction_primary_replica(self, transaction_type: TransactionType, options: GraknOptions) -> Transaction:
-        self._seek_primary_replica()
+        if not self._database.primary_replica():
+            self._fetch_latest_replica_info(max_retries=self.MAX_RETRY_PER_REPLICA)
         while True:
             try:
-                replica = self._database.primary_replica()
-                return self._try_open_transaction_in_replica(replica, transaction_type, options)
+                return self._try_open_transaction_in_replica(self._database.primary_replica(), transaction_type, options)
             except GraknClientException as e:
                 # TODO: propagate exception from the server in a less brittle way
-                if "[RPL01]" in str(e):
+                if "[RPL01]" in str(e):  # The contacted replica reported that it was not the primary replica
                     print("Unable to open a session or transaction: %s" % str(e))
-                    time.sleep(2)
-                    self._database = self._discover_database()
+                    self._fetch_latest_replica_info(max_retries=self.MAX_RETRY_PER_REPLICA)
                 else:
                     raise e
                 # TODO: introduce a special type that extends RpcError and Call
@@ -88,9 +88,10 @@ class _RPCSessionCluster(Session):
                 # TODO: this logic should be extracted into GraknClientException
                 # TODO: error message should be checked in a less brittle way
                 if e.code() == StatusCode.UNAVAILABLE or "[INT07]" in str(e):
-                    print("Unable to open a session or transaction to %s: %s" % (str(replica.replica_id()), str(e)))
-                    time.sleep(2)
-                    self._database = self._discover_database()
+                    print("Unable to open a session or transaction to %s. Seeking new primary replica in 1 second. %s" % (str(self._database.primary_replica().replica_id()), str(e)))
+                    # If the replica is down, it may take some time for a primary to be re-elected, so we wait briefly.
+                    time.sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
+                    self._fetch_latest_replica_info(max_retries=self.MAX_RETRY_PER_REPLICA)
                 else:
                     raise e
 
@@ -105,28 +106,29 @@ class _RPCSessionCluster(Session):
                     raise e
         raise self._cluster_not_available_exception()
 
-    def _try_open_transaction_in_replica(self, replica: "_RPCSessionCluster.Replica", transaction_type: TransactionType, options: GraknOptions) -> Transaction:
+    def _core_session(self, replica: "_RPCSessionCluster.Replica") -> _RPCSession:
         replica_id = replica.replica_id()
         with self._lock:
-            if replica_id in self._core_sessions:
-                selected_session = self._core_sessions[replica_id]
-            else:
+            if replica_id not in self._core_sessions:
                 print("Opening a session to '%s'" % replica_id)
-                client = self._cluster_client.core_client(replica_id.address())
-                self._core_sessions[replica_id] = client.session(replica_id.database(), self._session_type, self._options)
-                selected_session = self._core_sessions[replica_id]
-        print("Opening transaction to replica '%s'" % replica.replica_id())
+                self._core_sessions[replica_id] = self._cluster_client.core_client(replica_id.address()).session(replica_id.database(), self._session_type, self._options)
+            return self._core_sessions[replica_id]
+
+    def _try_open_transaction_in_replica(self, replica: "_RPCSessionCluster.Replica", transaction_type: TransactionType, options: GraknOptions) -> Transaction:
+        selected_session = self._core_session(replica)
+        print("Opening a transaction to replica '%s'" % replica.replica_id())
         return selected_session.transaction(transaction_type, options)
 
-    def _seek_primary_replica(self, max_retries=30) -> "_RPCSessionCluster.Replica":
+    def _fetch_latest_replica_info(self, max_retries) -> "_RPCSessionCluster.Replica":
         retries = 0
-        while not self._database.primary_replica():
-            retries += 1
-            if retries >= max_retries:
-                raise self._cluster_not_available_exception()
-            time.sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
+        while retries < max_retries:
             self._database = self._discover_database()
-        return self._database.primary_replica()
+            if self._database.primary_replica():
+                return self._database.primary_replica()
+            else:
+                time.sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
+                retries += 1
+        raise self._cluster_not_available_exception()
 
     def _discover_database(self, server_address: Address.Server = None) -> "_RPCSessionCluster.Database":
         if server_address:
