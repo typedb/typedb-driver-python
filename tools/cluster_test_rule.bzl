@@ -19,7 +19,7 @@
 
 def _rule_implementation(ctx):
     """
-    Implementation of the rule py_behave_test.
+    Implementation of the rule grakn_cluster_py_test.
     """
 
     # Store the path of the test source file. It is recommended to only have one source file.
@@ -30,6 +30,7 @@ def _rule_implementation(ctx):
 
     grakn_cluster_distro = str(ctx.files.native_grakn_cluster_artifact[0].short_path)
 
+    # TODO: This code is, mostly, copied from our Grakn behave test
     cmd = "set -e && GRAKN_ARCHIVE=%s" % grakn_cluster_distro
     cmd += """
 
