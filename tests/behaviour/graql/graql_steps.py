@@ -96,6 +96,20 @@ def step_impl(context: Context, exception: str):
     assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException, exception))
 
 
+@step("graql update")
+def step_impl(context: Context):
+    context.tx().query().update(query=context.text)
+
+
+@step("graql update; throws exception")
+def step_impl(context: Context):
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException))
+
+
+@step("graql update; throws exception containing \"{exception}\"")
+def step_impl(context: Context, exception: str):
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException, exception))
+
 @step("get answers of graql insert")
 def step_impl(context: Context):
     context.clear_answers()
@@ -134,6 +148,15 @@ def step_impl(context: Context):
 @step("answer size is: {expected_size:Int}")
 def step_impl(context: Context, expected_size: int):
     assert_that(context.answers, has_length(expected_size), "Expected [%d] answers, but got [%d]" % (expected_size, len(context.answers)))
+
+
+@step("rules contain: {rule_label}")
+def step_impl(context: Context, rule_label: str):
+    return rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()]
+
+@step("rules do not contain: {rule_label}")
+def step_impl(context: Context, rule_label: str):
+    return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
 
 
 class ConceptMatcher:

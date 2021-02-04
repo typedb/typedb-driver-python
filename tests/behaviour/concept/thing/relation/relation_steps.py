@@ -76,6 +76,20 @@ def step_impl(context: Context, var1: str, role_label: str, var2: str):
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
     context.get(var1).as_remote(context.tx()).remove_player(context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
 
+@step("relation {var1:Var} add player for role({role_label}): {var2:Var}; throws exception")
+def step_impl(context: Context, var1: str, role_label: str, var2: str):
+    adding_player_throws_exception(context, var1, role_label, var2)
+
+def adding_player_throws_exception(context: Context, var1: str, role_label: str, var2: str):
+    try:
+        context.get(var1).as_remote(context.tx()).add_player(
+            context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label),
+            context.get(var2))
+        assert False;
+    except GraknClientException:
+        pass
+
+
 
 @step("relation {var:Var} get players contain")
 def step_impl(context: Context, var: str):
