@@ -73,9 +73,11 @@ class TestClusterFailover(TestCase):
             print("Performing operations against the primary replica " + str(primary_replica))
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.WRITE) as tx:
                 tx.concepts().put_entity_type("person")
+                print("Put the entity type 'person'.")
                 tx.commit()
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                 person = tx.concepts().get_entity_type("person")
+                print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
                 assert person.get_label() == "person"
             print("Stopping primary replica...")
             port = primary_replica.replica_id().address().server_port()
@@ -86,6 +88,7 @@ class TestClusterFailover(TestCase):
             print("Primary replica stopped successfully.")
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                 person = tx.concepts().get_entity_type("person")
+                print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                 assert person.get_label() == "person"
 
 
