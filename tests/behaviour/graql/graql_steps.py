@@ -96,6 +96,20 @@ def step_impl(context: Context, exception: str):
     assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException, exception))
 
 
+@step("graql update")
+def step_impl(context: Context):
+    context.tx().query().update(query=context.text)
+
+
+@step("graql update; throws exception")
+def step_impl(context: Context):
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException))
+
+
+@step("graql update; throws exception containing \"{exception}\"")
+def step_impl(context: Context, exception: str):
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException, exception))
+
 @step("get answers of graql insert")
 def step_impl(context: Context):
     context.clear_answers()

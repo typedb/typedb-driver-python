@@ -92,6 +92,15 @@ class QueryManager:
         request.delete_req.CopyFrom(delete_req)
         return self._iterate_query(request, lambda res: [], options)
 
+    def update(self, query: str, options: GraknOptions = None):
+        if not options:
+            options = GraknOptions.core()
+        request = query_proto.Query.Req()
+        update_req = query_proto.Query.Update.Req()
+        update_req.query = query
+        request.update_req.CopyFrom(update_req)
+        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.update_res.answers, options))
+
     def define(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
