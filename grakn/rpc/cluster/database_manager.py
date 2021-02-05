@@ -19,6 +19,7 @@
 
 from typing import Dict, List
 
+from grakn.common.exception import GraknClientException
 from grakn.rpc.cluster.address import Address
 from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
 
@@ -30,15 +31,29 @@ class _RPCDatabaseManagerCluster(DatabaseManager):
         self._database_managers = database_managers
 
     def contains(self, name: str) -> bool:
-        return next(iter(self._database_managers.values())).contains(name)
+        errors = []
+        for database_manager in self._database_managers.values():
+            try:
+                return database_manager.contains(name)
+            except GraknClientException as e:
+                errors.append(e)
+        raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
 
     def create(self, name: str) -> None:
         for database_manager in self._database_managers.values():
-            database_manager.create(name)
+            if database_manager.contains(name):
+                database_manager.create(name)
 
     def delete(self, name: str) -> None:
         for database_manager in self._database_managers.values():
-            database_manager.delete(name)
+            if database_manager.contains(name):
+                database_manager.delete(name)
 
     def all(self) -> List[str]:
-        return next(iter(self._database_managers.values())).all()
+        errors = []
+        for database_manager in self._database_managers.values():
+            try:
+                return database_manager.all()
+            except GraknClientException as e:
+                errors.append(e)
+        raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
