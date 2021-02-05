@@ -41,7 +41,7 @@ class _RPCDatabaseManagerCluster(DatabaseManager):
 
     def create(self, name: str) -> None:
         for database_manager in self._database_managers.values():
-            if database_manager.contains(name):
+            if not database_manager.contains(name):
                 database_manager.create(name)
 
     def delete(self, name: str) -> None:
