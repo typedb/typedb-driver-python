@@ -44,8 +44,8 @@ class GraknClient(ABC):
         return _RPCGraknClient(address)
 
     @staticmethod
-    def cluster(address=DEFAULT_ADDRESS) -> "GraknClient":
-        return _RPCGraknClientCluster(address)
+    def cluster(addresses: List[str]) -> "GraknClient":
+        return _RPCGraknClientCluster(addresses)
 
     @abstractmethod
     def session(self, database: str, session_type: SessionType, options: GraknOptions = None) -> Session:
@@ -112,8 +112,8 @@ class _RPCGraknClient(GraknClient):
 # _RPCGraknClientCluster must live in this package because of circular ref with GraknClient
 class _RPCGraknClientCluster(GraknClient):
 
-    def __init__(self, address: str):
-        self._core_clients: Dict[Address.Server, _RPCGraknClient] = {addr: _RPCGraknClient(addr.client()) for addr in self._discover_cluster([address])}
+    def __init__(self, addresses: List[str]):
+        self._core_clients: Dict[Address.Server, _RPCGraknClient] = {addr: _RPCGraknClient(addr.client()) for addr in self._discover_cluster(addresses)}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
         self._databases = _RPCDatabaseManagerCluster({addr: client.databases() for (addr, client) in self._core_clients.items()})
         self._is_open = True
