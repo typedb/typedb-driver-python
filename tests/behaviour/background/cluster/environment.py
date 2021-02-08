@@ -24,7 +24,7 @@ from tests.behaviour.context import Context
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = GraknClient.cluster()
+    context.client = GraknClient.cluster([GraknClient.DEFAULT_ADDRESS])
 
 
 def before_scenario(context: Context, scenario):
