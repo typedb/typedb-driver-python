@@ -73,9 +73,6 @@ def _rule_implementation(ctx):
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
            ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
 
-           chmod +x debug
-           ./debug
-
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
     cmd += "cp %s %s" % (ctx.files.background[0].path, feats_dir)
