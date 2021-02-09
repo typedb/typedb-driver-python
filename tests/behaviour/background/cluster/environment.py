@@ -27,7 +27,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-cluster"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = GraknClient.cluster(addresses=["localhost:%d" % int(context.config.userdata["port"])])
+    context.client = GraknClient.cluster(addresses=["localhost:" + context.config.userdata["port"]])
 
 
 def before_scenario(context: Context, scenario):
