@@ -40,7 +40,7 @@ def _rule_implementation(ctx):
 
     grakn_distro = str(ctx.files.native_grakn_artifact[0].short_path)
 
-    cmd = "set -e && GRAKN_DISTRO=%s" % grakn_distro
+    cmd = "set -xe && GRAKN_DISTRO=%s" % grakn_distro
     cmd += """
 
            if test -d grakn_distribution; then
