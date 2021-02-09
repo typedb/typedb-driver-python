@@ -32,7 +32,7 @@ from grakn.rpc.cluster.session import _RPCSessionCluster
 class TestClusterFailover(TestCase):
 
     def setUp(self):
-        with GraknClient.cluster("localhost:11729") as client:
+        with GraknClient.cluster(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
             if "grakn" in client.databases().all():
                 client.databases().delete("grakn")
             client.databases().create("grakn")
@@ -56,7 +56,7 @@ class TestClusterFailover(TestCase):
                 return self.get_primary_replica()
 
     def test_put_entity_type_to_crashed_primary_replica(self):
-        with GraknClient.cluster("localhost:11729") as client:
+        with GraknClient.cluster(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
             assert client.databases().contains("grakn")
             primary_replica = self.get_primary_replica()
             print("Performing operations against the primary replica " + str(primary_replica))

@@ -25,8 +25,6 @@ from tests.behaviour.context import Context, ThingSubtype
 
 import time
 
-IGNORE_TAGS = ["ignore", "ignore-client-python"]
-
 
 def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
@@ -34,11 +32,6 @@ def before_all(context: Context):
 
 
 def before_scenario(context: Context, scenario):
-    for tag in IGNORE_TAGS:
-        if tag in scenario.effective_tags:
-            scenario.skip("tagged with @" + tag)
-            return
-
     for database in context.client.databases().all():
         context.client.databases().delete(database)
     context.sessions = []

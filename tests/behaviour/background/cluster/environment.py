@@ -22,12 +22,19 @@ from grakn.client import GraknClient
 from tests.behaviour.context import Context
 
 
+IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-cluster"]
+
+
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = GraknClient.cluster()
+    context.client = GraknClient.cluster([GraknClient.DEFAULT_ADDRESS])
 
 
 def before_scenario(context: Context, scenario):
+    for tag in IGNORE_TAGS:
+        if tag in scenario.effective_tags:
+            scenario.skip("tagged with @" + tag)
+            return
     environment_base.before_scenario(context, scenario)
 
 
