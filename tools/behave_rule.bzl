@@ -40,7 +40,7 @@ def _rule_implementation(ctx):
 
     grakn_distro = str(ctx.files.native_grakn_artifact[0].short_path)
 
-    cmd = "set -xe && GRAKN_DISTRO=%s" % grakn_distro
+    cmd = "set -e && GRAKN_DISTRO=%s" % grakn_distro
     cmd += """
 
            if test -d grakn_distribution; then
@@ -60,7 +60,14 @@ def _rule_implementation(ctx):
              fi
            fi
            DIRECTORY=$(ls ./grakn_distribution)
-           echo Successfully unarchived Grakn distribution.
+
+           if [[ $GRAKN_DISTRO == *"cluster"* ]]; then
+             PRODUCT=Cluster
+           else
+             PRODUCT=Core
+           fi
+
+           echo Successfully unarchived Grakn $PRODUCT distribution.
 
            RND=20001
            while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
@@ -69,33 +76,33 @@ def _rule_implementation(ctx):
            done
            PORT=$((40000 + $RND))
 
-           echo Starting Grakn Server
+           echo Starting Grakn $PRODUCT Server.
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
-           ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
+           if [[ $PRODUCT == "Core" ]]; then
+             ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
+           else
+             ./grakn_distribution/"$DIRECTORY"/grakn server --address "127.0.0.1:$PORT:$(($PORT+1))" --data grakn_test &
+           fi
 
            POLL_INTERVAL_SECS=0.5
            MAX_RETRIES=60
            RETRY_NUM=0
-           while [ $RETRY_NUM -lt $MAX_RETRIES ]
-           do
+           while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
-             if [ $(($RETRY_NUM % 4)) -eq 0 ]
-             then
-               echo Waiting for Grakn server to start \($(($RETRY_NUM / 2))s\)...
+             if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
+               echo Waiting for Grakn $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
              fi
              lsof -i :$PORT && STARTED=1 || STARTED=0
-             if [ $STARTED -eq 1 ]
-             then
+             if [[ $STARTED -eq 1 ]]; then
                break
              fi
              sleep $POLL_INTERVAL_SECS
            done
-           if [ $STARTED -eq 0 ]
-           then
-             echo Failed to start Grakn server
+           if [[ $STARTED -eq 0 ]]; then
+             echo Failed to start Grakn $PRODUCT server
              exit 1
            fi
-           echo Grakn database server started
+           echo Grakn $PRODUCT database server started
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
