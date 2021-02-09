@@ -32,7 +32,6 @@ load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
 
 
-
 py_library(
     name = "client_python",
     srcs = glob(["grakn/**/*.py"]),
@@ -114,10 +113,8 @@ release_validate_python_deps(
 filegroup(
     name = "ci",
     data = [
-        "@graknlabs_dependencies//tool/bazelrun:rbe",
+        "@graknlabs_dependencies//tool/checkstyle:test-coverage",
         "@graknlabs_dependencies//distribution/artifact:create-netrc",
-        "@graknlabs_dependencies//tool/sync:dependencies",
-        "@graknlabs_dependencies//tool/release:approval",
         "@graknlabs_dependencies//tool/release:create-notes",
     ],
 )

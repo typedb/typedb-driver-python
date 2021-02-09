@@ -60,11 +60,49 @@ def _rule_implementation(ctx):
              fi
            fi
            DIRECTORY=$(ls ./grakn_distribution)
-           echo Successfully unarchived Grakn distribution.
-           echo Starting Grakn Server
+
+           if [[ $GRAKN_DISTRO == *"cluster"* ]]; then
+             PRODUCT=Cluster
+           else
+             PRODUCT=Core
+           fi
+
+           echo Successfully unarchived Grakn $PRODUCT distribution.
+
+           RND=20001
+           while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
+           do
+             RND=$RANDOM
+           done
+           PORT=$((40000 + $RND))
+
+           echo Starting Grakn $PRODUCT Server.
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
-           ./grakn_distribution/"$DIRECTORY"/grakn server --data grakn_test &
-           sleep 9
+           if [[ $PRODUCT == "Core" ]]; then
+             ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
+           else
+             ./grakn_distribution/"$DIRECTORY"/grakn server --address "127.0.0.1:$PORT:$(($PORT+1))" --data grakn_test &
+           fi
+
+           POLL_INTERVAL_SECS=0.5
+           MAX_RETRIES=60
+           RETRY_NUM=0
+           while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
+             RETRY_NUM=$(($RETRY_NUM + 1))
+             if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
+               echo Waiting for Grakn $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
+             fi
+             lsof -i :$PORT && STARTED=1 || STARTED=0
+             if [[ $STARTED -eq 1 ]]; then
+               break
+             fi
+             sleep $POLL_INTERVAL_SECS
+           done
+           if [[ $STARTED -eq 0 ]]; then
+             echo Failed to start Grakn $PRODUCT server
+             exit 1
+           fi
+           echo Grakn $PRODUCT database server started
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
@@ -72,7 +110,7 @@ def _rule_implementation(ctx):
     cmd += " && rm -rf " + steps_out_dir
     cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
-    cmd += " && behave %s && export RESULT=0 || export RESULT=1" % feats_dir
+    cmd += " && behave %s -D port=$PORT && export RESULT=0 || export RESULT=1" % feats_dir
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping server.
