@@ -38,36 +38,7 @@ build:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
-        RND=20001
-        while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
-        do
-          RND=$RANDOM
-        done
-        PORT=$((40000 + $RND))
-
-        POLL_INTERVAL_SECS=0.5
-        MAX_RETRIES=60
-        RETRY_NUM=0
-        while [ $RETRY_NUM -lt $MAX_RETRIES ]
-        do
-          ((RETRY_NUM++))
-          if [ $(($RETRY_NUM % 4)) -eq 0 ]
-          then
-            echo Waiting for Grakn server to start \($(($RETRY_NUM / 2))s\)...
-          fi
-          lsof -i :$PORT && STARTED=1 || STARTED=0
-          if [ $STARTED -eq 1 ]
-          then
-            break
-          fi
-          sleep $POLL_INTERVAL_SECS
-        done
-        if [ $STARTED -eq 0 ]
-        then
-          echo Failed to start Grakn server
-          exit 1
-        fi
-        echo Grakn database server started
+        ./debug
 #    build:
 #      image: graknlabs-ubuntu-20.04
 #      type: foreground
