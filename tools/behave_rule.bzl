@@ -73,29 +73,8 @@ def _rule_implementation(ctx):
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
            ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
 
-           POLL_INTERVAL_SECS=0.5
-           MAX_RETRIES=60
-           RETRY_NUM=0
-           while [ $RETRY_NUM -lt $MAX_RETRIES ]
-           do
-             ((RETRY_NUM++))
-             if [ $(($RETRY_NUM % 4)) -eq 0 ]
-             then
-               echo Waiting for Grakn server to start \($(($RETRY_NUM / 2))s\)...
-             fi
-             lsof -i :$PORT && STARTED=1 || STARTED=0
-             if [ $STARTED -eq 1 ]
-             then
-               break
-             fi
-             sleep $POLL_INTERVAL_SECS
-           done
-           if [ $STARTED -eq 0 ]
-           then
-             echo Failed to start Grakn server
-             exit 1
-           fi
-           echo Grakn database server started
+           chmod +x debug
+           ./debug
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
@@ -126,7 +105,7 @@ def _rule_implementation(ctx):
     # https://bazel.build/versions/master/docs/skylark/rules.html#runfiles
     return [DefaultInfo(
         # The shell executable - the output of this rule - can use these files at runtime.
-        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps + ctx.files.native_grakn_artifact)
+        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps + ctx.files.native_grakn_artifact + ctx.files.scripts)
     )]
 
 """
@@ -152,6 +131,7 @@ py_behave_test = rule(
         "steps": attr.label_list(mandatory=True,allow_empty=False),
         "background": attr.label_list(mandatory=True,allow_empty=False),
         "deps": attr.label_list(mandatory=True,allow_empty=False),
+        "scripts": attr.label_list(mandatory=True,allow_empty=True,allow_files=True),
         "native_grakn_artifact": attr.label(mandatory=True)
     },
     test=True,
