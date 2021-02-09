@@ -45,10 +45,6 @@ build:
         done
         PORT=$((40000 + $RND))
 
-        echo Starting Grakn Server
-        mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
-        ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
-
         POLL_INTERVAL_SECS=0.5
         MAX_RETRIES=60
         RETRY_NUM=0
