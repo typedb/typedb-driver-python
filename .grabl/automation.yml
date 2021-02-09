@@ -38,7 +38,8 @@ build:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
-        sudo ./debug
+        chmod +x debug
+        ./debug
 #    build:
 #      image: graknlabs-ubuntu-20.04
 #      type: foreground
