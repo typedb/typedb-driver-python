@@ -34,105 +34,143 @@ build:
       command: |
         bazel run @graknlabs_dependencies//grabl/analysis:dependency-analysis
   correctness:
-    build:
+    debug-test:
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
-        pyenv global 3.6.10
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel build //...
-        bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
-        bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
-    test-behaviour-connection:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/connection/... --test_output=errors --jobs=1
-    test-behaviour-concept:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/concept/... --test_output=errors
-    test-behaviour-match:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/match/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/get/... --test_output=errors
-    test-behaviour-writable:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/insert/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/delete/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/update:checkstyle --test_output=errors
-        bazel test //tests/behaviour/graql/language/update:test-core --test_output=errors
-    test-behaviour-definable:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/define:checkstyle --test_output=errors
-        bazel test //tests/behaviour/graql/language/define:test-core --test_output=errors
-        bazel test //tests/behaviour/graql/language/undefine:checkstyle --test_output=errors
-        bazel test //tests/behaviour/graql/language/undefine:test-core --test_output=errors
-    test-cluster-failover:
-      image: graknlabs-ubuntu-20.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests:test_cluster_failover --test_output=errors
+        RND=20001
+        while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
+        do
+          RND=$RANDOM
+        done
+        PORT=$((40000 + $RND))
+
+        echo Starting Grakn Server
+        mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
+        ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
+
+        POLL_INTERVAL_SECS=0.5
+        MAX_RETRIES=60
+        RETRY_NUM=0
+        while [ $RETRY_NUM -lt $MAX_RETRIES ]
+        do
+          ((RETRY_NUM++))
+          if [ $(($RETRY_NUM % 4)) -eq 0 ]
+          then
+            echo Waiting for Grakn server to start \($(($RETRY_NUM / 2))s\)...
+          fi
+          lsof -i :$PORT && STARTED=1 || STARTED=0
+          if [ $STARTED -eq 1 ]
+          then
+            break
+          fi
+          sleep $POLL_INTERVAL_SECS
+        done
+        if [ $STARTED -eq 0 ]
+        then
+          echo Failed to start Grakn server
+          exit 1
+        fi
+        echo Grakn database server started
+#    build:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel build //...
+#        bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
+#        bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
+#    test-behaviour-connection:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests/behaviour/connection/... --test_output=errors --jobs=1
+#    test-behaviour-concept:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests/behaviour/concept/... --test_output=errors
+#    test-behaviour-match:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests/behaviour/graql/language/match/... --test_output=errors
+#        bazel test //tests/behaviour/graql/language/get/... --test_output=errors
+#    test-behaviour-writable:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests/behaviour/graql/language/insert/... --test_output=errors
+#        bazel test //tests/behaviour/graql/language/delete/... --test_output=errors
+#        bazel test //tests/behaviour/graql/language/update:checkstyle --test_output=errors
+#        bazel test //tests/behaviour/graql/language/update:test-core --test_output=errors
+#    test-behaviour-definable:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests/behaviour/graql/language/define:checkstyle --test_output=errors
+#        bazel test //tests/behaviour/graql/language/define:test-core --test_output=errors
+#        bazel test //tests/behaviour/graql/language/undefine:checkstyle --test_output=errors
+#        bazel test //tests/behaviour/graql/language/undefine:test-core --test_output=errors
+#    test-cluster-failover:
+#      image: graknlabs-ubuntu-20.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
+#        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+#        bazel test //tests:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
       dependencies: [build, test-behaviour-connection, test-behaviour-concept, test-behaviour-match, test-behaviour-writable, test-behaviour-definable, test-cluster-failover]
