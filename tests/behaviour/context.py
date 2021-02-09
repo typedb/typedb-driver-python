@@ -50,6 +50,16 @@ TypeSubtype: Type = Union[ThingType, EntityType, RelationType, RoleType, Attribu
 ConceptSubtype: Concept = Union[ThingSubtype, TypeSubtype]
 
 
+class Config:
+    """
+    Type definitions for Config.
+
+    This class should not be instantiated. The initialisation of the actual Config object occurs in environment.py.
+    """
+    def __init__(self):
+        self.userdata = {}
+
+
 class Context(behave.runner.Context):
     """
     Type definitions for Context.
@@ -69,6 +79,7 @@ class Context(behave.runner.Context):
         self.numeric_answer: Optional[Numeric] = None
         self.answer_groups: Optional[List[ConceptMapGroup]] = None
         self.numeric_answer_groups: Optional[List[NumericGroup]] = None
+        self.config = Config()
 
     def tx(self) -> Transaction:
         return self.sessions_to_transactions[self.sessions[0]][0]

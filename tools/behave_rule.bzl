@@ -61,9 +61,17 @@ def _rule_implementation(ctx):
            fi
            DIRECTORY=$(ls ./grakn_distribution)
            echo Successfully unarchived Grakn distribution.
+
+           RND=20001
+           while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
+           do
+           RND=$RANDOM
+           done
+           PORT=$((40000 + $RND))
+
            echo Starting Grakn Server
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
-           ./grakn_distribution/"$DIRECTORY"/grakn server --data grakn_test &
+           ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
            sleep 9
 
            """
@@ -72,7 +80,7 @@ def _rule_implementation(ctx):
     cmd += " && rm -rf " + steps_out_dir
     cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
-    cmd += " && behave %s && export RESULT=0 || export RESULT=1" % feats_dir
+    cmd += " && behave %s -D port=$PORT && export RESULT=0 || export RESULT=1" % feats_dir
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping server.

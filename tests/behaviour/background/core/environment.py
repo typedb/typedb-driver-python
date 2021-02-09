@@ -27,7 +27,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-core"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = GraknClient.core()
+    context.client = GraknClient.core(address="localhost:%d" % int(context.config.userdata["port"]))
 
 
 def before_scenario(context: Context, scenario):
