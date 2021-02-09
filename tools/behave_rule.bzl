@@ -65,14 +65,37 @@ def _rule_implementation(ctx):
            RND=20001
            while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
            do
-           RND=$RANDOM
+             RND=$RANDOM
            done
            PORT=$((40000 + $RND))
 
            echo Starting Grakn Server
            mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
            ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
-           sleep 9
+
+           POLL_INTERVAL_SECS=0.5
+           MAX_RETRIES=60
+           RETRY_NUM=0
+           while [ $RETRY_NUM -lt $MAX_RETRIES ]
+           do
+             ((RETRY_NUM++))
+             if [ $(($RETRY_NUM % 4)) -eq 0 ]
+             then
+               echo Waiting for Grakn server to start \($(($RETRY_NUM / 2))s\)...
+             fi
+             lsof -i :$PORT && STARTED=1 || STARTED=0
+             if [ $STARTED -eq 1 ]
+             then
+               break
+             fi
+             sleep $POLL_INTERVAL_SECS
+           done
+           if [ $STARTED -eq 0 ]
+           then
+             echo Failed to start Grakn server
+             exit 1
+           fi
+           echo Grakn database server started
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
