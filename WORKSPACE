@@ -44,7 +44,7 @@ kt_register_toolchains()
 # Load //builder/python
 load("@graknlabs_dependencies//builder/python:deps.bzl", python_deps = "deps")
 python_deps()
-load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip_import")
 pip_repositories()
 
 # Load //builder/grpc
@@ -58,8 +58,6 @@ com_github_grpc_grpc_deps()
 load("@graknlabs_dependencies//tool/common:deps.bzl", "graknlabs_dependencies_ci_pip",
     graknlabs_dependencies_tool_maven_artifacts = "maven_artifacts")
 graknlabs_dependencies_ci_pip()
-load("@graknlabs_dependencies_ci_pip//:requirements.bzl", graknlabs_dependencies_pip_install = "pip_install")
-graknlabs_dependencies_pip_install()
 
 # Load //tool/checkstyle
 load("@graknlabs_dependencies//tool/checkstyle:deps.bzl", checkstyle_deps = "deps")
@@ -81,8 +79,6 @@ rules_pkg_dependencies()
 # Load //pip
 load("@graknlabs_bazel_distribution//pip:deps.bzl", pip_deps = "deps")
 pip_deps()
-load("@graknlabs_bazel_distribution_pip//:requirements.bzl", graknlabs_bazel_distribution_pip_install = "pip_install")
-graknlabs_bazel_distribution_pip_install()
 
 # Load //github
 load("@graknlabs_bazel_distribution//github:deps.bzl", github_deps = "deps")
@@ -105,13 +101,11 @@ graknlabs_grakn_cluster_artifacts()
 # Load @graknlabs_client_python #
 #################################
 
-pip3_import(
+load("@rules_python//python:pip.bzl", "pip_install")
+pip_install(
     name = "graknlabs_client_python_pip",
     requirements = "//:requirements_dev.txt",
 )
-load("@graknlabs_client_python_pip//:requirements.bzl",
-graknlabs_client_python_pip_install = "pip_install")
-graknlabs_client_python_pip_install()
 
 ############################
 # Load @maven dependencies #
