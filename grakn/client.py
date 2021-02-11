@@ -27,10 +27,12 @@ from grpc import RpcError
 # Repackaging these symbols allows them to be imported from "grakn.client"
 from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
 from grakn.concept.type.value_type import ValueType  # noqa # pylint: disable=unused-import
-from grakn.options import GraknOptions
+from grakn.options import GraknOptions, GraknClusterOptions
+from grakn.rpc.cluster.failsafe_task import FailsafeTask
+from grakn.rpc.cluster.replica_info import ReplicaInfo
 from grakn.rpc.cluster.server_address import ServerAddress
 from grakn.rpc.cluster.database_manager import _DatabaseManagerClusterRPC
-from grakn.rpc.cluster.session import _SessionClusterRPC
+from grakn.rpc.cluster.session import SessionClusterRPC
 from grakn.rpc.database_manager import DatabaseManager, _DatabaseManagerRPC
 from grakn.rpc.session import Session, SessionType, _SessionRPC
 from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
@@ -109,22 +111,29 @@ class _ClientRPC(GraknClient):
         return self._channel
 
 
-# _RPCGraknClientCluster must live in this package because of circular ref with GraknClient
+# _ClientClusterRPC must live in this package because of circular ref with GraknClient
 class _ClientClusterRPC(GraknClient):
 
     def __init__(self, addresses: List[str]):
-        self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.client()) for addr in self._discover_cluster(addresses)}
+        self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.client()) for addr in self._fetch_cluster_servers(addresses)}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
-        self._databases = _DatabaseManagerClusterRPC({addr: client.databases() for (addr, client) in self._core_clients.items()})
+        self._database_managers = _DatabaseManagerClusterRPC({addr: client.databases() for (addr, client) in self._core_clients.items()})
+        self._replica_info_map: Dict[str, ReplicaInfo] = {}
         self._is_open = True
 
     def session(self, database: str, session_type: SessionType, options=None) -> Session:
         if not options:
             options = GraknOptions.cluster()
-        return _SessionClusterRPC(self, database, session_type, options)
+        return self._session_any_replica(database, session_type, options) if options.read_any_replica else self._session_primary_replica(database, session_type, options)
+
+    def _session_primary_replica(self, database: str, session_type: SessionType, options=None) -> SessionClusterRPC:
+        return _OpenSessionFailsafeTask(database, session_type, options, self).run_primary_replica()
+
+    def _session_any_replica(self, database: str, session_type: SessionType, options=None) -> SessionClusterRPC:
+        return _OpenSessionFailsafeTask(database, session_type, options, self).run_any_replica()
 
     def databases(self) -> DatabaseManager:
-        return self._databases
+        return self._database_managers
 
     def is_open(self) -> bool:
         return self._is_open
@@ -140,6 +149,9 @@ class _ClientClusterRPC(GraknClient):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def replica_info_map(self) -> Dict[str, ReplicaInfo]:
+        return self._replica_info_map
+
     def cluster_members(self) -> Set[ServerAddress]:
         return set(self._core_clients.keys())
 
@@ -149,16 +161,27 @@ class _ClientClusterRPC(GraknClient):
     def grakn_cluster_grpc_stub(self, address: ServerAddress) -> GraknClusterStub:
         return self._grakn_cluster_grpc_stubs.get(address)
 
-    def _discover_cluster(self, addresses: List[str]) -> Set[ServerAddress]:
+    def _fetch_cluster_servers(self, addresses: List[str]) -> Set[ServerAddress]:
         for address in addresses:
             try:
                 with _ClientRPC(address) as client:
                     print("Performing cluster discovery to %s..." % address)
                     grakn_cluster_stub = GraknClusterStub(client.channel())
-                    res = grakn_cluster_stub.cluster_discover(cluster_proto.Cluster.Discover.Req())
+                    res = grakn_cluster_stub.cluster_servers(cluster_proto.Cluster.Servers.Req())
                     members = set([ServerAddress.parse(srv) for srv in res.servers])
                     print("Discovered %s" % [str(member) for member in members])
                     return members
             except RpcError:
                 print("Cluster discovery to %s failed." % address)
         raise GraknClientException("Unable to connect to Grakn Cluster. Attempted connecting to the cluster members, but none are available: %s" % str(addresses))
+
+
+class _OpenSessionFailsafeTask(FailsafeTask):
+
+    def __init__(self, database: str, session_type: SessionType, options: GraknClusterOptions, client: "_ClientClusterRPC"):
+        super().__init__(client, database)
+        self.session_type = session_type
+        self.options = options
+
+    def run(self, replica: ReplicaInfo.Replica):
+        return SessionClusterRPC(self.client, replica.address(), self.database, self.session_type, self.options)

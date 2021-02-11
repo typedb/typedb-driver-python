@@ -41,10 +41,10 @@ class TestClusterFailover(TestCase):
         channel = grpc.insecure_channel("localhost:11729")
         cluster_grpc_stub = GraknClusterStub(channel)
         while True:
-            db_discover_req = database_proto.Database.Discover.Req()
-            db_discover_req.database = "grakn"
+            db_replicas_req = database_proto.Database.Replicas.Req()
+            db_replicas_req.database = "grakn"
             print("Discovering replicas for database 'grakn'...")
-            res = cluster_grpc_stub.database_discover(db_discover_req)
+            res = cluster_grpc_stub.database_replicas(db_replicas_req)
             dbs = ReplicaInfo.of_proto(res)
             print("Discovered " + str([str(replica) for replica in dbs.replicas()]))
             primary_replica = next(iter([replica for replica in dbs.replicas() if replica.is_primary()]), None)

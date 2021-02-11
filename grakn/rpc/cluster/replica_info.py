@@ -30,7 +30,7 @@ class ReplicaInfo:
         self._replicas = replicas
 
     @staticmethod
-    def of_proto(res: database_proto.Database.Discover.Res) -> "ReplicaInfo":
+    def of_proto(res: database_proto.Database.Replicas.Res) -> "ReplicaInfo":
         replica_map: Dict["ReplicaInfo.Replica.Id", "ReplicaInfo.Replica"] = {}
         for replica_proto in res.replicas:
             replica_id = ReplicaInfo.Replica.Id(ServerAddress.parse(replica_proto.address), replica_proto.database)
@@ -41,22 +41,30 @@ class ReplicaInfo:
         primaries = [replica for replica in self._replicas.values() if replica.is_primary()]
         return max(primaries, key=lambda r: r.term) if primaries else None
 
+    def preferred_secondary_replica(self) -> "ReplicaInfo.Replica":
+        return next(iter([replica for replica in self._replicas.values() if replica.is_preferred_secondary()]), next(iter(self._replicas.values())))
+
     def replicas(self):
         return self._replicas.values()
 
+    def __str__(self):
+        return str([str(replica) for replica in self._replicas.values()])
+
     class Replica:
 
-        def __init__(self, replica_id: "ReplicaInfo.Replica.Id", term: int, is_primary: bool):
+        def __init__(self, replica_id: "ReplicaInfo.Replica.Id", term: int, is_primary: bool, is_preferred_secondary: bool):
             self._replica_id = replica_id
             self._term = term
             self._is_primary = is_primary
+            self._is_preferred_secondary = is_preferred_secondary
 
         @staticmethod
-        def of_proto(replica_proto: database_proto.Database.Discover.Res.Replica) -> "ReplicaInfo.Replica":
+        def of_proto(replica_proto: database_proto.Database.Replica) -> "ReplicaInfo.Replica":
             return ReplicaInfo.Replica(
                 replica_id=ReplicaInfo.Replica.Id(ServerAddress.parse(replica_proto.address), replica_proto.database),
                 term=replica_proto.term,
-                is_primary=replica_proto.is_primary
+                is_primary=replica_proto.primary,
+                is_preferred_secondary=replica_proto.preferred_secondary
             )
 
         def replica_id(self) -> "ReplicaInfo.Replica.Id":
@@ -68,15 +76,21 @@ class ReplicaInfo:
         def is_primary(self) -> bool:
             return self._is_primary
 
+        def is_preferred_secondary(self) -> bool:
+            return self._is_preferred_secondary
+
+        def address(self) -> ServerAddress:
+            return self._replica_id.address()
+
         def __eq__(self, other):
             if self is other:
                 return True
             if not other or type(self) != type(other):
                 return False
-            return self._term == other.term() and self._is_primary == other.is_primary()
+            return self._term == other.term() and self._is_primary == other.is_primary() and self._is_preferred_secondary == other.is_preferred_secondary()
 
         def __hash__(self):
-            return hash((self._is_primary, self._term))
+            return hash((self._is_primary, self._is_preferred_secondary, self._term))
 
         def __str__(self):
             return "%s:%s:%d" % (str(self._replica_id), "P" if self._is_primary else "S", self._term)
