@@ -20,13 +20,13 @@
 from typing import Dict, List
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.cluster.address import Address
-from grakn.rpc.database_manager import DatabaseManager, _RPCDatabaseManager
+from grakn.rpc.cluster.server_address import ServerAddress
+from grakn.rpc.database_manager import DatabaseManager, _DatabaseManagerRPC
 
 
-class _RPCDatabaseManagerCluster(DatabaseManager):
+class _DatabaseManagerClusterRPC(DatabaseManager):
 
-    def __init__(self, database_managers: Dict[Address.Server, "_RPCDatabaseManager"]):
+    def __init__(self, database_managers: Dict[ServerAddress, "_DatabaseManagerRPC"]):
         assert database_managers
         self._database_managers = database_managers
 

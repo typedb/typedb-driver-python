@@ -51,7 +51,7 @@ def _not_blank(name: str) -> str:
     return name
 
 
-class _RPCDatabaseManager:
+class _DatabaseManagerRPC:
 
     def __init__(self, channel: Channel):
         self._grpc_stub = GraknStub(channel)
