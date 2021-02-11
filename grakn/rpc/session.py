@@ -76,7 +76,7 @@ class Session(ABC):
         pass
 
 
-class _RPCSession(Session):
+class _SessionRPC(Session):
     _PULSE_FREQUENCY_SECONDS = 5
 
     def __init__(self, client, database: str, session_type: SessionType, options: GraknOptions = None):
