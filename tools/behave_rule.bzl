@@ -114,7 +114,7 @@ def _rule_implementation(ctx):
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping server.
-           kill $(jps | awk '/GraknServer/ {print $1}')
+           kill $(lsof -i :$PORT | awk '/java/ {print $2}')
            exit $RESULT
            """
 
