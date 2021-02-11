@@ -26,7 +26,7 @@ import grpc
 from grakn_protocol.protobuf.cluster.grakn_cluster_pb2_grpc import GraknClusterStub
 
 from grakn.client import GraknClient, SessionType, TransactionType
-from grakn.rpc.cluster.session import _SessionClusterRPC
+from grakn.rpc.cluster.replica_info import ReplicaInfo
 
 
 class TestClusterFailover(TestCase):
@@ -45,7 +45,7 @@ class TestClusterFailover(TestCase):
             db_discover_req.database = "grakn"
             print("Discovering replicas for database 'grakn'...")
             res = cluster_grpc_stub.database_discover(db_discover_req)
-            dbs = _SessionClusterRPC.Database.of_proto(res)
+            dbs = ReplicaInfo.of_proto(res)
             print("Discovered " + str([str(replica) for replica in dbs.replicas()]))
             primary_replica = next(iter([replica for replica in dbs.replicas() if replica.is_primary()]), None)
             if primary_replica:
