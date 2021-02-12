@@ -171,8 +171,8 @@ class _ClientClusterRPC(GraknClient):
                     members = set([ServerAddress.parse(srv) for srv in res.servers])
                     print("Discovered %s" % [str(member) for member in members])
                     return members
-            except RpcError:
-                print("Cluster discovery to %s failed." % address)
+            except RpcError as e:
+                print("Cluster discovery to %s failed. %s" % (address, str(e)))
         raise GraknClientException("Unable to connect to Grakn Cluster. Attempted connecting to the cluster members, but none are available: %s" % str(addresses))
 
 
