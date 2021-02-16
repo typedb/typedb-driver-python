@@ -34,6 +34,7 @@ class Stream:
         self._request_id = request_id
         self._transform_response = transform_response
         self._current_iterator = None
+        self._done = False
 
     def __iter__(self):
         return self
