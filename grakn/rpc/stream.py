@@ -39,6 +39,8 @@ class Stream:
         return self
 
     def __next__(self):
+        if self._done:
+            raise StopIteration()
         if self._current_iterator is not None:
             try:
                 return next(self._current_iterator)
@@ -54,6 +56,7 @@ class Stream:
             self._transaction._request_iterator.put(continue_req)
             return next(self)
         elif res_case == Stream._DONE:
+            self._done = True
             raise StopIteration()
         elif res_case is None:
             raise GraknClientException("The required field 'res' of type 'transaction_proto.Transaction.Res' was not set.")
