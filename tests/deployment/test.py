@@ -47,7 +47,7 @@ class TestClientPython(TestCase):
     def test_database(self):
         dbs = client.databases().all()
         if "grakn" in dbs:
-            client.databases().delete("grakn")
+            client.databases().get("grakn").delete()
         client.databases().create("grakn")
         dbs = client.databases().all()
         self.assertTrue("grakn" in dbs)
