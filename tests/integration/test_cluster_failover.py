@@ -28,7 +28,7 @@ class TestClusterFailover(TestCase):
 
     def setUp(self):
         with GraknClient.cluster(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
-            if "grakn" in client.databases().all():
+            if client.databases().contains("grakn"):
                 client.databases().get("grakn").delete()
             client.databases().create("grakn")
 

@@ -30,7 +30,7 @@ class TestConcurrent(TestCase):
 
     def setUp(self):
         with GraknClient.core() as client:
-            if "grakn" not in client.databases().all():
+            if not client.databases().contains("grakn"):
                 client.databases().create("grakn")
 
     def open_tx(self, session: Session, *args):

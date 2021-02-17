@@ -41,16 +41,14 @@ class TestClientPython(TestCase):
         client.close()
 
     def setUp(self):
-        if "grakn" not in client.databases().all():
+        if not client.databases().contains("grakn"):
             client.databases().create("grakn")
 
     def test_database(self):
-        dbs = client.databases().all()
-        if "grakn" in dbs:
+        if client.databases().contains("grakn"):
             client.databases().get("grakn").delete()
         client.databases().create("grakn")
-        dbs = client.databases().all()
-        self.assertTrue("grakn" in dbs)
+        self.assertTrue(client.databases().contains("grakn"))
 
     def test_session(self):
         session = client.session("grakn", SessionType.SCHEMA)
