@@ -23,10 +23,10 @@ import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 from grpc import RpcError, StatusCode
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.cluster.replica_info import ReplicaInfo
+from grakn.rpc.cluster.database import _DatabaseClusterRPC
 
 
-class FailsafeTask(ABC):
+class _FailsafeTask(ABC):
 
     PRIMARY_REPLICA_TASK_MAX_RETRIES = 10
     FETCH_REPLICAS_MAX_RETRIES = 10
@@ -37,16 +37,16 @@ class FailsafeTask(ABC):
         self.database = database
 
     @abstractmethod
-    def run(self, replica: ReplicaInfo.Replica):
+    def run(self, replica: _DatabaseClusterRPC.Replica):
         pass
 
-    def rerun(self, replica: ReplicaInfo.Replica):
+    def rerun(self, replica: _DatabaseClusterRPC.Replica):
         return self.run(replica)
 
     def run_primary_replica(self):
-        if self.database not in self.client.replica_info_map() or not self.client.replica_info_map()[self.database].primary_replica():
+        if self.database not in self.client.cluster_databases() or not self.client.cluster_databases()[self.database].primary_replica():
             self._seek_primary_replica()
-        replica = self.client.replica_info_map()[self.database].primary_replica()
+        replica = self.client.cluster_databases()[self.database].primary_replica()
         retries = 0
         while True:
             try:
@@ -74,8 +74,8 @@ class FailsafeTask(ABC):
                 raise self._cluster_not_available_exception()
 
     def run_any_replica(self):
-        if self.database in self.client.replica_info_map():
-            replica_info = self.client.replica_info_map()[self.database]
+        if self.database in self.client.cluster_databases():
+            replica_info = self.client.cluster_databases()[self.database]
         else:
             replica_info = self._fetch_database_replicas()
 
@@ -92,7 +92,7 @@ class FailsafeTask(ABC):
             retries += 1
         raise self._cluster_not_available_exception()
 
-    def _seek_primary_replica(self) -> ReplicaInfo.Replica:
+    def _seek_primary_replica(self) -> _DatabaseClusterRPC.Replica:
         retries = 0
         while retries < self.FETCH_REPLICAS_MAX_RETRIES:
             replica_info = self._fetch_database_replicas()
@@ -103,16 +103,16 @@ class FailsafeTask(ABC):
                 retries += 1
         raise self._cluster_not_available_exception()
 
-    def _fetch_database_replicas(self) -> ReplicaInfo:
+    def _fetch_database_replicas(self) -> _DatabaseClusterRPC:
         for server_address in self.client.cluster_members():
             try:
                 print("Fetching replica info from %s" % server_address)
-                db_replicas_req = database_proto.Database.Replicas.Req()
-                db_replicas_req.database = self.database
-                res = self.client.grakn_cluster_grpc_stub(server_address).database_replicas(db_replicas_req)
-                replica_info = ReplicaInfo.of_proto(res)
+                db_get_req = database_proto.Database.Get.Req()
+                db_get_req.name = self.database
+                res = self.client.grakn_cluster_grpc_stub(server_address).database_get(db_get_req)
+                replica_info = _DatabaseClusterRPC.of(res.database, self.client.databases())
                 print("Requested database discovery from peer %s, and got response: %s" % (str(server_address), str([str(replica) for replica in replica_info.replicas()])))
-                self.client.replica_info_map()[self.database] = replica_info
+                self.client.cluster_databases()[self.database] = replica_info
                 return replica_info
             except RpcError as e:
                 print("Unable to perform database discovery to %s. Attempting next address. %s" % (str(server_address), str(e)))

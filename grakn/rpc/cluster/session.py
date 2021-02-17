@@ -18,9 +18,10 @@
 #
 
 from grakn.options import GraknClusterOptions, GraknOptions
-from grakn.rpc.cluster.failsafe_task import FailsafeTask
-from grakn.rpc.cluster.replica_info import ReplicaInfo
+from grakn.rpc.cluster.failsafe_task import _FailsafeTask
+from grakn.rpc.cluster.database import _DatabaseClusterRPC
 from grakn.rpc.cluster.server_address import ServerAddress
+from grakn.rpc.database import Database
 from grakn.rpc.session import Session, SessionType
 from grakn.rpc.transaction import TransactionType, Transaction
 
@@ -30,7 +31,6 @@ class SessionClusterRPC(Session):
     def __init__(self, cluster_client, server_address: ServerAddress, database: str, session_type: SessionType, options: GraknClusterOptions):
         self.cluster_client = cluster_client
         self.core_client = cluster_client.core_client(server_address)
-        self._database = database
         print("Opening a session to %s" % server_address)
         self.core_session = self.core_client.session(database, session_type, options)
 
@@ -54,8 +54,8 @@ class SessionClusterRPC(Session):
     def close(self) -> None:
         self.core_session.close()
 
-    def database(self) -> str:
-        return self._database
+    def database(self) -> Database:
+        return self.core_session.database()
 
     def __enter__(self):
         return self
@@ -64,18 +64,18 @@ class SessionClusterRPC(Session):
         self.close()
 
 
-class TransactionFailsafeTask(FailsafeTask):
+class TransactionFailsafeTask(_FailsafeTask):
 
     def __init__(self, cluster_session: SessionClusterRPC, transaction_type: TransactionType, options: GraknClusterOptions):
-        super().__init__(cluster_session.cluster_client, cluster_session.database())
+        super().__init__(cluster_session.cluster_client, cluster_session.database().name())
         self.cluster_session = cluster_session
         self.transaction_type = transaction_type
         self.options = options
 
-    def run(self, replica: ReplicaInfo.Replica):
+    def run(self, replica: _DatabaseClusterRPC.Replica):
         return self.cluster_session.core_session.transaction(self.transaction_type, self.options)
 
-    def rerun(self, replica: ReplicaInfo.Replica):
+    def rerun(self, replica: _DatabaseClusterRPC.Replica):
         if self.cluster_session.core_session:
             self.cluster_session.core_session.close()
         self.cluster_session.core_client = self.cluster_session.cluster_client.core_client(replica.address())

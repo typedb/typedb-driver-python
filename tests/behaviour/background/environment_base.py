@@ -19,7 +19,6 @@
 from behave import *
 from behave.model_core import Status
 
-from grakn.client import GraknClient
 from tests.behaviour.config.parameters import RootLabel
 from tests.behaviour.context import Context, ThingSubtype
 
@@ -32,7 +31,7 @@ def before_all(context: Context):
 
 def before_scenario(context: Context, scenario):
     for database in context.client.databases().all():
-        context.client.databases().delete(database)
+        database.delete()
     context.sessions = []
     context.sessions_to_transactions = {}
     context.sessions_parallel = []
@@ -80,7 +79,7 @@ def after_scenario(context: Context, scenario):
     for future_session in context.sessions_parallel:
         future_session.result().close()
     for database in context.client.databases().all():
-        context.client.databases().delete(database)
+        database.delete()
 
 
 def after_all(context: Context):

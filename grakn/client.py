@@ -28,10 +28,10 @@ from grpc import RpcError
 from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
 from grakn.concept.type.value_type import ValueType  # noqa # pylint: disable=unused-import
 from grakn.options import GraknOptions, GraknClusterOptions
-from grakn.rpc.cluster.failsafe_task import FailsafeTask
-from grakn.rpc.cluster.replica_info import ReplicaInfo
+from grakn.rpc.cluster.failsafe_task import _FailsafeTask
+from grakn.rpc.cluster.database import DatabaseCluster, _DatabaseClusterRPC  # noqa # pylint: disable=unused-import
 from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.cluster.database_manager import _DatabaseManagerClusterRPC
+from grakn.rpc.cluster.database_manager import DatabaseManagerCluster, _DatabaseManagerClusterRPC
 from grakn.rpc.cluster.session import SessionClusterRPC
 from grakn.rpc.database_manager import DatabaseManager, _DatabaseManagerRPC
 from grakn.rpc.session import Session, SessionType, _SessionRPC
@@ -46,7 +46,7 @@ class GraknClient(ABC):
         return _ClientRPC(address)
 
     @staticmethod
-    def cluster(addresses: List[str]) -> "GraknClient":
+    def cluster(addresses: List[str]) -> "GraknClientCluster":
         return _ClientClusterRPC(addresses)
 
     @abstractmethod
@@ -66,11 +66,22 @@ class GraknClient(ABC):
         pass
 
     @abstractmethod
+    def is_cluster(self) -> bool:
+        pass
+
+    @abstractmethod
     def __enter__(self):
         pass
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class GraknClientCluster(GraknClient):
+
+    @abstractmethod
+    def databases(self) -> DatabaseManagerCluster:
         pass
 
 
@@ -97,6 +108,9 @@ class _ClientRPC(GraknClient):
         self._channel.close()
         self._is_open = False
 
+    def is_cluster(self) -> bool:
+        return False
+
     def __enter__(self):
         return self
 
@@ -112,13 +126,13 @@ class _ClientRPC(GraknClient):
 
 
 # _ClientClusterRPC must live in this package because of circular ref with GraknClient
-class _ClientClusterRPC(GraknClient):
+class _ClientClusterRPC(GraknClientCluster):
 
     def __init__(self, addresses: List[str]):
         self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.client()) for addr in self._fetch_cluster_servers(addresses)}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
-        self._database_managers = _DatabaseManagerClusterRPC({addr: client.databases() for (addr, client) in self._core_clients.items()})
-        self._replica_info_map: Dict[str, ReplicaInfo] = {}
+        self._database_managers = _DatabaseManagerClusterRPC(self, {addr: client.databases() for (addr, client) in self._core_clients.items()})
+        self._cluster_databases: Dict[str, _DatabaseClusterRPC] = {}
         self._is_open = True
 
     def session(self, database: str, session_type: SessionType, options=None) -> Session:
@@ -132,7 +146,7 @@ class _ClientClusterRPC(GraknClient):
     def _session_any_replica(self, database: str, session_type: SessionType, options=None) -> SessionClusterRPC:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_any_replica()
 
-    def databases(self) -> DatabaseManager:
+    def databases(self) -> DatabaseManagerCluster:
         return self._database_managers
 
     def is_open(self) -> bool:
@@ -143,14 +157,17 @@ class _ClientClusterRPC(GraknClient):
             client.close()
         self._is_open = False
 
+    def is_cluster(self) -> bool:
+        return True
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def replica_info_map(self) -> Dict[str, ReplicaInfo]:
-        return self._replica_info_map
+    def cluster_databases(self) -> Dict[str, _DatabaseClusterRPC]:
+        return self._cluster_databases
 
     def cluster_members(self) -> Set[ServerAddress]:
         return set(self._core_clients.keys())
@@ -176,12 +193,12 @@ class _ClientClusterRPC(GraknClient):
         raise GraknClientException("Unable to connect to Grakn Cluster. Attempted connecting to the cluster members, but none are available: %s" % str(addresses))
 
 
-class _OpenSessionFailsafeTask(FailsafeTask):
+class _OpenSessionFailsafeTask(_FailsafeTask):
 
     def __init__(self, database: str, session_type: SessionType, options: GraknClusterOptions, client: "_ClientClusterRPC"):
         super().__init__(client, database)
         self.session_type = session_type
         self.options = options
 
-    def run(self, replica: ReplicaInfo.Replica):
+    def run(self, replica: _DatabaseClusterRPC.Replica):
         return SessionClusterRPC(self.client, replica.address(), self.database, self.session_type, self.options)

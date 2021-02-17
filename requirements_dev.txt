@@ -17,6 +17,9 @@
 # under the License.
 #
 
+## To install all dependencies, run: pip3 install -r requirements_dev.txt
+
+
 ## Configuration options
 
 # Allow importing of snapshots
@@ -25,7 +28,7 @@
 
 ## Dependencies
 
-grakn-protocol==0.0.0-cb7063afe613b51635b07df1975202ceda9de313
+grakn-protocol==0.0.0-b63c9b9b5027d354107dc0c22f61d5f5aaa224ed
 grpcio==1.35.0
 protobuf==3.14.0
 

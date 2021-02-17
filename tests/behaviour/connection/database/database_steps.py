@@ -57,7 +57,7 @@ def step_impl(context: Context):
 
 def delete_databases(context: Context, names: List[str]):
     for name in names:
-        context.client.databases().delete(name)
+        context.client.databases().get(name).delete()
 
 
 @step("connection delete database: {name}")
@@ -73,7 +73,7 @@ def step_impl(context: Context):
 def delete_databases_throws_exception(context: Context, names: List[str]):
     for name in names:
         try:
-            context.client.databases().delete(name)
+            context.client.databases().get(name).delete()
             assert False
         except GraknClientException as e:
             pass
@@ -95,11 +95,11 @@ def step_impl(context: Context):
     assert_that(len(names), is_(less_than_or_equal_to(context.THREAD_POOL_SIZE)))
     with ThreadPoolExecutor(max_workers=context.THREAD_POOL_SIZE) as executor:
         for name in names:
-            executor.submit(partial(context.client.databases().delete, name))
+            executor.submit(partial(context.client.databases().get(name).delete))
 
 
 def has_databases(context: Context, names: List[str]):
-    assert_collections_equal(context.client.databases().all(), names)
+    assert_collections_equal([db.name() for db in context.client.databases().all()], names)
 
 
 @step("connection has database: {name}")
@@ -113,7 +113,7 @@ def step_impl(context: Context):
 
 
 def does_not_have_databases(context: Context, names: List[str]):
-    databases = context.client.databases().all()
+    databases = [db.name() for db in context.client.databases().all()]
     for name in names:
         assert_that(name, not_(is_in(databases)))
 
