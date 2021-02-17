@@ -120,8 +120,6 @@ class _SessionRPC(Session):
             req.session_id = self._session_id
             try:
                 self._grpc_stub.session_close(req)
-            except RpcError as e:
-                raise GraknClientException(e)
             finally:
                 self._channel.close()
 
