@@ -16,20 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Callable, Any
 
-## To install all dependencies, run: pip3 install -r requirements.txt
+from grpc import RpcError
 
-
-## Configuration options
-
-
-# Allow importing of snapshots
---extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
+from grakn.common.exception import GraknClientException
 
 
-## Dependencies
-
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-grakn-protocol==0.0.0-b63c9b9b5027d354107dc0c22f61d5f5aaa224ed
-grpcio==1.35.0
-protobuf==3.14.0
+def rpc_call(request: Callable[[], Any]) -> Any:
+    try:
+        return request()
+    except RpcError as e:
+        raise GraknClientException(e)

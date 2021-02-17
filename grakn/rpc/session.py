@@ -30,6 +30,7 @@ from grpc import RpcError
 from grakn import grakn_proto_builder
 from grakn.common.exception import GraknClientException
 from grakn.options import GraknOptions
+from grakn.rpc.database import Database, _DatabaseRPC
 from grakn.rpc.transaction import Transaction, TransactionType
 
 
@@ -64,7 +65,7 @@ class Session(ABC):
         pass
 
     @abstractmethod
-    def database(self) -> str:
+    def database(self) -> Database:
         pass
 
     @abstractmethod
@@ -85,7 +86,7 @@ class _SessionRPC(Session):
         self._address = client._address
         self._channel = grpc.insecure_channel(client._address)
         self._scheduler = sched.scheduler(time.time, time.sleep)
-        self._database = database
+        self._database = _DatabaseRPC(database_manager=client.databases(), name=database)
         self._session_type = session_type
         self._grpc_stub = GraknStub(self._channel)
 
@@ -104,9 +105,11 @@ class _SessionRPC(Session):
             options = GraknOptions.core()
         return Transaction(self._address, self._session_id, transaction_type, options)
 
-    def session_type(self) -> SessionType: return self._session_type
+    def session_type(self) -> SessionType:
+        return self._session_type
 
-    def is_open(self) -> bool: return self._is_open
+    def is_open(self) -> bool:
+        return self._is_open
 
     def close(self) -> None:
         if self._is_open:
@@ -117,12 +120,11 @@ class _SessionRPC(Session):
             req.session_id = self._session_id
             try:
                 self._grpc_stub.session_close(req)
-            except RpcError as e:
-                raise GraknClientException(e)
             finally:
                 self._channel.close()
 
-    def database(self) -> str: return self._database
+    def database(self) -> Database:
+        return self._database
 
     def _transmit_pulse(self) -> None:
         if not self._is_open:

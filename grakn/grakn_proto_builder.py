@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Type, Union
+from typing import Union
 
 import grakn_protocol.protobuf.options_pb2 as options_proto
 
