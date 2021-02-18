@@ -24,6 +24,7 @@ class GraknOptions(ABC):
 
     def __init__(self):
         self.infer: Optional[bool] = None
+        self.infer_log: Optional[bool] = None
         self.explain: Optional[bool] = None
         self.batch_size: Optional[int] = None
 
