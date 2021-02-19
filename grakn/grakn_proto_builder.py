@@ -27,8 +27,8 @@ def options(opts: Union[GraknOptions, GraknClusterOptions]):
     proto_options = options_proto.Options()
     if opts.infer is not None:
         proto_options.infer = opts.infer
-    if opts.infer_log is not None:
-        proto_options.infer_log = opts.infer_log
+    if opts.trace_inference is not None:
+        proto_options.trace_inference = opts.trace_inference
     if opts.explain is not None:
         proto_options.explain = opts.explain
     if opts.batch_size is not None:
