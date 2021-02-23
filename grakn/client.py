@@ -91,12 +91,15 @@ class _ClientRPC(GraknClient):
         self._address = address
         self._channel = grpc.insecure_channel(self._address)
         self._databases = _DatabaseManagerRPC(self._channel)
+        self._sessions: Dict[bytes, _SessionRPC] = {}
         self._is_open = True
 
     def session(self, database: str, session_type: SessionType, options=None) -> Session:
         if not options:
             options = GraknOptions.core()
-        return _SessionRPC(self, database, session_type, options)
+        session = _SessionRPC(self, database, session_type, options)
+        self._sessions[session.session_id()] = session
+        return session
 
     def databases(self):
         return self._databases
@@ -105,6 +108,8 @@ class _ClientRPC(GraknClient):
         return self._is_open
 
     def close(self):
+        for session_id in self._sessions:
+            self._sessions[session_id].close()
         self._channel.close()
         self._is_open = False
 
@@ -120,6 +125,9 @@ class _ClientRPC(GraknClient):
             pass
         else:
             return False
+
+    def remove_session(self, session: _SessionRPC):
+        del self._sessions[session.session_id()]
 
     def channel(self):
         return self._channel

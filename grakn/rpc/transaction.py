@@ -45,7 +45,7 @@ class TransactionType(enum.Enum):
 
 class Transaction:
 
-    def __init__(self, address: str, session_id: str, transaction_type: TransactionType, options: GraknOptions = None):
+    def __init__(self, address: str, session_id: bytes, transaction_type: TransactionType, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
         self._transaction_type = transaction_type
