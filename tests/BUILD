@@ -20,7 +20,7 @@
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
 load("//tools:cluster_test_rule.bzl", "grakn_cluster_py_test")
 load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
-load("@graknlabs_common//test/server:rules.bzl", "native_grakn_artifact")
+load("@graknlabs_common//test:rules.bzl", "native_grakn_artifact")
 load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
