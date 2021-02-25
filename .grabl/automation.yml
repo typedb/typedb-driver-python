@@ -126,6 +126,7 @@ build:
         bazel test //tests/behaviour/graql/language/undefine:checkstyle --test_output=errors
         bazel test //tests/behaviour/graql/language/undefine:test-core --test_output=errors
     test-cluster-failover:
+      machine: 4-core-8-gb
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
