@@ -65,7 +65,7 @@ class TestClusterFailover(TestCase):
             lsof = subprocess.check_output(["lsof", "-i", ":%d" % port])
             primary_replica_server_pid = [conn.split()[1] for conn in lsof.decode("utf-8").split("\n") if "LISTEN" in conn][0]
             print("Primary replica is hosted by server with PID %s" % primary_replica_server_pid)
-            subprocess.check_call(["kill", primary_replica_server_pid])
+            subprocess.check_call(["kill", "-9", primary_replica_server_pid])
             print("Primary replica stopped successfully.")
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                 person = tx.concepts().get_entity_type("person")
