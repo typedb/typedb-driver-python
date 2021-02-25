@@ -126,6 +126,7 @@ build:
         bazel test //tests/behaviour/graql/language/undefine:checkstyle --test_output=errors
         bazel test //tests/behaviour/graql/language/undefine:test-core --test_output=errors
     test-cluster-failover:
+      machine: 4-core-8-gb
       image: graknlabs-ubuntu-20.04
       type: foreground
       command: |
@@ -138,7 +139,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
         export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
         bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests:test_cluster_failover --test_output=errors
+        bazel test //tests:test_cluster_failover --test_output=streamed
     deploy-pip-snapshot:
       image: graknlabs-ubuntu-20.04
       dependencies: [build, test-behaviour-connection, test-behaviour-concept, test-behaviour-match, test-behaviour-writable, test-behaviour-definable, test-cluster-failover]

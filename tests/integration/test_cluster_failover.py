@@ -60,18 +60,25 @@ class TestClusterFailover(TestCase):
                 person = tx.concepts().get_entity_type("person")
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
                 assert person.get_label() == "person"
-            print("Stopping primary replica...")
-            port = primary_replica.replica_id().address().server_port()
-            lsof = subprocess.check_output(["lsof", "-i", ":%d" % port])
-            primary_replica_server_pid = [conn.split()[1] for conn in lsof.decode("utf-8").split("\n") if "LISTEN" in conn][0]
-            print("Primary replica is hosted by server with PID %s" % primary_replica_server_pid)
-            subprocess.check_call(["kill", primary_replica_server_pid])
-            print("Primary replica stopped successfully.")
-            with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
-                person = tx.concepts().get_entity_type("person")
-                print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
-                assert person.get_label() == "person"
-
+            iteration = 0
+            while iteration < 10:
+                iteration += 1
+                primary_replica = self.get_primary_replica(client.databases())
+                print("Stopping primary replica (test %d/10)..." % iteration)
+                port = primary_replica.replica_id().address().server_port()
+                lsof = subprocess.check_output(["lsof", "-i", ":%d" % port])
+                primary_replica_server_pid = [conn.split()[1] for conn in lsof.decode("utf-8").split("\n") if "LISTEN" in conn][0]
+                print("Primary replica is hosted by server with PID %s" % primary_replica_server_pid)
+                subprocess.check_call(["kill", "-9", primary_replica_server_pid])
+                print("Primary replica stopped successfully.")
+                sleep(1)
+                with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
+                    person = tx.concepts().get_entity_type("person")
+                    print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
+                    assert person.get_label() == "person"
+                idx = str(primary_replica.address().client_port())[0]
+                subprocess.Popen(["./%s/grakn" % idx, "server", "--data", "data", "--address", "127.0.0.1:%s1729:%s1730" % (idx, idx), "--peer", "127.0.0.1:11729:11730", "--peer", "127.0.0.1:21729:21730", "--peer", "127.0.0.1:31729:31730"])
+                sleep(10)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
