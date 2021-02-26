@@ -117,8 +117,10 @@ class _SessionRPC(Session):
             self._is_open = False
             self._client.remove_session(self)
             self._lock.release()
-            self._scheduler.cancel(self._pulse)
-            self._scheduler.empty()
+            try:
+                self._scheduler.cancel(self._pulse)
+            except ValueError:  # This may occur if a pulse is in transit but not responded to yet.
+                pass
             req = session_proto.Session.Close.Req()
             req.session_id = self._session_id
             try:
