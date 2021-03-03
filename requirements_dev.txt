@@ -28,7 +28,7 @@
 
 ## Dependencies
 
-grakn-protocol==0.0.0-195cedd57551936d42c28b258c820263fcc1b563
+grakn-protocol==2.0.0a10
 grpcio==1.35.0
 protobuf==3.14.0
 
