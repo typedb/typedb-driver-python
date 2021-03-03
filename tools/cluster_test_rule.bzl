@@ -69,16 +69,16 @@ def _rule_implementation(ctx):
              lsof -i :11729 && STARTED1=1 || STARTED1=0
              lsof -i :21729 && STARTED2=1 || STARTED2=0
              lsof -i :31729 && STARTED3=1 || STARTED3=0
-             if [[ $STARTED1 -eq 1 -a $STARTED2 -eq 1 -a $STARTED3 -eq 1 ]]; then
+             if [[ $STARTED1 -eq 1 && $STARTED2 -eq 1 && $STARTED3 -eq 1 ]]; then
                break
              fi
              sleep $POLL_INTERVAL_SECS
            done
-           if [[ $STARTED1 -eq 0 -o $STARTED2 -eq 0 -o $STARTED3 -eq 0 ]]; then
+           if [[ $STARTED1 -eq 0 || $STARTED2 -eq 0 || $STARTED3 -eq 0 ]]; then
              echo Failed to start one or more Grakn Cluster servers
              exit 1
            fi
-          echo 3 Grakn Cluster database servers started
+           echo 3 Grakn Cluster database servers started
 
            """
 
