@@ -26,6 +26,7 @@ class GraknOptions(ABC):
         self.infer: Optional[bool] = None
         self.trace_inference: Optional[bool] = None
         self.explain: Optional[bool] = None
+        self.parallel: Optional[bool] = None
         self.batch_size: Optional[int] = None
 
     @staticmethod

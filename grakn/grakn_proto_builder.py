@@ -31,6 +31,8 @@ def options(opts: Union[GraknOptions, GraknClusterOptions]):
         proto_options.trace_inference = opts.trace_inference
     if opts.explain is not None:
         proto_options.explain = opts.explain
+    if opts.parallel is not None:
+        proto_options.parallel = opts.parallel
     if opts.batch_size is not None:
         proto_options.batch_size = opts.batch_size
     if opts.is_cluster() and opts.read_any_replica is not None:
