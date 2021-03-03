@@ -57,7 +57,28 @@ def _rule_implementation(ctx):
            ./1/grakn server --data data --address 127.0.0.1:11729:11730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
            ./2/grakn server --data data --address 127.0.0.1:21729:21730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
            ./3/grakn server --data data --address 127.0.0.1:31729:31730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
-           sleep 10
+
+           POLL_INTERVAL_SECS=0.5
+           MAX_RETRIES=60
+           RETRY_NUM=0
+           while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
+             RETRY_NUM=$(($RETRY_NUM + 1))
+             if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
+               echo Waiting for Grakn Cluster servers to start \($(($RETRY_NUM / 2))s\)...
+             fi
+             lsof -i :11729 && STARTED1=1 || STARTED1=0
+             lsof -i :21729 && STARTED2=1 || STARTED2=0
+             lsof -i :31729 && STARTED3=1 || STARTED3=0
+             if [[ $STARTED1 -eq 1 && $STARTED2 -eq 1 && $STARTED3 -eq 1 ]]; then
+               break
+             fi
+             sleep $POLL_INTERVAL_SECS
+           done
+           if [[ $STARTED1 -eq 0 || $STARTED2 -eq 0 || $STARTED3 -eq 0 ]]; then
+             echo Failed to start one or more Grakn Cluster servers
+             exit 1
+           fi
+           echo 3 Grakn Cluster database servers started
 
            """
 
