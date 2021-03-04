@@ -22,54 +22,54 @@ from grakn.common.exception import GraknClientException
 
 class ServerAddress:
 
-    def __init__(self, client_host: str, client_port: int, server_host: str, server_port: int):
-        self._client_host = client_host
-        self._client_port = client_port
-        self._server_host = server_host
-        self._server_port = server_port
+    def __init__(self, external_host: str, external_port: int, internal_host: str, internal_port: int):
+        self._external_host = external_host
+        self._external_port = external_port
+        self._internal_host = internal_host
+        self._internal_port = internal_port
 
-    def client_host(self) -> str:
-        return self._client_host
+    def external_host(self) -> str:
+        return self._external_host
 
-    def client_port(self) -> int:
-        return self._client_port
+    def external_port(self) -> int:
+        return self._external_port
 
-    def server_host(self) -> str:
-        return self._server_host
+    def internal_host(self) -> str:
+        return self._internal_host
 
-    def server_port(self) -> int:
-        return self._server_port
+    def internal_port(self) -> int:
+        return self._internal_port
 
-    def server(self) -> str:
-        return "%s:%d" % (self._server_host, self._server_port)
+    def internal(self) -> str:
+        return "%s:%d" % (self._internal_host, self._internal_port)
 
-    def client(self) -> str:
-        return "%s:%d" % (self._client_host, self._client_port)
+    def external(self) -> str:
+        return "%s:%d" % (self._external_host, self._external_port)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._client_host == other.client_host() and self._client_port == other.client_port() and self._server_host == other.server_host() and self._server_port == other.server_port()
+        return self._external_host == other.external_host() and self._external_port == other.external_port() and self._internal_host == other.internal_host() and self._internal_port == other.internal_port()
 
     def __hash__(self):
-        return hash((self._client_host, self._client_port, self._server_host, self._server_port))
+        return hash((self._external_host, self._external_port, self._internal_host, self._internal_port))
 
     def __str__(self):
-        return "%s,%s" % (self.client(), self.server())
+        return "%s,%s" % (self.external(), self.internal())
 
     @staticmethod
     def parse(address: str) -> "ServerAddress":
         s = address.split(",")
         if len(s) == 1:
             s1 = address.split(":")
-            return ServerAddress(client_host=s1[0], client_port=int(s1[1]), server_host=s1[0], server_port=int(s1[1]))
+            return ServerAddress(external_host=s1[0], external_port=int(s1[1]), internal_host=s1[0], internal_port=int(s1[1]))
         elif len(s) == 2:
             client_url = s[0].split(":")
             server_url = s[1].split(":")
             if len(client_url) != 2 or len(server_url) != 2:
                 raise GraknClientException("Failed to parse server address: " + address)
-            return ServerAddress(client_host=client_url[0], client_port=int(client_url[1]), server_host=server_url[0], server_port=int(server_url[1]))
+            return ServerAddress(external_host=client_url[0], external_port=int(client_url[1]), internal_host=server_url[0], internal_port=int(server_url[1]))
         else:
             raise GraknClientException("Failed to parse server address: " + address)
