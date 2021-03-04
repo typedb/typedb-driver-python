@@ -137,7 +137,7 @@ class _ClientRPC(GraknClient):
 class _ClientClusterRPC(GraknClientCluster):
 
     def __init__(self, addresses: List[str]):
-        self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.client()) for addr in self._fetch_cluster_servers(addresses)}
+        self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.external()) for addr in self._fetch_cluster_servers(addresses)}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
         self._database_managers = _DatabaseManagerClusterRPC(self, {addr: client.databases() for (addr, client) in self._core_clients.items()})
         self._cluster_databases: Dict[str, _DatabaseClusterRPC] = {}
