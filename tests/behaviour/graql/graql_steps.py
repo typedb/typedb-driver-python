@@ -209,7 +209,7 @@ class AttributeValueMatcher(AttributeMatcher):
 
         attribute = concept
 
-        if self.type_label != attribute.as_remote(context.tx()).get_type().get_label():
+        if self.type_label != attribute.get_type().get_label():
             return False
 
         return self.check(attribute)
@@ -224,7 +224,7 @@ class ThingKeyMatcher(AttributeMatcher):
         keys = [key for key in concept.as_remote(context.tx()).get_has(only_key=True)]
 
         for key in keys:
-            if key.as_remote(context.tx()).get_type().get_label() == self.type_label:
+            if key.get_type().get_label() == self.type_label:
                 return self.check(key)
 
         return False

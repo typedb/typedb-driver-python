@@ -27,10 +27,10 @@ class Entity(Thing):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return Entity(concept_proto_reader.iid(thing_proto.iid))
+        return Entity(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
 
     def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid)
+        return RemoteEntity(transaction, self._iid, self.get_type())
 
     def is_entity(self):
         return True
@@ -39,7 +39,7 @@ class Entity(Thing):
 class RemoteEntity(RemoteThing):
 
     def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid)
+        return RemoteEntity(transaction, self._iid, self.get_type())
 
     def is_entity(self):
         return True

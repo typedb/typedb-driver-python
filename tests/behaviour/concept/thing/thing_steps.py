@@ -44,7 +44,7 @@ def step_impl(context: Context, var: str, is_deleted):
 @step("{root_label:RootLabel} {var:Var} has type: {type_label}")
 def step_impl(context: Context, root_label: RootLabel, var: str, type_label: str):
     thing_type = context.get_thing_type(root_label, type_label)
-    assert_that(context.get(var).as_remote(context.tx()).get_type(), is_(thing_type))
+    assert_that(context.get(var).get_type(), is_(thing_type))
 
 
 @step("delete entity: {var:Var}")
