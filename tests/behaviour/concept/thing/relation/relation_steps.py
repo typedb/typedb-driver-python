@@ -49,7 +49,7 @@ def step_impl(context: Context, var: str, type_label: str, key_type: str, key_va
 def step_impl(context: Context, var: str, type_label: str, key_type: str, key_value: str):
     context.put(var, next((owner for owner in context.tx().concepts().get_attribute_type(key_type).as_string()
                           .as_remote(context.tx()).get(key_value).as_remote(context.tx()).get_owners()
-                           if owner.as_remote(context.tx()).get_type() == context.tx().concepts().get_relation_type(type_label)), None))
+                           if owner.get_type().get_label() == type_label), None))
 
 
 @step("relation({type_label}) get instances contain: {var:Var}")
@@ -69,26 +69,27 @@ def step_impl(context: Context, type_label: str):
 
 @step("relation {var1:Var} add player for role({role_label}): {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    context.get(var1).as_remote(context.tx()).add_player(context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
+    context.get(var1).as_remote(context.tx()).add_player(context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
 
 
 @step("relation {var1:Var} remove player for role({role_label}): {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    context.get(var1).as_remote(context.tx()).remove_player(context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
+    context.get(var1).as_remote(context.tx()).remove_player(context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
+
 
 @step("relation {var1:Var} add player for role({role_label}): {var2:Var}; throws exception")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
     adding_player_throws_exception(context, var1, role_label, var2)
 
+
 def adding_player_throws_exception(context: Context, var1: str, role_label: str, var2: str):
     try:
         context.get(var1).as_remote(context.tx()).add_player(
-            context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label),
+            context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label),
             context.get(var2))
         assert False;
     except GraknClientException:
         pass
-
 
 
 @step("relation {var:Var} get players contain")
@@ -98,7 +99,7 @@ def step_impl(context: Context, var: str):
     players_by_role_type = relation.as_remote(context.tx()).get_players_by_role_type()
     print(players)
     for (role_label, var2) in players.items():
-        assert_that(players_by_role_type.get(relation.as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label)), has_item(context.get(parse_var(var2))))
+        assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), has_item(context.get(parse_var(var2))))
 
 
 @step("relation {var:Var} get players do not contain")
@@ -107,7 +108,7 @@ def step_impl(context: Context, var: str):
     relation = context.get(var)
     players_by_role_type = relation.as_remote(context.tx()).get_players_by_role_type()
     for (role_label, var2) in players.items():
-        assert_that(players_by_role_type.get(relation.as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label)), not_(has_item(context.get(parse_var(var2)))))
+        assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), not_(has_item(context.get(parse_var(var2)))))
 
 
 @step("relation {var1:Var} get players contain: {var2:Var}")
@@ -123,12 +124,12 @@ def step_impl(context: Context, var1: str, var2: str):
 @step("relation {var1:Var} get players for role({role_label}) contain: {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_players(
-        role_types=[context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label)]),
+        role_types=[context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label)]),
         has_item(context.get(var2)))
 
 
 @step("relation {var1:Var} get players for role({role_label}) do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_players(
-        role_types=[context.get(var1).as_remote(context.tx()).get_type().as_remote(context.tx()).get_relates(role_label)]),
+        role_types=[context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label)]),
         not_(has_item(context.get(var2))))

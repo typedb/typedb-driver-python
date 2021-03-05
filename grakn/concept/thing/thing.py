@@ -29,14 +29,18 @@ from grakn.concept.concept import Concept, RemoteConcept
 
 class Thing(Concept):
 
-    def __init__(self, iid: str):
+    def __init__(self, iid: str, type_):
         if not iid:
             raise GraknClientException("IID must be a non-empty string.")
         self._iid = iid
+        self._type = type_
         self._hash = hash(iid)
 
     def get_iid(self):
         return self._iid
+
+    def get_type(self):
+        return self._type
 
     def is_thing(self):
         return True
@@ -57,22 +61,21 @@ class Thing(Concept):
 
 class RemoteThing(RemoteConcept):
 
-    def __init__(self, transaction, iid: str):
+    def __init__(self, transaction, iid: str, type_):
         if not transaction:
             raise GraknClientException("Transaction must be set.")
         if not iid:
             raise GraknClientException("IID must be set.")
         self._transaction = transaction
         self._iid = iid
+        self._type = type_
         self._hash = hash(iid)
 
     def get_iid(self):
         return self._iid
 
     def get_type(self):
-        method = concept_proto.Thing.Req()
-        method.thing_get_type_req.CopyFrom(concept_proto.Thing.GetType.Req())
-        return concept_proto_reader.type_(self._execute(method).thing_get_type_res.thing_type)
+        return self._type
 
     def is_inferred(self):
         req = concept_proto.Thing.Req()

@@ -33,14 +33,13 @@ def iid(iid_: str):
 def thing(thing_):
     proto_thing = concept_proto.Thing()
     proto_thing.iid = iid(thing_.get_iid())
-    proto_thing.encoding = thing_encoding(thing_)
     return proto_thing
 
 
 def type_(_type):
     proto_type = concept_proto.Type()
     proto_type.label = _type.get_label()
-    proto_type.encoding = type_encoding(_type)
+    proto_type.encoding = encoding(_type)
 
     if _type.is_role_type():
         proto_type.scope = _type.get_scope()
@@ -99,18 +98,7 @@ def value_type(value_type_: ValueType):
         raise GraknClientException("Unrecognised value type: " + str(value_type_))
 
 
-def thing_encoding(thing_):
-    if thing_.is_entity():
-        return concept_proto.Thing.Encoding.Value("ENTITY")
-    elif thing_.is_relation():
-        return concept_proto.Thing.Encoding.Value("RELATION")
-    elif thing_.is_attribute():
-        return concept_proto.Thing.Encoding.Value("ATTRIBUTE")
-    else:
-        raise GraknClientException("Unrecognised thing encoding: " + str(thing_))
-
-
-def type_encoding(_type):
+def encoding(_type):
     if _type.is_entity_type():
         return concept_proto.Type.Encoding.Value("ENTITY_TYPE")
     elif _type.is_relation_type():

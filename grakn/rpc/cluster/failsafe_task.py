@@ -63,7 +63,7 @@ class _FailsafeTask(ABC):
             except RpcError as e:
                 # TODO: this logic should be extracted into GraknClientException
                 # TODO: error message should be checked in a less brittle way
-                if e.code() == StatusCode.UNAVAILABLE or "[INT07]" in str(e) or "Received RST_STREAM" in str(e):
+                if e.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "[INT07]" in str(e) or "Received RST_STREAM" in str(e):
                     print("Unable to open a session or transaction, retrying in 2s... %s" % str(e))
                     time.sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
                     replica = self._seek_primary_replica()
@@ -85,7 +85,7 @@ class _FailsafeTask(ABC):
             try:
                 return self.run(replica) if retries == 0 else self.rerun(replica)
             except RpcError as e:
-                if e.code() == StatusCode.UNAVAILABLE or "[INT07]" in str(e) or "Received RST_STREAM" in str(e):
+                if e.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "[INT07]" in str(e) or "Received RST_STREAM" in str(e):
                     print("Unable to open a session or transaction to %s. Attempting next replica. %s" % (str(replica.replica_id()), str(e)))
                 else:
                     raise e

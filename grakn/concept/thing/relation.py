@@ -28,10 +28,10 @@ class Relation(Thing):
 
     @staticmethod
     def _of(thing_proto: concept_proto.Thing):
-        return Relation(concept_proto_reader.iid(thing_proto.iid))
+        return Relation(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
 
     def as_remote(self, transaction):
-        return RemoteRelation(transaction, self.get_iid())
+        return RemoteRelation(transaction, self.get_iid(), self.get_type())
 
     def is_relation(self):
         return True
@@ -40,7 +40,7 @@ class Relation(Thing):
 class RemoteRelation(RemoteThing):
 
     def as_remote(self, transaction):
-        return RemoteRelation(transaction, self.get_iid())
+        return RemoteRelation(transaction, self.get_iid(), self.get_type())
 
     def get_players_by_role_type(self):
         method = concept_proto.Thing.Req()

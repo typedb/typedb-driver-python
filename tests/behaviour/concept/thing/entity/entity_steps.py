@@ -46,7 +46,7 @@ def step_impl(context: Context, var: str, type_label: str, key_type: str, key_va
 def step_impl(context: Context, var: str, type_label: str, key_type: str, key_value: str):
     context.put(var, next((owner for owner in context.tx().concepts().get_attribute_type(key_type).as_string()
                           .as_remote(context.tx()).get(key_value).as_remote(context.tx()).get_owners()
-                           if owner.as_remote(context.tx()).get_type() == context.tx().concepts().get_entity_type(type_label)), None))
+                           if owner.get_type().get_label() == type_label), None))
 
 
 @step("entity({type_label}) get instances contain: {var:Var}")
