@@ -26,9 +26,6 @@ from grakn.concept.thing.thing import Thing, RemoteThing
 
 class Attribute(Thing):
 
-    def get_value_type(self):
-        return self.get_type().get_value_type()
-
     def is_attribute(self):
         return True
 
@@ -49,9 +46,6 @@ class Attribute(Thing):
 
 
 class RemoteAttribute(RemoteThing):
-
-    def get_value_type(self):
-        return self.get_type().get_value_type()
 
     def get_owners(self, owner_type=None):
         method = concept_proto.Thing.Req()
