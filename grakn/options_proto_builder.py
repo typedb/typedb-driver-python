@@ -25,6 +25,7 @@ from grakn.options import GraknOptions, GraknClusterOptions
 
 def options(opts: Union[GraknOptions, GraknClusterOptions]):
     proto_options = options_proto.Options()
+
     if opts.infer is not None:
         proto_options.infer = opts.infer
     if opts.trace_inference is not None:
@@ -35,6 +36,14 @@ def options(opts: Union[GraknOptions, GraknClusterOptions]):
         proto_options.parallel = opts.parallel
     if opts.batch_size is not None:
         proto_options.batch_size = opts.batch_size
+    if opts.prefetch is not None:
+        proto_options.prefetch = opts.prefetch
+    if opts.session_idle_timeout_millis is not None:
+        proto_options.session_idle_timeout_millis = opts.session_idle_timeout_millis
+    if opts.schema_lock_acquire_timeout_millis is not None:
+        proto_options.schema_lock_acquire_timeout_millis = opts.schema_lock_acquire_timeout_millis
+
     if opts.is_cluster() and opts.read_any_replica is not None:
         proto_options.read_any_replica = opts.read_any_replica
+
     return proto_options
