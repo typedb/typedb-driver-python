@@ -22,7 +22,7 @@ from typing import Callable, List
 import grakn_protocol.protobuf.query_pb2 as query_proto
 import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
-from grakn import grakn_proto_builder
+from grakn import options_proto_builder
 from grakn.concept.answer import concept_map, concept_map_group, numeric, numeric_group
 from grakn.options import GraknOptions
 
@@ -121,6 +121,6 @@ class QueryManager:
 
     def _iterate_query(self, query_req: query_proto.Query.Req, response_reader: Callable[[transaction_proto.Transaction.Res], List], options: GraknOptions):
         req = transaction_proto.Transaction.Req()
-        query_req.options.CopyFrom(grakn_proto_builder.options(options))
+        query_req.options.CopyFrom(options_proto_builder.options(options))
         req.query_req.CopyFrom(query_req)
         return self._transaction._stream(req, response_reader)
