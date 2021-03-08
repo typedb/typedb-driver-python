@@ -28,6 +28,9 @@ class GraknOptions(ABC):
         self.explain: Optional[bool] = None
         self.parallel: Optional[bool] = None
         self.batch_size: Optional[int] = None
+        self.prefetch: Optional[bool] = None
+        self.session_idle_timeout_millis: Optional[int] = None
+        self.schema_lock_acquire_timeout_millis: Optional[int] = None
 
     @staticmethod
     def core() -> "GraknOptions":
