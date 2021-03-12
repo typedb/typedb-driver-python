@@ -55,6 +55,10 @@ class Session(ABC):
         pass
 
     @abstractmethod
+    def options(self) -> GraknOptions:
+        pass
+
+    @abstractmethod
     def is_open(self) -> bool:
         pass
 
@@ -87,6 +91,7 @@ class _SessionRPC(Session):
         self._scheduler = sched.scheduler(time.time, time.sleep)
         self._database = _DatabaseRPC(database_manager=client.databases(), name=database)
         self._session_type = session_type
+        self._options = options
         self._grpc_stub = GraknStub(self._channel)
         self._lock = Lock()
 
@@ -107,6 +112,9 @@ class _SessionRPC(Session):
 
     def session_type(self) -> SessionType:
         return self._session_type
+
+    def options(self) -> GraknOptions:
+        return self._options
 
     def is_open(self) -> bool:
         return self._is_open

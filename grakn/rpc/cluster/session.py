@@ -33,6 +33,7 @@ class SessionClusterRPC(Session):
         self.core_client = cluster_client.core_client(server_address)
         print("Opening a session to %s" % server_address)
         self.core_session = self.core_client.session(database, session_type, options)
+        self._options = options
 
     def transaction(self, transaction_type: TransactionType, options: GraknClusterOptions = None) -> Transaction:
         if not options:
@@ -47,6 +48,9 @@ class SessionClusterRPC(Session):
 
     def session_type(self) -> SessionType:
         return self.core_session.session_type()
+
+    def options(self) -> GraknClusterOptions:
+        return self._options
 
     def is_open(self) -> bool:
         return self.core_session.is_open()
@@ -79,5 +83,5 @@ class TransactionFailsafeTask(_FailsafeTask):
         if self.cluster_session.core_session:
             self.cluster_session.core_session.close()
         self.cluster_session.core_client = self.cluster_session.cluster_client.core_client(replica.address())
-        self.cluster_session.core_session = self.cluster_session.core_client.session(self.database, self.cluster_session.session_type(), self.options)
+        self.cluster_session.core_session = self.cluster_session.core_client.session(self.database, self.cluster_session.session_type(), self.cluster_session.options())
         return self.cluster_session.core_session.transaction(self.transaction_type, self.options)
