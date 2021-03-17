@@ -16,23 +16,25 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC
 
 import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
+from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
 from grakn.concept.proto import concept_proto_builder
-from grakn.concept.type.type import Type, RemoteType
+from grakn.concept.type.type import _Type, _RemoteType
 
 
-class ThingType(Type):
+class _ThingType(_Type, ThingType, ABC):
 
     def as_remote(self, transaction):
-        return RemoteThingType(transaction, self.get_label(), self.is_root())
+        return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
     def is_thing_type(self):
         return True
 
 
-class RemoteThingType(RemoteType):
+class _RemoteThingType(_RemoteType, RemoteThingType, ABC):
 
     def get_instances(self):
         method = concept_proto.Type.Req()
@@ -98,7 +100,7 @@ class RemoteThingType(RemoteType):
         self._execute(req)
 
     def as_remote(self, transaction):
-        return RemoteThingType(transaction, self.get_label(), self.is_root())
+        return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
     def is_thing_type(self):
         return True

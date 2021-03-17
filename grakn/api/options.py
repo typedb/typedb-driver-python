@@ -18,6 +18,7 @@
 #
 from abc import ABC, abstractmethod
 from typing import Optional
+import grakn_protocol.protobuf.options_pb2 as options_proto
 
 
 class GraknOptions(ABC):
@@ -44,6 +45,28 @@ class GraknOptions(ABC):
     def is_cluster(self) -> bool:
         pass
 
+    def proto(self) -> options_proto.Options:
+        proto_options = options_proto.Options()
+
+        if self.infer is not None:
+            proto_options.infer = self.infer
+        if self.trace_inference is not None:
+            proto_options.trace_inference = self.trace_inference
+        if self.explain is not None:
+            proto_options.explain = self.explain
+        if self.parallel is not None:
+            proto_options.parallel = self.parallel
+        if self.batch_size is not None:
+            proto_options.batch_size = self.batch_size
+        if self.prefetch is not None:
+            proto_options.prefetch = self.prefetch
+        if self.session_idle_timeout_millis is not None:
+            proto_options.session_idle_timeout_millis = self.session_idle_timeout_millis
+        if self.schema_lock_acquire_timeout_millis is not None:
+            proto_options.schema_lock_acquire_timeout_millis = self.schema_lock_acquire_timeout_millis
+
+        return proto_options
+
 
 class GraknClusterOptions(GraknOptions, ABC):
 
@@ -62,3 +85,11 @@ class _GraknClusterOptions(GraknClusterOptions):
 
     def is_cluster(self) -> bool:
         return True
+
+    def proto(self) -> options_proto.Options:
+        proto_options = super(_GraknClusterOptions, self).proto()
+
+        if self.read_any_replica is not None:
+            proto_options.read_any_replica = self.read_any_replica
+
+        return proto_options

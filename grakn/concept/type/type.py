@@ -16,18 +16,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
+from abc import ABC
 from typing import Callable, List
 
 import grakn_protocol.protobuf.concept_pb2 as concept_proto
 import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
+from grakn.api.concept.type.type import Type, RemoteType
 from grakn.common.exception import GraknClientException
+from grakn.concept.concept import _Concept, _RemoteConcept
 from grakn.concept.proto import concept_proto_builder, concept_proto_reader
-from grakn.concept.concept import Concept, RemoteConcept
 
 
-class Type(Concept):
+class _Type(_Concept, Type, ABC):
 
     def __init__(self, label: str, is_root: bool):
         if not label:
@@ -59,7 +60,7 @@ class Type(Concept):
         return self._hash
 
 
-class RemoteType(RemoteConcept):
+class _RemoteType(_RemoteConcept, RemoteType, ABC):
 
     def __init__(self, transaction, label: str, is_root: bool):
         if not transaction:

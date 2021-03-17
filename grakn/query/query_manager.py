@@ -24,7 +24,7 @@ import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn import options_proto_builder
 from grakn.concept.answer import concept_map, concept_map_group, numeric, numeric_group
-from grakn.options import GraknOptions
+from grakn.api.options import GraknOptions
 
 
 class QueryManager:

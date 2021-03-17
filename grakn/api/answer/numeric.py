@@ -16,20 +16,27 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-## To install all dependencies, run: pip3 install -r requirements.txt
-
-
-## Configuration options
+from abc import ABC, abstractmethod
 
 
-# Allow importing of snapshots
---extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
+class Numeric(ABC):
 
+    @abstractmethod
+    def is_int(self) -> bool:
+        pass
 
-## Dependencies
+    @abstractmethod
+    def is_float(self) -> bool:
+        pass
 
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-grakn-protocol==0.0.0-c399ea6ebfe6a9e8ae965f5a534443cfa6dfbb18
-grpcio==1.36.1
-protobuf==3.15.5
+    @abstractmethod
+    def is_nan(self) -> bool:
+        pass
+
+    @abstractmethod
+    def as_int(self) -> int:
+        pass
+
+    @abstractmethod
+    def as_float(self) -> float:
+        pass

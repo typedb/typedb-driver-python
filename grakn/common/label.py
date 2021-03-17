@@ -17,19 +17,7 @@
 # under the License.
 #
 
-## To install all dependencies, run: pip3 install -r requirements.txt
 
-
-## Configuration options
-
-
-# Allow importing of snapshots
---extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
-
-
-## Dependencies
-
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-grakn-protocol==0.0.0-c399ea6ebfe6a9e8ae965f5a534443cfa6dfbb18
-grpcio==1.36.1
-protobuf==3.15.5
+class Label:
+    # TODO
+    pass

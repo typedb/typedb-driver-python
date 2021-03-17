@@ -17,7 +17,7 @@
 # under the License.
 #
 
-from grakn.options import GraknClusterOptions, GraknOptions
+from grakn.api.options import GraknClusterOptions, GraknOptions
 from grakn.rpc.cluster.failsafe_task import _FailsafeTask
 from grakn.rpc.cluster.database import _DatabaseClusterRPC
 from grakn.rpc.cluster.server_address import ServerAddress

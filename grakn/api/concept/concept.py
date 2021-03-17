@@ -18,83 +18,56 @@
 #
 from abc import ABC, abstractmethod
 
-from grakn.api.concept.concept import Concept, RemoteConcept
+from grakn.api.transaction import GraknTransaction
 
 
-class _Concept(Concept, ABC):
+class Concept(ABC):
 
-    def is_remote(self):
+    def is_type(self) -> bool:
         return False
 
-    def is_type(self):
+    def is_thing_type(self) -> bool:
         return False
 
-    def is_thing_type(self):
+    def is_entity_type(self) -> bool:
         return False
 
-    def is_entity_type(self):
+    def is_attribute_type(self) -> bool:
         return False
 
-    def is_attribute_type(self):
+    def is_relation_type(self) -> bool:
         return False
 
-    def is_relation_type(self):
+    def is_role_type(self) -> bool:
         return False
 
-    def is_role_type(self):
+    def is_thing(self) -> bool:
         return False
 
-    def is_thing(self):
+    def is_entity(self) -> bool:
         return False
 
-    def is_entity(self):
+    def is_attribute(self) -> bool:
         return False
 
-    def is_attribute(self):
+    def is_relation(self) -> bool:
         return False
-
-    def is_relation(self):
-        return False
-
-
-class _RemoteConcept(RemoteConcept, ABC):
-
-    def is_remote(self):
-        return True
 
     @abstractmethod
-    def delete(self):
+    def as_remote(self, transaction: GraknTransaction) -> "RemoteConcept":
         pass
 
-    def is_deleted(self):
-        return False
+    @abstractmethod
+    def is_remote(self) -> bool:
+        pass
 
-    def is_type(self):
-        return False
 
-    def is_thing_type(self):
-        return False
+class RemoteConcept(Concept, ABC):
 
-    def is_entity_type(self):
-        return False
+    @abstractmethod
+    def delete(self) -> None:
+        pass
 
-    def is_attribute_type(self):
-        return False
-
-    def is_relation_type(self):
-        return False
-
-    def is_role_type(self):
-        return False
-
-    def is_thing(self):
-        return False
-
-    def is_entity(self):
-        return False
-
-    def is_attribute(self):
-        return False
-
-    def is_relation(self):
-        return False
+    @abstractmethod
+    def is_deleted(self) -> bool:
+        pass

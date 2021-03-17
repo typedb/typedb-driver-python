@@ -32,7 +32,7 @@ import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 from grakn import options_proto_builder
 from grakn.common.exception import GraknClientException
 from grakn.concept.concept_manager import ConceptManager
-from grakn.options import GraknOptions
+from grakn.api.options import GraknOptions
 from grakn.query.query_manager import QueryManager
 from grakn.rpc.stream import Stream
 from grakn.logic.logic_manager import LogicManager

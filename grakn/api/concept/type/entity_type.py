@@ -16,20 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
 
-## To install all dependencies, run: pip3 install -r requirements.txt
-
-
-## Configuration options
-
-
-# Allow importing of snapshots
---extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
+from grakn.api.concept.thing.entity import Entity
+from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
+from grakn.api.transaction import GraknTransaction
 
 
-## Dependencies
+class EntityType(ThingType, ABC):
 
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-grakn-protocol==0.0.0-c399ea6ebfe6a9e8ae965f5a534443cfa6dfbb18
-grpcio==1.36.1
-protobuf==3.15.5
+    def is_entity_type(self):
+        return True
+
+    @abstractmethod
+    def as_remote(self, transaction: GraknTransaction) -> "RemoteEntityType":
+        pass
+
+
+class RemoteEntityType(RemoteThingType, EntityType, ABC):
+
+    def create(self) -> Entity:
+        pass
