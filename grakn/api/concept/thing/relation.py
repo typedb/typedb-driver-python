@@ -16,73 +16,50 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, List, Optional, Dict
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+from grakn.api.concept.thing.thing import Thing, RemoteThing
+from grakn.api.concept.type.role_type import RoleType
+from grakn.common.stream import Stream
 
-from grakn.concept.proto import concept_proto_builder, concept_proto_reader
+if TYPE_CHECKING:
+    from grakn.api.concept.type.relation_type import RelationType
+    from grakn.api.transaction import GraknTransaction
 
 
-class Relation(Thing):
+class Relation(Thing, ABC):
 
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return Relation(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
-
-    def as_remote(self, transaction):
-        return RemoteRelation(transaction, self.get_iid(), self.get_type())
-
-    def is_relation(self):
+    def is_relation(self) -> bool:
         return True
 
+    @abstractmethod
+    def get_type(self) -> "RelationType":
+        pass
 
-class RemoteRelation(RemoteThing):
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteRelation":
+        pass
 
-    def as_remote(self, transaction):
-        return RemoteRelation(transaction, self.get_iid(), self.get_type())
 
-    def get_players_by_role_type(self):
-        method = concept_proto.Thing.Req()
-        method.relation_get_players_by_role_type_req.CopyFrom(concept_proto.Relation.GetPlayersByRoleType.Req())
-        method.iid = concept_proto_builder.iid(self.get_iid())
+class RemoteRelation(RemoteThing, Relation, ABC):
 
-        request = transaction_proto.Transaction.Req()
-        request.thing_req.CopyFrom(method)
-        stream = self._transaction._stream(request, lambda res: res.thing_res.relation_get_players_by_role_type_res.role_types_with_players)
+    @abstractmethod
+    def add_player(self, role_type: "RoleType", player: Thing) -> None:
+        pass
 
-        role_player_dict = {}
-        for role_player in stream:
-            role = concept_proto_reader.type_(role_player.role_type)
-            player = concept_proto_reader.thing(role_player.player)
-            if role not in role_player_dict:
-                role_player_dict[role] = []
-            role_player_dict[role].append(player)
-        return role_player_dict
+    @abstractmethod
+    def remove_player(self, role_type: "RoleType", player: Thing) -> None:
+        pass
 
-    def get_players(self, role_types=None):
-        if not role_types:
-            role_types = []
-        method = concept_proto.Thing.Req()
-        get_players_req = concept_proto.Relation.GetPlayers.Req()
-        get_players_req.role_types.extend(concept_proto_builder.types(role_types))
-        method.relation_get_players_req.CopyFrom(get_players_req)
-        return self._thing_stream(method, lambda res: res.relation_get_players_res.things)
+    @abstractmethod
+    def get_players(self, role_types: Optional[List["RoleType"]] = None) -> Stream[Thing]:
+        pass
 
-    def add_player(self, role_type, player):
-        method = concept_proto.Thing.Req()
-        add_player_req = concept_proto.Relation.AddPlayer.Req()
-        add_player_req.role_type.CopyFrom(concept_proto_builder.type_(role_type))
-        add_player_req.player.CopyFrom(concept_proto_builder.thing(player))
-        method.relation_add_player_req.CopyFrom(add_player_req)
-        self._execute(method)
+    @abstractmethod
+    def get_players_by_role_type(self) -> Dict["RoleType", List[Thing]]:
+        pass
 
-    def remove_player(self, role_type, player):
-        method = concept_proto.Thing.Req()
-        remove_player_req = concept_proto.Relation.RemovePlayer.Req()
-        remove_player_req.role_type.CopyFrom(concept_proto_builder.type_(role_type))
-        remove_player_req.player.CopyFrom(concept_proto_builder.thing(player))
-        method.relation_remove_player_req.CopyFrom(remove_player_req)
-        self._execute(method)
-
-    def is_relation(self):
-        return True
+    @abstractmethod
+    def get_relating(self) -> Stream["RoleType"]:
+        pass

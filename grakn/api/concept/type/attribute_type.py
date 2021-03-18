@@ -23,13 +23,13 @@ from typing import Optional, TYPE_CHECKING
 
 import grakn_protocol.protobuf.concept_pb2 as concept_proto
 
+from grakn.api.concept.thing.thing import Thing
+from grakn.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute
 from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
-from grakn.api.transaction import GraknTransaction
 from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
-    from grakn.api.concept.thing.thing import Thing
-    from grakn.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute
+    from grakn.api.transaction import GraknTransaction
 
 
 class AttributeType(ThingType, ABC):

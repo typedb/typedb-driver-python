@@ -19,13 +19,13 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from grakn.api.concept.thing.thing import Thing
 from grakn.api.concept.type.type import Type, RemoteType
 from grakn.api.concept.type.role_type import RoleType
 from grakn.api.transaction import GraknTransaction
 from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
-    from grakn.api.concept.thing.thing import Thing
     from grakn.api.concept.type.attribute_type import AttributeType
 
 

@@ -18,33 +18,35 @@
 #
 
 import unittest
+from functools import partial
+from multiprocessing.pool import ThreadPool
 from unittest import TestCase
 
-from grakn.concept.type.entity_type import _EntityType
+from grakn.client import GraknClient, SessionType, TransactionType
+from grakn.rpc.session import Session
 
 
 class TestConcurrent(TestCase):
 
-    # def setUp(self):
-    #     with GraknClient.core() as client:
-    #         if not client.databases().contains("grakn"):
-    #             client.databases().create("grakn")
+    def setUp(self):
+        with GraknClient.core() as client:
+            if not client.databases().contains("grakn"):
+                client.databases().create("grakn")
 
-    # def open_tx(self, session: Session, *args):
-    #     tx = session.transaction(TransactionType.WRITE)
-    #     tx.close()
-    #     self.txs_closed += 1
-    #     print("Total txs closed: %d" % self.txs_closed)
+    def open_tx(self, session: Session, *args):
+        tx = session.transaction(TransactionType.WRITE)
+        tx.close()
+        self.txs_closed += 1
+        print("Total txs closed: %d" % self.txs_closed)
 
     def test_open_many_transactions_in_parallel(self):
-        _EntityType("horse", True)
-        # self.txs_closed = 0
-        # with GraknClient.core() as client, client.session("grakn", SessionType.DATA) as session:
-        #     pool = ThreadPool(8)
-        #     results = [None for _ in range(10)]
-        #     pool.map(partial(self.open_tx, session), results)
-        #     pool.close()
-        #     pool.join()
+        self.txs_closed = 0
+        with GraknClient.core() as client, client.session("grakn", SessionType.DATA) as session:
+            pool = ThreadPool(8)
+            results = [None for _ in range(10)]
+            pool.map(partial(self.open_tx, session), results)
+            pool.close()
+            pool.join()
 
 
 if __name__ == "__main__":

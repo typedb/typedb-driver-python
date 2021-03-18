@@ -38,7 +38,7 @@ class Type(Concept, ABC):
         return True
 
     @abstractmethod
-    def as_remote(self, transaction: GraknTransaction) -> "RemoteType":
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteType":
         pass
 
 

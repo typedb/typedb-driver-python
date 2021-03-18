@@ -17,28 +17,47 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from grakn.api.concept.thing.thing import Thing, RemoteThing
+import grakn_protocol.protobuf.logic_pb2 as logic_proto
+import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
-if TYPE_CHECKING:
-    from grakn.api.concept.type.entity_type import EntityType
-    from grakn.api.transaction import GraknTransaction
+from grakn.api.transaction import GraknTransaction
+from grakn.common.exception import GraknClientException
 
 
-class Entity(Thing, ABC):
-
-    def is_entity(self):
-        return True
+class Rule(ABC):
 
     @abstractmethod
-    def get_type(self) -> "EntityType":
+    def get_label(self) -> str:
         pass
 
     @abstractmethod
-    def as_remote(self, transaction: "GraknTransaction") -> "RemoteEntity":
+    def get_when(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_then(self) -> str:
+        pass
+
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteRule":
+        pass
+
+    @abstractmethod
+    def is_remote(self) -> bool:
         pass
 
 
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+class RemoteRule(Rule, ABC):
+
+    @abstractmethod
+    def set_label(self, label: str) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self) -> None:
+        pass
+
+    @abstractmethod
+    def is_deleted(self) -> bool:
+        pass

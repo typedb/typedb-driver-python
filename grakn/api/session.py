@@ -21,9 +21,9 @@ from abc import ABC, abstractmethod
 
 import grakn_protocol.protobuf.session_pb2 as session_proto
 
+from grakn.api.database.database import Database
 from grakn.api.options import GraknOptions
-from grakn.rpc.database import Database
-from grakn.rpc.transaction import Transaction, TransactionType
+from grakn.api.transaction import GraknTransaction
 
 
 class GraknSession(ABC):
@@ -45,7 +45,7 @@ class GraknSession(ABC):
         pass
 
     @abstractmethod
-    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
+    def transaction(self, transaction_type: GraknTransaction.Type, options: GraknOptions = None) -> GraknTransaction:
         pass
 
     @abstractmethod

@@ -17,28 +17,21 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from grakn.api.concept.thing.thing import Thing, RemoteThing
-
-if TYPE_CHECKING:
-    from grakn.api.concept.type.entity_type import EntityType
-    from grakn.api.transaction import GraknTransaction
+from grakn.api.logic.rule import Rule
+from grakn.common.stream import Stream
 
 
-class Entity(Thing, ABC):
-
-    def is_entity(self):
-        return True
+class LogicManager(ABC):
 
     @abstractmethod
-    def get_type(self) -> "EntityType":
+    def get_rule(self, label: str) -> Rule:
         pass
 
     @abstractmethod
-    def as_remote(self, transaction: "GraknTransaction") -> "RemoteEntity":
+    def get_rules(self) -> Stream[Rule]:
         pass
 
-
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+    @abstractmethod
+    def put_rule(self, label: str, when: str, then: str) -> Rule:
+        pass

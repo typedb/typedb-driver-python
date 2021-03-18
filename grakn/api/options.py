@@ -21,7 +21,7 @@ from typing import Optional
 import grakn_protocol.protobuf.options_pb2 as options_proto
 
 
-class GraknOptions(ABC):
+class GraknOptions:
 
     def __init__(self):
         self.infer: Optional[bool] = None
@@ -35,15 +35,14 @@ class GraknOptions(ABC):
 
     @staticmethod
     def core() -> "GraknOptions":
-        return _GraknOptions()
+        return GraknOptions()
 
     @staticmethod
     def cluster() -> "GraknClusterOptions":
-        return _GraknClusterOptions()
+        return GraknClusterOptions()
 
-    @abstractmethod
     def is_cluster(self) -> bool:
-        pass
+        return False
 
     def proto(self) -> options_proto.Options:
         proto_options = options_proto.Options()
@@ -68,26 +67,17 @@ class GraknOptions(ABC):
         return proto_options
 
 
-class GraknClusterOptions(GraknOptions, ABC):
+class GraknClusterOptions(GraknOptions):
 
     def __init__(self):
         super().__init__()
         self.read_any_replica: Optional[bool] = None
 
-
-class _GraknOptions(GraknOptions):
-
-    def is_cluster(self) -> bool:
-        return False
-
-
-class _GraknClusterOptions(GraknClusterOptions):
-
     def is_cluster(self) -> bool:
         return True
 
     def proto(self) -> options_proto.Options:
-        proto_options = super(_GraknClusterOptions, self).proto()
+        proto_options = super(GraknClusterOptions, self).proto()
 
         if self.read_any_replica is not None:
             proto_options.read_any_replica = self.read_any_replica

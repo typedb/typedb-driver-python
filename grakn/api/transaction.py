@@ -24,7 +24,10 @@ from typing import Iterator
 import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
 
 from grakn.api.concept.concept_manager import ConceptManager
+from grakn.api.logic.logic_manager import LogicManager
 from grakn.api.options import GraknOptions
+from grakn.api.query.query_future import QueryFuture
+from grakn.api.query.query_manager import QueryManager
 
 
 class GraknTransaction(ABC):
@@ -45,14 +48,13 @@ class GraknTransaction(ABC):
     def concepts(self) -> ConceptManager:
         pass
 
-    # TODO
-    # @abstractmethod
-    # def logic(self) -> LogicManager:
-    #     pass
-    #
-    # @abstractmethod
-    # def query(self) -> QueryManager:
-    #     pass
+    @abstractmethod
+    def logic(self) -> LogicManager:
+        pass
+
+    @abstractmethod
+    def query(self) -> QueryManager:
+        pass
 
     @abstractmethod
     def commit(self) -> None:
@@ -94,10 +96,9 @@ class _GraknTransactionExtended(GraknTransaction, ABC):
     def execute(self, request: transaction_proto.Transaction.Req) -> transaction_proto.Transaction.Res:
         pass
 
-    # TODO
-    # @abstractmethod
-    # def execute_async(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
-    #     pass
+    @abstractmethod
+    def execute_async(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
+        pass
 
     @abstractmethod
     def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:

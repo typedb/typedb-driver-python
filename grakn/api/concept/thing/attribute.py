@@ -18,14 +18,23 @@
 #
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from grakn.api.concept.thing.thing import Thing
+from grakn.api.concept.thing.thing import Thing, RemoteThing
+from grakn.common.stream import Stream
+
+if TYPE_CHECKING:
+    from grakn.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
+    DoubleAttributeType, StringAttributeType, DateTimeAttributeType
+    from grakn.api.concept.type.thing_type import ThingType
+    from grakn.api.transaction import GraknTransaction
 
 
 class Attribute(Thing, ABC):
 
     @abstractmethod
-    def get_type(self):
+    def get_type(self) -> "AttributeType":
+        pass
 
     def is_attribute(self):
         return True
@@ -45,211 +54,122 @@ class Attribute(Thing, ABC):
     def is_datetime(self):
         return False
 
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteAttribute":
+        pass
 
-class RemoteAttribute(RemoteThing):
 
-    def get_owners(self, owner_type=None):
-        method = concept_proto.Thing.Req()
-        get_owners_req = concept_proto.Attribute.GetOwners.Req()
-        if owner_type:
-            get_owners_req.thing_type = concept_proto_builder.type_(owner_type)
-        method.attribute_get_owners_req.CopyFrom(get_owners_req)
-        return self._thing_stream(method, lambda res: res.attribute_get_owners_res.things)
+class RemoteAttribute(RemoteThing, Attribute, ABC):
 
-    def is_attribute(self):
+    @abstractmethod
+    def get_owners(self, owner_type: "ThingType" = None) -> Stream[Thing]:
+        pass
+
+
+class BooleanAttribute(Attribute, ABC):
+
+    def is_boolean(self) -> bool:
         return True
 
-    def is_boolean(self):
-        return False
+    @abstractmethod
+    def get_type(self) -> "BooleanAttributeType":
+        pass
 
-    def is_long(self):
-        return False
+    @abstractmethod
+    def get_value(self) -> bool:
+        pass
 
-    def is_double(self):
-        return False
-
-    def is_string(self):
-        return False
-
-    def is_datetime(self):
-        return False
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteBooleanAttribute":
+        pass
 
 
-class BooleanAttribute(Attribute):
+class RemoteBooleanAttribute(RemoteAttribute, BooleanAttribute, ABC):
+    pass
 
-    def __init__(self, iid: str, type_, value: bool):
-        super(BooleanAttribute, self).__init__(iid, type_)
-        self._value = value
 
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return BooleanAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.boolean)
+class LongAttribute(Attribute, ABC):
 
-    def get_value(self):
-        return self._value
-
-    def is_boolean(self):
+    def is_long(self) -> bool:
         return True
 
-    def as_remote(self, transaction):
-        return RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+    @abstractmethod
+    def get_type(self) -> "LongAttributeType":
+        pass
+
+    @abstractmethod
+    def get_value(self) -> int:
+        pass
+
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteLongAttribute":
+        pass
 
 
-class RemoteBooleanAttribute(RemoteAttribute):
+class RemoteLongAttribute(RemoteAttribute, LongAttribute, ABC):
+    pass
 
-    def __init__(self, transaction, iid: str, type_, value: bool):
-        super(RemoteBooleanAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
 
-    def get_value(self):
-        return self._value
+class DoubleAttribute(Attribute, ABC):
 
-    def is_boolean(self):
+    def is_double(self) -> bool:
         return True
 
-    def as_remote(self, transaction):
-        return RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+    @abstractmethod
+    def get_type(self) -> "DoubleAttributeType":
+        pass
+
+    @abstractmethod
+    def get_value(self) -> float:
+        pass
+
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteDoubleAttribute":
+        pass
 
 
-class LongAttribute(Attribute):
+class RemoteDoubleAttribute(RemoteAttribute, DoubleAttribute, ABC):
+    pass
 
-    def __init__(self, iid: str, type_, value: int):
-        super(LongAttribute, self).__init__(iid, type_)
-        self._value = value
 
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return LongAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.long)
+class StringAttribute(Attribute, ABC):
 
-    def get_value(self):
-        return self._value
-
-    def is_long(self):
+    def is_string(self) -> bool:
         return True
 
-    def as_remote(self, transaction):
-        return RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+    @abstractmethod
+    def get_type(self) -> "StringAttributeType":
+        pass
+
+    @abstractmethod
+    def get_value(self) -> str:
+        pass
+
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteStringAttribute":
+        pass
 
 
-class RemoteLongAttribute(RemoteAttribute):
+class RemoteStringAttribute(RemoteAttribute, StringAttribute, ABC):
+    pass
 
-    def __init__(self, transaction, iid: str, type_, value: int):
-        super(RemoteLongAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
 
-    def get_value(self):
-        return self._value
+class DateTimeAttribute(Attribute, ABC):
 
-    def is_long(self):
+    def is_datetime(self) -> bool:
         return True
 
-    def as_remote(self, transaction):
-        return RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+    @abstractmethod
+    def get_type(self) -> "DateTimeAttributeType":
+        pass
+
+    @abstractmethod
+    def get_value(self) -> datetime:
+        pass
+
+    @abstractmethod
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteDateTimeAttribute":
+        pass
 
 
-class DoubleAttribute(Attribute):
-
-    def __init__(self, iid: str, type_, value: float):
-        super(DoubleAttribute, self).__init__(iid, type_)
-        self._value = value
-
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return DoubleAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.double)
-
-    def get_value(self):
-        return self._value
-
-    def is_double(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class RemoteDoubleAttribute(RemoteAttribute):
-
-    def __init__(self, transaction, iid: str, type_, value: float):
-        super(RemoteDoubleAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
-
-    def get_value(self):
-        return self._value
-
-    def is_double(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class StringAttribute(Attribute):
-
-    def __init__(self, iid: str, type_, value: str):
-        super(StringAttribute, self).__init__(iid, type_)
-        self._value = value
-
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return StringAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.string)
-
-    def get_value(self):
-        return self._value
-
-    def is_string(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class RemoteStringAttribute(RemoteAttribute):
-
-    def __init__(self, transaction, iid: str, type_, value: str):
-        super(RemoteStringAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
-
-    def get_value(self):
-        return self._value
-
-    def is_string(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class DateTimeAttribute(Attribute):
-
-    def __init__(self, iid: str, type_, value: datetime):
-        super(DateTimeAttribute, self).__init__(iid, type_)
-        self._value = value
-
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
-
-    def get_value(self):
-        return self._value
-
-    def is_datetime(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class RemoteDateTimeAttribute(RemoteAttribute):
-
-    def __init__(self, transaction, iid: str, type_, value: datetime):
-        super(RemoteDateTimeAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
-
-    def get_value(self):
-        return self._value
-
-    def is_datetime(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+class RemoteDateTimeAttribute(RemoteAttribute, DateTimeAttribute, ABC):
+    pass

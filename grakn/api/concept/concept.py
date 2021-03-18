@@ -17,8 +17,10 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from grakn.api.transaction import GraknTransaction
+if TYPE_CHECKING:
+    from grakn.api.transaction import GraknTransaction
 
 
 class Concept(ABC):
@@ -54,7 +56,7 @@ class Concept(ABC):
         return False
 
     @abstractmethod
-    def as_remote(self, transaction: GraknTransaction) -> "RemoteConcept":
+    def as_remote(self, transaction: "GraknTransaction") -> "RemoteConcept":
         pass
 
     @abstractmethod

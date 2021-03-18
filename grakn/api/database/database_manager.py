@@ -17,28 +17,36 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import List
 
-from grakn.api.concept.thing.thing import Thing, RemoteThing
-
-if TYPE_CHECKING:
-    from grakn.api.concept.type.entity_type import EntityType
-    from grakn.api.transaction import GraknTransaction
+from grakn.api.database.database import Database, DatabaseCluster
 
 
-class Entity(Thing, ABC):
-
-    def is_entity(self):
-        return True
+class DatabaseManager(ABC):
 
     @abstractmethod
-    def get_type(self) -> "EntityType":
+    def contains(self, name: str) -> bool:
         pass
 
     @abstractmethod
-    def as_remote(self, transaction: "GraknTransaction") -> "RemoteEntity":
+    def create(self, name: str) -> None:
+        pass
+
+    @abstractmethod
+    def get(self, name: str) -> Database:
+        pass
+
+    @abstractmethod
+    def all(self) -> List[Database]:
         pass
 
 
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+class DatabaseManagerCluster(DatabaseManager, ABC):
+
+    @abstractmethod
+    def get(self, name: str) -> DatabaseCluster:
+        pass
+
+    @abstractmethod
+    def all(self) -> List[DatabaseCluster]:
+        pass

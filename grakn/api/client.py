@@ -18,15 +18,9 @@
 #
 from abc import ABC, abstractmethod
 
-# Repackaging these symbols allows them to be imported from "grakn.client"
-from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
-from grakn.concept.type.value_type import ValueType  # noqa # pylint: disable=unused-import
+from grakn.api.database.database_manager import DatabaseManager, DatabaseManagerCluster
 from grakn.api.options import GraknOptions
-from grakn.rpc.cluster.database import DatabaseCluster, _DatabaseClusterRPC  # noqa # pylint: disable=unused-import
-from grakn.rpc.cluster.database_manager import DatabaseManagerCluster
-from grakn.rpc.database_manager import DatabaseManager
-from grakn.rpc.session import Session, SessionType
-from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
+from grakn.api.session import GraknSession
 
 
 class GraknClient(ABC):
@@ -40,7 +34,7 @@ class GraknClient(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: GraknOptions = None) -> Session:
+    def session(self, database: str, session_type: GraknSession.Type, options: GraknOptions = None) -> GraknSession:
         pass
 
     @abstractmethod

@@ -17,28 +17,27 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TypeVar, Generic, Callable
 
-from grakn.api.concept.thing.thing import Thing, RemoteThing
-
-if TYPE_CHECKING:
-    from grakn.api.concept.type.entity_type import EntityType
-    from grakn.api.transaction import GraknTransaction
+T = TypeVar('T')
+U = TypeVar('U')
 
 
-class Entity(Thing, ABC):
-
-    def is_entity(self):
-        return True
+class QueryFuture(Generic[T], ABC):
 
     @abstractmethod
-    def get_type(self) -> "EntityType":
+    def get(self) -> T:
         pass
 
-    @abstractmethod
-    def as_remote(self, transaction: "GraknTransaction") -> "RemoteEntity":
-        pass
+    def map(self, function: Callable[[T], U]) -> "QueryFuture[U]":
+        return MappedQueryFuture(self, function)
 
 
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+class MappedQueryFuture(Generic[T, U], QueryFuture[U]):
+
+    def __init__(self, query_future: QueryFuture[T], function: Callable[[T], U]):
+        self._query_future = query_future
+        self._function = function
+
+    def get(self) -> U:
+        return self._function(self._query_future.get())

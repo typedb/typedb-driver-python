@@ -17,59 +17,50 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
 
-from grakn.api.concept.concept import Concept, RemoteConcept
+from grakn.api.answer.concept_map import ConceptMap
+from grakn.api.answer.concept_map_group import ConceptMapGroup
+from grakn.api.answer.numeric import Numeric
+from grakn.api.answer.numeric_group import NumericGroup
+from grakn.api.options import GraknOptions
+from grakn.api.query.query_future import QueryFuture
 from grakn.common.stream import Stream
 
-if TYPE_CHECKING:
-    from grakn.api.concept.thing.attribute import Attribute
-    from grakn.api.concept.type.attribute_type import AttributeType
-    from grakn.api.concept.type.role_type import RoleType
-    from grakn.api.concept.type.thing_type import ThingType
-    from grakn.api.transaction import GraknTransaction
 
-
-class Thing(Concept, ABC):
+class QueryManager(ABC):
 
     @abstractmethod
-    def get_iid(self) -> str:
+    def match(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
         pass
 
     @abstractmethod
-    def get_type(self) -> "ThingType":
-        pass
-
-    def is_thing(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "GraknTransaction") -> "RemoteThing":
-        pass
-
-
-class RemoteThing(RemoteConcept, Thing, ABC):
-
-    @abstractmethod
-    def set_has(self, attribute: "Attribute") -> None:
+    def match_aggregate(self, query: str, options: GraknOptions = None) -> QueryFuture[Numeric]:
         pass
 
     @abstractmethod
-    def unset_has(self, attribute: "Attribute") -> None:
+    def match_group(self, query: str, options: GraknOptions = None) -> Stream[ConceptMapGroup]:
         pass
 
     @abstractmethod
-    def is_inferred(self) -> bool:
+    def match_group_aggregate(self, query: str, options: GraknOptions = None) -> Stream[NumericGroup]:
         pass
 
     @abstractmethod
-    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, only_key: bool = False) -> Stream["Attribute"]:
+    def insert(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
         pass
 
     @abstractmethod
-    def get_relations(self, role_types: List["RoleType"] = None):
+    def delete(self, query: str, options: GraknOptions = None) -> QueryFuture:
         pass
 
     @abstractmethod
-    def get_playing(self) -> Stream["RoleType"]:
+    def update(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
+        pass
+
+    @abstractmethod
+    def define(self, query: str, options: GraknOptions = None) -> QueryFuture:
+        pass
+
+    @abstractmethod
+    def undefine(self, query: str, options: GraknOptions = None) -> QueryFuture:
         pass
