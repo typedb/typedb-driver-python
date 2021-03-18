@@ -16,8 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
 from typing import Optional
+
 import grakn_protocol.protobuf.options_pb2 as options_proto
 
 

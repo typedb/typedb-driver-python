@@ -16,8 +16,48 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Optional
 
 
 class Label:
-    # TODO
-    pass
+
+    def __init__(self, scope: Optional[str], name: str):
+        self._scope = scope
+        self._name = name
+
+    @staticmethod
+    def of(*args: str) -> "Label":
+        """
+        Create a Label from a specified name, or scoped name.
+
+        If a single string is provided, this is interpreted as the label name. If a pair of strings is provided,
+        the first string is the scope and the second string is the name.
+
+        **Examples**
+
+        - ``Label.of("entity")``
+        - ``Label.of("relation", "role")``
+        """
+        return Label(scope=args[0], name=args[1]) if len(args) == 2 else Label(scope=None, name=args[0])
+
+    def scope(self) -> Optional[str]:
+        return self._scope
+
+    def name(self) -> str:
+        return self._name
+
+    def scoped_name(self) -> str:
+        return "%s:%s" % (self._scope, self._name) if self._scope else self._name
+
+    def __str__(self):
+        return self.scoped_name()
+
+    def __hash__(self):
+        return hash((self._name, self._scope))
+
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if not other or type(self) != type(other):
+            return False
+        return self._scope is other._scope and self._name == other._name

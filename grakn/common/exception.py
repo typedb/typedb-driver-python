@@ -16,6 +16,25 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Optional
+
+from grakn.common.error_message import ErrorMessage
+
 
 class GraknClientException(Exception):
-    pass
+
+    # TODO
+    def __init__(self,
+                 message: Optional[str] = None,
+                 cause: Optional[BaseException] = None,
+                 error_message: Optional[ErrorMessage] = None,
+                 *args):
+
+        if message:
+            self.message = message
+        elif error_message:
+            self.message = error_message.message(args)
+        else:
+            raise ValueError("GraknClientException")
+
+        super(GraknClientException, self).__init__(self.message)
