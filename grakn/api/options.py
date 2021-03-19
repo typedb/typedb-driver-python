@@ -18,7 +18,7 @@
 #
 from typing import Optional
 
-import grakn_protocol.protobuf.options_pb2 as options_proto
+import grakn_protocol.common.options_pb2 as options_proto
 
 
 class GraknOptions:

@@ -17,12 +17,66 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Set, Optional, List
 
-from grakn.api.database.database import Database, DatabaseCluster
+
+class Database(ABC):
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def schema(self) -> str:
+        pass
+
+    @abstractmethod
+    def delete(self) -> None:
+        pass
+
+    class Replica(ABC):
+
+        @abstractmethod
+        def database(self) -> "DatabaseCluster":
+            pass
+
+        @abstractmethod
+        def address(self) -> str:
+            pass
+
+        @abstractmethod
+        def is_primary(self) -> bool:
+            pass
+
+        @abstractmethod
+        def is_preferred(self) -> bool:
+            pass
+
+        @abstractmethod
+        def term(self) -> int:
+            pass
+
+
+class DatabaseCluster(Database, ABC):
+
+    @abstractmethod
+    def replicas(self) -> Set[Database.Replica]:
+        pass
+
+    @abstractmethod
+    def primary_replica(self) -> Optional[Database.Replica]:
+        pass
+
+    @abstractmethod
+    def preferred_replica(self) -> Database.Replica:
+        pass
 
 
 class DatabaseManager(ABC):
+
+    @abstractmethod
+    def get(self, name: str) -> Database:
+        pass
 
     @abstractmethod
     def contains(self, name: str) -> bool:
@@ -30,10 +84,6 @@ class DatabaseManager(ABC):
 
     @abstractmethod
     def create(self, name: str) -> None:
-        pass
-
-    @abstractmethod
-    def get(self, name: str) -> Database:
         pass
 
     @abstractmethod

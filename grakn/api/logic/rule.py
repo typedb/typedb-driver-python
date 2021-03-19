@@ -18,11 +18,7 @@
 #
 from abc import ABC, abstractmethod
 
-import grakn_protocol.protobuf.logic_pb2 as logic_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
-
 from grakn.api.transaction import GraknTransaction
-from grakn.common.exception import GraknClientException
 
 
 class Rule(ABC):

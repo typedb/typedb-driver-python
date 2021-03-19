@@ -25,7 +25,7 @@ from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
-    DoubleAttributeType, StringAttributeType, DateTimeAttributeType
+        DoubleAttributeType, StringAttributeType, DateTimeAttributeType
     from grakn.api.concept.type.thing_type import ThingType
     from grakn.api.transaction import GraknTransaction
 

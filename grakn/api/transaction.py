@@ -21,7 +21,7 @@ import enum
 from abc import ABC, abstractmethod
 from typing import Iterator
 
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.common.transaction_pb2 as transaction_proto
 
 from grakn.api.concept.concept_manager import ConceptManager
 from grakn.api.logic.logic_manager import LogicManager

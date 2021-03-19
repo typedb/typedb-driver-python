@@ -19,9 +19,9 @@
 import enum
 from abc import ABC, abstractmethod
 
-import grakn_protocol.protobuf.session_pb2 as session_proto
+import grakn_protocol.common.session_pb2 as session_proto
 
-from grakn.api.database.database import Database
+from grakn.api.database import Database
 from grakn.api.options import GraknOptions
 from grakn.api.transaction import GraknTransaction
 

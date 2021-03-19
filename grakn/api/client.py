@@ -18,7 +18,7 @@
 #
 from abc import ABC, abstractmethod
 
-from grakn.api.database.database_manager import DatabaseManager, DatabaseManagerCluster
+from grakn.api.database import DatabaseManager, DatabaseManagerCluster
 from grakn.api.options import GraknOptions
 from grakn.api.session import GraknSession
 

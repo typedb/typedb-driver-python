@@ -19,36 +19,67 @@
 import uuid
 from typing import List
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-import grakn_protocol.protobuf.database_pb2 as database_proto
-import grakn_protocol.protobuf.options_pb2 as options_proto
-import grakn_protocol.protobuf.query_pb2 as query_proto
-import grakn_protocol.protobuf.session_pb2 as session_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.cluster.cluster_database_pb2 as cluster_database_proto
+import grakn_protocol.cluster.cluster_server_pb2 as cluster_server_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
+import grakn_protocol.common.logic_pb2 as logic_proto
+import grakn_protocol.common.options_pb2 as options_proto
+import grakn_protocol.common.query_pb2 as query_proto
+import grakn_protocol.common.session_pb2 as session_proto
+import grakn_protocol.common.transaction_pb2 as transaction_proto
+import grakn_protocol.core.core_database_pb2 as core_database_proto
 
 
-# Database
-
-def database_all_req():
-    return database_proto.Database.All.Req()
+# CoreDatabaseManager
+from grakn.common.label import Label
 
 
-def database_contains_req(name: str):
-    req = database_proto.Database.Contains.Req()
+def core_database_manager_create_req(name: str):
+    req = core_database_proto.CoreDatabaseManager.Create.Req()
     req.name = name
     return req
 
 
-def database_create_req(name: str):
-    req = database_proto.Database.Create.Req()
+def core_database_manager_contains_req(name: str):
+    req = core_database_proto.CoreDatabaseManager.Contains.Req()
     req.name = name
     return req
 
 
-def database_delete_req(name: str):
-    req = database_proto.Database.Delete.Req()
+def core_database_manager_all_req():
+    return core_database_proto.CoreDatabaseManager.All.Req()
+
+
+# CoreDatabase
+
+def core_database_schema_req(name: str):
+    req = core_database_proto.CoreDatabase.Schema.Req()
     req.name = name
     return req
+
+
+def core_database_delete_req(name: str):
+    req = core_database_proto.CoreDatabase.Delete.Req()
+    req.name = name
+    return req
+
+
+# ClusterServer
+
+def cluster_server_manager_all_req():
+    return cluster_server_proto.ServerManager.All.Req()
+
+
+# ClusterDatabaseManager
+
+def cluster_database_manager_get_req(name: str):
+    req = cluster_database_proto.ClusterDatabaseManager.Get.Req()
+    req.name = name
+    return req
+
+
+def cluster_database_manager_all_req():
+    return cluster_database_proto.ClusterDatabaseManager.All.Req()
 
 
 # Session
@@ -247,14 +278,122 @@ def concept_manager_get_thing_req(iid: str):
 
 # LogicManager
 
-# TODO
+def logic_manager_req(logic_mgr_req: logic_proto.LogicManager.Req):
+    req = transaction_proto.Transaction.Req()
+    req.logic_manager_req.CopyFrom(logic_mgr_req)
+    return req
 
 
-# TODO: Type, ThingType ... etc
+def logic_manager_put_rule_req(label: str, when: str, then: str):
+    req = logic_proto.LogicManager.Req()
+    put_rule_req = logic_proto.LogicManager.PutRule.Req()
+    put_rule_req.label = label
+    put_rule_req.when = when
+    put_rule_req.then = then
+    req.put_rule_req.CopyFrom(put_rule_req)
+    return req
+
+
+def logic_manager_get_rule_req(label: str):
+    req = logic_proto.LogicManager.Req()
+    get_rule_req = logic_proto.LogicManager.GetRule.Req()
+    get_rule_req.label = label
+    req.get_rule_req.CopyFrom(get_rule_req)
+    return req
+
+
+def logic_manager_get_rules_req():
+    req = logic_proto.LogicManager.Req()
+    req.get_rules_req.CopyFrom(logic_proto.LogicManager.GetRules.Req())
+    return req
+
+
+# Type
+
+def type_req(req: concept_proto.Type.Req, label: Label):
+    req.label = label.name()
+    if label.scope():
+        req.scope = label.scope()
+    tx_req = transaction_proto.Transaction.Req()
+    tx_req.type_req.CopyFrom(req)
+    return tx_req
+
+
+def type_is_abstract_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.type_is_abstract_req.CopyFrom(concept_proto.Type.IsAbstract.Req())
+    return type_req(req, label)
+
+
+def type_set_label_req(label: Label, new_label: str):
+    req = concept_proto.Type.Req()
+    set_label_req = concept_proto.Type.SetLabel.Req()
+    set_label_req.label = new_label
+    req.type_set_label_req.CopyFrom(set_label_req)
+    return type_req(req, label)
+
+
+def type_get_supertypes_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.type_get_supertypes_req.CopyFrom(concept_proto.Type.GetSupertypes.Req())
+    return type_req(req, label)
+
+
+def type_get_subtypes_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.type_get_subtypes_req.CopyFrom(concept_proto.Type.GetSubtypes.Req())
+    return type_req(req, label)
+
+
+def type_get_supertype_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.type_get_supertype_req.CopyFrom(concept_proto.Type.GetSupertype.Req())
+    return type_req(req, label)
+
+
+def type_delete_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.type_delete_req.CopyFrom(concept_proto.Type.Delete.Req())
+    return type_req(req, label)
+
+
+# RoleType
+
+def proto_role_type(label: Label, encoding: concept_proto.Type.Encoding):
+    proto_type = concept_proto.Type()
+    proto_type.scope = label.scope()
+    proto_type.label = label.name()
+    proto_type.encoding = encoding
+    return proto_type
+
+
+def role_type_get_relation_types_req(label: Label):
+    req = concept_proto.RoleType.Req()
+    req.role_type_get_relation_types_req.CopyFrom(concept_proto.RoleType.GetRelationTypes.Req())
+    return type_req(req, label)
+
+
+def role_type_get_players_req(label: Label):
+    req = concept_proto.RoleType.Req()
+    req.role_type_get_players_req.CopyFrom(concept_proto.RoleType.GetPlayers.Req())
+    return type_req(req, label)
+
+
+# ThingType
+
+def proto_thing_type(label: Label, encoding: concept_proto.Type.Encoding):
+    proto_type = concept_proto.Type()
+    proto_type.label = label.name()
+    proto_type.encoding = encoding
+    return proto_type
+
+
+# TODO: ThingType methods, RelationType, AttributeType
+
 
 # Thing
 
 def byte_string(iid: str):
     return bytes.fromhex(iid.lstrip("0x"))
 
-# TODO
+# TODO: Thing methods, Relation, Attribute

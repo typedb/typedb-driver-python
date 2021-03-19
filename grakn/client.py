@@ -17,7 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, Set, Dict
+from typing import List, Set, Dict, Union
 
 import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
 import grpc
@@ -46,8 +46,11 @@ class GraknClient(ABC):
         return _ClientRPC(address)
 
     @staticmethod
-    def cluster(addresses: List[str]) -> "GraknClientCluster":
-        return _ClientClusterRPC(addresses)
+    def cluster(addresses: Union[List[str], str]) -> "GraknClientCluster":
+        if isinstance(addresses, str):
+            return _ClientClusterRPC([addresses])
+        else:
+            return _ClientClusterRPC(addresses)
 
     @abstractmethod
     def session(self, database: str, session_type: SessionType, options: GraknOptions = None) -> Session:
