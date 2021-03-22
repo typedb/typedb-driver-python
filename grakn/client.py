@@ -17,7 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, Set, Dict, Union
+from typing import List, Set, Dict, Union, Iterable
 
 import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
 import grpc
@@ -46,7 +46,7 @@ class GraknClient(ABC):
         return _ClientRPC(address)
 
     @staticmethod
-    def cluster(addresses: Union[List[str], str]) -> "GraknClientCluster":
+    def cluster(addresses: Union[Iterable[str], str]) -> "GraknClientCluster":
         if isinstance(addresses, str):
             return _ClientClusterRPC([addresses])
         else:
@@ -139,7 +139,7 @@ class _ClientRPC(GraknClient):
 # _ClientClusterRPC must live in this package because of circular ref with GraknClient
 class _ClientClusterRPC(GraknClientCluster):
 
-    def __init__(self, addresses: List[str]):
+    def __init__(self, addresses: Iterable[str]):
         self._core_clients: Dict[ServerAddress, _ClientRPC] = {addr: _ClientRPC(addr.external()) for addr in self._fetch_cluster_servers(addresses)}
         self._grakn_cluster_grpc_stubs = {addr: GraknClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
         self._database_managers = _DatabaseManagerClusterRPC(self, {addr: client.databases() for (addr, client) in self._core_clients.items()})
@@ -189,7 +189,7 @@ class _ClientClusterRPC(GraknClientCluster):
     def grakn_cluster_grpc_stub(self, address: ServerAddress) -> GraknClusterStub:
         return self._grakn_cluster_grpc_stubs.get(address)
 
-    def _fetch_cluster_servers(self, addresses: List[str]) -> Set[ServerAddress]:
+    def _fetch_cluster_servers(self, addresses: Iterable[str]) -> Set[ServerAddress]:
         for address in addresses:
             try:
                 with _ClientRPC(address) as client:

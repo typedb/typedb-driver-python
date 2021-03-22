@@ -17,6 +17,7 @@
 # under the License.
 #
 import uuid
+from datetime import datetime
 from typing import List
 
 import grakn_protocol.cluster.cluster_database_pb2 as cluster_database_proto
@@ -29,10 +30,11 @@ import grakn_protocol.common.session_pb2 as session_proto
 import grakn_protocol.common.transaction_pb2 as transaction_proto
 import grakn_protocol.core.core_database_pb2 as core_database_proto
 
-
-# CoreDatabaseManager
+from grakn.common.exception import GraknClientException, GET_HAS_WITH_MULTIPLE_FILTERS
 from grakn.common.label import Label
 
+
+# CoreDatabaseManager
 
 def core_database_manager_create_req(name: str):
     req = core_database_proto.CoreDatabaseManager.Create.Req()
@@ -368,13 +370,13 @@ def proto_role_type(label: Label, encoding: concept_proto.Type.Encoding):
 
 
 def role_type_get_relation_types_req(label: Label):
-    req = concept_proto.RoleType.Req()
+    req = concept_proto.Type.Req()
     req.role_type_get_relation_types_req.CopyFrom(concept_proto.RoleType.GetRelationTypes.Req())
     return type_req(req, label)
 
 
 def role_type_get_players_req(label: Label):
-    req = concept_proto.RoleType.Req()
+    req = concept_proto.Type.Req()
     req.role_type_get_players_req.CopyFrom(concept_proto.RoleType.GetPlayers.Req())
     return type_req(req, label)
 
@@ -388,7 +390,170 @@ def proto_thing_type(label: Label, encoding: concept_proto.Type.Encoding):
     return proto_type
 
 
-# TODO: ThingType methods, RelationType, AttributeType
+def thing_type_set_abstract_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_set_abstract_req.CopyFrom(concept_proto.ThingType.SetAbstract.Req())
+    return type_req(req, label)
+
+
+def thing_type_unset_abstract_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_unset_abstract_req.CopyFrom(concept_proto.ThingType.UnsetAbstract.Req())
+    return type_req(req, label)
+
+
+def thing_type_set_supertype_req(label: Label, supertype: concept_proto.Type):
+    req = concept_proto.Type.Req()
+    set_supertype_req = concept_proto.Type.SetSupertype.Req()
+    set_supertype_req.type.CopyFrom(supertype)
+    req.type_set_supertype_req.CopyFrom(set_supertype_req)
+    return type_req(req, label)
+
+
+def thing_type_get_plays_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_get_plays_req.CopyFrom(concept_proto.ThingType.GetPlays.Req())
+    return type_req(req, label)
+
+
+def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type, overridden_role_type: concept_proto.Type = None):
+    req = concept_proto.Type.Req()
+    set_plays_req = concept_proto.ThingType.SetPlays.Req()
+    set_plays_req.role.CopyFrom(role_type)
+    if overridden_role_type:
+        set_plays_req.overridden_role.CopyFrom(overridden_role_type)
+    req.thing_type_set_plays_req.CopyFrom(set_plays_req)
+    return type_req(req, label)
+
+
+def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
+    req = concept_proto.Type.Req()
+    unset_plays_req = concept_proto.ThingType.UnsetPlays.Req()
+    unset_plays_req.role.CopyFrom(role_type)
+    req.thing_type_unset_plays_req.CopyFrom(unset_plays_req)
+    return type_req(req, label)
+
+
+def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None, keys_only: bool = False):
+    req = concept_proto.Type.Req()
+    get_owns_req = concept_proto.ThingType.GetOwns.Req()
+    get_owns_req.keys_only = keys_only
+    if value_type:
+        get_owns_req.value_type = value_type
+    req.thing_type_get_owns_req.CopyFrom(get_owns_req)
+    return type_req(req, label)
+
+
+def thing_type_set_owns_req(label: Label, attribute_type: concept_proto.Type, overridden_type: concept_proto.Type = None, is_key: bool = False):
+    req = concept_proto.Type.Req()
+    set_owns_req = concept_proto.ThingType.SetOwns.Req()
+    set_owns_req.attribute_type.CopyFrom(attribute_type)
+    set_owns_req.is_key = is_key
+    if overridden_type:
+        set_owns_req.overridden_type.CopyFrom(overridden_type)
+    req.thing_type_set_owns_req.CopyFrom(set_owns_req)
+    return type_req(req, label)
+
+
+def thing_type_unset_owns_req(label: Label, attribute_type: concept_proto.Type):
+    req = concept_proto.Type.Req()
+    unset_owns_req = concept_proto.ThingType.UnsetOwns.Req()
+    unset_owns_req.attribute_type.CopyFrom(attribute_type)
+    req.thing_type_unset_owns_req.CopyFrom(unset_owns_req)
+    return type_req(req, label)
+
+
+def thing_type_get_instances_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_get_instances_req.CopyFrom(concept_proto.ThingType.GetInstances.Req())
+    return type_req(req, label)
+
+
+# EntityType
+
+def entity_type_create_req(label: Label):
+    req = concept_proto.Type.Req()
+    create_req = concept_proto.EntityType.Create.Req()
+    req.entity_type_create_req.CopyFrom(create_req)
+    return type_req(req, label)
+
+
+# RelationType
+
+def relation_type_create_req(label: Label):
+    req = concept_proto.Type.Req()
+    create_req = concept_proto.RelationType.Create.Req()
+    req.relation_type_create_req.CopyFrom(create_req)
+    return type_req(req, label)
+
+
+def relation_type_get_relates_req(label: Label, role_label: str = None):
+    req = concept_proto.Type.Req()
+    if role_label:
+        get_relates_req = concept_proto.RelationType.GetRelatesForRoleLabel.Req()
+        get_relates_req.label = role_label
+        req.relation_type_get_relates_for_role_label_req.CopyFrom(get_relates_req)
+    else:
+        req.relation_type_get_relates_req.CopyFrom(concept_proto.RelationType.GetRelates.Req())
+    return type_req(req, label)
+
+
+def relation_type_set_relates_req(label: Label, role_label: str, overridden_label: str = None):
+    req = concept_proto.Type.Req()
+    set_relates_req = concept_proto.RelationType.SetRelates.Req()
+    set_relates_req.label = role_label
+    if overridden_label:
+        set_relates_req.overridden_label = overridden_label
+    req.relation_type_set_relates_req.CopyFrom(set_relates_req)
+    return type_req(req, label)
+
+
+def relation_type_unset_relates_req(label: Label, role_label: str):
+    req = concept_proto.Type.Req()
+    unset_relates_req = concept_proto.RelationType.UnsetRelates.Req()
+    unset_relates_req.label = role_label
+    req.relation_type_unset_relates_req.CopyFrom(unset_relates_req)
+    return type_req(req, label)
+
+
+# AttributeType
+
+def attribute_type_get_owners_req(label: Label, only_key: bool = False):
+    req = concept_proto.Type.Req()
+    get_owners_req = concept_proto.AttributeType.GetOwners.Req()
+    get_owners_req.only_key = only_key
+    req.attribute_type_get_owners_req.CopyFrom(get_owners_req)
+    return type_req(req, label)
+
+
+def attribute_type_put_req(label: Label, value: concept_proto.Attribute.Value):
+    req = concept_proto.Type.Req()
+    put_req = concept_proto.AttributeType.Put.Req()
+    put_req.value.CopyFrom(value)
+    req.attribute_type_put_req.CopyFrom(put_req)
+    return type_req(req, label)
+
+
+def attribute_type_get_req(label: Label, value: concept_proto.Attribute.Value):
+    req = concept_proto.Type.Req()
+    get_req = concept_proto.AttributeType.Get.Req()
+    get_req.value.CopyFrom(value)
+    req.attribute_type_get_req.CopyFrom(get_req)
+    return type_req(req, label)
+
+
+def attribute_type_get_regex_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.attribute_type_get_regex_req.CopyFrom(concept_proto.AttributeType.GetRegex.Req())
+    return type_req(req, label)
+
+
+def attribute_type_set_regex_req(label: Label, regex: str):
+    req = concept_proto.Type.Req()
+    set_regex_req = concept_proto.AttributeType.SetRegex.Req()
+    set_regex_req.regex = regex
+    req.attribute_type_set_regex_req.CopyFrom(set_regex_req)
+    return type_req(req, label)
 
 
 # Thing
@@ -396,4 +561,178 @@ def proto_thing_type(label: Label, encoding: concept_proto.Type.Encoding):
 def byte_string(iid: str):
     return bytes.fromhex(iid.lstrip("0x"))
 
-# TODO: Thing methods, Relation, Attribute
+
+def proto_thing(iid: str):
+    thing = concept_proto.Thing()
+    thing.iid = byte_string(iid)
+    return thing
+
+
+def thing_req(req: concept_proto.Thing.Req, iid: str):
+    req.iid = byte_string(iid)
+    tx_req = transaction_proto.Transaction.Req()
+    tx_req.thing_req.CopyFrom(req)
+    return tx_req
+
+
+def thing_is_inferred_req(iid: str):
+    req = concept_proto.Thing.Req()
+    req.thing_is_inferred_req.CopyFrom(concept_proto.Thing.IsInferred.Req())
+    return thing_req(req, iid)
+
+
+def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None, only_key: bool = False):
+    if attribute_types and only_key:
+        raise GraknClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
+    req = concept_proto.Thing.Req()
+    get_has_req = concept_proto.Thing.GetHas.Req()
+    if only_key:
+        get_has_req.keys_only = only_key
+    elif attribute_types:
+        get_has_req.attribute_types.extend(attribute_types)
+    req.thing_get_has_req.CopyFrom(get_has_req)
+    return thing_req(req, iid)
+
+
+def thing_set_has_req(iid: str, attribute: concept_proto.Thing):
+    req = concept_proto.Thing.Req()
+    set_has_req = concept_proto.Thing.SetHas.Req()
+    set_has_req.attribute.CopyFrom(attribute)
+    req.thing_set_has_req.CopyFrom(set_has_req)
+    return thing_req(req, iid)
+
+
+def thing_unset_has_req(iid: str, attribute: concept_proto.Thing):
+    req = concept_proto.Thing.Req()
+    unset_has_req = concept_proto.Thing.UnsetHas.Req()
+    unset_has_req.attribute.CopyFrom(attribute)
+    req.thing_unset_has_req.CopyFrom(unset_has_req)
+    return thing_req(req, iid)
+
+
+def thing_get_playing_req(iid: str):
+    req = concept_proto.Thing.Req()
+    req.thing_get_playing_req.CopyFrom(concept_proto.Thing.GetPlaying.Req())
+    return thing_req(req, iid)
+
+
+def thing_get_relations_req(iid: str, role_types: List[concept_proto.Type] = None):
+    if not role_types:
+        role_types = []
+    req = concept_proto.Thing.Req()
+    get_relations_req = concept_proto.Thing.GetRelations.Req()
+    get_relations_req.role_types.extend(role_types)
+    req.thing_get_relations_req.CopyFrom(get_relations_req)
+    return thing_req(req, iid)
+
+
+def thing_delete_req(iid: str):
+    req = concept_proto.Thing.Req()
+    req.thing_delete_req.CopyFrom(concept_proto.Thing.Delete.Req())
+    return thing_req(req, iid)
+
+
+# Relation
+
+def relation_add_player_req(iid: str, role_type: concept_proto.Type, player: concept_proto.Thing):
+    req = concept_proto.Thing.Req()
+    add_player_req = concept_proto.Relation.AddPlayer.Req()
+    add_player_req.role_type.CopyFrom(role_type)
+    add_player_req.player.CopyFrom(player)
+    req.relation_add_player_req.CopyFrom(add_player_req)
+    return thing_req(req, iid)
+
+
+def relation_remove_player_req(iid: str, role_type: concept_proto.Type, player: concept_proto.Thing):
+    req = concept_proto.Thing.Req()
+    remove_player_req = concept_proto.Relation.RemovePlayer.Req()
+    remove_player_req.role_type.CopyFrom(role_type)
+    remove_player_req.player.CopyFrom(player)
+    req.relation_remove_player_req.CopyFrom(remove_player_req)
+    return thing_req(req, iid)
+
+
+def relation_get_players_req(iid: str, role_types: List[concept_proto.Type] = None):
+    if not role_types:
+        role_types = []
+    req = concept_proto.Thing.Req()
+    get_players_req = concept_proto.Relation.GetPlayers.Req()
+    get_players_req.role_types.extend(role_types)
+    req.relation_get_players_req.CopyFrom(get_players_req)
+    return thing_req(req, iid)
+
+
+def relation_get_players_by_role_type(iid: str):
+    req = concept_proto.Thing.Req()
+    req.relation_get_players_by_role_type_req.CopyFrom(concept_proto.Relation.GetPlayersByRoleType.Req())
+    return thing_req(req, iid)
+
+
+def relation_get_relating_req(iid: str):
+    req = concept_proto.Thing.Req()
+    req.relation_get_relating_req.CopyFrom(concept_proto.Relation.GetRelating.Req())
+    return thing_req(req, iid)
+
+
+# Attribute
+
+def attribute_get_owners_req(iid: str, owner_type: concept_proto.Type = None):
+    req = concept_proto.Thing.Req()
+    get_owners_req = concept_proto.Attribute.GetOwners.Req()
+    if owner_type:
+        get_owners_req.thing_type = owner_type
+    req.attribute_get_owners_req.CopyFrom(get_owners_req)
+    return thing_req(req, iid)
+
+
+def proto_boolean_attribute_value(value: bool):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.boolean = value
+    return value_proto
+
+
+def proto_long_attribute_value(value: int):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.long = value
+    return value_proto
+
+
+def proto_double_attribute_value(value: float):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.double = value
+    return value_proto
+
+
+def proto_string_attribute_value(value: str):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.string = value
+    return value_proto
+
+
+def proto_datetime_attribute_value(value: datetime):
+    value_proto = concept_proto.Attribute.Value()
+    value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
+    return value_proto
+
+
+# Rule
+
+def rule_req(label: str, req: logic_proto.Rule.Req):
+    req.label = label
+    tx_req = transaction_proto.Transaction.Req()
+    tx_req.rule_req.CopyFrom(req)
+    return tx_req
+
+
+def rule_set_label_req(label: str, new_label: str):
+    req = logic_proto.Rule.Req()
+    set_label_req = logic_proto.Rule.SetLabel.Req()
+    set_label_req.label = new_label
+    req.rule_set_label_req.CopyFrom(set_label_req)
+    return rule_req(label, req)
+
+
+def rule_delete_req(label: str):
+    req = logic_proto.Rule.Req()
+    req.rule_delete_req.CopyFrom(logic_proto.Rule.Delete.Req())
+    return rule_req(label, req)
