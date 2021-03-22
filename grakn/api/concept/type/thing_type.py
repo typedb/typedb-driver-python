@@ -17,13 +17,12 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 from grakn.api.concept.thing.thing import Thing
 from grakn.api.concept.type.type import Type, RemoteType
 from grakn.api.concept.type.role_type import RoleType
 from grakn.api.transaction import GraknTransaction
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.concept.type.attribute_type import AttributeType
@@ -46,15 +45,15 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Stream[ThingType]:
+    def get_supertypes(self) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[ThingType]:
+    def get_subtypes(self) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["Thing"]:
+    def get_instances(self) -> Iterator["Thing"]:
         pass
 
     @abstractmethod
@@ -74,11 +73,11 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_plays(self) -> Stream[RoleType]:
+    def get_plays(self) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_owns(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Stream["AttributeType"]:
+    def get_owns(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod

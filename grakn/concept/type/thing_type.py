@@ -16,91 +16,74 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC
+from typing import Iterator
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-
+from grakn.api.concept.type.attribute_type import AttributeType
+from grakn.api.concept.type.role_type import RoleType
 from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
-from grakn.concept.proto import concept_proto_builder
+from grakn.common.label import Label
+from grakn.common.rpc.request_builder import thing_type_set_supertype_req, thing_type_get_instances_req, \
+    thing_type_set_abstract_req, thing_type_unset_abstract_req, thing_type_set_plays_req, thing_type_set_owns_req, \
+    thing_type_get_plays_req, thing_type_get_owns_req, thing_type_unset_plays_req, thing_type_unset_owns_req
+from grakn.concept.proto import concept_proto_builder, concept_proto_reader
 from grakn.concept.type.type import _Type, _RemoteType
 
 
-class _ThingType(_Type, ThingType, ABC):
+class _ThingType(ThingType, _Type):
+
+    def __init__(self, label: Label, is_root: bool):
+        super(_ThingType, self).__init__(label, is_root)
 
     def as_remote(self, transaction):
         return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
-    def is_thing_type(self):
-        return True
 
+class _RemoteThingType(RemoteThingType, _RemoteType):
 
-class _RemoteThingType(_RemoteType, RemoteThingType, ABC):
+    def get_supertype(self) -> ThingType:
+        return super(_RemoteThingType, self).get_supertype()
+
+    def get_supertypes(self) -> Iterator[ThingType]:
+        return super(_RemoteThingType, self).get_supertypes()
+
+    def get_subtypes(self) -> Iterator[ThingType]:
+        return super(_RemoteThingType, self).get_subtypes()
+
+    def set_supertype(self, thing_type: ThingType):
+        self.execute(thing_type_set_supertype_req(self.get_label(), concept_proto_builder.thing_type(thing_type)))
 
     def get_instances(self):
-        method = concept_proto.Type.Req()
-        get_instances_req = concept_proto.ThingType.GetInstances.Req()
-        method.thing_type_get_instances_req.CopyFrom(get_instances_req)
-        return self._thing_stream(method, lambda res: res.thing_type_get_instances_res.things)
+        return [concept_proto_reader.thing(t) for rp in self.stream(thing_type_get_instances_req(self.get_label()))
+                for t in rp.thing_type_get_instances_res_part.things]
 
     def set_abstract(self):
-        req = concept_proto.Type.Req()
-        req.thing_type_set_abstract_req.CopyFrom(concept_proto.ThingType.SetAbstract.Req())
-        self._execute(req)
+        self.execute(thing_type_set_abstract_req(self.get_label()))
 
     def unset_abstract(self):
-        req = concept_proto.Type.Req()
-        req.thing_type_unset_abstract_req.CopyFrom(concept_proto.ThingType.UnsetAbstract.Req())
-        self._execute(req)
+        self.execute(thing_type_unset_abstract_req(self.get_label()))
 
-    def set_plays(self, role, overridden_role=None):
-        req = concept_proto.Type.Req()
-        set_plays_req = concept_proto.ThingType.SetPlays.Req()
-        set_plays_req.role.CopyFrom(concept_proto_builder.type_(role))
-        if overridden_role:
-            set_plays_req.overridden_role.CopyFrom(concept_proto_builder.type_(overridden_role))
-        req.thing_type_set_plays_req.CopyFrom(set_plays_req)
-        self._execute(req)
+    def set_plays(self, role_type: RoleType, overridden_role_type: RoleType = None):
+        self.execute(thing_type_set_plays_req(self.get_label(), concept_proto_builder.role_type(role_type), concept_proto_builder.role_type(overridden_role_type)))
 
-    def set_owns(self, attribute_type, overridden_type=None, is_key=False):
-        req = concept_proto.Type.Req()
-        set_owns_req = concept_proto.ThingType.SetOwns.Req()
-        set_owns_req.attribute_type.CopyFrom(concept_proto_builder.type_(attribute_type))
-        set_owns_req.is_key = is_key
-        if overridden_type:
-            set_owns_req.overridden_type.CopyFrom(concept_proto_builder.type_(overridden_type))
-        req.thing_type_set_owns_req.CopyFrom(set_owns_req)
-        self._execute(req)
+    def set_owns(self, attribute_type: AttributeType, overridden_type: AttributeType = None, is_key: bool = False):
+        self.execute(thing_type_set_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type), concept_proto_builder.thing_type(overridden_type), is_key))
 
     def get_plays(self):
-        req = concept_proto.Type.Req()
-        req.thing_type_get_plays_req.CopyFrom(concept_proto.ThingType.GetPlays.Req())
-        return self._type_stream(req, lambda res: res.thing_type_get_plays_res.roles)
+        return [concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_plays_req(self.get_label()))
+                for t in rp.thing_type_get_plays_res_part.roles]
 
-    def get_owns(self, value_type=None, keys_only=False):
-        req = concept_proto.Type.Req()
-        get_owns_req = concept_proto.ThingType.GetOwns.Req()
-        get_owns_req.keys_only = keys_only
-        if value_type:
-            get_owns_req.value_type = concept_proto_builder.value_type(value_type)
-        req.thing_type_get_owns_req.CopyFrom(get_owns_req)
-        return self._type_stream(req, lambda res: res.thing_type_get_owns_res.attribute_types)
+    def get_owns(self, value_type: AttributeType.ValueType = None, keys_only: bool = False):
+        return [concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_owns_req(self.get_label(), value_type.proto(), keys_only))
+                for t in rp.thing_type_get_plays_res_part.roles]
 
-    def unset_plays(self, role):
-        req = concept_proto.Type.Req()
-        unset_plays_req = concept_proto.ThingType.UnsetPlays.Req()
-        unset_plays_req.role.CopyFrom(concept_proto_builder.type_(role))
-        req.thing_type_unset_plays_req.CopyFrom(unset_plays_req)
-        self._execute(req)
+    def unset_plays(self, role_type: RoleType):
+        self.execute(thing_type_unset_plays_req(self.get_label(), concept_proto_builder.role_type(role_type)))
 
-    def unset_owns(self, attribute_type):
-        req = concept_proto.Type.Req()
-        unset_owns_req = concept_proto.ThingType.UnsetOwns.Req()
-        unset_owns_req.attribute_type.CopyFrom(concept_proto_builder.type_(attribute_type))
-        req.thing_type_unset_owns_req.CopyFrom(unset_owns_req)
-        self._execute(req)
+    def unset_owns(self, attribute_type: AttributeType):
+        self.execute(thing_type_unset_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type)))
 
     def as_remote(self, transaction):
         return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
-    def is_thing_type(self):
-        return True
+    def is_deleted(self) -> bool:
+        return not self._transaction_ext.concepts().get_thing_type(self.get_label().name())

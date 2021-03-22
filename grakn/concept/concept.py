@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from grakn.api.concept.concept import Concept, RemoteConcept
 
@@ -26,75 +26,8 @@ class _Concept(Concept, ABC):
     def is_remote(self):
         return False
 
-    def is_type(self):
-        return False
-
-    def is_thing_type(self):
-        return False
-
-    def is_entity_type(self):
-        return False
-
-    def is_attribute_type(self):
-        return False
-
-    def is_relation_type(self):
-        return False
-
-    def is_role_type(self):
-        return False
-
-    def is_thing(self):
-        return False
-
-    def is_entity(self):
-        return False
-
-    def is_attribute(self):
-        return False
-
-    def is_relation(self):
-        return False
-
 
 class _RemoteConcept(RemoteConcept, ABC):
 
     def is_remote(self):
         return True
-
-    @abstractmethod
-    def delete(self):
-        pass
-
-    def is_deleted(self):
-        return False
-
-    def is_type(self):
-        return False
-
-    def is_thing_type(self):
-        return False
-
-    def is_entity_type(self):
-        return False
-
-    def is_attribute_type(self):
-        return False
-
-    def is_relation_type(self):
-        return False
-
-    def is_role_type(self):
-        return False
-
-    def is_thing(self):
-        return False
-
-    def is_entity(self):
-        return False
-
-    def is_attribute(self):
-        return False
-
-    def is_relation(self):
-        return False

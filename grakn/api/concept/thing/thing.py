@@ -17,10 +17,9 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Iterator
 
 from grakn.api.concept.concept import Concept, RemoteConcept
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.concept.thing.attribute import Attribute
@@ -63,7 +62,7 @@ class RemoteThing(RemoteConcept, Thing, ABC):
         pass
 
     @abstractmethod
-    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, only_key: bool = False) -> Stream["Attribute"]:
+    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, only_key: bool = False) -> Iterator["Attribute"]:
         pass
 
     @abstractmethod
@@ -71,5 +70,5 @@ class RemoteThing(RemoteConcept, Thing, ABC):
         pass
 
     @abstractmethod
-    def get_playing(self) -> Stream["RoleType"]:
+    def get_playing(self) -> Iterator["RoleType"]:
         pass

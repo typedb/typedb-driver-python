@@ -17,6 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
+from typing import Iterator
 
 from grakn.api.answer.concept_map import ConceptMap
 from grakn.api.answer.concept_map_group import ConceptMapGroup
@@ -24,13 +25,12 @@ from grakn.api.answer.numeric import Numeric
 from grakn.api.answer.numeric_group import NumericGroup
 from grakn.api.options import GraknOptions
 from grakn.api.query.query_future import QueryFuture
-from grakn.common.stream import Stream
 
 
 class QueryManager(ABC):
 
     @abstractmethod
-    def match(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
+    def match(self, query: str, options: GraknOptions = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod
@@ -38,15 +38,15 @@ class QueryManager(ABC):
         pass
 
     @abstractmethod
-    def match_group(self, query: str, options: GraknOptions = None) -> Stream[ConceptMapGroup]:
+    def match_group(self, query: str, options: GraknOptions = None) -> Iterator[ConceptMapGroup]:
         pass
 
     @abstractmethod
-    def match_group_aggregate(self, query: str, options: GraknOptions = None) -> Stream[NumericGroup]:
+    def match_group_aggregate(self, query: str, options: GraknOptions = None) -> Iterator[NumericGroup]:
         pass
 
     @abstractmethod
-    def insert(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
+    def insert(self, query: str, options: GraknOptions = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod
@@ -54,7 +54,7 @@ class QueryManager(ABC):
         pass
 
     @abstractmethod
-    def update(self, query: str, options: GraknOptions = None) -> Stream[ConceptMap]:
+    def update(self, query: str, options: GraknOptions = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod

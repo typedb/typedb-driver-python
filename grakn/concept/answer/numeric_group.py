@@ -17,21 +17,25 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.answer_pb2 as answer_proto
-from grakn.concept.answer import numeric
-from grakn.concept.proto.concept_proto_reader import concept
+import grakn_protocol.common.answer_pb2 as answer_proto
 
-class NumericGroup:
+from grakn.api.answer.numeric_group import NumericGroup
+from grakn.concept.answer.numeric import _Numeric
+from grakn.concept.proto import concept_proto_reader
+
+
+class _NumericGroup(NumericGroup):
+
     def __init__(self, owner, numeric):
         self._owner = owner
         self._numeric = numeric
+
+    @staticmethod
+    def _of(numeric_group_proto: answer_proto.NumericGroup):
+        return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
 
     def owner(self):
         return self._owner
 
     def numeric(self):
         return self._numeric
-
-
-def _of(numeric_group_proto: answer_proto.NumericGroup):
-    return NumericGroup(concept(numeric_group_proto.owner), numeric._of(numeric_group_proto.number))

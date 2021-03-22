@@ -99,7 +99,7 @@ class RemoteRule(Rule):
             return True
         if not other or type(self) != type(other):
             return False
-        return self._transaction is other._transaction and self.get_label() == other.get_label()
+        return self._transaction is other._transaction_ext and self.get_label() == other.get_label()
 
     def __hash__(self):
         return super(RemoteRule, self).__hash__()

@@ -16,14 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 from grpc import RpcError, Call, StatusCode
 
 
 class GraknClientException(Exception):
 
-    def __init__(self, message: Union["ErrorMessage", str], cause: Optional[BaseException], params: Tuple[str, ...]):
+    def __init__(self, message: Union["ErrorMessage", str], cause: Optional[BaseException], params: tuple):
         if isinstance(message, str):
             self.message = message
         else:
@@ -122,3 +122,4 @@ class InternalErrorMessage(ErrorMessage):
 
 ILLEGAL_STATE = InternalErrorMessage(2, "Illegal state has been reached!")
 ILLEGAL_ARGUMENT = InternalErrorMessage(3, "Illegal argument provided: '%s'")
+ILLEGAL_CAST = InternalErrorMessage(4, "Illegal casting operation to '%s'.")

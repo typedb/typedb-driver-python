@@ -17,11 +17,11 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
+from typing import Iterator
 
 from grakn.api.concept.concept import Concept, RemoteConcept
 from grakn.api.transaction import GraknTransaction
 from grakn.common.label import Label
-from grakn.common.stream import Stream
 
 
 class Type(Concept, ABC):
@@ -45,7 +45,7 @@ class Type(Concept, ABC):
 class RemoteType(RemoteConcept, Type, ABC):
 
     @abstractmethod
-    def set_label(self, label: str) -> None:
+    def set_label(self, new_label: str) -> None:
         pass
 
     @abstractmethod
@@ -57,9 +57,9 @@ class RemoteType(RemoteConcept, Type, ABC):
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Stream[Type]:
+    def get_supertypes(self) -> Iterator[Type]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[Type]:
+    def get_subtypes(self) -> Iterator[Type]:
         pass

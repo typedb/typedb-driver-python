@@ -17,14 +17,24 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.answer_pb2 as answer_proto
-from grakn.concept.answer import concept_map
-from grakn.concept.proto.concept_proto_reader import concept
+import grakn_protocol.common.answer_pb2 as answer_proto
 
-class ConceptMapGroup:
+from grakn.api.answer.concept_map_group import ConceptMapGroup
+from grakn.concept.answer.concept_map import _ConceptMap
+from grakn.concept.proto import concept_proto_reader
+
+
+class _ConceptMapGroup(ConceptMapGroup):
+
     def __init__(self, owner, concept_maps):
         self._owner = owner
         self._concept_maps = concept_maps
+
+    @staticmethod
+    def of(cm_group: answer_proto.ConceptMapGroup) -> "_ConceptMapGroup":
+        owner = concept_proto_reader.concept(cm_group.owner)
+        concept_maps = list(map(lambda cm: _ConceptMap.of(cm), cm_group.concept_maps))
+        return _ConceptMapGroup(owner, concept_maps)
 
     def owner(self):
         return self._owner
@@ -32,6 +42,12 @@ class ConceptMapGroup:
     def concept_maps(self):
         return self._concept_maps
 
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if not other or type(other) != type(self):
+            return False
+        return other._owner == self._owner and other._concept_maps == self._concept_maps
 
-def _of(concept_map_group_proto: answer_proto.ConceptMapGroup):
-    return ConceptMapGroup(concept(concept_map_group_proto.owner), map(lambda cm: concept_map._of(cm), concept_map_group_proto.concept_maps))
+    def __hash__(self):
+        return hash((self._owner, self._concept_maps))

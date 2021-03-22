@@ -17,11 +17,10 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional, Dict
+from typing import TYPE_CHECKING, List, Optional, Dict, Iterator
 
 from grakn.api.concept.thing.thing import Thing, RemoteThing
 from grakn.api.concept.type.role_type import RoleType
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.concept.type.relation_type import RelationType
@@ -53,7 +52,7 @@ class RemoteRelation(RemoteThing, Relation, ABC):
         pass
 
     @abstractmethod
-    def get_players(self, role_types: Optional[List["RoleType"]] = None) -> Stream[Thing]:
+    def get_players(self, role_types: Optional[List["RoleType"]] = None) -> Iterator[Thing]:
         pass
 
     @abstractmethod
@@ -61,5 +60,5 @@ class RemoteRelation(RemoteThing, Relation, ABC):
         pass
 
     @abstractmethod
-    def get_relating(self) -> Stream["RoleType"]:
+    def get_relating(self) -> Iterator["RoleType"]:
         pass

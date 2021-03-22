@@ -19,14 +19,13 @@
 import enum
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Iterator
 
 import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.api.concept.thing.thing import Thing
-from grakn.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute
+from grakn.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
+    DateTimeAttribute, Attribute
 from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.transaction import GraknTransaction
@@ -36,10 +35,6 @@ class AttributeType(ThingType, ABC):
 
     def get_value_type(self) -> "ValueType":
         return AttributeType.ValueType.OBJECT
-
-    @abstractmethod
-    def is_keyable(self) -> bool:
-        pass
 
     def is_attribute_type(self) -> bool:
         return True
@@ -108,15 +103,15 @@ class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[ThingType]:
+    def get_subtypes(self) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["Thing"]:
+    def get_instances(self) -> Iterator["Attribute"]:
         pass
 
     @abstractmethod
-    def get_owners(self, only_key: bool = False) -> Stream[ThingType]:
+    def get_owners(self, only_key: bool = False) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
@@ -164,11 +159,11 @@ class RemoteBooleanAttributeType(RemoteAttributeType, BooleanAttributeType, ABC)
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["BooleanAttribute"]:
+    def get_instances(self) -> Iterator["BooleanAttribute"]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[BooleanAttributeType]:
+    def get_subtypes(self) -> Iterator[BooleanAttributeType]:
         pass
 
     @abstractmethod
@@ -200,11 +195,11 @@ class RemoteLongAttributeType(RemoteAttributeType, LongAttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["LongAttribute"]:
+    def get_instances(self) -> Iterator["LongAttribute"]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[LongAttributeType]:
+    def get_subtypes(self) -> Iterator[LongAttributeType]:
         pass
 
     @abstractmethod
@@ -236,11 +231,11 @@ class RemoteDoubleAttributeType(RemoteAttributeType, DoubleAttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["DoubleAttribute"]:
+    def get_instances(self) -> Iterator["DoubleAttribute"]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[DoubleAttributeType]:
+    def get_subtypes(self) -> Iterator[DoubleAttributeType]:
         pass
 
     @abstractmethod
@@ -272,7 +267,7 @@ class RemoteStringAttributeType(RemoteAttributeType, StringAttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["StringAttribute"]:
+    def get_instances(self) -> Iterator["StringAttribute"]:
         pass
 
     @abstractmethod
@@ -284,7 +279,7 @@ class RemoteStringAttributeType(RemoteAttributeType, StringAttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[StringAttributeType]:
+    def get_subtypes(self) -> Iterator[StringAttributeType]:
         pass
 
     @abstractmethod
@@ -316,11 +311,11 @@ class RemoteDateTimeAttributeType(RemoteAttributeType, DateTimeAttributeType, AB
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["DateTimeAttribute"]:
+    def get_instances(self) -> Iterator["DateTimeAttribute"]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[DateTimeAttributeType]:
+    def get_subtypes(self) -> Iterator[DateTimeAttributeType]:
         pass
 
     @abstractmethod

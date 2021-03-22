@@ -17,9 +17,9 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
+from typing import Iterator
 
 from grakn.api.logic.rule import Rule
-from grakn.common.stream import Stream
 
 
 class LogicManager(ABC):
@@ -29,7 +29,7 @@ class LogicManager(ABC):
         pass
 
     @abstractmethod
-    def get_rules(self) -> Stream[Rule]:
+    def get_rules(self) -> Iterator[Rule]:
         pass
 
     @abstractmethod

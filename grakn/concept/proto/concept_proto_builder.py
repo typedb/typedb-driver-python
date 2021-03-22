@@ -18,12 +18,18 @@
 #
 
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.common.exception import GraknClientException
-from grakn.concept.type.value_type import ValueType
+from grakn.api.concept.type.attribute_type import AttributeType
+from grakn.api.concept.type.role_type import RoleType
+from grakn.api.concept.type.thing_type import ThingType
+from grakn.api.concept.type.type import Type
+from grakn.common.exception import GraknClientException, BAD_ENCODING
+from grakn.common.rpc.request_builder import proto_role_type, proto_thing_type
+
+# TODO: Delete unused methods from this file
 
 
 def iid(iid_: str):
@@ -36,19 +42,16 @@ def thing(thing_):
     return proto_thing
 
 
-def type_(_type):
-    proto_type = concept_proto.Type()
-    proto_type.label = _type.get_label()
-    proto_type.encoding = encoding(_type)
-
-    if _type.is_role_type():
-        proto_type.scope = _type.get_scope()
-
-    return proto_type
+def thing_type(tt: Optional[ThingType]):
+    return proto_thing_type(tt.get_label(), encoding(tt)) if tt else None
 
 
-def types(types_: List):
-    return map(lambda _type: type_(_type), types_)
+def role_type(rt: Optional[RoleType]):
+    return proto_role_type(rt.get_label(), encoding(rt)) if rt else None
+
+
+def types(ts: Optional[List[Type]]):
+    return map(lambda t: thing_type(t) if t.is_thing_type() else role_type(t), ts) if ts else None
 
 
 def boolean_attribute_value(value: bool):
@@ -81,24 +84,24 @@ def datetime_attribute_value(value: datetime):
     return value_proto
 
 
-def value_type(value_type_: ValueType):
-    if value_type_ == ValueType.BOOLEAN:
+def value_type(value_type_: AttributeType.ValueType):
+    if value_type_ is AttributeType.ValueType.BOOLEAN:
         return concept_proto.AttributeType.ValueType.Value("BOOLEAN")
-    elif value_type_ == ValueType.LONG:
+    elif value_type_ is AttributeType.ValueType.LONG:
         return concept_proto.AttributeType.ValueType.Value("LONG")
-    elif value_type_ == ValueType.DOUBLE:
+    elif value_type_ is AttributeType.ValueType.DOUBLE:
         return concept_proto.AttributeType.ValueType.Value("DOUBLE")
-    elif value_type_ == ValueType.STRING:
+    elif value_type_ is AttributeType.ValueType.STRING:
         return concept_proto.AttributeType.ValueType.Value("STRING")
-    elif value_type_ == ValueType.DATETIME:
+    elif value_type_ is AttributeType.ValueType.DATETIME:
         return concept_proto.AttributeType.ValueType.Value("DATETIME")
-    elif value_type_ == ValueType.OBJECT:
+    elif value_type_ is AttributeType.ValueType.OBJECT:
         return concept_proto.AttributeType.ValueType.Value("OBJECT")
     else:
         raise GraknClientException("Unrecognised value type: " + str(value_type_))
 
 
-def encoding(_type):
+def encoding(_type: Type):
     if _type.is_entity_type():
         return concept_proto.Type.Encoding.Value("ENTITY_TYPE")
     elif _type.is_relation_type():
@@ -110,4 +113,4 @@ def encoding(_type):
     elif _type.is_thing_type():
         return concept_proto.Type.Encoding.Value("THING_TYPE")
     else:
-        raise GraknClientException("Unrecognised type encoding: " + str(_type))
+        raise GraknClientException.of(BAD_ENCODING, _type)

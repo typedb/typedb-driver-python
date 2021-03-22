@@ -18,10 +18,9 @@
 #
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 from grakn.api.concept.thing.thing import Thing, RemoteThing
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
@@ -61,7 +60,7 @@ class Attribute(Thing, ABC):
 class RemoteAttribute(RemoteThing, Attribute, ABC):
 
     @abstractmethod
-    def get_owners(self, owner_type: "ThingType" = None) -> Stream[Thing]:
+    def get_owners(self, owner_type: "ThingType" = None) -> Iterator[Thing]:
         pass
 
 

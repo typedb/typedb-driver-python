@@ -17,11 +17,10 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator
 
 from grakn.api.concept.thing.entity import Entity
 from grakn.api.concept.type.thing_type import ThingType, RemoteThingType
-from grakn.common.stream import Stream
 
 if TYPE_CHECKING:
     from grakn.api.transaction import GraknTransaction
@@ -44,11 +43,11 @@ class RemoteEntityType(RemoteThingType, EntityType, ABC):
         pass
 
     @abstractmethod
-    def get_instances(self) -> Stream["Entity"]:
+    def get_instances(self) -> Iterator["Entity"]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Stream[EntityType]:
+    def get_subtypes(self) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
