@@ -662,7 +662,7 @@ def relation_get_players_req(iid: str, role_types: List[concept_proto.Type] = No
     return thing_req(req, iid)
 
 
-def relation_get_players_by_role_type(iid: str):
+def relation_get_players_by_role_type_req(iid: str):
     req = concept_proto.Thing.Req()
     req.relation_get_players_by_role_type_req.CopyFrom(concept_proto.Relation.GetPlayersByRoleType.Req())
     return thing_req(req, iid)

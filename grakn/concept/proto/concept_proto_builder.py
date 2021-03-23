@@ -16,29 +16,21 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
 from datetime import datetime
 from typing import List, Optional
 
 import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.api.concept.type.attribute_type import AttributeType
 from grakn.api.concept.type.role_type import RoleType
 from grakn.api.concept.type.thing_type import ThingType
 from grakn.api.concept.type.type import Type
 from grakn.common.exception import GraknClientException, BAD_ENCODING
-from grakn.common.rpc.request_builder import proto_role_type, proto_thing_type
-
-# TODO: Delete unused methods from this file
-
-
-def iid(iid_: str):
-    return bytes.fromhex(iid_.lstrip("0x"))
+from grakn.common.rpc.request_builder import proto_role_type, proto_thing_type, byte_string
 
 
 def thing(thing_):
     proto_thing = concept_proto.Thing()
-    proto_thing.iid = iid(thing_.get_iid())
+    proto_thing.iid = byte_string(thing_.get_iid())
     return proto_thing
 
 
@@ -82,23 +74,6 @@ def datetime_attribute_value(value: datetime):
     value_proto = concept_proto.Attribute.Value()
     value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
     return value_proto
-
-
-def value_type(value_type_: AttributeType.ValueType):
-    if value_type_ is AttributeType.ValueType.BOOLEAN:
-        return concept_proto.AttributeType.ValueType.Value("BOOLEAN")
-    elif value_type_ is AttributeType.ValueType.LONG:
-        return concept_proto.AttributeType.ValueType.Value("LONG")
-    elif value_type_ is AttributeType.ValueType.DOUBLE:
-        return concept_proto.AttributeType.ValueType.Value("DOUBLE")
-    elif value_type_ is AttributeType.ValueType.STRING:
-        return concept_proto.AttributeType.ValueType.Value("STRING")
-    elif value_type_ is AttributeType.ValueType.DATETIME:
-        return concept_proto.AttributeType.ValueType.Value("DATETIME")
-    elif value_type_ is AttributeType.ValueType.OBJECT:
-        return concept_proto.AttributeType.ValueType.Value("OBJECT")
-    else:
-        raise GraknClientException("Unrecognised value type: " + str(value_type_))
 
 
 def encoding(_type: Type):

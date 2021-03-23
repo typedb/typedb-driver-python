@@ -20,6 +20,16 @@
 import grakn_protocol.common.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException, BAD_ENCODING, BAD_VALUE_TYPE
+from grakn.concept.thing.attribute import _BooleanAttribute, _LongAttribute, _DoubleAttribute, _StringAttribute, \
+    _DateTimeAttribute
+from grakn.concept.thing.entity import _Entity
+from grakn.concept.thing.relation import _Relation
+from grakn.concept.type.attribute_type import _BooleanAttributeType, _LongAttributeType, _DoubleAttributeType, \
+    _StringAttributeType, _DateTimeAttributeType, _AttributeType
+from grakn.concept.type.entity_type import _EntityType
+from grakn.concept.type.relation_type import _RelationType
+from grakn.concept.type.role_type import _RoleType
+from grakn.concept.type.thing_type import _ThingType
 
 
 def iid(proto_iid: bytes):

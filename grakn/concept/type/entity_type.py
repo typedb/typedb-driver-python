@@ -22,6 +22,7 @@ import grakn_protocol.common.concept_pb2 as concept_proto
 from grakn.api.concept.type.entity_type import EntityType, RemoteEntityType
 from grakn.common.label import Label
 from grakn.common.rpc.request_builder import entity_type_create_req
+from grakn.concept.thing.entity import _Entity
 from grakn.concept.type.thing_type import _ThingType, _RemoteThingType
 
 

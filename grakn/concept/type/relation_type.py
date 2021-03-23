@@ -23,13 +23,15 @@ from grakn.api.concept.type.relation_type import RelationType, RemoteRelationTyp
 from grakn.common.label import Label
 from grakn.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
     relation_type_set_relates_req, relation_type_unset_relates_req
+from grakn.concept.thing.relation import _Relation
+from grakn.concept.type.role_type import _RoleType
 from grakn.concept.type.thing_type import _ThingType, _RemoteThingType
 
 
 class _RelationType(RelationType, _ThingType):
 
     @staticmethod
-    def _of(type_proto: concept_proto.Type):
+    def of(type_proto: concept_proto.Type):
         return _RelationType(Label.of(type_proto.label), type_proto.root)
 
     def as_remote(self, transaction):

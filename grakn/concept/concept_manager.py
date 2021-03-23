@@ -26,6 +26,7 @@ from grakn.common.rpc.request_builder import concept_manager_put_entity_type_req
     concept_manager_put_attribute_type_req, concept_manager_get_thing_type_req, concept_manager_get_thing_req
 from grakn.concept.proto import concept_proto_reader
 from grakn.concept.type.entity_type import _EntityType
+from grakn.concept.type.relation_type import _RelationType
 
 
 class _ConceptManager(ConceptManager):
