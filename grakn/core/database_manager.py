@@ -24,8 +24,8 @@ from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
 from grpc import Channel
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.database import Database, _DatabaseRPC
-from grakn.rpc.utils import rpc_call
+from grakn.core.database import Database, _DatabaseRPC
+from grakn.core.utils import rpc_call
 
 
 class DatabaseManager(ABC):

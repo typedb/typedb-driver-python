@@ -21,8 +21,8 @@ from typing import Set, Optional
 
 import grakn_protocol.protobuf.database_pb2 as database_proto
 
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.utils import rpc_call
+from grakn.cluster.server_address import ServerAddress
+from grakn.core.utils import rpc_call
 
 
 class Database(ABC):

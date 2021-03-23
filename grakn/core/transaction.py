@@ -34,7 +34,7 @@ from grakn.common.exception import GraknClientException
 from grakn.concept.concept_manager import ConceptManager
 from grakn.api.options import GraknOptions
 from grakn.query.query_manager import QueryManager
-from grakn.rpc.stream import Stream
+from grakn.core.stream import Stream
 from grakn.logic.logic_manager import LogicManager
 
 

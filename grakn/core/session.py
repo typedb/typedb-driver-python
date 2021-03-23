@@ -28,8 +28,8 @@ from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
 
 from grakn import options_proto_builder
 from grakn.api.options import GraknOptions
-from grakn.rpc.database import Database, _DatabaseRPC
-from grakn.rpc.transaction import Transaction, TransactionType
+from grakn.core.database import Database, _DatabaseRPC
+from grakn.core.transaction import Transaction, TransactionType
 
 
 class SessionType(enum.Enum):

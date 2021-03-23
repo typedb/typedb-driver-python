@@ -22,10 +22,10 @@ from typing import Dict, List
 import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.cluster.database import _DatabaseClusterRPC
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.database import DatabaseCluster
-from grakn.rpc.database_manager import DatabaseManager, _DatabaseManagerRPC
+from grakn.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.server_address import ServerAddress
+from grakn.core.database import DatabaseCluster
+from grakn.core.database_manager import DatabaseManager, _DatabaseManagerRPC
 
 
 class DatabaseManagerCluster(DatabaseManager):

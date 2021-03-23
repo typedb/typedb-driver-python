@@ -18,12 +18,12 @@
 #
 
 from grakn.api.options import GraknClusterOptions, GraknOptions
-from grakn.rpc.cluster.failsafe_task import _FailsafeTask
-from grakn.rpc.cluster.database import _DatabaseClusterRPC
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.database import Database
-from grakn.rpc.session import Session, SessionType
-from grakn.rpc.transaction import TransactionType, Transaction
+from grakn.cluster.failsafe_task import _FailsafeTask
+from grakn.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.server_address import ServerAddress
+from grakn.core.database import Database
+from grakn.core.session import Session, SessionType
+from grakn.core.transaction import TransactionType, Transaction
 
 
 class SessionClusterRPC(Session):

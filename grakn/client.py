@@ -17,7 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, Set, Dict, Union, Iterable
+from typing import Set, Dict, Union, Iterable
 
 import grakn_protocol.protobuf.cluster.cluster_pb2 as cluster_proto
 import grpc
@@ -28,14 +28,14 @@ from grpc import RpcError
 from grakn.common.exception import GraknClientException  # noqa # pylint: disable=unused-import
 from grakn.concept.type.value_type import ValueType  # noqa # pylint: disable=unused-import
 from grakn.api.options import GraknOptions, GraknClusterOptions
-from grakn.rpc.cluster.failsafe_task import _FailsafeTask
-from grakn.rpc.cluster.database import DatabaseCluster, _DatabaseClusterRPC  # noqa # pylint: disable=unused-import
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.cluster.database_manager import DatabaseManagerCluster, _DatabaseManagerClusterRPC
-from grakn.rpc.cluster.session import SessionClusterRPC
-from grakn.rpc.database_manager import DatabaseManager, _DatabaseManagerRPC
-from grakn.rpc.session import Session, SessionType, _SessionRPC
-from grakn.rpc.transaction import TransactionType  # noqa # pylint: disable=unused-import
+from grakn.cluster.failsafe_task import _FailsafeTask
+from grakn.cluster.database import DatabaseCluster, _DatabaseClusterRPC  # noqa # pylint: disable=unused-import
+from grakn.cluster.server_address import ServerAddress
+from grakn.cluster.database_manager import DatabaseManagerCluster, _DatabaseManagerClusterRPC
+from grakn.cluster.session import SessionClusterRPC
+from grakn.core.database_manager import DatabaseManager, _DatabaseManagerRPC
+from grakn.core.session import Session, SessionType, _SessionRPC
+from grakn.core.transaction import TransactionType  # noqa # pylint: disable=unused-import
 
 
 class GraknClient(ABC):

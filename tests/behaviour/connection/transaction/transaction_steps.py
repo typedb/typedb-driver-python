@@ -25,7 +25,7 @@ from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.transaction import TransactionType, Transaction
+from grakn.core.transaction import TransactionType, Transaction
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
 from tests.behaviour.context import Context
 

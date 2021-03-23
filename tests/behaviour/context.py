@@ -40,8 +40,8 @@ from grakn.concept.type.relation_type import RelationType
 from grakn.concept.type.role_type import RoleType
 from grakn.concept.type.thing_type import ThingType
 from grakn.concept.type.type import Type
-from grakn.rpc.session import Session
-from grakn.rpc.transaction import Transaction
+from grakn.core.session import Session
+from grakn.core.transaction import Transaction
 
 
 AttributeSubtype: Attribute = Union[BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]

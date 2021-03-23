@@ -25,7 +25,7 @@ from behave import register_type
 from behave.model import Table
 
 from grakn.concept.type.value_type import ValueType
-from grakn.rpc.transaction import TransactionType
+from grakn.core.transaction import TransactionType
 
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 

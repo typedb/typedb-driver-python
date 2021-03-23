@@ -23,7 +23,7 @@ from multiprocessing.pool import ThreadPool
 from unittest import TestCase
 
 from grakn.client import GraknClient, SessionType, TransactionType
-from grakn.rpc.session import Session
+from grakn.core.session import Session
 
 
 class TestConcurrent(TestCase):

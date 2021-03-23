@@ -23,7 +23,7 @@ import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 from grpc import RpcError, StatusCode
 
 from grakn.common.exception import GraknClientException
-from grakn.rpc.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.database import _DatabaseClusterRPC
 
 
 class _FailsafeTask(ABC):

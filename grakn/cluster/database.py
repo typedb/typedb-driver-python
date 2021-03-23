@@ -20,8 +20,8 @@ from typing import Dict, Optional, Set
 
 import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.database import DatabaseCluster, _DatabaseRPC
+from grakn.cluster.server_address import ServerAddress
+from grakn.core.database import DatabaseCluster, _DatabaseRPC
 
 
 class _DatabaseClusterRPC(DatabaseCluster):
