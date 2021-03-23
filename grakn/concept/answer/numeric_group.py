@@ -31,7 +31,7 @@ class _NumericGroup(NumericGroup):
         self._numeric = numeric
 
     @staticmethod
-    def _of(numeric_group_proto: answer_proto.NumericGroup):
+    def of(numeric_group_proto: answer_proto.NumericGroup):
         return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
 
     def owner(self):

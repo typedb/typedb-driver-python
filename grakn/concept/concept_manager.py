@@ -47,14 +47,14 @@ class _ConceptManager(ConceptManager):
         return self.get_attribute_type("attribute")
 
     def put_entity_type(self, label: str):
-        return _EntityType.of(self._execute(concept_manager_put_entity_type_req(label)).put_entity_type_res.entity_type)
+        return _EntityType.of(self.execute(concept_manager_put_entity_type_req(label)).put_entity_type_res.entity_type)
 
     def get_entity_type(self, label: str):
         _type = self.get_thing_type(label)
         return _type if _type and _type.is_entity_type() else None
 
     def put_relation_type(self, label: str):
-        res = self._execute(concept_manager_put_relation_type_req(label))
+        res = self.execute(concept_manager_put_relation_type_req(label))
         return _RelationType.of(res.put_relation_type_res.relation_type)
 
     def get_relation_type(self, label: str):
@@ -62,7 +62,7 @@ class _ConceptManager(ConceptManager):
         return _type if _type and _type.is_relation_type() else None
 
     def put_attribute_type(self, label: str, value_type: AttributeType.ValueType):
-        res = self._execute(concept_manager_put_attribute_type_req(label, value_type.proto()))
+        res = self.execute(concept_manager_put_attribute_type_req(label, value_type.proto()))
         return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
 
     def get_attribute_type(self, label: str):
@@ -70,12 +70,12 @@ class _ConceptManager(ConceptManager):
         return _type if _type and _type.is_attribute_type() else None
 
     def get_thing_type(self, label: str):
-        res = self._execute(concept_manager_get_thing_type_req(label))
+        res = self.execute(concept_manager_get_thing_type_req(label))
         return concept_proto_reader.thing_type(res.get_thing_type_res.thing_type) if res.get_thing_type_res.WhichOneof("res") == "thing_type" else None
 
     def get_thing(self, iid: str):
-        res = self._execute(concept_manager_get_thing_req(iid))
+        res = self.execute(concept_manager_get_thing_req(iid))
         return concept_proto_reader.thing(res.get_thing_res.thing) if res.get_thing_res.WhichOneof("res") == "thing" else None
 
-    def _execute(self, req: transaction_proto.Transaction.Req):
+    def execute(self, req: transaction_proto.Transaction.Req):
         return self._transaction_ext.execute(req).concept_manager_res

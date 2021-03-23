@@ -97,7 +97,7 @@ class _GraknTransactionExtended(GraknTransaction, ABC):
         pass
 
     @abstractmethod
-    def execute_async(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
+    def run_query(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
         pass
 
     @abstractmethod
