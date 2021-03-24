@@ -42,11 +42,12 @@ from grakn.api.concept.type.thing_type import ThingType
 from grakn.api.concept.type.type import Type
 from grakn.api.session import GraknSession
 from grakn.api.transaction import GraknTransaction
+from tests.behaviour.config.parameters import RootLabel
 
-AttributeSubtype: Attribute = Union[BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]
-ThingSubtype: Thing = Union[Entity, Relation, AttributeSubtype]
-TypeSubtype: Type = Union[ThingType, EntityType, RelationType, RoleType, AttributeType, BooleanAttributeType, LongAttributeType, DoubleAttributeType, StringAttributeType, DateTimeAttributeType]
-ConceptSubtype: Concept = Union[ThingSubtype, TypeSubtype]
+AttributeSubtype = Union[Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]
+ThingSubtype = Union[Thing, Entity, Relation, AttributeSubtype]
+TypeSubtype = Union[Type, ThingType, EntityType, RelationType, RoleType, AttributeType, BooleanAttributeType, LongAttributeType, DoubleAttributeType, StringAttributeType, DateTimeAttributeType]
+ConceptSubtype = Union[Concept, ThingSubtype, TypeSubtype]
 
 
 class Config:
@@ -87,6 +88,9 @@ class Context(behave.runner.Context):
         pass
 
     def get(self, var: str) -> ThingSubtype:
+        pass
+
+    def get_thing_type(self, root_label: RootLabel, type_label: str) -> ThingType:
         pass
 
     def clear_answers(self) -> None:

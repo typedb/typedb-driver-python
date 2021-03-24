@@ -171,9 +171,7 @@ class TypeLabelMatcher(ConceptMatcher):
         self.label = label
 
     def matches(self, context: Context, concept: ConceptSubtype):
-        if concept.is_role_type():
-            return self.label == concept.get_scoped_label()
-        elif concept.is_type():
+        if concept.is_type():
             return self.label == concept.get_label()
         else:
             raise TypeError("A Concept was matched by label, but it is not a Type.")

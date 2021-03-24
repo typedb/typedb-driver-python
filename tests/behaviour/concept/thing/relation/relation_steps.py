@@ -22,7 +22,7 @@ from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
-from grakn.concept.type.value_type import ValueType
+from grakn.common.label import Label
 from tests.behaviour.config.parameters import parse_dict, parse_var
 from tests.behaviour.context import Context
 
@@ -49,7 +49,7 @@ def step_impl(context: Context, var: str, type_label: str, key_type: str, key_va
 def step_impl(context: Context, var: str, type_label: str, key_type: str, key_value: str):
     context.put(var, next((owner for owner in context.tx().concepts().get_attribute_type(key_type).as_string()
                           .as_remote(context.tx()).get(key_value).as_remote(context.tx()).get_owners()
-                           if owner.get_type().get_label() == type_label), None))
+                           if owner.get_type().get_label() == Label.of(type_label)), None))
 
 
 @step("relation({type_label}) get instances contain: {var:Var}")

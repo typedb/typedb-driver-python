@@ -59,7 +59,7 @@ class TestClusterFailover(TestCase):
             with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                 person = tx.concepts().get_entity_type("person")
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
-                assert person.get_label() == "person"
+                assert person.get_label().name() == "person"
             iteration = 0
             while iteration < 10:
                 iteration += 1
@@ -75,7 +75,7 @@ class TestClusterFailover(TestCase):
                 with client.session("grakn", SessionType.SCHEMA) as session, session.transaction(TransactionType.READ) as tx:
                     person = tx.concepts().get_entity_type("person")
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
-                    assert person.get_label() == "person"
+                    assert person.get_label().name() == "person"
                 idx = str(primary_replica.address().external_port())[0]
                 subprocess.Popen(["./%s/grakn" % idx, "server", "--data", "data", "--address", "127.0.0.1:%s1729:%s1730" % (idx, idx), "--peer", "127.0.0.1:11729:11730", "--peer", "127.0.0.1:21729:21730", "--peer", "127.0.0.1:31729:31730"])
                 sleep(10)
