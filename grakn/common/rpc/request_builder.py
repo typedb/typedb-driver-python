@@ -242,7 +242,7 @@ def concept_manager_put_entity_type_req(label: str):
     put_entity_type_req = concept_proto.ConceptManager.PutEntityType.Req()
     put_entity_type_req.label = label
     req.put_entity_type_req.CopyFrom(put_entity_type_req)
-    return req
+    return concept_manager_req(req)
 
 
 def concept_manager_put_relation_type_req(label: str):
@@ -250,7 +250,7 @@ def concept_manager_put_relation_type_req(label: str):
     put_relation_type_req = concept_proto.ConceptManager.PutRelationType.Req()
     put_relation_type_req.label = label
     req.put_relation_type_req.CopyFrom(put_relation_type_req)
-    return req
+    return concept_manager_req(req)
 
 
 def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto.AttributeType.ValueType):
@@ -259,7 +259,7 @@ def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto
     put_attribute_type_req.label = label
     put_attribute_type_req.value_type = value_type
     req.put_attribute_type_req.CopyFrom(put_attribute_type_req)
-    return req
+    return concept_manager_req(req)
 
 
 def concept_manager_get_thing_type_req(label: str):
@@ -267,7 +267,7 @@ def concept_manager_get_thing_type_req(label: str):
     get_thing_type_req = concept_proto.ConceptManager.GetThingType.Req()
     get_thing_type_req.label = label
     req.get_thing_type_req.CopyFrom(get_thing_type_req)
-    return req
+    return concept_manager_req(req)
 
 
 def concept_manager_get_thing_req(iid: str):
@@ -275,7 +275,7 @@ def concept_manager_get_thing_req(iid: str):
     get_thing_req = concept_proto.ConceptManager.GetThing.Req()
     get_thing_req.iid = byte_string(iid)
     req.get_thing_req.CopyFrom(get_thing_req)
-    return req
+    return concept_manager_req(req)
 
 
 # LogicManager
@@ -293,7 +293,7 @@ def logic_manager_put_rule_req(label: str, when: str, then: str):
     put_rule_req.when = when
     put_rule_req.then = then
     req.put_rule_req.CopyFrom(put_rule_req)
-    return req
+    return logic_manager_req(req)
 
 
 def logic_manager_get_rule_req(label: str):
@@ -301,13 +301,13 @@ def logic_manager_get_rule_req(label: str):
     get_rule_req = logic_proto.LogicManager.GetRule.Req()
     get_rule_req.label = label
     req.get_rule_req.CopyFrom(get_rule_req)
-    return req
+    return logic_manager_req(req)
 
 
 def logic_manager_get_rules_req():
     req = logic_proto.LogicManager.Req()
     req.get_rules_req.CopyFrom(logic_proto.LogicManager.GetRules.Req())
-    return req
+    return logic_manager_req(req)
 
 
 # Type

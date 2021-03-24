@@ -93,7 +93,7 @@ class AttributeType(ThingType, ABC):
             return self in [AttributeType.ValueType.LONG, AttributeType.ValueType.STRING, AttributeType.ValueType.DATETIME]
 
         def proto(self) -> concept_proto.AttributeType.ValueType:
-            return concept_proto.AttributeType.ValueType(self.name)
+            return concept_proto.AttributeType.ValueType.Value(self.name)
 
 
 class RemoteAttributeType(RemoteThingType, AttributeType, ABC):

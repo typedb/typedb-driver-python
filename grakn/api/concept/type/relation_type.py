@@ -17,7 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Union
 
 from grakn.api.concept.thing.relation import Relation
 from grakn.api.concept.type.role_type import RoleType
@@ -48,7 +48,7 @@ class RemoteRelationType(RemoteThingType, RelationType, ABC):
         pass
 
     @abstractmethod
-    def get_relates(self, role_label: str = None) -> Iterator[RoleType]:
+    def get_relates(self, role_label: str = None) -> Union[RoleType, Iterator[RoleType]]:
         pass
 
     @abstractmethod
