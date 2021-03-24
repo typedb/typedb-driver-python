@@ -42,7 +42,7 @@ class _Entity(Entity, _Thing):
         return _RemoteEntity(transaction, self._iid, self.get_type())
 
 
-class _RemoteEntity(RemoteEntity, _RemoteThing):
+class _RemoteEntity(_RemoteThing, RemoteEntity):
 
     def __init__(self, transaction, iid: str, entity_type: EntityType):
         super(_RemoteEntity, self).__init__(transaction, iid)

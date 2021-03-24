@@ -16,9 +16,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Iterator, TYPE_CHECKING
 
 import grakn_protocol.common.concept_pb2 as concept_proto
 
+from grakn.api.concept.thing.relation import Relation
 from grakn.api.concept.type.relation_type import RelationType, RemoteRelationType
 from grakn.common.label import Label
 from grakn.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
@@ -38,7 +40,7 @@ class _RelationType(RelationType, _ThingType):
         return _RemoteRelationType(transaction, self.get_label(), self.is_root())
 
 
-class _RemoteRelationType(RemoteRelationType, _RemoteThingType):
+class _RemoteRelationType(_RemoteThingType, RemoteRelationType):
 
     def as_remote(self, transaction):
         return _RemoteRelationType(transaction, self.get_label(), self.is_root())
@@ -48,7 +50,7 @@ class _RemoteRelationType(RemoteRelationType, _RemoteThingType):
 
     def get_relates(self, role_label: str = None):
         if role_label:
-            res = self.execute(relation_type_get_relates_req(self.get_label(), role_label))
+            res = self.execute(relation_type_get_relates_req(self.get_label(), role_label)).relation_type_get_relates_for_role_label_res
             return _RoleType.of(res.role_type) if res.HasField("role_type") else None
         else:
             return [_RoleType.of(rt) for rp in self.stream(relation_type_get_relates_req(self.get_label()))

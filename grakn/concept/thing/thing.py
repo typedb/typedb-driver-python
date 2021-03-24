@@ -58,7 +58,7 @@ class _Thing(Thing, _Concept, ABC):
         return hash(self._iid)
 
 
-class _RemoteThing(RemoteThing, _RemoteConcept, ABC):
+class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
 
     def __init__(self, transaction: Union["_GraknTransactionExtended", "GraknTransaction"], iid: str):
         if not transaction:

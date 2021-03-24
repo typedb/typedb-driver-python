@@ -47,7 +47,7 @@ class _Relation(Relation, _Thing):
         return self._type
 
 
-class _RemoteRelation(RemoteRelation, _RemoteThing):
+class _RemoteRelation(_RemoteThing, RemoteRelation):
 
     def __init__(self, transaction, iid: str, relation_type: RelationType):
         super(_RemoteRelation, self).__init__(transaction, iid)
@@ -60,10 +60,10 @@ class _RemoteRelation(RemoteRelation, _RemoteThing):
         return self._type
 
     def add_player(self, role_type, player):
-        self.execute(relation_add_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player.get_iid())))
+        self.execute(relation_add_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))
 
     def remove_player(self, role_type, player):
-        self.execute(relation_remove_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player.get_iid())))
+        self.execute(relation_remove_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))
 
     def get_players(self, role_types=None):
         return [concept_proto_reader.thing(t) for rp in self.stream(relation_get_players_req(self.get_iid(), concept_proto_builder.types(role_types)))

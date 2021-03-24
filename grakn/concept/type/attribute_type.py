@@ -22,7 +22,6 @@ from typing import Optional, Iterator
 
 import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.api.concept.thing.attribute import Attribute
 from grakn.api.concept.type.attribute_type import AttributeType, RemoteAttributeType, BooleanAttributeType, \
     RemoteBooleanAttributeType, LongAttributeType, RemoteLongAttributeType, DoubleAttributeType, \
     RemoteDoubleAttributeType, StringAttributeType, RemoteStringAttributeType, DateTimeAttributeType, \
@@ -79,15 +78,12 @@ class _AttributeType(AttributeType, _ThingType):
         return super(_AttributeType, self).__hash__()
 
 
-class _RemoteAttributeType(RemoteAttributeType, _RemoteThingType):
+class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
 
     ROOT_LABEL = Label.of("attribute")
 
     def as_remote(self, transaction):
         return _RemoteAttributeType(transaction, self.get_label(), self.is_root())
-
-    def set_supertype(self, attribute_type: AttributeType) -> None:
-        super(_RemoteAttributeType, self).set_supertype(attribute_type)
 
     def get_subtypes(self) -> Iterator[AttributeType]:
         stream = super(_RemoteAttributeType, self).get_subtypes()
@@ -95,9 +91,6 @@ class _RemoteAttributeType(RemoteAttributeType, _RemoteThingType):
             return [subtype for subtype in stream if subtype.get_value_type() is self.get_value_type() or subtype.get_label() == self.get_label()]
         else:
             return stream
-
-    def get_instances(self) -> Iterator[Attribute]:
-        return super(_RemoteAttributeType, self).get_instances()
 
     def get_owners(self, only_key: bool = False):
         return [concept_proto_reader.thing_type(tt) for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
@@ -163,7 +156,7 @@ class _BooleanAttributeType(BooleanAttributeType, _AttributeType):
         return self
 
 
-class _RemoteBooleanAttributeType(RemoteBooleanAttributeType, _RemoteAttributeType):
+class _RemoteBooleanAttributeType(_RemoteAttributeType, RemoteBooleanAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
@@ -191,7 +184,7 @@ class _LongAttributeType(LongAttributeType, _AttributeType):
         return self
 
 
-class _RemoteLongAttributeType(RemoteLongAttributeType, _RemoteAttributeType):
+class _RemoteLongAttributeType(_RemoteAttributeType, RemoteLongAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root())
@@ -219,7 +212,7 @@ class _DoubleAttributeType(DoubleAttributeType, _AttributeType):
         return self
 
 
-class _RemoteDoubleAttributeType(RemoteDoubleAttributeType, _RemoteAttributeType):
+class _RemoteDoubleAttributeType(_RemoteAttributeType, RemoteDoubleAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root())
@@ -247,7 +240,7 @@ class _StringAttributeType(StringAttributeType, _AttributeType):
         return self
 
 
-class _RemoteStringAttributeType(RemoteStringAttributeType, _RemoteAttributeType):
+class _RemoteStringAttributeType(_RemoteAttributeType, RemoteStringAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root())
@@ -285,7 +278,7 @@ class _DateTimeAttributeType(DateTimeAttributeType, _AttributeType):
         return self
 
 
-class _RemoteDateTimeAttributeType(RemoteDateTimeAttributeType, _RemoteAttributeType):
+class _RemoteDateTimeAttributeType(_RemoteAttributeType, RemoteDateTimeAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root())

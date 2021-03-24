@@ -36,7 +36,7 @@ class _RoleType(RoleType, _Type):
         return _RemoteRoleType(transaction, self.get_label(), self.is_root())
 
 
-class _RemoteRoleType(RemoteRoleType, _RemoteType):
+class _RemoteRoleType(_RemoteType, RemoteRoleType):
 
     def as_remote(self, transaction):
         return _RemoteRoleType(transaction, self.get_label(), self.is_root())

@@ -38,7 +38,7 @@ class _ThingType(ThingType, _Type):
         return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
 
-class _RemoteThingType(RemoteThingType, _RemoteType):
+class _RemoteThingType(_RemoteType, RemoteThingType):
 
     def get_supertype(self) -> ThingType:
         return super(_RemoteThingType, self).get_supertype()
