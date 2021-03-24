@@ -26,7 +26,7 @@ import grakn_protocol.common.transaction_pb2 as transaction_proto
 from grakn.api.concept.concept_manager import ConceptManager
 from grakn.api.logic.logic_manager import LogicManager
 from grakn.api.options import GraknOptions
-from grakn.api.query.query_future import QueryFuture
+from grakn.api.query.future import QueryFuture
 from grakn.api.query.query_manager import QueryManager
 
 

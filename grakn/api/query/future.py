@@ -30,10 +30,10 @@ class QueryFuture(Generic[T], ABC):
         pass
 
     def map(self, function: Callable[[T], U]) -> "QueryFuture[U]":
-        return MappedQueryFuture(self, function)
+        return _MappedQueryFuture(self, function)
 
 
-class MappedQueryFuture(Generic[T, U], QueryFuture[U]):
+class _MappedQueryFuture(Generic[T, U], QueryFuture[U]):
 
     def __init__(self, query_future: QueryFuture[T], function: Callable[[T], U]):
         self._query_future = query_future

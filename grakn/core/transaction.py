@@ -17,182 +17,94 @@
 # under the License.
 #
 
-import enum
-from typing import Callable, List
+from typing import TYPE_CHECKING, Iterator
 
-import grpc
-import time
-import uuid
+import grakn_protocol.common.transaction_pb2 as transaction_proto
+from grpc import insecure_channel, RpcError
 
-import queue
-
-from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
-
-from grakn import options_proto_builder
-from grakn.common.exception import GraknClientException
-from grakn.concept.concept_manager import ConceptManager
 from grakn.api.options import GraknOptions
-from grakn.query.query_manager import QueryManager
-from grakn.core.stream import Stream
-from grakn.logic.logic_manager import LogicManager
+from grakn.api.query.future import QueryFuture
+from grakn.api.transaction import _GraknTransactionExtended, GraknTransaction
+from grakn.common.exception import GraknClientException, TRANSACTION_CLOSED
+from grakn.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
+from grakn.common.rpc.stub import GraknCoreStub
+from grakn.concept.concept_manager import _ConceptManager
+from grakn.logic.logic_manager import _LogicManager
+from grakn.query.query_manager import _QueryManager
+from grakn.stream.bidirectional_stream import BidirectionalStream
+
+if TYPE_CHECKING:
+    from grakn.core.session import _CoreSession
 
 
-class TransactionType(enum.Enum):
-    READ = 0
-    WRITE = 1
+class _CoreTransaction(_GraknTransactionExtended):
 
-
-class Transaction:
-
-    def __init__(self, address: str, session_id: bytes, transaction_type: TransactionType, options: GraknOptions = None):
+    def __init__(self, session: "_CoreSession", transaction_type: GraknTransaction.Type, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
         self._transaction_type = transaction_type
-        self._concept_manager = ConceptManager(self)
-        self._query_manager = QueryManager(self)
-        self._logic_manager = LogicManager(self)
-        self._response_queues = {}
+        self._options = options
+        self._concept_manager = _ConceptManager(self)
+        self._query_manager = _QueryManager(self)
+        self._logic_manager = _LogicManager(self)
 
-        self._grpc_stub = GraknStub(grpc.insecure_channel(address))
-        self._request_iterator = RequestIterator()
-        self._response_iterator = self._grpc_stub.transaction(self._request_iterator)
-        self._transaction_was_closed = False
+        try:
+            # Other GraknClient implementations reuse a single gRPC Channel, but the Python client stalls
+            # when opening several transactions in parallel from one Channel.
+            stub = GraknCoreStub(insecure_channel(session.address()))
+            self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
+            req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
+            self.execute(request=req, batch=False)
+        except RpcError as e:
+            raise GraknClientException.of_rpc(e)
 
-        open_req = transaction_proto.Transaction.Open.Req()
-        open_req.session_id = session_id
-        open_req.type = Transaction._transaction_type_proto(transaction_type)
-        open_req.options.CopyFrom(options_proto_builder.options(options))
-        req = transaction_proto.Transaction.Req()
-        req.open_req.CopyFrom(open_req)
-
-        start_time = time.time() * 1000.0
-        res = self._execute(req)
-        end_time = time.time() * 1000.0
-        self._network_latency_millis = end_time - start_time - res.open_res.processing_time_millis
-
-    def transaction_type(self):
+    def transaction_type(self) -> GraknTransaction.Type:
         return self._transaction_type
 
-    def is_open(self):
-        return not self._transaction_was_closed
+    def options(self) -> GraknOptions:
+        return self._options
 
-    def concepts(self):
+    def is_open(self) -> bool:
+        return self._bidirectional_stream.is_open()
+
+    def concepts(self) -> _ConceptManager:
         return self._concept_manager
 
-    def query(self):
-        return self._query_manager
-
-    def logic(self):
+    def logic(self) -> _LogicManager:
         return self._logic_manager
 
+    def query(self) -> _QueryManager:
+        return self._query_manager
+
+    def execute(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> transaction_proto.Transaction.Res:
+        return self.run_query(request, batch).get()
+
+    def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[transaction_proto.Transaction.Res]:
+        if not self.is_open():
+            raise GraknClientException.of(TRANSACTION_CLOSED)
+        return self._bidirectional_stream.single(request, batch)
+
+    def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
+        if not self.is_open():
+            raise GraknClientException.of(TRANSACTION_CLOSED)
+        return self._bidirectional_stream.stream(request)
+
     def commit(self):
-        req = transaction_proto.Transaction.Req()
-        commit_req = transaction_proto.Transaction.Commit.Req()
-        req.commit_req.CopyFrom(commit_req)
         try:
-            self._execute(req)
+            self.execute(transaction_commit_req())
         finally:
             self.close()
 
     def rollback(self):
-        req = transaction_proto.Transaction.Req()
-        rollback_req = transaction_proto.Transaction.Rollback.Req()
-        req.rollback_req.CopyFrom(rollback_req)
-        self._execute(req)
+        self.execute(transaction_rollback_req())
 
     def close(self):
-        self._transaction_was_closed = True
-        self._request_iterator.close()
-
-    def _execute(self, request: transaction_proto.Transaction.Req):
-        response_queue = queue.Queue()
-        request_id = str(uuid.uuid4())
-        request.id = request_id
-        if self._transaction_was_closed:
-            raise GraknClientException("The transaction has been closed and no further operation is allowed.")
-        self._response_queues[request_id] = response_queue
-        self._request_iterator.put(request)
-        return self._fetch(request_id)
-
-    def _stream(self, request: transaction_proto.Transaction.Req, transform_response: Callable[[transaction_proto.Transaction.Res], List] = None):
-        response_queue = queue.Queue()
-        request_id = str(uuid.uuid4())
-        request.id = request_id
-        if self._transaction_was_closed:
-            raise GraknClientException("The transaction has been closed and no further operation is allowed.")
-        self._response_queues[request_id] = response_queue
-        self._request_iterator.put(request)
-        return Stream(self, request_id, transform_response)
-
-    def _fetch(self, request_id: str):
-        try:
-            return self._response_queues[request_id].get(block=False)
-        except queue.Empty:
-            pass
-
-        # Keep taking responses until we get one that matches the request ID
-        while True:
-            try:
-                response = next(self._response_iterator)
-            except grpc.RpcError as e:
-                self._transaction_was_closed = True
-                grakn_exception = GraknClientException(e.details())
-                for response_queue in self._response_queues.values():
-                    response_queue.put(grakn_exception)
-                # noinspection PyUnresolvedReferences
-                raise grakn_exception
-            except StopIteration:
-                raise GraknClientException("The transaction has been closed and no further operation is allowed.")
-
-            if isinstance(response, GraknClientException):
-                raise response
-            elif response.id == request_id:
-                return response
-            else:
-                response_queue = self._response_queues[response.id]
-                if response_queue is None:
-                    raise GraknClientException("Received a response with unknown request id '" + response.id + "'.")
-                response_queue.put(response)
+        self._bidirectional_stream.close()
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        if exc_tb is None:
-            pass
-        else:
+        if exc_tb is not None:
             return False
-
-    @staticmethod
-    def _transaction_type_proto(transaction_type):
-        if transaction_type == TransactionType.READ:
-            return transaction_proto.Transaction.Type.Value("READ")
-        if transaction_type == TransactionType.WRITE:
-            return transaction_proto.Transaction.Type.Value("WRITE")
-
-
-class RequestIterator:
-    CLOSE_STREAM = "CLOSE_STREAM"
-
-    def __init__(self):
-        self._request_queue = queue.Queue()
-
-    def __iter__(self):
-        return self
-
-    # Essentially the gRPC stream is constantly polling this iterator. When we issue a new request, it gets put into
-    # the back of the queue and gRPC will pick it up when it gets round to it (this is usually instantaneous)
-    def __next__(self):
-        request = self._request_queue.get(block=True)
-        if request is RequestIterator.CLOSE_STREAM:
-            # Close the stream.
-            raise StopIteration()
-        return request
-
-    def put(self, request: transaction_proto.Transaction.Req):
-        self._request_queue.put(request)
-
-    def close(self):
-        self._request_queue.put(RequestIterator.CLOSE_STREAM)

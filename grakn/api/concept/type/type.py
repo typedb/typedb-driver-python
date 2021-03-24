@@ -17,11 +17,13 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Iterator
+from typing import Iterator, TYPE_CHECKING
 
 from grakn.api.concept.concept import Concept, RemoteConcept
-from grakn.api.transaction import GraknTransaction
 from grakn.common.label import Label
+
+if TYPE_CHECKING:
+    from grakn.api.transaction import GraknTransaction
 
 
 class Type(Concept, ABC):

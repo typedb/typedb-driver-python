@@ -16,35 +16,35 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 from grpc import RpcError, Call, StatusCode
 
 
 class GraknClientException(Exception):
 
-    def __init__(self, message: Union["ErrorMessage", str], cause: Optional[BaseException], params: tuple):
+    def __init__(self, message: Union["ErrorMessage", str], cause: Optional[BaseException], *params: Any):
         if isinstance(message, str):
             self.message = message
         else:
-            self.message = message.message(params)
+            self.message = message.message(*params)
             self.error_message = message
 
         self.__cause__ = cause
         super(GraknClientException, self).__init__(self.message)
 
     @staticmethod
-    def from_rpc(rpc_error: Union[RpcError, Call]) -> "GraknClientException":
+    def of_rpc(rpc_error: Union[RpcError, Call]) -> "GraknClientException":
         if rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
-            return GraknClientException(message=UNABLE_TO_CONNECT, cause=rpc_error, params=())
+            return GraknClientException(message=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
-            return GraknClientException(message=CLUSTER_REPLICA_NOT_PRIMARY, cause=rpc_error, params=())
+            return GraknClientException(message=CLUSTER_REPLICA_NOT_PRIMARY, cause=rpc_error)
         else:
-            return GraknClientException(message=rpc_error.details(), cause=rpc_error, params=())
+            return GraknClientException(message=rpc_error.details(), cause=rpc_error)
 
     @staticmethod
-    def of(error_message: "ErrorMessage", *args):
-        return GraknClientException(message=error_message, cause=None, params=args)
+    def of(error_message: "ErrorMessage", *params):
+        return GraknClientException(message=error_message, cause=None, *params)
 
 
 class ErrorMessage:
@@ -75,7 +75,7 @@ SESSION_CLOSED = ClientErrorMessage(2, "The session has been closed and no furth
 TRANSACTION_CLOSED = ClientErrorMessage(3, "The transaction has been closed and no further operation is allowed.")
 UNABLE_TO_CONNECT = ClientErrorMessage(4, "Unable to connect to Grakn server.")
 NEGATIVE_VALUE_NOT_ALLOWED = ClientErrorMessage(5, "Value cannot be less than 1, was: '%d'.")
-MISSING_DB_NAME = ClientErrorMessage(6, "Database name cannot be null.")
+MISSING_DB_NAME = ClientErrorMessage(6, "Database name cannot be empty.")
 DB_DOES_NOT_EXIST = ClientErrorMessage(7, "The database '%s' does not exist.")
 MISSING_RESPONSE = ClientErrorMessage(8, "Unexpected empty response for request ID '%s'.")
 UNKNOWN_REQUEST_ID = ClientErrorMessage(9, "Received a response with unknown request id '%s'.")

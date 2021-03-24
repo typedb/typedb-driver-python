@@ -37,7 +37,7 @@ class Database(ABC):
     class Replica(ABC):
 
         @abstractmethod
-        def database(self) -> "DatabaseCluster":
+        def database(self) -> "ClusterDatabase":
             pass
 
         @abstractmethod
@@ -57,7 +57,7 @@ class Database(ABC):
             pass
 
 
-class DatabaseCluster(Database, ABC):
+class ClusterDatabase(Database, ABC):
 
     @abstractmethod
     def replicas(self) -> Set[Database.Replica]:
@@ -91,12 +91,12 @@ class DatabaseManager(ABC):
         pass
 
 
-class DatabaseManagerCluster(DatabaseManager, ABC):
+class ClusterDatabaseManager(DatabaseManager, ABC):
 
     @abstractmethod
-    def get(self, name: str) -> DatabaseCluster:
+    def get(self, name: str) -> ClusterDatabase:
         pass
 
     @abstractmethod
-    def all(self) -> List[DatabaseCluster]:
+    def all(self) -> List[ClusterDatabase]:
         pass

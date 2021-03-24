@@ -24,7 +24,7 @@ from grakn.api.answer.concept_map_group import ConceptMapGroup
 from grakn.api.answer.numeric import Numeric
 from grakn.api.answer.numeric_group import NumericGroup
 from grakn.api.options import GraknOptions
-from grakn.api.query.query_future import QueryFuture
+from grakn.api.query.future import QueryFuture
 
 
 class QueryManager(ABC):

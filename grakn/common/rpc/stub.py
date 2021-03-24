@@ -37,7 +37,7 @@ def resilient_call(function: Callable[[], T]) -> T:
     try:
         return function()
     except RpcError as e:
-        raise GraknClientException.from_rpc(e)
+        raise GraknClientException.of_rpc(e)
 
 
 class GraknGrpcStub:

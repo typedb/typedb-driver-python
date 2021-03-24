@@ -18,7 +18,7 @@
 #
 from abc import ABC, abstractmethod
 
-from grakn.api.database import DatabaseManager, DatabaseManagerCluster
+from grakn.api.database import DatabaseManager, ClusterDatabaseManager
 from grakn.api.options import GraknOptions
 from grakn.api.session import GraknSession
 
@@ -54,8 +54,8 @@ class GraknClient(ABC):
         pass
 
 
-class GraknClientCluster(GraknClient):
+class GraknClusterClient(GraknClient):
 
     @abstractmethod
-    def databases(self) -> DatabaseManagerCluster:
+    def databases(self) -> ClusterDatabaseManager:
         pass

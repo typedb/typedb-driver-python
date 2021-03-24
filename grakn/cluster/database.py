@@ -18,13 +18,13 @@
 #
 from typing import Dict, Optional, Set
 
-import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
+import grakn_protocol.cluster.database_pb2 as database_proto
 
+from grakn.api.database import ClusterDatabase
 from grakn.cluster.server_address import ServerAddress
-from grakn.core.database import DatabaseCluster, _DatabaseRPC
 
 
-class _DatabaseClusterRPC(DatabaseCluster):
+class _ClusterDatabase(ClusterDatabase):
 
     def __init__(self, database_manager_cluster, database: str):
         self._databases: Dict[ServerAddress, _DatabaseRPC] = {}
@@ -33,23 +33,23 @@ class _DatabaseClusterRPC(DatabaseCluster):
             self._databases[address] = _DatabaseRPC(database_manager, name=database)
         self._name = database
         self._database_manager_cluster = database_manager_cluster
-        self._replicas: Set["_DatabaseClusterRPC.Replica"] = set()
+        self._replicas: Set["_ClusterDatabase.Replica"] = set()
 
     @staticmethod
-    def of(proto_db: database_proto.Database, database_manager_cluster) -> "_DatabaseClusterRPC":
+    def of(proto_db: database_proto.Database, database_manager_cluster) -> "_ClusterDatabase":
         assert proto_db.replicas
         database: str = proto_db.name
-        database_cluster_rpc = _DatabaseClusterRPC(database_manager_cluster, database)
+        database_cluster_rpc = _ClusterDatabase(database_manager_cluster, database)
         for proto_replica in proto_db.replicas:
-            database_cluster_rpc.replicas().add(_DatabaseClusterRPC.Replica.of(proto_replica, database_cluster_rpc))
+            database_cluster_rpc.replicas().add(_ClusterDatabase.Replica.of(proto_replica, database_cluster_rpc))
         print("Discovered database cluster: " + str(database_cluster_rpc))
         return database_cluster_rpc
 
-    def primary_replica(self) -> Optional["_DatabaseClusterRPC.Replica"]:
+    def primary_replica(self) -> Optional["_ClusterDatabase.Replica"]:
         primaries = [replica for replica in self._replicas if replica.is_primary()]
         return max(primaries, key=lambda r: r.term) if primaries else None
 
-    def preferred_secondary_replica(self) -> "_DatabaseClusterRPC.Replica":
+    def preferred_secondary_replica(self) -> "_ClusterDatabase.Replica":
         return next(iter([replica for replica in self._replicas if replica.is_preferred_secondary()]), next(iter(self._replicas)))
 
     def name(self) -> str:
@@ -68,19 +68,19 @@ class _DatabaseClusterRPC(DatabaseCluster):
 
     class Replica:
 
-        def __init__(self, database: "_DatabaseClusterRPC", address: ServerAddress, term: int, is_primary: bool, is_preferred_secondary: bool):
+        def __init__(self, database: "_ClusterDatabase", address: ServerAddress, term: int, is_primary: bool, is_preferred_secondary: bool):
             self._database = database
-            self._replica_id = _DatabaseClusterRPC.Replica.Id(address, database.name())
+            self._replica_id = _ClusterDatabase.Replica.Id(address, database.name())
             self._term = term
             self._is_primary = is_primary
             self._is_preferred_secondary = is_preferred_secondary
 
         @staticmethod
-        def of(proto_replica: database_proto.Database.Replica, database: "_DatabaseClusterRPC") -> "_DatabaseClusterRPC.Replica":
-            return _DatabaseClusterRPC.Replica(database, ServerAddress.parse(proto_replica.address), proto_replica.term,
-                                               proto_replica.primary, proto_replica.preferred_secondary)
+        def of(proto_replica: database_proto.Database.Replica, database: "_ClusterDatabase") -> "_ClusterDatabase.Replica":
+            return _ClusterDatabase.Replica(database, ServerAddress.parse(proto_replica.address), proto_replica.term,
+                                            proto_replica.primary, proto_replica.preferred_secondary)
 
-        def replica_id(self) -> "_DatabaseClusterRPC.Replica.Id":
+        def replica_id(self) -> "_ClusterDatabase.Replica.Id":
             return self._replica_id
 
         def term(self) -> int:

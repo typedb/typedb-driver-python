@@ -16,150 +16,124 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import enum
 import sched
 import time
-from abc import ABC, abstractmethod
-from threading import Thread, Lock
+from threading import Thread
+from typing import TYPE_CHECKING
 
-import grakn_protocol.protobuf.session_pb2 as session_proto
-import grpc
-from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
+import grakn_protocol.common.session_pb2 as session_proto
+from grpc import RpcError
 
-from grakn import options_proto_builder
 from grakn.api.options import GraknOptions
-from grakn.core.database import Database, _DatabaseRPC
-from grakn.core.transaction import Transaction, TransactionType
+from grakn.api.session import GraknSession
+from grakn.api.transaction import GraknTransaction
+from grakn.common.concurrent.atomic import AtomicBoolean
+from grakn.common.concurrent.lock import ReadWriteLock
+from grakn.common.rpc.request_builder import session_open_req
+from grakn.core.database import _CoreDatabase
+from grakn.core.transaction import _CoreTransaction
+from grakn.stream.request_transmitter import RequestTransmitter
+
+if TYPE_CHECKING:
+    from grakn.core.client import _CoreClient
 
 
-class SessionType(enum.Enum):
-    DATA = 0
-    SCHEMA = 1
+class _CoreSession(GraknSession):
+    _PULSE_INTERVAL_SECONDS = 5
 
-
-def _session_type_proto(session_type: SessionType):
-    if session_type == SessionType.DATA:
-        return session_proto.Session.Type.Value("DATA")
-    if session_type == SessionType.SCHEMA:
-        return session_proto.Session.Type.Value("SCHEMA")
-
-
-class Session(ABC):
-
-    @abstractmethod
-    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
-        pass
-
-    @abstractmethod
-    def session_type(self) -> SessionType:
-        pass
-
-    @abstractmethod
-    def options(self) -> GraknOptions:
-        pass
-
-    @abstractmethod
-    def is_open(self) -> bool:
-        pass
-
-    @abstractmethod
-    def close(self) -> None:
-        pass
-
-    @abstractmethod
-    def database(self) -> Database:
-        pass
-
-    @abstractmethod
-    def __enter__(self):
-        pass
-
-    @abstractmethod
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-
-class _SessionRPC(Session):
-    _PULSE_FREQUENCY_SECONDS = 5
-
-    def __init__(self, client, database: str, session_type: SessionType, options: GraknOptions = None):
+    def __init__(self, client: "_CoreClient", database: str, session_type: GraknSession.Type, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
         self._client = client
-        self._address = client._address
-        self._channel = grpc.insecure_channel(client._address)
+        self._address = client.address()
         self._scheduler = sched.scheduler(time.time, time.sleep)
-        self._database = _DatabaseRPC(database_manager=client.databases(), name=database)
         self._session_type = session_type
         self._options = options
-        self._grpc_stub = GraknStub(self._channel)
-        self._lock = Lock()
+        self._rw_lock = ReadWriteLock()
+        self._stub = client.stub()
+        self._database = _CoreDatabase(stub=self._stub, name=database)
 
-        open_req = session_proto.Session.Open.Req()
-        open_req.database = database
-        open_req.type = _session_type_proto(session_type)
-        open_req.options.CopyFrom(options_proto_builder.options(options))
+        start_time = time.time() * 1000.0
+        res = self._stub.session_open(session_open_req(database, session_type.proto(), options.proto()))
+        end_time = time.time() * 1000.0
+        self._network_latency_millis = int(end_time - start_time - res.server_duration_millis)
+        self._session_id = res.session_id
+        self._is_open = AtomicBoolean(True)
 
-        self._session_id: bytes = self._grpc_stub.session_open(open_req).session_id
-        self._is_open = True
-        self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+        self._pulse = self._scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulse, argument=())
         Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
-    def transaction(self, transaction_type: TransactionType, options=None) -> Transaction:
-        if not options:
-            options = GraknOptions.core()
-        return Transaction(self._address, self._session_id, transaction_type, options)
+    def is_open(self) -> bool:
+        return self._is_open.get()
 
-    def session_type(self) -> SessionType:
+    def session_type(self) -> GraknSession.Type:
         return self._session_type
+
+    def database(self) -> _CoreDatabase:
+        return self._database
 
     def options(self) -> GraknOptions:
         return self._options
 
-    def is_open(self) -> bool:
-        return self._is_open
-
-    def close(self) -> None:
-        self._lock.acquire(blocking=True)
-        if self._is_open:
-            self._is_open = False
-            self._client.remove_session(self)
-            self._lock.release()
-            try:
-                self._scheduler.cancel(self._pulse)
-            except ValueError:  # This may occur if a pulse is in transit but not responded to yet.
-                pass
-            req = session_proto.Session.Close.Req()
-            req.session_id = self._session_id
-            try:
-                self._grpc_stub.session_close(req)
-            finally:
-                self._channel.close()
-        else:
-            self._lock.release()
-
-    def database(self) -> Database:
-        return self._database
+    def transaction(self, transaction_type: GraknTransaction.Type, options: GraknOptions = None) -> GraknTransaction:
+        if not options:
+            options = GraknOptions.core()
+        try:
+            self._rw_lock.acquire_read()
+            return _CoreTransaction(self, transaction_type, options)
+        finally:
+            self._rw_lock.release_read()
 
     def session_id(self) -> bytes:
         return self._session_id
 
+    def address(self) -> str:
+        return self._client.address()
+
+    def transmitter(self) -> RequestTransmitter:
+        return self._client.transmitter()
+
+    def network_latency_millis(self) -> int:
+        return self._network_latency_millis
+
+    def close(self) -> None:
+        try:
+            self._rw_lock.acquire_write()
+            if self._is_open.compare_and_set(True, False):
+                self._client.remove_session(self)
+                try:
+                    self._scheduler.cancel(self._pulse)
+                except ValueError:  # This may occur if a pulse is in transit right now.
+                    pass
+                req = session_proto.Session.Close.Req()
+                req.session_id = self._session_id
+                try:
+                    self._stub.session_close(req)
+                except RpcError:  # This generally means the session is already closed.
+                    pass
+        finally:
+            self._rw_lock.release_write()
+
     def _transmit_pulse(self) -> None:
-        if not self._is_open:
+        if not self.is_open():
             return
         pulse_req = session_proto.Session.Pulse.Req()
         pulse_req.session_id = self._session_id
-        res = self._grpc_stub.session_pulse(pulse_req)
-        if res.alive:
-            self._pulse = self._scheduler.enter(delay=self._PULSE_FREQUENCY_SECONDS, priority=1, action=self._transmit_pulse, argument=())
+        try:
+            alive = self._stub.session_pulse(pulse_req).alive
+        except RpcError:
+            alive = False
+
+        if alive:
+            self._pulse = self._scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulse, argument=())
             Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
+        else:
+            self._is_open.set(False)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-        if exc_tb is None:
-            pass
-        else:
+        if exc_tb is not None:
             return False

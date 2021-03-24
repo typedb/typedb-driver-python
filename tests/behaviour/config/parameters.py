@@ -24,10 +24,10 @@ import parse
 from behave import register_type
 from behave.model import Table
 
-from grakn.concept.type.value_type import ValueType
-from grakn.core.transaction import TransactionType
-
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
+from grakn.api.concept.type.attribute_type import AttributeType
+from grakn.api.transaction import GraknTransaction
+
 
 @parse.with_pattern(r"true|false")
 def parse_bool(value: str) -> bool:
@@ -92,13 +92,13 @@ register_type(Var=parse_var)
 
 
 @parse.with_pattern(r"long|double|string|boolean|datetime")
-def parse_value_type(value: str) -> ValueType:
+def parse_value_type(value: str) -> AttributeType.ValueType:
     mapping = {
-        "long": ValueType.LONG,
-        "double": ValueType.DOUBLE,
-        "string": ValueType.STRING,
-        "boolean": ValueType.BOOLEAN,
-        "datetime": ValueType.DATETIME
+        "long": AttributeType.ValueType.LONG,
+        "double": AttributeType.ValueType.DOUBLE,
+        "string": AttributeType.ValueType.STRING,
+        "boolean": AttributeType.ValueType.BOOLEAN,
+        "datetime": AttributeType.ValueType.DATETIME
     }
     return mapping[value]
 
@@ -107,8 +107,8 @@ register_type(ValueType=parse_value_type)
 
 
 @parse.with_pattern("read|write")
-def parse_transaction_type(value: str) -> TransactionType:
-    return TransactionType.READ if value == "read" else TransactionType.WRITE
+def parse_transaction_type(value: str) -> GraknTransaction.Type:
+    return GraknTransaction.Type.READ if value == "read" else GraknTransaction.Type.WRITE
 
 
 register_type(TransactionType=parse_transaction_type)

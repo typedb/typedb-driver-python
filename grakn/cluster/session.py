@@ -19,14 +19,14 @@
 
 from grakn.api.options import GraknClusterOptions, GraknOptions
 from grakn.cluster.failsafe_task import _FailsafeTask
-from grakn.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.database import _ClusterDatabase
 from grakn.cluster.server_address import ServerAddress
 from grakn.core.database import Database
 from grakn.core.session import Session, SessionType
 from grakn.core.transaction import TransactionType, Transaction
 
 
-class SessionClusterRPC(Session):
+class _ClusterSession(Session):
 
     def __init__(self, cluster_client, server_address: ServerAddress, database: str, session_type: SessionType, options: GraknClusterOptions):
         self.cluster_client = cluster_client
@@ -66,20 +66,22 @@ class SessionClusterRPC(Session):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+        if exc_tb is not None:
+            return False
 
 
 class TransactionFailsafeTask(_FailsafeTask):
 
-    def __init__(self, cluster_session: SessionClusterRPC, transaction_type: TransactionType, options: GraknClusterOptions):
+    def __init__(self, cluster_session: _ClusterSession, transaction_type: TransactionType, options: GraknClusterOptions):
         super().__init__(cluster_session.cluster_client, cluster_session.database().name())
         self.cluster_session = cluster_session
         self.transaction_type = transaction_type
         self.options = options
 
-    def run(self, replica: _DatabaseClusterRPC.Replica):
+    def run(self, replica: _ClusterDatabase.Replica):
         return self.cluster_session.core_session.transaction(self.transaction_type, self.options)
 
-    def rerun(self, replica: _DatabaseClusterRPC.Replica):
+    def rerun(self, replica: _ClusterDatabase.Replica):
         if self.cluster_session.core_session:
             self.cluster_session.core_session.close()
         self.cluster_session.core_client = self.cluster_session.cluster_client.core_client(replica.address())

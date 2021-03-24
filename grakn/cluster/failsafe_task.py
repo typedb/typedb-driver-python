@@ -23,7 +23,7 @@ import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 from grpc import RpcError, StatusCode
 
 from grakn.common.exception import GraknClientException
-from grakn.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.database import _ClusterDatabase
 
 
 class _FailsafeTask(ABC):
@@ -37,10 +37,10 @@ class _FailsafeTask(ABC):
         self.database = database
 
     @abstractmethod
-    def run(self, replica: _DatabaseClusterRPC.Replica):
+    def run(self, replica: _ClusterDatabase.Replica):
         pass
 
-    def rerun(self, replica: _DatabaseClusterRPC.Replica):
+    def rerun(self, replica: _ClusterDatabase.Replica):
         return self.run(replica)
 
     def run_primary_replica(self):
@@ -92,7 +92,7 @@ class _FailsafeTask(ABC):
             retries += 1
         raise self._cluster_not_available_exception()
 
-    def _seek_primary_replica(self) -> _DatabaseClusterRPC.Replica:
+    def _seek_primary_replica(self) -> _ClusterDatabase.Replica:
         retries = 0
         while retries < self.FETCH_REPLICAS_MAX_RETRIES:
             replica_info = self._fetch_database_replicas()
@@ -103,14 +103,14 @@ class _FailsafeTask(ABC):
                 retries += 1
         raise self._cluster_not_available_exception()
 
-    def _fetch_database_replicas(self) -> _DatabaseClusterRPC:
+    def _fetch_database_replicas(self) -> _ClusterDatabase:
         for server_address in self.client.cluster_members():
             try:
                 print("Fetching replica info from %s" % server_address)
                 db_get_req = database_proto.Database.Get.Req()
                 db_get_req.name = self.database
                 res = self.client.grakn_cluster_grpc_stub(server_address).database_get(db_get_req)
-                replica_info = _DatabaseClusterRPC.of(res.database, self.client.databases())
+                replica_info = _ClusterDatabase.of(res.database, self.client.databases())
                 print("Requested database discovery from peer %s, and got response: %s" % (str(server_address), str([str(replica) for replica in replica_info.replicas()])))
                 self.client.cluster_databases()[self.database] = replica_info
                 return replica_info

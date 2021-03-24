@@ -16,76 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Set, Optional
 
-import grakn_protocol.protobuf.database_pb2 as database_proto
-
-from grakn.cluster.server_address import ServerAddress
-from grakn.core.utils import rpc_call
+from grakn.api.database import Database
+from grakn.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
+from grakn.common.rpc.stub import GraknCoreStub
 
 
-class Database(ABC):
+class _CoreDatabase(Database):
 
-    @abstractmethod
-    def name(self) -> str:
-        pass
-
-    @abstractmethod
-    def delete(self) -> None:
-        pass
-
-    class Replica(ABC):
-
-        @abstractmethod
-        def database(self) -> "DatabaseCluster":
-            pass
-
-        @abstractmethod
-        def term(self) -> int:
-            pass
-
-        @abstractmethod
-        def is_primary(self) -> bool:
-            pass
-
-        @abstractmethod
-        def is_preferred_secondary(self) -> bool:
-            pass
-
-        @abstractmethod
-        def address(self) -> ServerAddress:
-            pass
-
-
-class DatabaseCluster(Database, ABC):
-
-    @abstractmethod
-    def replicas(self) -> Set[Database.Replica]:
-        pass
-
-    @abstractmethod
-    def primary_replica(self) -> Optional[Database.Replica]:
-        pass
-
-    @abstractmethod
-    def preferred_secondary_replica(self) -> Database.Replica:
-        pass
-
-
-class _DatabaseRPC(Database):
-
-    def __init__(self, database_manager, name: str):
+    def __init__(self, stub: GraknCoreStub, name: str):
         self._name = name
-        self._grpc_stub = database_manager.grpc_stub()
+        self._stub = stub
 
     def name(self) -> str:
         return self._name
 
+    def schema(self) -> str:
+        return self._stub.database_schema(core_database_schema_req(self._name)).schema
+
     def delete(self) -> None:
-        request = database_proto.Database.Delete.Req()
-        request.name = self._name
-        rpc_call(lambda: self._grpc_stub.database_delete(request))
+        self._stub.database_delete(core_database_delete_req(self._name))
 
     def __str__(self):
         return self._name

@@ -109,7 +109,7 @@ def session_close_req(session_id: bytes):
 # Transaction
 
 def transaction_client_msg(reqs: List[transaction_proto.Transaction.Req]):
-    req = transaction_proto.Transaction.Req()
+    req = transaction_proto.Transaction.Client()
     req.reqs.extend(reqs)
     return req
 

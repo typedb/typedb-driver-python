@@ -22,24 +22,13 @@ from typing import Dict, List
 import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
 
 from grakn.common.exception import GraknClientException
-from grakn.cluster.database import _DatabaseClusterRPC
+from grakn.cluster.database import _ClusterDatabase
 from grakn.cluster.server_address import ServerAddress
 from grakn.core.database import DatabaseCluster
 from grakn.core.database_manager import DatabaseManager, _DatabaseManagerRPC
 
 
-class DatabaseManagerCluster(DatabaseManager):
-
-    @abstractmethod
-    def get(self, name: str) -> DatabaseCluster:
-        pass
-
-    @abstractmethod
-    def all(self) -> List[DatabaseCluster]:
-        pass
-
-
-class _DatabaseManagerClusterRPC(DatabaseManagerCluster):
+class _ClusterDatabaseManager(DatabaseManagerCluster):
 
     def __init__(self, client, database_managers: Dict[ServerAddress, "_DatabaseManagerRPC"]):
         self._client = client
@@ -57,7 +46,7 @@ class _DatabaseManagerClusterRPC(DatabaseManagerCluster):
     def create(self, name: str) -> None:
         for database_manager in self._database_managers.values():
             if not database_manager.contains(name):
-                database_manager.create(name)
+                database_manager.new_queue(name)
 
     def get(self, name: str) -> DatabaseCluster:
         errors = []
@@ -66,7 +55,7 @@ class _DatabaseManagerClusterRPC(DatabaseManagerCluster):
                 database_get_req = database_proto.Database.Get.Req()
                 database_get_req.name = name
                 res = self._client.grakn_cluster_grpc_stub(address).database_get(database_get_req)
-                return _DatabaseClusterRPC.of(res.database, self)
+                return _ClusterDatabase.of(res.database, self)
             except GraknClientException as e:
                 errors.append(e)
         raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
@@ -76,7 +65,7 @@ class _DatabaseManagerClusterRPC(DatabaseManagerCluster):
         for address in self._database_managers:
             try:
                 res = self._client.grakn_cluster_grpc_stub(address).database_all(database_proto.Database.All.Req())
-                return [_DatabaseClusterRPC.of(db, self) for db in res.databases]
+                return [_ClusterDatabase.of(db, self) for db in res.databases]
             except GraknClientException as e:
                 errors.append(e)
         raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))

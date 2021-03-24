@@ -16,67 +16,44 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
 from typing import List
 
-import grakn_protocol.protobuf.database_pb2 as database_proto
-from grakn_protocol.protobuf.grakn_pb2_grpc import GraknStub
 from grpc import Channel
 
-from grakn.common.exception import GraknClientException
-from grakn.core.database import Database, _DatabaseRPC
-from grakn.core.utils import rpc_call
-
-
-class DatabaseManager(ABC):
-
-    @abstractmethod
-    def contains(self, name: str) -> bool:
-        pass
-
-    @abstractmethod
-    def create(self, name: str) -> None:
-        pass
-
-    @abstractmethod
-    def get(self, name: str) -> Database:
-        pass
-
-    @abstractmethod
-    def all(self) -> List[Database]:
-        pass
+from grakn.api.database import DatabaseManager
+from grakn.common.exception import GraknClientException, DB_DOES_NOT_EXIST, MISSING_DB_NAME
+from grakn.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
+    core_database_manager_all_req
+from grakn.common.rpc.stub import GraknCoreStub
+from grakn.core.database import _CoreDatabase
 
 
 def _not_blank(name: str) -> str:
     if name in [None, ""] or name.isspace():
-        raise GraknClientException("Database name must not be empty.")
+        raise GraknClientException.of(MISSING_DB_NAME)
     return name
 
 
-class _DatabaseManagerRPC(DatabaseManager):
+class _CoreDatabaseManager(DatabaseManager):
 
     def __init__(self, channel: Channel):
-        self._grpc_stub = GraknStub(channel)
+        self._stub = GraknCoreStub(channel)
+
+    def get(self, name: str) -> _CoreDatabase:
+        if self.contains(name):
+            return _CoreDatabase(self._stub, name)
+        else:
+            raise GraknClientException.of(DB_DOES_NOT_EXIST, name)
 
     def contains(self, name: str) -> bool:
-        request = database_proto.Database.Contains.Req()
-        request.name = _not_blank(name)
-        return rpc_call(lambda: self._grpc_stub.database_contains(request).contains)
+        return self._stub.databases_contains(core_database_manager_contains_req(_not_blank(name)))
 
     def create(self, name: str) -> None:
-        request = database_proto.Database.Create.Req()
-        request.name = _not_blank(name)
-        rpc_call(lambda: self._grpc_stub.database_create(request))
+        self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))
 
-    def get(self, name: str) -> Database:
-        if self.contains(name):
-            return _DatabaseRPC(self, name)
-        else:
-            raise GraknClientException("The database '%s' does not exist." % name)
+    def all(self) -> List[_CoreDatabase]:
+        databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).names
+        return [_CoreDatabase(self._stub, name) for name in databases]
 
-    def all(self) -> List[Database]:
-        databases: List[str] = rpc_call(lambda: list(self._grpc_stub.database_all(database_proto.Database.All.Req()).names))
-        return [_DatabaseRPC(self, name) for name in databases]
-
-    def grpc_stub(self) -> GraknStub:
-        return self._grpc_stub
+    def stub(self) -> GraknCoreStub:
+        return self._stub

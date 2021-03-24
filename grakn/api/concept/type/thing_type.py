@@ -22,10 +22,10 @@ from typing import TYPE_CHECKING, Iterator
 from grakn.api.concept.thing.thing import Thing
 from grakn.api.concept.type.type import Type, RemoteType
 from grakn.api.concept.type.role_type import RoleType
-from grakn.api.transaction import GraknTransaction
 
 if TYPE_CHECKING:
     from grakn.api.concept.type.attribute_type import AttributeType
+    from grakn.api.transaction import GraknTransaction
 
 
 class ThingType(Type, ABC):
