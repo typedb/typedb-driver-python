@@ -27,6 +27,7 @@ from behave.model import Table
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from grakn.api.concept.type.attribute_type import AttributeType
 from grakn.api.transaction import GraknTransaction
+from grakn.common.label import Label
 
 
 @parse.with_pattern(r"true|false")
@@ -81,6 +82,15 @@ def parse_root_label(text: str) -> RootLabel:
 
 
 register_type(RootLabel=parse_root_label)
+
+
+@parse.with_pattern(r"[a-zA-Z0-9-_]+:[a-zA-Z0-9-_]+")
+def parse_label(text: str) -> Label:
+    fragments = text.split(":")
+    return Label.of(*fragments) if len(fragments) == 2 else Label.of(fragments[0])
+
+
+register_type(ScopedLabel=parse_label)
 
 
 @parse.with_pattern(r"\$([a-zA-Z0-9]+)")

@@ -17,23 +17,20 @@
 # under the License.
 #
 import re
+from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Tuple, Union, Optional
+from typing import List, Tuple, Union, Optional, Any, Type
 
 from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
+from grakn.common.label import Label
 from grakn.concept.answer.concept_map import ConceptMap
 from grakn.concept.answer.numeric import Numeric
-from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table
+from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
+    parse_label
 from tests.behaviour.context import Context, ConceptSubtype, AttributeSubtype
-
-
-@step("the integrity is validated")
-def step_impl(context: Context):
-    # TODO
-    pass
 
 
 @step("graql define")
@@ -43,12 +40,12 @@ def step_impl(context: Context):
 
 @step("graql define; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().define(query=context.text)), raises(GraknClientException))
+    assert_that(calling(context.tx().query().define(query=context.text).get), raises(GraknClientException))
 
 
-@step("graql define; throws exception containing \"{exception}\"")
-def step_impl(context: Context, exception: str):
-    assert_that(calling(next).with_args(context.tx().query().define(query=context.text)), raises(GraknClientException, exception))
+@step("graql define; throws exception containing \"{pattern}\"")
+def step_impl(context: Context, pattern: str):
+    assert_that(calling(context.tx().query().define(query=context.text).get), raises(GraknClientException, pattern))
 
 
 @step("graql undefine")
@@ -58,12 +55,12 @@ def step_impl(context: Context):
 
 @step("graql undefine; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().undefine(query=context.text)), raises(GraknClientException))
+    assert_that(calling(context.tx().query().undefine(query=context.text).get), raises(GraknClientException))
 
 
-@step("graql undefine; throws exception containing \"{exception}\"")
-def step_impl(context: Context, exception: str):
-    assert_that(calling(next).with_args(context.tx().query().undefine(query=context.text)), raises(GraknClientException, exception))
+@step("graql undefine; throws exception containing \"{pattern}\"")
+def step_impl(context: Context, pattern: str):
+    assert_that(calling(context.tx().query().undefine(query=context.text).get), raises(GraknClientException, pattern))
 
 
 @step("graql insert")
@@ -76,9 +73,9 @@ def step_impl(context: Context):
     assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException))
 
 
-@step("graql insert; throws exception containing \"{exception}\"")
-def step_impl(context: Context, exception: str):
-    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException, exception))
+@step("graql insert; throws exception containing \"{pattern}\"")
+def step_impl(context: Context, pattern: str):
+    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException, pattern))
 
 
 @step("graql delete")
@@ -88,12 +85,12 @@ def step_impl(context: Context):
 
 @step("graql delete; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().delete(query=context.text)), raises(GraknClientException))
+    assert_that(calling(context.tx().query().delete(query=context.text).get), raises(GraknClientException))
 
 
-@step("graql delete; throws exception containing \"{exception}\"")
-def step_impl(context: Context, exception: str):
-    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(GraknClientException, exception))
+@step("graql delete; throws exception containing \"{pattern}\"")
+def step_impl(context: Context, pattern: str):
+    assert_that(calling(context.tx().query().delete(query=context.text).get), raises(GraknClientException, pattern))
 
 
 @step("graql update")
@@ -106,9 +103,10 @@ def step_impl(context: Context):
     assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException))
 
 
-@step("graql update; throws exception containing \"{exception}\"")
-def step_impl(context: Context, exception: str):
-    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException, exception))
+@step("graql update; throws exception containing \"{pattern}\"")
+def step_impl(context: Context, pattern: str):
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(GraknClientException, pattern))
+
 
 @step("get answers of graql insert")
 def step_impl(context: Context):
@@ -130,13 +128,23 @@ def step_impl(context: Context):
 @step("get answer of graql match aggregate")
 def step_impl(context: Context):
     context.clear_answers()
-    context.numeric_answer = next(context.tx().query().match_aggregate(query=context.text))
+    context.numeric_answer = context.tx().query().match_aggregate(query=context.text).get()
+
+
+@step("graql match aggregate; throws exception")
+def step_impl(context: Context):
+    assert_that(calling(context.tx().query().match_aggregate(query=context.text).get), raises(GraknClientException))
 
 
 @step("get answers of graql match group")
 def step_impl(context: Context):
     context.clear_answers()
     context.answer_groups = [group for group in context.tx().query().match_group(query=context.text)]
+
+
+@step("graql match group; throws exception")
+def step_impl(context: Context):
+    assert_that(calling(next).with_args(context.tx().query().match_group(query=context.text)), raises(GraknClientException))
 
 
 @step("get answers of graql match group aggregate")
@@ -154,78 +162,104 @@ def step_impl(context: Context, expected_size: int):
 def step_impl(context: Context, rule_label: str):
     return rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()]
 
+
 @step("rules do not contain: {rule_label}")
 def step_impl(context: Context, rule_label: str):
     return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
 
 
-class ConceptMatcher:
+class ConceptMatchResult:
 
-    def matches(self, context: Context, concept: ConceptSubtype):
-        return False
+    def __init__(self, expected: str, actual: Optional[str], error: str = None):
+        self.matches = actual == expected
+        self.actual = actual
+        self.expected = expected
+        self.error = error
+
+    @staticmethod
+    def of(expected: Any, actual: Any):
+        return ConceptMatchResult(expected=str(expected), actual=str(actual))
+
+    @staticmethod
+    def of_error(expected: Any, error: str):
+        return ConceptMatchResult(expected=str(expected), actual=None, error=error)
+
+    def __str__(self):
+        if self.error:
+            return "[error: %s]" % self.error
+        else:
+            return "[expected: %s, actual: %s, matches: %s]" % (self.expected, self.actual, self.matches)
+
+
+class ConceptMatcher(ABC):
+
+    @abstractmethod
+    def match(self, context: Context, concept: ConceptSubtype) -> ConceptMatchResult:
+        pass
 
 
 class TypeLabelMatcher(ConceptMatcher):
 
     def __init__(self, label: str):
-        self.label = label
+        self.label = parse_label(label)
 
-    def matches(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: ConceptSubtype):
         if concept.is_type():
-            return self.label == concept.get_label()
+            return ConceptMatchResult.of(self.label, concept.get_label())
         else:
-            raise TypeError("A Concept was matched by label, but it is not a Type.")
+            return ConceptMatchResult.of_error(self.label, "%s was matched by Label, but it is not a Type." % concept)
 
 
-class AttributeMatcher(ConceptMatcher):
+class AttributeMatcher(ConceptMatcher, ABC):
 
     def __init__(self, type_and_value: str):
+        self.type_and_value = type_and_value
         s = type_and_value.split(":")
         assert_that(s, has_length(2), "[%s] is not a valid attribute identifier. It should have format \"type_label:value\"." % type_and_value)
         self.type_label, self.value = s
 
     def check(self, attribute: AttributeSubtype):
         if attribute.is_boolean():
-            return attribute.get_value() == parse_bool(self.value)
+            return ConceptMatchResult.of(parse_bool(self.value), attribute.get_value())
         elif attribute.is_long():
-            return attribute.get_value() == parse_int(self.value)
+            return ConceptMatchResult.of(parse_int(self.value), attribute.get_value())
         elif attribute.is_double():
-            return attribute.get_value() == parse_float(self.value)
+            return ConceptMatchResult.of(parse_float(self.value), attribute.get_value())
         elif attribute.is_string():
-            return attribute.get_value() == self.value
+            return ConceptMatchResult.of(self.value, attribute.get_value())
         elif attribute.is_datetime():
-            return attribute.get_value() == parse_datetime(self.value)
+            return ConceptMatchResult.of(parse_datetime(self.value), attribute.get_value())
         else:
             raise ValueError("Unrecognised value type " + str(type(attribute)))
 
 
 class AttributeValueMatcher(AttributeMatcher):
 
-    def matches(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: ConceptSubtype):
         if not concept.is_attribute():
-            return False
+            return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Attribute Value, but it is not an Attribute." % concept)
 
         attribute = concept
 
-        if self.type_label != attribute.get_type().get_label():
-            return False
+        if self.type_label != attribute.get_type().get_label().name():
+            return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Attribute Value expecting type label [%s], but its actual type is %s." % (concept, self.type_label, concept.get_type()))
 
         return self.check(attribute)
 
 
 class ThingKeyMatcher(AttributeMatcher):
 
-    def matches(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: ConceptSubtype):
         if not concept.is_thing():
-            return False
+            return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Key, but it is not a Thing." % concept)
 
         keys = [key for key in concept.as_remote(context.tx()).get_has(only_key=True)]
 
         for key in keys:
-            if key.get_type().get_label() == self.type_label:
+            if key.get_type().get_label().name() == self.type_label:
                 return self.check(key)
 
-        return False
+        return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Key expecting key type [%s], but it doesn't own any key of that type." % (concept, self.type_label))
 
 
 def parse_concept_identifier(value: str):
@@ -240,13 +274,28 @@ def parse_concept_identifier(value: str):
         raise ValueError("Failed to parse concept identifier: " + value)
 
 
-def answer_concepts_match(context: Context, answer_identifier: List[Tuple[str, str]], answer: ConceptMap) -> bool:
+class AnswerMatchResult:
+
+    def __init__(self, concept_match_results: List[ConceptMatchResult]):
+        self.concept_match_results = concept_match_results
+
+    def matches(self):
+        for result in self.concept_match_results:
+            if not result.matches:
+                return False
+        return True
+
+    def __str__(self):
+        return "[matches: %s, concept_match_results: %s]" % (self.matches(), [str(x) for x in self.concept_match_results])
+
+
+def match_answer_concepts(context: Context, answer_identifier: List[Tuple[str, str]], answer: ConceptMap) -> AnswerMatchResult:
+    results = []
     for var, concept_identifier in answer_identifier:
         matcher = parse_concept_identifier(concept_identifier)
-        if not matcher.matches(context, answer.get(var)):
-            return False
-
-    return True
+        result = matcher.match(context, answer.get(var))
+        results.append(result)
+    return AnswerMatchResult(results)
 
 
 @step("uniquely identify answer concepts")
@@ -255,15 +304,26 @@ def step_impl(context: Context):
     assert_that(context.answers, has_length(len(answer_identifiers)),
                 "The number of answers [%d] should match the number of answer identifiers [%d]." % (len(context.answers), len(answer_identifiers)))
 
-    result_set = [(ai, []) for ai in answer_identifiers]
-    for answer in context.answers:
-        for answer_identifier, matched_answers in result_set:
-            if answer_concepts_match(context, answer_identifier, answer):
+    result_set = [(ai, [], []) for ai in answer_identifiers]
+    for answer_identifier, matched_answers, match_attempts in result_set:
+        for answer in context.answers:
+            result = match_answer_concepts(context, answer_identifier, answer)
+            match_attempts.append(result)
+            if result.matches():
                 matched_answers.append(answer)
+        assert_that(matched_answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers matched the identifier [%s].\nThe match results were: %s" % (len(matched_answers), answer_identifier, [str(x) for x in match_attempts]))
 
-    for answer_identifier, answers in result_set:
-        assert_that(answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers "
-                                            "matched the identifier [%s]." % (len(answers), answer_identifier))
+    for answer in context.answers:
+        matches = 0
+        for answer_identifier, matched_answers, match_attempts in result_set:
+            if answer in matched_answers:
+                matches += 1
+                break
+        if matches != 1:
+            match_attempts = []
+            for answer_identifier in answer_identifiers:
+                match_attempts.append(match_answer_concepts(context, answer_identifier, answer))
+            assert_that(matches, is_(1), "Each answer should match precisely 1 answer identifier, but [%d] answer identifiers matched the answer [%s].\nThe match results were: %s" % (matches, answer, [str(x) for x in match_attempts]))
 
 
 @step("order of answer concepts is")
@@ -274,8 +334,8 @@ def step_impl(context: Context):
     for i in range(len(context.answers)):
         answer = context.answers[i]
         answer_identifier = answer_identifiers[i]
-        assert_that(answer_concepts_match(context, answer_identifier, answer),
-                    reason="The answer at index [%d] does not match the identifier [%s]." % (i, answer_identifier))
+        result = match_answer_concepts(context, answer_identifier, answer)
+        assert_that(result.matches(), is_(True), "The answer at index [%d] does not match the identifier [%s].\nThe match results were: %s" % (i, answer_identifier, result))
 
 
 def get_numeric_value(numeric: Numeric):
@@ -331,19 +391,30 @@ def step_impl(context: Context):
 
     for answer_identifier_group in answer_identifier_groups:
         identifier = parse_concept_identifier(answer_identifier_group.owner_identifier)
-        answer_group = next((group for group in context.answer_groups if identifier.matches(context, group.owner())), None)
+        answer_group = next((group for group in context.answer_groups if identifier.match(context, group.owner()).matches), None)
         assert_that(answer_group is not None,
                     reason="The group identifier [%s] does not match any of the answer group owners." % answer_identifier_group.owner_identifier)
 
-        result_set = [(ai, []) for ai in answer_identifier_group.answer_identifiers]
-        for answer in answer_group.concept_maps():
-            for (answer_identifier, matched_answers) in result_set:
-                if answer_concepts_match(context, answer_identifier, answer):
+        result_set = [(ai, [], []) for ai in answer_identifier_group.answer_identifiers]
+        for answer_identifier, matched_answers, match_attempts in result_set:
+            for answer in answer_group.concept_maps():
+                result = match_answer_concepts(context, answer_identifier, answer)
+                match_attempts.append(result)
+                if result.matches():
                     matched_answers.append(answer)
+            assert_that(matched_answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers matched the identifier [%s].\nThe match results were: %s" % (len(matched_answers), answer_identifier, [str(x) for x in match_attempts]))
 
-        for (answer_identifier, answers) in result_set:
-            assert_that(answers, has_length(1), "Each answer identifier should match precisely 1 answer, but [%d] answers "
-                                                "matched the identifier [%s]." % (len(answers), answer_identifier))
+        for answer in answer_group.concept_maps():
+            matches = 0
+            for answer_identifier, matched_answers, match_attempts in result_set:
+                if answer in matched_answers:
+                    matches += 1
+                    break
+            if matches != 1:
+                match_attempts = []
+                for answer_identifier in answer_identifier_group.answer_identifiers:
+                    match_attempts.append(match_answer_concepts(context, answer_identifier, answer))
+                assert_that(matches, is_(1), "Each answer should match precisely 1 answer identifier, but [%d] answer identifiers matched the answer [%s].\nThe match results were: %s" % (matches, answer, [str(x) for x in match_attempts]))
 
 
 @step("group aggregate values are")
@@ -360,7 +431,7 @@ def step_impl(context: Context):
 
     for (owner_identifier, expected_answer) in expectations.items():
         identifier = parse_concept_identifier(owner_identifier)
-        numeric_group = next((group for group in context.numeric_answer_groups if identifier.matches(context, group.owner())), None)
+        numeric_group = next((group for group in context.numeric_answer_groups if identifier.match(context, group.owner()).matches), None)
         assert_that(numeric_group is not None,
                     reason="The group identifier [%s] does not match any of the answer group owners." % owner_identifier)
 

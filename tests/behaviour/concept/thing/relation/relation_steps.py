@@ -97,7 +97,6 @@ def step_impl(context: Context, var: str):
     players = parse_dict(context.table)
     relation = context.get(var)
     players_by_role_type = relation.as_remote(context.tx()).get_players_by_role_type()
-    print(players)
     for (role_label, var2) in players.items():
         assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), has_item(context.get(parse_var(var2))))
 
