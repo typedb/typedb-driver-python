@@ -29,7 +29,7 @@ from grakn.common.exception import GraknClientException, UNKNOWN_REQUEST_ID, TRA
 from grakn.common.rpc.stub import GraknCoreStub
 from grakn.stream.request_transmitter import RequestTransmitter
 from grakn.stream.response_collector import ResponseCollector
-from grakn.stream.response_iterator import StreamedResponseIterator
+from grakn.stream.response_iterator import ResponseIterator
 
 T = TypeVar('T')
 
@@ -37,8 +37,7 @@ T = TypeVar('T')
 class BidirectionalStream:
 
     def __init__(self, stub: GraknCoreStub, transmitter: RequestTransmitter):
-        self._res_part_collector = ResponseCollector()
-        self._res_collector = ResponseCollector()
+        self._response_collector: ResponseCollector[Union[transaction_proto.Transaction.Res, transaction_proto.Transaction.ResPart]] = ResponseCollector()
         self._request_iterator = RequestIterator()
         self._response_iterator = stub.transaction(self._request_iterator)
         self._dispatcher = transmitter.dispatcher(self._request_iterator)
@@ -47,7 +46,7 @@ class BidirectionalStream:
     def single(self, req: transaction_proto.Transaction.Req, batch: bool) -> "BidirectionalStream.Single[transaction_proto.Transaction.Res]":
         request_id = uuid4()
         req.req_id = str(request_id)
-        res_queue = self._res_collector.new_queue(request_id)  # TODO: unused
+        self._response_collector.new_queue(request_id)
         if batch:
             self._dispatcher.dispatch(req)
         else:
@@ -57,18 +56,18 @@ class BidirectionalStream:
     def stream(self, req: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         request_id = uuid4()
         req.req_id = str(request_id)
-        res_part_queue = self._res_part_collector.new_queue(request_id)
+        self._response_collector.new_queue(request_id)
         self._dispatcher.dispatch(req)
-        return StreamedResponseIterator(request_id, res_part_queue, self._dispatcher)
+        return ResponseIterator(request_id, self, self._dispatcher)
 
     def is_open(self) -> bool:
         return self._is_open.get()
 
-    def fetch_res(self, request_id: UUID):
+    def fetch(self, request_id: UUID) -> Union[transaction_proto.Transaction.Res, transaction_proto.Transaction.ResPart]:
         # Keep taking responses until we get one that matches the request ID
         while True:
             try:
-                return self._res_collector.get(request_id).get(block=False)
+                return self._response_collector.get(request_id).get(block=False)
             except Empty:
                 pass
 
@@ -85,35 +84,23 @@ class BidirectionalStream:
 
             server_case = server_msg.WhichOneof("server")
             if server_case == "res":
-                self._collect_res(server_msg.res)
+                self._collect(server_msg.res)
             elif server_case == "res_part":
-                self._collect_res_part(server_msg.res_part)
+                self._collect(server_msg.res_part)
             else:
                 raise GraknClientException.of(ILLEGAL_ARGUMENT)
 
-    def fetch_res_part(self, request_id: UUID):
-        pass
-
-    def _collect_res(self, res: transaction_proto.Transaction.Res) -> None:
-        request_id = UUID(res.req_id)
-        collector = self._res_collector.get(request_id)
+    def _collect(self, response: Union[transaction_proto.Transaction.Res, transaction_proto.Transaction.ResPart]):
+        request_id = UUID(response.req_id)
+        collector = self._response_collector.get(request_id)
         if collector:
-            collector.put(res)
-        else:
-            raise GraknClientException.of(UNKNOWN_REQUEST_ID, request_id)
-
-    def _collect_res_part(self, res_part: transaction_proto.Transaction.Res) -> None:
-        request_id = UUID(res_part.req_id)
-        collector = self._res_part_collector.get(request_id)
-        if collector:
-            collector.put(res_part)
+            collector.put(response)
         else:
             raise GraknClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
     def close(self, error: RpcError = None):
         if self._is_open.compare_and_set(True, False):
-            self._res_collector.close(error)
-            self._res_part_collector.close(error)
+            self._response_collector.close(error)
             try:
                 self._dispatcher.close()
             except RpcError as e:
@@ -135,7 +122,7 @@ class BidirectionalStream:
             self._stream = stream
 
         def get(self) -> T:
-            return self._stream.fetch_res(self._request_id)
+            return self._stream.fetch(self._request_id)
 
 
 class RequestIterator(Iterator[Union[transaction_proto.Transaction.Req, StopIteration]]):

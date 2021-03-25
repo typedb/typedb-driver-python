@@ -24,6 +24,7 @@ from typing import List, TYPE_CHECKING
 
 import grakn_protocol.common.transaction_pb2 as transaction_proto
 
+from grakn.common.concurrent.lock import ReadWriteLock
 from grakn.common.exception import GraknClientException, CLIENT_CLOSED
 from grakn.common.rpc.request_builder import transaction_client_msg
 
@@ -41,6 +42,7 @@ class RequestTransmitter:
         self._executor_index = 0
         self._is_open = True
         self._executor_index_lock = Lock()
+        self.access_lock = ReadWriteLock()
         for i in range(parallelisation):
             self._executors.append(RequestTransmitter.Executor(self))
 
@@ -51,19 +53,29 @@ class RequestTransmitter:
             return self._executors[self._executor_index]
 
     def dispatcher(self, request_iterator: "RequestIterator") -> "RequestTransmitter.Dispatcher":
-        # TODO: accessLock.readLock().lock()
-        if not self._is_open:
-            raise GraknClientException.of(CLIENT_CLOSED)
-        executor = self._next_executor()
-        disp = RequestTransmitter.Dispatcher(executor, request_iterator, self)
-        executor.dispatchers.append(disp)
-        return disp
+        try:
+            self.access_lock.acquire_read()
+            if not self._is_open:
+                raise GraknClientException.of(CLIENT_CLOSED)
+            executor = self._next_executor()
+            disp = RequestTransmitter.Dispatcher(executor, request_iterator, self)
+            executor.dispatchers.append(disp)
+            return disp
+        finally:
+            self.access_lock.release_read()
 
     def is_open(self):
         return self._is_open
 
     def close(self):
-        pass
+        try:
+            self.access_lock.acquire_write()
+            if self._is_open:
+                self._is_open = False
+                for executor in self._executors:
+                    executor.close()
+        finally:
+            self.access_lock.release_write()
 
     def __enter__(self):
         return self
@@ -141,18 +153,24 @@ class RequestTransmitter:
                     self._request_iterator.put(transaction_client_msg(requests))
 
         def dispatch(self, proto_req: transaction_proto.Transaction.Req):
-            # TODO: accessLock.readLock().lock()
-            if not self._transmitter.is_open():
-                raise GraknClientException.of(CLIENT_CLOSED)
-            self._request_queue.put(proto_req)
-            self._executor.may_start_running()
+            try:
+                self._transmitter.access_lock.acquire_read()
+                if not self._transmitter.is_open():
+                    raise GraknClientException.of(CLIENT_CLOSED)
+                self._request_queue.put(proto_req)
+                self._executor.may_start_running()
+            finally:
+                self._transmitter.access_lock.release_read()
 
         def dispatch_now(self, proto_req: transaction_proto.Transaction.Req):
-            # TODO: accessLock.readLock().lock()
-            if not self._transmitter.is_open():
-                raise GraknClientException.of(CLIENT_CLOSED)
-            self._request_queue.put(proto_req)
-            self.send_batched_requests()
+            try:
+                self._transmitter.access_lock.acquire_read()
+                if not self._transmitter.is_open():
+                    raise GraknClientException.of(CLIENT_CLOSED)
+                self._request_queue.put(proto_req)
+                self.send_batched_requests()
+            finally:
+                self._transmitter.access_lock.release_read()
 
         def close(self):
             self._request_iterator.close()
