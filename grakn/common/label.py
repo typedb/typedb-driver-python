@@ -60,4 +60,4 @@ class Label:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._scope is other._scope and self._name == other._name
+        return self._scope == other._scope and self._name == other._name

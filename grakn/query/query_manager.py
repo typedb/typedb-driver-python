@@ -43,7 +43,7 @@ class _QueryManager(QueryManager):
     def match(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        return [_ConceptMap.of(cm) for rp in self.stream(query_manager_match_req(query, options.proto())) for cm in rp.match_res_part.answers]
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_match_req(query, options.proto())) for cm in rp.match_res_part.answers)
 
     def match_aggregate(self, query: str, options: GraknOptions = None):
         if not options:
@@ -53,19 +53,19 @@ class _QueryManager(QueryManager):
     def match_group(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        return [_ConceptMapGroup.of(cmg) for rp in self.stream(query_manager_match_group_req(query, options.proto()))
-                for cmg in rp.match_group_res_part.answers]
+        return (_ConceptMapGroup.of(cmg) for rp in self.stream(query_manager_match_group_req(query, options.proto()))
+                for cmg in rp.match_group_res_part.answers)
 
     def match_group_aggregate(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        return [_NumericGroup.of(ng) for rp in self.stream(query_manager_match_group_aggregate_req(query, options.proto()))
-                for ng in rp.match_group_aggregate_res_part.answers]
+        return (_NumericGroup.of(ng) for rp in self.stream(query_manager_match_group_aggregate_req(query, options.proto()))
+                for ng in rp.match_group_aggregate_res_part.answers)
 
     def insert(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        return [_ConceptMap.of(cm) for rp in self.stream(query_manager_insert_req(query, options.proto())) for cm in rp.insert_res_part.answers]
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_insert_req(query, options.proto())) for cm in rp.insert_res_part.answers)
 
     def delete(self, query: str, options: GraknOptions = None):
         if not options:
@@ -75,7 +75,7 @@ class _QueryManager(QueryManager):
     def update(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        return [_ConceptMap.of(cm) for rp in self.stream(query_manager_update_req(query, options.proto())) for cm in rp.update_res_part.answers]
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_update_req(query, options.proto())) for cm in rp.update_res_part.answers)
 
     def define(self, query: str, options: GraknOptions = None):
         if not options:
@@ -94,4 +94,4 @@ class _QueryManager(QueryManager):
         return self._transaction_ext.run_query(req).map(lambda res: res.query_manager_res)
 
     def stream(self, req: transaction_proto.Transaction.Req):
-        return [rp.query_manager_res_part for rp in self._transaction_ext.stream(req)]
+        return (rp.query_manager_res_part for rp in self._transaction_ext.stream(req))

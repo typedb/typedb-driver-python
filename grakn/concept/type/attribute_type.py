@@ -88,20 +88,20 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
     def get_subtypes(self) -> Iterator[AttributeType]:
         stream = super(_RemoteAttributeType, self).get_subtypes()
         if self.is_root() and self.get_value_type() is not AttributeType.ValueType.OBJECT:
-            return [subtype for subtype in stream if subtype.get_value_type() is self.get_value_type() or subtype.get_label() == self.get_label()]
+            return (subtype for subtype in stream if subtype.get_value_type() is self.get_value_type() or subtype.get_label() == self.get_label())
         else:
             return stream
 
     def get_owners(self, only_key: bool = False):
-        return [concept_proto_reader.thing_type(tt) for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
-                for tt in rp.attribute_type_get_owners_res_part.owners]
+        return (concept_proto_reader.thing_type(tt) for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
+                for tt in rp.attribute_type_get_owners_res_part.owners)
 
     def put_internal(self, proto_value: concept_proto.Attribute.Value):
-        res = self.execute(attribute_type_put_req(self.get_label(), proto_value))
-        return concept_proto_reader.attribute(res.attribute_type_put_res.attribute)
+        res = self.execute(attribute_type_put_req(self.get_label(), proto_value)).attribute_type_put_res
+        return concept_proto_reader.attribute(res.attribute)
 
     def get_internal(self, proto_value: concept_proto.Attribute.Value):
-        res = self.execute(attribute_type_get_req(self.get_label(), proto_value))
+        res = self.execute(attribute_type_get_req(self.get_label(), proto_value)).attribute_type_get_res
         return concept_proto_reader.attribute(res.attribute) if res.WhichOneof("res") == "attribute" else None
 
     def is_attribute_type(self):

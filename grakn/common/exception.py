@@ -38,7 +38,9 @@ class GraknClientException(Exception):
         if rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
             return GraknClientException(message=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
-            return GraknClientException(message=CLUSTER_REPLICA_NOT_PRIMARY, cause=rpc_error)
+            return GraknClientException(message=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
+        elif rpc_error.code() is StatusCode.INTERNAL:
+            return GraknClientException(message=rpc_error.details(), cause=None)
         else:
             return GraknClientException(message=rpc_error.details(), cause=rpc_error)
 

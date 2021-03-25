@@ -80,17 +80,18 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
             raise GraknClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
-        return [concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), only_key))
-                for a in rp.thing_get_has_res_part.attributes]
+        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), only_key))
+                for a in rp.thing_get_has_res_part.attributes)
 
     def get_relations(self, role_types: list = None):
         if not role_types:
             role_types = []
-        return [concept_proto_reader.thing(r) for rp in self.stream(thing_get_relations_req(self.get_iid(), concept_proto_builder.types(role_types)))
-                for r in rp.thing_get_relations_res_part.relations]
+        return (concept_proto_reader.thing(r) for rp in self.stream(thing_get_relations_req(self.get_iid(), concept_proto_builder.types(role_types)))
+                for r in rp.thing_get_relations_res_part.relations)
 
     def get_playing(self):
-        return [_RoleType.of(rt) for rp in self.stream(thing_get_playing_req(self.get_iid())) for rt in rp.thing_get_playing_res_part.role_types]
+        return (_RoleType.of(rt) for rp in self.stream(thing_get_playing_req(self.get_iid()))
+                for rt in rp.thing_get_playing_res_part.role_types)
 
     def set_has(self, attribute: Attribute):
         self.execute(thing_set_has_req(self.get_iid(), concept_proto_builder.thing(attribute)))
@@ -108,7 +109,7 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
         return self._transaction_ext.execute(request).thing_res
 
     def stream(self, request: transaction_proto.Transaction.Req):
-        return map(lambda rp: rp.thing_res_part, self._transaction_ext.stream(request))
+        return (rp.thing_res_part for rp in self._transaction_ext.stream(request))
 
     def __str__(self):
         return type(self).__name__ + "[iid:" + str(self._iid) + "]"

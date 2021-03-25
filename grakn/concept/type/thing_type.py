@@ -31,30 +31,18 @@ from grakn.concept.type.type import _Type, _RemoteType
 
 class _ThingType(ThingType, _Type):
 
-    def __init__(self, label: Label, is_root: bool):
-        super(_ThingType, self).__init__(label, is_root)
-
     def as_remote(self, transaction):
         return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
 
 class _RemoteThingType(_RemoteType, RemoteThingType):
 
-    def get_supertype(self) -> ThingType:
-        return super(_RemoteThingType, self).get_supertype()
-
-    def get_supertypes(self) -> Iterator[ThingType]:
-        return super(_RemoteThingType, self).get_supertypes()
-
-    def get_subtypes(self) -> Iterator[ThingType]:
-        return super(_RemoteThingType, self).get_subtypes()
-
     def set_supertype(self, thing_type: ThingType):
         self.execute(thing_type_set_supertype_req(self.get_label(), concept_proto_builder.thing_type(thing_type)))
 
     def get_instances(self):
-        return [concept_proto_reader.thing(t) for rp in self.stream(thing_type_get_instances_req(self.get_label()))
-                for t in rp.thing_type_get_instances_res_part.things]
+        return (concept_proto_reader.thing(t) for rp in self.stream(thing_type_get_instances_req(self.get_label()))
+                for t in rp.thing_type_get_instances_res_part.things)
 
     def set_abstract(self):
         self.execute(thing_type_set_abstract_req(self.get_label()))
@@ -69,12 +57,12 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
         self.execute(thing_type_set_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type), concept_proto_builder.thing_type(overridden_type), is_key))
 
     def get_plays(self):
-        return [concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_plays_req(self.get_label()))
-                for t in rp.thing_type_get_plays_res_part.roles]
+        return (concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_plays_req(self.get_label()))
+                for t in rp.thing_type_get_plays_res_part.roles)
 
     def get_owns(self, value_type: AttributeType.ValueType = None, keys_only: bool = False):
-        return [concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_owns_req(self.get_label(), value_type.proto(), keys_only))
-                for t in rp.thing_type_get_plays_res_part.roles]
+        return (concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_owns_req(self.get_label(), value_type.proto() if value_type else None, keys_only))
+                for t in rp.thing_type_get_owns_res_part.attribute_types)
 
     def unset_plays(self, role_type: RoleType):
         self.execute(thing_type_unset_plays_req(self.get_label(), concept_proto_builder.role_type(role_type)))

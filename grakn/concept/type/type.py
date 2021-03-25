@@ -93,10 +93,10 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
         return concept_proto_reader.type_(res.type) if res.WhichOneof("res") == "type" else None
 
     def get_supertypes(self):
-        return [concept_proto_reader.type_(t) for rp in self.stream(type_get_supertypes_req(self.get_label())) for t in rp.type_get_supertypes_res_part.types]
+        return (concept_proto_reader.type_(t) for rp in self.stream(type_get_supertypes_req(self.get_label())) for t in rp.type_get_supertypes_res_part.types)
 
     def get_subtypes(self):
-        return [concept_proto_reader.type_(t) for rp in self.stream(type_get_subtypes_req(self.get_label())) for t in rp.type_get_supertypes_res_part.types]
+        return (concept_proto_reader.type_(t) for rp in self.stream(type_get_subtypes_req(self.get_label())) for t in rp.type_get_subtypes_res_part.types)
 
     def delete(self):
         self.execute(type_delete_req(self.get_label()))
@@ -105,7 +105,7 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
         return self._transaction_ext.execute(request).type_res
 
     def stream(self, request: transaction_proto.Transaction.Req):
-        return map(lambda rp: rp.type_res_part, self._transaction_ext.stream(request))
+        return (rp.type_res_part for rp in self._transaction_ext.stream(request))
 
     def __str__(self):
         return type(self).__name__ + "[label: %s]" % self.get_label()

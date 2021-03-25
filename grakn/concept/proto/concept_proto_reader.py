@@ -20,6 +20,7 @@
 import grakn_protocol.common.concept_pb2 as concept_proto
 
 from grakn.common.exception import GraknClientException, BAD_ENCODING, BAD_VALUE_TYPE
+from grakn.common.label import Label
 from grakn.concept.thing.attribute import _BooleanAttribute, _LongAttribute, _DoubleAttribute, _StringAttribute, \
     _DateTimeAttribute
 from grakn.concept.thing.entity import _Entity
@@ -81,7 +82,7 @@ def thing_type(proto_type: concept_proto.Type):
     elif proto_type.encoding == concept_proto.Type.Encoding.Value("ATTRIBUTE_TYPE"):
         return attribute_type(proto_type)
     elif proto_type.encoding == concept_proto.Type.Encoding.Value("THING_TYPE"):
-        return _ThingType(proto_type.label, proto_type.root)
+        return _ThingType(Label.of(proto_type.label), proto_type.root)
     else:
         raise GraknClientException.of(BAD_ENCODING, proto_type.encoding)
 
@@ -98,6 +99,6 @@ def attribute_type(proto_type: concept_proto.Type):
     elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("DATETIME"):
         return _DateTimeAttributeType.of(proto_type)
     elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("OBJECT"):
-        return _AttributeType(proto_type.label, proto_type.root)
+        return _AttributeType(Label.of(proto_type.label), proto_type.root)
     else:
         raise GraknClientException.of(BAD_VALUE_TYPE, proto_type.value_type)

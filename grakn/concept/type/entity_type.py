@@ -16,11 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterator
 
 import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.api.concept.thing.entity import Entity
 from grakn.api.concept.type.entity_type import EntityType, RemoteEntityType
 from grakn.common.label import Label
 from grakn.common.rpc.request_builder import entity_type_create_req

@@ -39,8 +39,8 @@ class _Attribute(Attribute, _Thing, ABC):
 class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
 
     def get_owners(self, owner_type: ThingType = None):
-        return [concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))
-                for t in rp.attribute_get_owners_res_part.things]
+        return (concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))
+                for t in rp.attribute_get_owners_res_part.things)
 
 
 class _BooleanAttribute(BooleanAttribute, _Attribute):

@@ -66,12 +66,12 @@ class _RemoteRelation(_RemoteThing, RemoteRelation):
         self.execute(relation_remove_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))
 
     def get_players(self, role_types=None):
-        return [concept_proto_reader.thing(t) for rp in self.stream(relation_get_players_req(self.get_iid(), concept_proto_builder.types(role_types)))
-                for t in rp.relation_get_players_res_part.things]
+        return (concept_proto_reader.thing(t) for rp in self.stream(relation_get_players_req(self.get_iid(), concept_proto_builder.types(role_types)))
+                for t in rp.relation_get_players_res_part.things)
 
     def get_players_by_role_type(self):
-        stream = [role_player for res_part in self.stream(relation_get_players_by_role_type_req(self.get_iid()))
-                  for role_player in res_part.relation_get_players_by_role_type_res_part.role_types_with_players]
+        stream = (role_player for res_part in self.stream(relation_get_players_by_role_type_req(self.get_iid()))
+                  for role_player in res_part.relation_get_players_by_role_type_res_part.role_types_with_players)
 
         role_player_dict = {}
         for role_player in stream:
@@ -83,5 +83,5 @@ class _RemoteRelation(_RemoteThing, RemoteRelation):
         return role_player_dict
 
     def get_relating(self) -> Iterator[RoleType]:
-        return [_RoleType.of(rt) for rp in self.stream(relation_get_relating_req(self.get_iid()))
-                for rt in rp.relation_get_relating_res_part.role_types]
+        return (_RoleType.of(rt) for rp in self.stream(relation_get_relating_req(self.get_iid()))
+                for rt in rp.relation_get_relating_res_part.role_types)

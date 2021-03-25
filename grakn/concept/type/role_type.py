@@ -26,7 +26,7 @@ from grakn.concept.proto import concept_proto_reader
 from grakn.concept.type.type import _Type, _RemoteType
 
 
-class _RoleType(RoleType, _Type):
+class _RoleType(_Type, RoleType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
@@ -45,12 +45,12 @@ class _RemoteRoleType(_RemoteType, RemoteRoleType):
         return self._transaction_ext.concepts().get_relation_type(self.get_label().scope())
 
     def get_relation_types(self):
-        return [concept_proto_reader.type_(rt) for rp in self.stream(role_type_get_relation_types_req(self.get_label()))
-                for rt in rp.role_type_get_relation_types_res_part.relation_types]
+        return (concept_proto_reader.type_(rt) for rp in self.stream(role_type_get_relation_types_req(self.get_label()))
+                for rt in rp.role_type_get_relation_types_res_part.relation_types)
 
     def get_players(self):
-        return [concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_players_req(self.get_label()))
-                for tt in rp.role_type_get_players_res_part.thing_types]
+        return (concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_players_req(self.get_label()))
+                for tt in rp.role_type_get_players_res_part.thing_types)
 
     def is_deleted(self) -> bool:
         return self.get_relation_type() is not None and self.get_relation_type().as_remote(self._transaction_ext).get_relates(self.get_label().name()) is not None
