@@ -20,7 +20,13 @@
 import unittest
 from unittest import TestCase
 
-from grakn.client import GraknClient, SessionType, TransactionType
+from grakn.client import *
+
+
+SCHEMA = GraknSession.Type.SCHEMA
+DATA = GraknSession.Type.DATA
+READ = GraknTransaction.Type.READ
+WRITE = GraknTransaction.Type.WRITE
 
 
 class TestClientPython(TestCase):
@@ -32,7 +38,7 @@ class TestClientPython(TestCase):
     def setUpClass(cls):
         super(TestClientPython, cls).setUpClass()
         global client
-        client = GraknClient.core()
+        client = Grakn.core_client(Grakn.DEFAULT_ADDRESS)
 
     @classmethod
     def tearDownClass(cls):
@@ -51,30 +57,30 @@ class TestClientPython(TestCase):
         self.assertTrue(client.databases().contains("grakn"))
 
     def test_session(self):
-        session = client.session("grakn", SessionType.SCHEMA)
+        session = client.session("grakn", SCHEMA)
         session.close()
 
     def test_transaction(self):
-        with client.session("grakn", SessionType.SCHEMA) as session:
-            with session.transaction(TransactionType.WRITE) as tx:
+        with client.session("grakn", SCHEMA) as session:
+            with session.transaction(WRITE) as tx:
                 pass
 
     def test_define_and_undef_relation_type(self):
-        with client.session("grakn", SessionType.SCHEMA) as session:
-            with session.transaction(TransactionType.WRITE) as tx:
+        with client.session("grakn", SCHEMA) as session:
+            with session.transaction(WRITE) as tx:
                 tx.query().define("define lionfight sub relation, relates victor, relates loser;")
                 lionfight_type = tx.concepts().get_relation_type("lionfight")
-                print("define: " + lionfight_type._label)
+                print("define: " + lionfight_type.get_label().name())
                 tx.query().undefine("undefine lionfight sub relation;")
                 tx.commit()
 
     def test_insert_some_entities(self):
-        with client.session("grakn", SessionType.SCHEMA) as session:
-            with session.transaction(TransactionType.WRITE) as tx:
+        with client.session("grakn", SCHEMA) as session:
+            with session.transaction(WRITE) as tx:
                 tx.query().define("define lion sub entity;")
                 tx.commit()
-        with client.session("grakn", SessionType.DATA) as session:
-            with session.transaction(TransactionType.WRITE) as tx:
+        with client.session("grakn", DATA) as session:
+            with session.transaction(WRITE) as tx:
                 for answer in tx.query().insert("insert $a isa lion; $b isa lion; $c isa lion;"):
                     print("insert: " + str(answer))
                     tx.commit()
