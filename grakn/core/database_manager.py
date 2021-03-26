@@ -46,7 +46,7 @@ class _CoreDatabaseManager(DatabaseManager):
             raise GraknClientException.of(DB_DOES_NOT_EXIST, name)
 
     def contains(self, name: str) -> bool:
-        return self._stub.databases_contains(core_database_manager_contains_req(_not_blank(name)))
+        return self._stub.databases_contains(core_database_manager_contains_req(_not_blank(name))).contains
 
     def create(self, name: str) -> None:
         self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))

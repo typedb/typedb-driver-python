@@ -23,12 +23,13 @@ from grpc import RpcError, Call, StatusCode
 
 class GraknClientException(Exception):
 
-    def __init__(self, message: Union["ErrorMessage", str], cause: Optional[BaseException], *params: Any):
-        if isinstance(message, str):
-            self.message = message
+    def __init__(self, msg: Union["ErrorMessage", str], cause: Optional[BaseException], params: Any = None):
+        if isinstance(msg, str):
+            self.message = msg
+            self.error_message = None
         else:
-            self.message = message.message(*params)
-            self.error_message = message
+            self.message = msg.message(params)
+            self.error_message = msg
 
         self.__cause__ = cause
         super(GraknClientException, self).__init__(self.message)
@@ -36,17 +37,17 @@ class GraknClientException(Exception):
     @staticmethod
     def of_rpc(rpc_error: Union[RpcError, Call]) -> "GraknClientException":
         if rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
-            return GraknClientException(message=UNABLE_TO_CONNECT, cause=rpc_error)
+            return GraknClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
-            return GraknClientException(message=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
+            return GraknClientException(msg=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
         elif rpc_error.code() is StatusCode.INTERNAL:
-            return GraknClientException(message=rpc_error.details(), cause=None)
+            return GraknClientException(msg=rpc_error.details(), cause=None)
         else:
-            return GraknClientException(message=rpc_error.details(), cause=rpc_error)
+            return GraknClientException(msg=rpc_error.details(), cause=rpc_error)
 
     @staticmethod
-    def of(error_message: "ErrorMessage", *params):
-        return GraknClientException(message=error_message, cause=None, *params)
+    def of(error_message: "ErrorMessage", params: Any = None):
+        return GraknClientException(msg=error_message, cause=None, params=params)
 
 
 class ErrorMessage:
@@ -59,8 +60,8 @@ class ErrorMessage:
     def code(self) -> str:
         return self._code_prefix + str(self._code_number).zfill(2)
 
-    def message(self, *args) -> str:
-        return self._message % args
+    def message(self, params: Any) -> str:
+        return self._message % params if params else self._message
 
     def __str__(self):
         return "[%s] %s" % (self.code(), self._message)

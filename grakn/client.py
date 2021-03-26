@@ -19,8 +19,8 @@
 from typing import Union, Iterable
 
 from grakn.api.client import GraknClient, GraknClusterClient
-# from grakn.cluster.client import ClusterClient as _ClusterClient
-from grakn.core.client import _CoreClient as _CoreClient
+from grakn.cluster.client import _ClusterClient
+from grakn.core.client import _CoreClient
 
 # Repackaging these symbols allows them to be imported from "grakn.client"
 from grakn.api.options import GraknOptions  # noqa # pylint: disable=unused-import
@@ -35,9 +35,9 @@ class Grakn:
     def core_client(address: str, parallelisation: int = None) -> GraknClient:
         return _CoreClient(address, parallelisation)
 
-    # @staticmethod
-    # def cluster(addresses: Union[Iterable[str], str], parallelisation: int = None) -> GraknClusterClient:
-    #     if isinstance(addresses, str):
-    #         return _ClusterClient([addresses], parallelisation)
-    #     else:
-    #         return _ClusterClient(addresses, parallelisation)
+    @staticmethod
+    def cluster_client(addresses: Union[Iterable[str], str], parallelisation: int = None) -> GraknClusterClient:
+        if isinstance(addresses, str):
+            return _ClusterClient([addresses], parallelisation)
+        else:
+            return _ClusterClient(addresses, parallelisation)

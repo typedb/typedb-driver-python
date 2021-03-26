@@ -16,59 +16,57 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import abstractmethod
-from typing import Dict, List
+from typing import Dict, List, TYPE_CHECKING
 
-import grakn_protocol.protobuf.cluster.database_pb2 as database_proto
-
-from grakn.common.exception import GraknClientException
+from grakn.api.database import ClusterDatabaseManager
 from grakn.cluster.database import _ClusterDatabase
-from grakn.cluster.server_address import ServerAddress
-from grakn.core.database import DatabaseCluster
-from grakn.core.database_manager import DatabaseManager, _DatabaseManagerRPC
+from grakn.common.exception import GraknClientException, CLUSTER_ALL_NODES_FAILED
+from grakn.common.rpc.request_builder import cluster_database_manager_get_req, cluster_database_manager_all_req
+from grakn.core.database_manager import _CoreDatabaseManager
+
+if TYPE_CHECKING:
+    from grakn.cluster.client import _ClusterClient
 
 
-class _ClusterDatabaseManager(DatabaseManagerCluster):
+class _ClusterDatabaseManager(ClusterDatabaseManager):
 
-    def __init__(self, client, database_managers: Dict[ServerAddress, "_DatabaseManagerRPC"]):
+    def __init__(self, client: "_ClusterClient"):
         self._client = client
-        self._database_managers = database_managers
+        self._database_mgrs: Dict[str, _CoreDatabaseManager] = {addr: client.databases() for (addr, client) in client.core_clients().items()}
 
     def contains(self, name: str) -> bool:
         errors = []
-        for database_manager in self._database_managers.values():
+        for address in self._database_mgrs:
             try:
-                return database_manager.contains(name)
+                return self._database_mgrs[address].contains(name)
             except GraknClientException as e:
-                errors.append(e)
-        raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
+                errors.append("- %s: %s\n" % (address, e))
+        raise GraknClientException.of(CLUSTER_ALL_NODES_FAILED, str([str(e) for e in errors]))
 
     def create(self, name: str) -> None:
-        for database_manager in self._database_managers.values():
+        for database_manager in self._database_mgrs.values():
             if not database_manager.contains(name):
-                database_manager.new_queue(name)
+                database_manager.create(name)
 
-    def get(self, name: str) -> DatabaseCluster:
+    def get(self, name: str) -> _ClusterDatabase:
         errors = []
-        for address in self._database_managers:
+        for address in self._database_mgrs:
             try:
-                database_get_req = database_proto.Database.Get.Req()
-                database_get_req.name = name
-                res = self._client.grakn_cluster_grpc_stub(address).database_get(database_get_req)
+                res = self._client.stub(address).databases_get(cluster_database_manager_get_req(name))
                 return _ClusterDatabase.of(res.database, self)
             except GraknClientException as e:
-                errors.append(e)
-        raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
+                errors.append("- %s: %s\n" % (address, e))
+        raise GraknClientException.of(CLUSTER_ALL_NODES_FAILED, str([str(e) for e in errors]))
 
-    def all(self) -> List[DatabaseCluster]:
+    def all(self) -> List[_ClusterDatabase]:
         errors = []
-        for address in self._database_managers:
+        for address in self._database_mgrs:
             try:
-                res = self._client.grakn_cluster_grpc_stub(address).database_all(database_proto.Database.All.Req())
+                res = self._client.stub(address).databases_all(cluster_database_manager_all_req())
                 return [_ClusterDatabase.of(db, self) for db in res.databases]
             except GraknClientException as e:
-                errors.append(e)
-        raise GraknClientException("Attempted connecting to all cluster members, but the following errors occurred: " + str([str(e) for e in errors]))
+                errors.append("- %s: %s\n" % (address, e))
+        raise GraknClientException.of(CLUSTER_ALL_NODES_FAILED, str([str(e) for e in errors]))
 
-    def database_managers(self) -> Dict[ServerAddress, _DatabaseManagerRPC]:
-        return self._database_managers
+    def database_mgrs(self) -> Dict[str, _CoreDatabaseManager]:
+        return self._database_mgrs
