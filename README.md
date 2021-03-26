@@ -25,7 +25,9 @@ If multiple Python versions are available, you may wish to use
 pip3 install grakn-client
 ```
 
-In your python program, import GraknClient:
-```
-from grakn.client import GraknClient
+In your python program, import from grakn.client:
+```py
+from grakn.client import *
+
+client = Grakn.core_client(address=Grakn.DEFAULT_ADDRESS)
 ```
