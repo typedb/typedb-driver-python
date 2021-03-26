@@ -30,8 +30,8 @@ from grakn.stream.request_transmitter import RequestTransmitter
 
 
 def calculate_parallelisation():
-    # TODO: cores = Runtime.getRuntime().availableProcessors()
-    return 3
+    # TODO: Detect number of available CPUs
+    return 2
 
 
 class _CoreClient(GraknClient):
