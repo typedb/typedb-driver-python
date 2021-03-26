@@ -39,7 +39,7 @@ class _LogicManager(LogicManager):
         return _Rule.of(res.get_rule_res.rule) if res.get_rule_res.WhichOneof("res") == "rule" else None
 
     def get_rules(self):
-        return [_Rule.of(r) for rp in self.stream(logic_manager_get_rules_req()) for r in rp.get_rules_rest_part.rules]
+        return (_Rule.of(r) for rp in self.stream(logic_manager_get_rules_req()) for r in rp.get_rules_res_part.rules)
 
     def put_rule(self, label: str, when: str, then: str):
         return _Rule.of(self.execute(logic_manager_put_rule_req(label, when, then)).put_rule_res.rule)
