@@ -16,22 +16,28 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC
+from typing import TYPE_CHECKING, Union
 
-from typing import Callable, List
+import grakn_protocol.common.transaction_pb2 as transaction_proto
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+from grakn.api.concept.type.type import Type, RemoteType
+from grakn.common.exception import GraknClientException, MISSING_LABEL, MISSING_TRANSACTION
+from grakn.common.label import Label
+from grakn.common.rpc.request_builder import type_set_label_req, type_is_abstract_req, type_get_supertype_req, \
+    type_get_supertypes_req, type_get_subtypes_req, type_delete_req
+from grakn.concept.concept import _Concept, _RemoteConcept
+from grakn.concept.proto import concept_proto_reader
 
-from grakn.common.exception import GraknClientException
-from grakn.concept.proto import concept_proto_builder, concept_proto_reader
-from grakn.concept.concept import Concept, RemoteConcept
+if TYPE_CHECKING:
+    from grakn.api.transaction import GraknTransaction, _GraknTransactionExtended
 
 
-class Type(Concept):
+class _Type(Type, _Concept, ABC):
 
-    def __init__(self, label: str, is_root: bool):
+    def __init__(self, label: Label, is_root: bool):
         if not label:
-            raise GraknClientException("Label must be a non-empty string.")
+            raise GraknClientException.of(MISSING_LABEL)
         self._label = label
         self._is_root = is_root
         self._hash = hash(label)
@@ -42,11 +48,8 @@ class Type(Concept):
     def is_root(self):
         return self._is_root
 
-    def is_type(self):
-        return True
-
     def __str__(self):
-        return type(self).__name__ + "[label:" + self.get_label() + "]"
+        return type(self).__name__ + "[label: %s]" % self.get_label()
 
     def __eq__(self, other):
         if other is self:
@@ -59,17 +62,17 @@ class Type(Concept):
         return self._hash
 
 
-class RemoteType(RemoteConcept):
+class _RemoteType(RemoteType, _RemoteConcept, ABC):
 
-    def __init__(self, transaction, label: str, is_root: bool):
+    def __init__(self, transaction: Union["_GraknTransactionExtended", "GraknTransaction"], label: Label, is_root: bool):
         if not transaction:
-            raise GraknClientException("Transaction must be set.")
+            raise GraknClientException.of(MISSING_TRANSACTION)
         if not label:
-            raise GraknClientException("Label must be a non-empty string.")
-        self._transaction = transaction
+            raise GraknClientException.of(MISSING_LABEL)
+        self._transaction_ext = transaction
         self._label = label
         self._is_root = is_root
-        self._hash = hash((self._transaction, label))
+        self._hash = hash((self._transaction_ext, label))
 
     def get_label(self):
         return self._label
@@ -77,82 +80,42 @@ class RemoteType(RemoteConcept):
     def is_root(self):
         return self._is_root
 
-    def set_label(self, label: str):
-        req = concept_proto.Type.Req()
-        set_label_req = concept_proto.Type.SetLabel.Req()
-        set_label_req.label = label
-        req.type_set_label_req.CopyFrom(set_label_req)
-        self._execute(req)
-        self._label = label
-        self._hash = hash((self._transaction, label))
+    def set_label(self, new_label: str):
+        self.execute(type_set_label_req(self.get_label(), new_label))
+        self._label = new_label
+        self._hash = hash((self._transaction_ext, new_label))
 
     def is_abstract(self):
-        req = concept_proto.Type.Req()
-        req.type_is_abstract_req.CopyFrom(concept_proto.Type.IsAbstract.Req())
-        res = self._execute(req)
-        return res.type_is_abstract_res.abstract
-
-    def is_type(self):
-        return True
-
-    def set_supertype(self, _type: Type):
-        req = concept_proto.Type.Req()
-        supertype_req = concept_proto.Type.SetSupertype.Req()
-        supertype_req.type.CopyFrom(concept_proto_builder.type_(_type))
-        req.type_set_supertype_req.CopyFrom(supertype_req)
-        self._execute(req)
+        return self.execute(type_is_abstract_req(self.get_label())).type_is_abstract_res.abstract
 
     def get_supertype(self):
-        req = concept_proto.Type.Req()
-        req.type_get_supertype_req.CopyFrom(concept_proto.Type.GetSupertype.Req())
-        res = self._execute(req).type_get_supertype_res
+        res = self.execute(type_get_supertype_req(self.get_label())).type_get_supertype_res
         return concept_proto_reader.type_(res.type) if res.WhichOneof("res") == "type" else None
 
     def get_supertypes(self):
-        method = concept_proto.Type.Req()
-        method.type_get_supertypes_req.CopyFrom(concept_proto.Type.GetSupertypes.Req())
-        return self._type_stream(method, lambda res: res.type_get_supertypes_res.types)
+        return (concept_proto_reader.type_(t) for rp in self.stream(type_get_supertypes_req(self.get_label())) for t in rp.type_get_supertypes_res_part.types)
 
     def get_subtypes(self):
-        method = concept_proto.Type.Req()
-        method.type_get_subtypes_req.CopyFrom(concept_proto.Type.GetSubtypes.Req())
-        return self._type_stream(method, lambda res: res.type_get_subtypes_res.types)
+        return (concept_proto_reader.type_(t) for rp in self.stream(type_get_subtypes_req(self.get_label())) for t in rp.type_get_subtypes_res_part.types)
 
     def delete(self):
-        method = concept_proto.Type.Req()
-        method.type_delete_req.CopyFrom(concept_proto.Type.Delete.Req())
-        self._execute(method)
+        self.execute(type_delete_req(self.get_label()))
 
-    def is_deleted(self):
-        return not self._transaction.concepts()._get_thing_type(self.get_label())
+    def execute(self, request: transaction_proto.Transaction.Req):
+        return self._transaction_ext.execute(request).type_res
 
-    def _type_stream(self, method: concept_proto.Type.Req, type_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Type]]):
-        method.label = self.get_label()
-        request = transaction_proto.Transaction.Req()
-        request.type_req.CopyFrom(method)
-        return map(lambda type_proto: concept_proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.type_res)))
-
-    def _thing_stream(self, method: concept_proto.Type.Req, thing_list_getter: Callable[[concept_proto.Type.Res], List[concept_proto.Thing]]):
-        method.label = self.get_label()
-        request = transaction_proto.Transaction.Req()
-        request.type_req.CopyFrom(method)
-        return map(lambda thing_proto: concept_proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.type_res)))
-
-    def _execute(self, method: concept_proto.Type.Req):
-        method.label = self.get_label()
-        request = transaction_proto.Transaction.Req()
-        request.type_req.CopyFrom(method)
-        return self._transaction._execute(request).type_res
+    def stream(self, request: transaction_proto.Transaction.Req):
+        return (rp.type_res_part for rp in self._transaction_ext.stream(request))
 
     def __str__(self):
-        return type(self).__name__ + "[label:" + self.get_label() + "]"
+        return type(self).__name__ + "[label: %s]" % self.get_label()
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._transaction is other._transaction and self.get_label() == other.get_label()
+        return self._transaction_ext is other._transaction_ext and self.get_label() == other.get_label()
 
     def __hash__(self):
         return self._hash

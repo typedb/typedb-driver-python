@@ -17,110 +17,81 @@
 # under the License.
 #
 
-from typing import Callable, List
+from typing import TYPE_CHECKING, Union
 
-import grakn_protocol.protobuf.query_pb2 as query_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.common.transaction_pb2 as transaction_proto
 
-from grakn import options_proto_builder
-from grakn.concept.answer import concept_map, concept_map_group, numeric, numeric_group
-from grakn.options import GraknOptions
+from grakn.api.options import GraknOptions
+from grakn.api.query.query_manager import QueryManager
+from grakn.common.rpc.request_builder import query_manager_match_req, query_manager_match_aggregate_req, \
+    query_manager_match_group_req, query_manager_match_group_aggregate_req, query_manager_insert_req, \
+    query_manager_delete_req, query_manager_update_req, query_manager_define_req, query_manager_undefine_req
+from grakn.concept.answer.concept_map import _ConceptMap
+from grakn.concept.answer.concept_map_group import _ConceptMapGroup
+from grakn.concept.answer.numeric import _Numeric
+from grakn.concept.answer.numeric_group import _NumericGroup
+
+if TYPE_CHECKING:
+    from grakn.api.transaction import _GraknTransactionExtended, GraknTransaction
 
 
-class QueryManager:
+class _QueryManager(QueryManager):
 
-    def __init__(self, transaction):
-        self._transaction = transaction
+    def __init__(self, transaction_ext: Union["_GraknTransactionExtended", "GraknTransaction"]):
+        self._transaction_ext = transaction_ext
 
     def match(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        match_req = query_proto.Query.Match.Req()
-        match_req.query = query
-        request.match_req.CopyFrom(match_req)
-        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.match_res.answers, options))
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_match_req(query, options.proto())) for cm in rp.match_res_part.answers)
 
     def match_aggregate(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        match_aggregate_req = query_proto.Query.MatchAggregate.Req()
-        match_aggregate_req.query = query
-        request.match_aggregate_req.CopyFrom(match_aggregate_req)
-        return self._iterate_query(request, lambda res: [numeric._of(res.query_res.match_aggregate_res.answer)], options)
+        return self.query(query_manager_match_aggregate_req(query, options.proto())).map(lambda res: _Numeric.of(res.match_aggregate_res.answer))
 
     def match_group(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        match_group_req = query_proto.Query.MatchGroup.Req()
-        match_group_req.query = query
-        request.match_group_req.CopyFrom(match_group_req)
-        return map(
-            lambda cmg_proto: concept_map_group._of(cmg_proto),
-            self._iterate_query(request, lambda res: res.query_res.match_group_res.answers, options)
-        )
+        return (_ConceptMapGroup.of(cmg) for rp in self.stream(query_manager_match_group_req(query, options.proto()))
+                for cmg in rp.match_group_res_part.answers)
 
     def match_group_aggregate(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        match_group_aggregate_req = query_proto.Query.MatchGroupAggregate.Req()
-        match_group_aggregate_req.query = query
-        request.match_group_aggregate_req.CopyFrom(match_group_aggregate_req)
-        return map(
-            lambda numeric_group_proto: numeric_group._of(numeric_group_proto),
-            self._iterate_query(request, lambda res: res.query_res.match_group_aggregate_res.answers, options)
-        )
+        return (_NumericGroup.of(ng) for rp in self.stream(query_manager_match_group_aggregate_req(query, options.proto()))
+                for ng in rp.match_group_aggregate_res_part.answers)
 
     def insert(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        insert_req = query_proto.Query.Insert.Req()
-        insert_req.query = query
-        request.insert_req.CopyFrom(insert_req)
-        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.insert_res.answers, options))
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_insert_req(query, options.proto())) for cm in rp.insert_res_part.answers)
 
     def delete(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        delete_req = query_proto.Query.Delete.Req()
-        delete_req.query = query
-        request.delete_req.CopyFrom(delete_req)
-        return self._iterate_query(request, lambda res: [], options)
+        return self.query_void(query_manager_delete_req(query, options.proto()))
 
     def update(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        update_req = query_proto.Query.Update.Req()
-        update_req.query = query
-        request.update_req.CopyFrom(update_req)
-        return map(lambda answer_proto: concept_map._of(answer_proto), self._iterate_query(request, lambda res: res.query_res.update_res.answers, options))
+        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_update_req(query, options.proto())) for cm in rp.update_res_part.answers)
 
     def define(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        define_req = query_proto.Query.Define.Req()
-        define_req.query = query
-        request.define_req.CopyFrom(define_req)
-        return self._iterate_query(request, lambda res: [], options)
+        return self.query_void(query_manager_define_req(query, options.proto()))
 
     def undefine(self, query: str, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
-        request = query_proto.Query.Req()
-        undefine_req = query_proto.Query.Undefine.Req()
-        undefine_req.query = query
-        request.undefine_req.CopyFrom(undefine_req)
-        return self._iterate_query(request, lambda res: [], options)
+        return self.query_void(query_manager_undefine_req(query, options.proto()))
 
-    def _iterate_query(self, query_req: query_proto.Query.Req, response_reader: Callable[[transaction_proto.Transaction.Res], List], options: GraknOptions):
-        req = transaction_proto.Transaction.Req()
-        query_req.options.CopyFrom(options_proto_builder.options(options))
-        req.query_req.CopyFrom(query_req)
-        return self._transaction._stream(req, response_reader)
+    def query_void(self, req: transaction_proto.Transaction.Req):
+        return self._transaction_ext.run_query(req)
+
+    def query(self, req: transaction_proto.Transaction.Req):
+        return self._transaction_ext.run_query(req).map(lambda res: res.query_manager_res)
+
+    def stream(self, req: transaction_proto.Transaction.Req):
+        return (rp.query_manager_res_part for rp in self._transaction_ext.stream(req))

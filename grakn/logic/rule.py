@@ -16,26 +16,31 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import TYPE_CHECKING, Union
 
-import grakn_protocol.protobuf.logic_pb2 as logic_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.common.logic_pb2 as logic_proto
 
-from grakn.common.exception import GraknClientException
+from grakn.api.logic.rule import Rule, RemoteRule
+from grakn.common.exception import GraknClientException, MISSING_LABEL, MISSING_TRANSACTION
+from grakn.common.rpc.request_builder import rule_set_label_req, rule_delete_req
+
+if TYPE_CHECKING:
+    from grakn.api.transaction import _GraknTransactionExtended, GraknTransaction
 
 
-class Rule:
+class _Rule(Rule):
 
     def __init__(self, label: str, when: str, then: str):
         if not label:
-            raise GraknClientException("Label must be a non-empty string.")
+            raise GraknClientException.of(MISSING_LABEL)
         self._label = label
         self._when = when
         self._then = then
         self._hash = hash(label)
 
     @staticmethod
-    def _of(rule_proto: logic_proto.Rule):
-        return Rule(rule_proto.label, rule_proto.when, rule_proto.then)
+    def of(rule_proto: logic_proto.Rule):
+        return _Rule(rule_proto.label, rule_proto.when, rule_proto.then)
 
     def get_label(self):
         return self._label
@@ -47,13 +52,13 @@ class Rule:
         return self._then
 
     def as_remote(self, transaction):
-        return RemoteRule(transaction, self.get_label(), self.get_when(), self.get_then())
+        return _RemoteRule(transaction, self.get_label(), self.get_when(), self.get_then())
 
     def is_remote(self):
         return False
 
     def __str__(self):
-        return type(self).__name__ + "[label:" + self.get_label() + "]"
+        return type(self).__name__ + "[label: %s]" % self.get_label()
 
     def __eq__(self, other):
         if other is self:
@@ -66,30 +71,40 @@ class Rule:
         return self._hash
 
 
-class RemoteRule(Rule):
+class _RemoteRule(RemoteRule):
 
-    def __init__(self, transaction, label: str, when: str, then: str):
-        super(RemoteRule, self).__init__(label, when, then)
-        if not transaction:
-            raise GraknClientException("Transaction must be set.")
-        self._transaction = transaction
-        self._hash = hash((transaction, label))
-
-    def set_label(self, label: str):
-        req = logic_proto.Rule.Req()
-        set_label_req = logic_proto.Rule.SetLabel.Req()
-        set_label_req.label = label
-        req.rule_set_label_req.CopyFrom(set_label_req)
-        self._execute(req)
+    def __init__(self, transaction_ext: Union["_GraknTransactionExtended", "GraknTransaction"], label: str, when: str, then: str):
+        if not transaction_ext:
+            raise GraknClientException.of(MISSING_TRANSACTION)
+        if not label:
+            raise GraknClientException.of(MISSING_LABEL)
+        self._transaction_ext = transaction_ext
         self._label = label
+        self._when = when
+        self._then = then
+        self._hash = hash((transaction_ext, label))
+
+    def get_label(self):
+        return self._label
+
+    def get_when(self):
+        return self._when
+
+    def get_then(self):
+        return self._then
+
+    def set_label(self, new_label: str):
+        self._transaction_ext.execute(rule_set_label_req(self._label, new_label))
+        self._label = new_label
 
     def delete(self):
-        method = logic_proto.Rule.Req()
-        method.rule_delete_req.CopyFrom(logic_proto.Rule.Delete.Req())
-        self._execute(method)
+        self._transaction_ext.execute(rule_delete_req(self._label))
 
     def is_deleted(self):
-        return not self._transaction.logic().get_rule(self.get_label())
+        return not self._transaction_ext.logic().get_rule(self.get_label())
+
+    def as_remote(self, transaction):
+        return _RemoteRule(transaction, self.get_label(), self.get_when(), self.get_then())
 
     def is_remote(self):
         return True
@@ -99,13 +114,7 @@ class RemoteRule(Rule):
             return True
         if not other or type(self) != type(other):
             return False
-        return self._transaction is other._transaction and self.get_label() == other.get_label()
+        return self._transaction_ext is other._transaction_ext and self.get_label() == other.get_label()
 
     def __hash__(self):
         return super(RemoteRule, self).__hash__()
-
-    def _execute(self, method: logic_proto.Rule.Req):
-        method.label = self.get_label()
-        request = transaction_proto.Transaction.Req()
-        request.rule_req.CopyFrom(method)
-        return self._transaction._execute(request).rule_res

@@ -72,7 +72,7 @@ grakn_cluster_py_test(
     deps = [
         "//:client_python",
     ],
-    size = "large",
+    size = "medium",
     native_grakn_cluster_artifact = ":native-grakn-cluster-artifact",
 )
 

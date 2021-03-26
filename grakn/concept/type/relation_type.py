@@ -16,65 +16,48 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Iterator, TYPE_CHECKING
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.concept.proto import concept_proto_reader
-from grakn.concept.thing.relation import Relation
-from grakn.concept.type.thing_type import ThingType, RemoteThingType
+from grakn.api.concept.thing.relation import Relation
+from grakn.api.concept.type.relation_type import RelationType, RemoteRelationType
+from grakn.common.label import Label
+from grakn.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
+    relation_type_set_relates_req, relation_type_unset_relates_req
+from grakn.concept.thing.relation import _Relation
+from grakn.concept.type.role_type import _RoleType
+from grakn.concept.type.thing_type import _ThingType, _RemoteThingType
 
 
-class RelationType(ThingType):
+class _RelationType(RelationType, _ThingType):
 
     @staticmethod
-    def _of(type_proto: concept_proto.Type):
-        return RelationType(type_proto.label, type_proto.root)
+    def of(type_proto: concept_proto.Type):
+        return _RelationType(Label.of(type_proto.label), type_proto.root)
 
     def as_remote(self, transaction):
-        return RemoteRelationType(transaction, self.get_label(), self.is_root())
-
-    def is_relation_type(self):
-        return True
+        return _RemoteRelationType(transaction, self.get_label(), self.is_root())
 
 
-class RemoteRelationType(RemoteThingType):
+class _RemoteRelationType(_RemoteThingType, RemoteRelationType):
 
     def as_remote(self, transaction):
-        return RemoteRelationType(transaction, self.get_label(), self.is_root())
+        return _RemoteRelationType(transaction, self.get_label(), self.is_root())
 
     def create(self):
-        method = concept_proto.Type.Req()
-        create_req = concept_proto.RelationType.Create.Req()
-        method.relation_type_create_req.CopyFrom(create_req)
-        return Relation._of(self._execute(method).relation_type_create_res.relation)
+        return _Relation.of(self.execute(relation_type_create_req(self.get_label())).relation_type_create_res.relation)
 
     def get_relates(self, role_label: str = None):
-        method = concept_proto.Type.Req()
         if role_label:
-            get_relates_req = concept_proto.RelationType.GetRelatesForRoleLabel.Req()
-            get_relates_req.label = role_label
-            method.relation_type_get_relates_for_role_label_req.CopyFrom(get_relates_req)
-            res = self._execute(method).relation_type_get_relates_for_role_label_res
-            return concept_proto_reader.type_(res.role_type) if res.HasField("role_type") else None
+            res = self.execute(relation_type_get_relates_req(self.get_label(), role_label)).relation_type_get_relates_for_role_label_res
+            return _RoleType.of(res.role_type) if res.HasField("role_type") else None
         else:
-            method.relation_type_get_relates_req.CopyFrom(concept_proto.RelationType.GetRelates.Req())
-            return self._type_stream(method, lambda res: res.relation_type_get_relates_res.roles)
+            return (_RoleType.of(rt) for rp in self.stream(relation_type_get_relates_req(self.get_label()))
+                    for rt in rp.relation_type_get_relates_res_part.roles)
 
     def set_relates(self, role_label: str, overridden_label: str = None):
-        method = concept_proto.Type.Req()
-        set_relates_req = concept_proto.RelationType.SetRelates.Req()
-        set_relates_req.label = role_label
-        if overridden_label:
-            set_relates_req.overridden_label = overridden_label
-        method.relation_type_set_relates_req.CopyFrom(set_relates_req)
-        self._execute(method)
+        self.execute(relation_type_set_relates_req(self.get_label(), role_label, overridden_label))
 
     def unset_relates(self, role_label: str):
-        method = concept_proto.Type.Req()
-        unset_relates_req = concept_proto.RelationType.UnsetRelates.Req()
-        unset_relates_req.label = role_label
-        method.relation_type_unset_relates_req.CopyFrom(unset_relates_req)
-        self._execute(method)
-
-    def is_relation_type(self):
-        return True
+        self.execute(relation_type_unset_relates_req(self.get_label(), role_label))

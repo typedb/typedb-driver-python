@@ -21,6 +21,7 @@ from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
+from grakn.common.label import Label
 from tests.behaviour.config.parameters import parse_bool, RootLabel
 from tests.behaviour.context import Context
 
@@ -151,12 +152,12 @@ def step_impl(context: Context, var1: str, type_label: str, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_has(attribute_type=context.tx().concepts().get_attribute_type(type_label)), not_(has_item(context.get(var2))))
 
 
-@step("entity {var1:Var} get relations({scope}:{label}) contain: {var2:Var}")
-@step("attribute {var1:Var} get relations({scope}:{label}) contain: {var2:Var}")
-@step("relation {var1:Var} get relations({scope}:{label}) contain: {var2:Var}")
-def step_impl(context: Context, var1: str, scope: str, label: str, var2: str):
+@step("entity {var1:Var} get relations({label:ScopedLabel}) contain: {var2:Var}")
+@step("attribute {var1:Var} get relations({label:ScopedLabel}) contain: {var2:Var}")
+@step("relation {var1:Var} get relations({label:ScopedLabel}) contain: {var2:Var}")
+def step_impl(context: Context, var1: str, label: Label, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_relations(
-        role_types=[context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(label)]),
+        role_types=[context.tx().concepts().get_relation_type(label.scope()).as_remote(context.tx()).get_relates(label.name())]),
         has_item(context.get(var2)))
 
 
@@ -167,12 +168,12 @@ def step_impl(context: Context, var1: str, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_relations(), has_item(context.get(var2)))
 
 
-@step("entity {var1:Var} get relations({scope}:{label}) do not contain: {var2:Var}")
-@step("attribute {var1:Var} get relations({scope}:{label}) do not contain: {var2:Var}")
-@step("relation {var1:Var} get relations({scope}:{label}) do not contain: {var2:Var}")
-def step_impl(context: Context, var1: str, scope: str, label: str, var2: str):
+@step("entity {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
+@step("attribute {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
+@step("relation {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
+def step_impl(context: Context, var1: str, label: Label, var2: str):
     assert_that(context.get(var1).as_remote(context.tx()).get_relations(
-        role_types=[context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(label)]),
+        role_types=[context.tx().concepts().get_relation_type(label.scope()).as_remote(context.tx()).get_relates(label.name())]),
         not_(has_item(context.get(var2))))
 
 

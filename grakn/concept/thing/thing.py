@@ -16,34 +16,33 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC
+from typing import List, Union, TYPE_CHECKING
 
-from typing import Callable, List
+import grakn_protocol.common.transaction_pb2 as transaction_proto
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
-
-from grakn.common.exception import GraknClientException
+from grakn.api.concept.thing.attribute import Attribute
+from grakn.api.concept.thing.thing import Thing, RemoteThing
+from grakn.common.exception import GraknClientException, MISSING_IID, MISSING_TRANSACTION, GET_HAS_WITH_MULTIPLE_FILTERS
+from grakn.common.rpc.request_builder import thing_is_inferred_req, thing_get_has_req, thing_get_relations_req, \
+    thing_get_playing_req, thing_set_has_req, thing_unset_has_req, thing_delete_req
+from grakn.concept.concept import _Concept, _RemoteConcept
 from grakn.concept.proto import concept_proto_reader, concept_proto_builder
-from grakn.concept.concept import Concept, RemoteConcept
+from grakn.concept.type.role_type import _RoleType
+
+if TYPE_CHECKING:
+    from grakn.api.transaction import _GraknTransactionExtended, GraknTransaction
 
 
-class Thing(Concept):
+class _Thing(Thing, _Concept, ABC):
 
-    def __init__(self, iid: str, type_):
+    def __init__(self, iid: str):
         if not iid:
-            raise GraknClientException("IID must be a non-empty string.")
+            raise GraknClientException.of(MISSING_IID)
         self._iid = iid
-        self._type = type_
-        self._hash = hash(iid)
 
     def get_iid(self):
         return self._iid
-
-    def get_type(self):
-        return self._type
-
-    def is_thing(self):
-        return True
 
     def __str__(self):
         return type(self).__name__ + "[iid:" + self.get_iid() + "]"
@@ -56,103 +55,61 @@ class Thing(Concept):
         return self.get_iid() == other.get_iid()
 
     def __hash__(self):
-        return self._hash
+        return hash(self._iid)
 
 
-class RemoteThing(RemoteConcept):
+class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
 
-    def __init__(self, transaction, iid: str, type_):
+    def __init__(self, transaction: Union["_GraknTransactionExtended", "GraknTransaction"], iid: str):
         if not transaction:
-            raise GraknClientException("Transaction must be set.")
+            raise GraknClientException.of(MISSING_TRANSACTION)
         if not iid:
-            raise GraknClientException("IID must be set.")
-        self._transaction = transaction
+            raise GraknClientException.of(MISSING_IID)
+        self._transaction_ext = transaction
         self._iid = iid
-        self._type = type_
-        self._hash = hash(iid)
+        self._hash = hash((self._transaction_ext, iid))
 
     def get_iid(self):
         return self._iid
 
-    def get_type(self):
-        return self._type
-
     def is_inferred(self):
-        req = concept_proto.Thing.Req()
-        req.thing_is_inferred_req.CopyFrom(concept_proto.Thing.IsInferred.Req())
-        return self._execute(req).thing_is_inferred_res.inferred
+        return self.execute(thing_is_inferred_req(self.get_iid())).thing_is_inferred_res.inferred
 
     def get_has(self, attribute_type=None, attribute_types: List = None, only_key=False):
         if [bool(attribute_type), bool(attribute_types), only_key].count(True) > 1:
-            raise GraknClientException("Only one filter can be applied at a time to get_has."
-                                       "The possible filters are: [attribute_type, attribute_types, only_key]")
+            raise GraknClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
-        method = concept_proto.Thing.Req()
-        get_has_req = concept_proto.Thing.GetHas.Req()
-        if only_key:
-            get_has_req.keys_only = only_key
-        elif attribute_types:
-            get_has_req.attribute_types.extend(concept_proto_builder.types(attribute_types))
-        method.thing_get_has_req.CopyFrom(get_has_req)
-        return self._thing_stream(method, lambda res: res.thing_get_has_res.attributes)
-
-    def get_plays(self):
-        req = concept_proto.Thing.Req()
-        req.thing_get_plays_req.CopyFrom(concept_proto.Thing.GetPlays.Req())
-        return self._type_stream(req, lambda res: res.thing_get_plays_res.role_types)
+        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), only_key))
+                for a in rp.thing_get_has_res_part.attributes)
 
     def get_relations(self, role_types: list = None):
         if not role_types:
             role_types = []
-        method = concept_proto.Thing.Req()
-        get_relations_req = concept_proto.Thing.GetRelations.Req()
-        get_relations_req.role_types.extend(concept_proto_builder.types(role_types))
-        method.thing_get_relations_req.CopyFrom(get_relations_req)
-        return self._thing_stream(method, lambda res: res.thing_get_relations_res.relations)
+        return (concept_proto_reader.thing(r) for rp in self.stream(thing_get_relations_req(self.get_iid(), concept_proto_builder.types(role_types)))
+                for r in rp.thing_get_relations_res_part.relations)
 
-    def set_has(self, attribute):
-        method = concept_proto.Thing.Req()
-        set_has_req = concept_proto.Thing.SetHas.Req()
-        set_has_req.attribute.CopyFrom(concept_proto_builder.thing(attribute))
-        method.thing_set_has_req.CopyFrom(set_has_req)
-        self._execute(method)
+    def get_playing(self):
+        return (_RoleType.of(rt) for rp in self.stream(thing_get_playing_req(self.get_iid()))
+                for rt in rp.thing_get_playing_res_part.role_types)
 
-    def unset_has(self, attribute):
-        method = concept_proto.Thing.Req()
-        unset_has_req = concept_proto.Thing.UnsetHas.Req()
-        unset_has_req.attribute.CopyFrom(concept_proto_builder.thing(attribute))
-        method.thing_unset_has_req.CopyFrom(unset_has_req)
-        self._execute(method)
+    def set_has(self, attribute: Attribute):
+        self.execute(thing_set_has_req(self.get_iid(), concept_proto_builder.thing(attribute)))
+
+    def unset_has(self, attribute: Attribute):
+        self.execute(thing_unset_has_req(self.get_iid(), concept_proto_builder.thing(attribute)))
 
     def delete(self):
-        method = concept_proto.Thing.Req()
-        method.thing_delete_req.CopyFrom(concept_proto.Thing.Delete.Req())
-        self._execute(method)
+        self.execute(thing_delete_req(self.get_iid()))
 
     def is_deleted(self):
-        return not self._transaction.concepts().get_thing(self.get_iid())
+        return not self._transaction_ext.concepts().get_thing(self.get_iid())
 
-    def is_thing(self):
-        return True
+    def execute(self, request: transaction_proto.Transaction.Req):
+        return self._transaction_ext.execute(request).thing_res
 
-    def _thing_stream(self, method: concept_proto.Thing.Req, thing_list_getter: Callable[[concept_proto.Thing.Res], List[concept_proto.Thing]]):
-        method.iid = concept_proto_builder.iid(self.get_iid())
-        request = transaction_proto.Transaction.Req()
-        request.thing_req.CopyFrom(method)
-        return map(lambda thing_proto: concept_proto_reader.thing(thing_proto), self._transaction._stream(request, lambda res: thing_list_getter(res.thing_res)))
-
-    def _type_stream(self, method: concept_proto.Thing.Req, type_list_getter: Callable[[concept_proto.Thing.Res], List[concept_proto.Type]]):
-        method.iid = concept_proto_builder.iid(self.get_iid())
-        request = transaction_proto.Transaction.Req()
-        request.thing_req.CopyFrom(method)
-        return map(lambda type_proto: concept_proto_reader.type_(type_proto), self._transaction._stream(request, lambda res: type_list_getter(res.thing_res)))
-
-    def _execute(self, method: concept_proto.Thing.Req):
-        method.iid = concept_proto_builder.iid(self.get_iid())
-        request = transaction_proto.Transaction.Req()
-        request.thing_req.CopyFrom(method)
-        return self._transaction._execute(request).thing_res
+    def stream(self, request: transaction_proto.Transaction.Req):
+        return (rp.thing_res_part for rp in self._transaction_ext.stream(request))
 
     def __str__(self):
         return type(self).__name__ + "[iid:" + str(self._iid) + "]"
@@ -162,7 +119,7 @@ class RemoteThing(RemoteConcept):
             return True
         if not other or type(self) != type(other):
             return False
-        return self._transaction is other._transaction and self._iid == other._iid
+        return self._transaction_ext is other._transaction_ext and self._iid == other._iid
 
     def __hash__(self):
         return self._hash

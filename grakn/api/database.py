@@ -17,12 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Set, Optional
-
-import grakn_protocol.protobuf.database_pb2 as database_proto
-
-from grakn.rpc.cluster.server_address import ServerAddress
-from grakn.rpc.utils import rpc_call
+from typing import Set, Optional, List
 
 
 class Database(ABC):
@@ -32,17 +27,21 @@ class Database(ABC):
         pass
 
     @abstractmethod
+    def schema(self) -> str:
+        pass
+
+    @abstractmethod
     def delete(self) -> None:
         pass
 
     class Replica(ABC):
 
         @abstractmethod
-        def database(self) -> "DatabaseCluster":
+        def database(self) -> "ClusterDatabase":
             pass
 
         @abstractmethod
-        def term(self) -> int:
+        def address(self) -> str:
             pass
 
         @abstractmethod
@@ -50,15 +49,15 @@ class Database(ABC):
             pass
 
         @abstractmethod
-        def is_preferred_secondary(self) -> bool:
+        def is_preferred(self) -> bool:
             pass
 
         @abstractmethod
-        def address(self) -> ServerAddress:
+        def term(self) -> int:
             pass
 
 
-class DatabaseCluster(Database, ABC):
+class ClusterDatabase(Database, ABC):
 
     @abstractmethod
     def replicas(self) -> Set[Database.Replica]:
@@ -69,23 +68,35 @@ class DatabaseCluster(Database, ABC):
         pass
 
     @abstractmethod
-    def preferred_secondary_replica(self) -> Database.Replica:
+    def preferred_replica(self) -> Database.Replica:
         pass
 
 
-class _DatabaseRPC(Database):
+class DatabaseManager(ABC):
 
-    def __init__(self, database_manager, name: str):
-        self._name = name
-        self._grpc_stub = database_manager.grpc_stub()
+    @abstractmethod
+    def get(self, name: str) -> Database:
+        pass
 
-    def name(self) -> str:
-        return self._name
+    @abstractmethod
+    def contains(self, name: str) -> bool:
+        pass
 
-    def delete(self) -> None:
-        request = database_proto.Database.Delete.Req()
-        request.name = self._name
-        rpc_call(lambda: self._grpc_stub.database_delete(request))
+    @abstractmethod
+    def create(self, name: str) -> None:
+        pass
 
-    def __str__(self):
-        return self._name
+    @abstractmethod
+    def all(self) -> List[Database]:
+        pass
+
+
+class ClusterDatabaseManager(DatabaseManager, ABC):
+
+    @abstractmethod
+    def get(self, name: str) -> ClusterDatabase:
+        pass
+
+    @abstractmethod
+    def all(self) -> List[ClusterDatabase]:
+        pass

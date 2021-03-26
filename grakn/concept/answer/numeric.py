@@ -17,15 +17,29 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.answer_pb2 as answer_proto
+import grakn_protocol.common.answer_pb2 as answer_proto
 
-from grakn.common.exception import GraknClientException
+from grakn.api.answer.numeric import Numeric
+from grakn.common.exception import GraknClientException, BAD_ANSWER_TYPE, ILLEGAL_CAST
 
 
-class Numeric:
+class _Numeric(Numeric):
+
     def __init__(self, int_value, float_value):
         self._int_value = int_value
         self._float_value = float_value
+
+    @staticmethod
+    def of(numeric_proto: answer_proto.Numeric):
+        numeric_case = numeric_proto.WhichOneof("value")
+        if numeric_case == "long_value":
+            return _Numeric(numeric_proto.long_value, None)
+        elif numeric_case == "double_value":
+            return _Numeric(None, numeric_proto.double_value)
+        elif numeric_case == "nan":
+            return _Numeric(None, None)
+        else:
+            raise GraknClientException.of(BAD_ANSWER_TYPE, numeric_case)
 
     def is_int(self):
         return self._int_value is not None
@@ -37,25 +51,13 @@ class Numeric:
         return not self.is_int() and not self.is_float()
 
     def as_float(self):
-        if (self.is_float()):
+        if self.is_float():
             return self._float_value
         else:
-            raise GraknClientException("Illegal casting operation to 'float'.")
+            raise GraknClientException.of(ILLEGAL_CAST, "float")
 
     def as_int(self):
-        if (self.is_int()):
+        if self.is_int():
             return self._int_value
         else:
-            raise GraknClientException("Illegal casting operation to 'int'.")
-
-
-def _of(numeric_proto: answer_proto.Numeric):
-    numeric_case = numeric_proto.WhichOneof("value")
-    if numeric_case == "long_value":
-        return Numeric(numeric_proto.long_value, None)
-    elif numeric_case == "double_value":
-        return Numeric(None, numeric_proto.double_value)
-    elif numeric_case == "nan":
-        return Numeric(None, None)
-    else:
-        raise GraknClientException("The answer type '" + numeric_case + "' was not recognised.")
+            raise GraknClientException.of(ILLEGAL_CAST, "int")

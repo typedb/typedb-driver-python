@@ -17,35 +17,29 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
 
-from grakn.concept.thing.entity import Entity
-from grakn.concept.type.thing_type import ThingType, RemoteThingType
+from grakn.api.concept.type.entity_type import EntityType, RemoteEntityType
+from grakn.common.label import Label
+from grakn.common.rpc.request_builder import entity_type_create_req
+from grakn.concept.thing.entity import _Entity
+from grakn.concept.type.thing_type import _ThingType, _RemoteThingType
 
 
-class EntityType(ThingType):
+class _EntityType(EntityType, _ThingType):
 
     @staticmethod
-    def _of(type_proto: concept_proto.Type):
-        return EntityType(type_proto.label, type_proto.root)
+    def of(type_proto: concept_proto.Type):
+        return _EntityType(Label.of(type_proto.label), type_proto.root)
 
     def as_remote(self, transaction):
-        return RemoteEntityType(transaction, self.get_label(), self.is_root())
-
-    def is_entity_type(self):
-        return True
+        return _RemoteEntityType(transaction, self.get_label(), self.is_root())
 
 
-class RemoteEntityType(RemoteThingType):
+class _RemoteEntityType(_RemoteThingType, RemoteEntityType):
 
     def as_remote(self, transaction):
-        return RemoteEntityType(transaction, self.get_label(), self.is_root())
+        return _RemoteEntityType(transaction, self.get_label(), self.is_root())
 
     def create(self):
-        method = concept_proto.Type.Req()
-        create_req = concept_proto.EntityType.Create.Req()
-        method.entity_type_create_req.CopyFrom(create_req)
-        return Entity._of(self._execute(method).entity_type_create_res.entity)
-
-    def is_entity_type(self):
-        return True
+        return _Entity.of(self.execute(entity_type_create_req(self.get_label())).entity_type_create_res.entity)

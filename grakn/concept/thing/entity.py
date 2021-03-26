@@ -17,29 +17,39 @@
 # under the License.
 #
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
 
+from grakn.api.concept.thing.entity import Entity, RemoteEntity
+from grakn.api.concept.type.entity_type import EntityType
 from grakn.concept.proto import concept_proto_reader
-from grakn.concept.thing.thing import Thing, RemoteThing
+from grakn.concept.thing.thing import _Thing, _RemoteThing
 
 
-class Entity(Thing):
+class _Entity(Entity, _Thing):
+
+    def __init__(self, iid: str, entity_type: EntityType):
+        super(_Entity, self).__init__(iid)
+        self._type = entity_type
 
     @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return Entity(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
+    def of(thing_proto: concept_proto.Thing):
+        return _Entity(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
+
+    def get_type(self) -> "EntityType":
+        return self._type
 
     def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid, self.get_type())
-
-    def is_entity(self):
-        return True
+        return _RemoteEntity(transaction, self._iid, self.get_type())
 
 
-class RemoteEntity(RemoteThing):
+class _RemoteEntity(_RemoteThing, RemoteEntity):
+
+    def __init__(self, transaction, iid: str, entity_type: EntityType):
+        super(_RemoteEntity, self).__init__(transaction, iid)
+        self._type = entity_type
 
     def as_remote(self, transaction):
-        return RemoteEntity(transaction, self._iid, self.get_type())
+        return _RemoteEntity(transaction, self._iid, self.get_type())
 
-    def is_entity(self):
-        return True
+    def get_type(self) -> "EntityType":
+        return self._type

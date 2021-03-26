@@ -19,19 +19,25 @@
 
 from typing import Mapping
 
-import grakn_protocol.protobuf.answer_pb2 as answer_proto
+import grakn_protocol.common.answer_pb2 as answer_proto
 
-from grakn.common.exception import GraknClientException
+from grakn.api.answer.concept_map import ConceptMap
+from grakn.api.concept.concept import Concept
+from grakn.common.exception import GraknClientException, VARIABLE_DOES_NOT_EXIST
 from grakn.concept.proto import concept_proto_reader
-from grakn.concept.concept import Concept
 
 
-class ConceptMap:
-
-    _THING = "thing"
+class _ConceptMap(ConceptMap):
 
     def __init__(self, mapping: Mapping[str, Concept]):
         self._map = mapping
+
+    @staticmethod
+    def of(concept_map_proto: answer_proto.ConceptMap) -> "_ConceptMap":
+        variable_map = {}
+        for res_var in concept_map_proto.map:
+            variable_map[res_var] = concept_proto_reader.concept(concept_map_proto.map[res_var])
+        return _ConceptMap(variable_map)
 
     def map(self):
         return self._map
@@ -42,7 +48,7 @@ class ConceptMap:
     def get(self, variable: str):
         concept = self._map[variable]
         if not concept:
-            raise GraknClientException("The variable " + variable + " does not exist.")
+            raise GraknClientException.of(VARIABLE_DOES_NOT_EXIST, variable)
         return concept
 
     def __str__(self):
@@ -57,11 +63,3 @@ class ConceptMap:
 
     def __hash__(self):
         return hash(self._map)
-
-
-def _of(concept_map_proto: answer_proto.ConceptMap):
-    variable_map = {}
-    for res_var in concept_map_proto.map:
-        concept = concept_proto_reader.concept(concept_map_proto.map[res_var])
-        variable_map[res_var] = concept
-    return ConceptMap(variable_map)

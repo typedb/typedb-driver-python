@@ -16,239 +16,218 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC
 from datetime import datetime
 
-import grakn_protocol.protobuf.concept_pb2 as concept_proto
+import grakn_protocol.common.concept_pb2 as concept_proto
 
+from grakn.api.concept.thing.attribute import Attribute, RemoteAttribute, BooleanAttribute, RemoteBooleanAttribute, \
+    LongAttribute, RemoteLongAttribute, DoubleAttribute, RemoteDoubleAttribute, StringAttribute, RemoteStringAttribute, \
+    DateTimeAttribute, RemoteDateTimeAttribute
+from grakn.api.concept.type.attribute_type import BooleanAttributeType, LongAttributeType, DoubleAttributeType, \
+    StringAttributeType, DateTimeAttributeType
+from grakn.api.concept.type.thing_type import ThingType
+from grakn.common.rpc.request_builder import attribute_get_owners_req
 from grakn.concept.proto import concept_proto_builder, concept_proto_reader
-from grakn.concept.thing.thing import Thing, RemoteThing
+from grakn.concept.thing.thing import _Thing, _RemoteThing
 
 
-class Attribute(Thing):
-
-    def is_attribute(self):
-        return True
-
-    def is_boolean(self):
-        return False
-
-    def is_long(self):
-        return False
-
-    def is_double(self):
-        return False
-
-    def is_string(self):
-        return False
-
-    def is_datetime(self):
-        return False
+class _Attribute(Attribute, _Thing, ABC):
+    pass
 
 
-class RemoteAttribute(RemoteThing):
+class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
 
-    def get_owners(self, owner_type=None):
-        method = concept_proto.Thing.Req()
-        get_owners_req = concept_proto.Attribute.GetOwners.Req()
-        if owner_type:
-            get_owners_req.thing_type = concept_proto_builder.type_(owner_type)
-        method.attribute_get_owners_req.CopyFrom(get_owners_req)
-        return self._thing_stream(method, lambda res: res.attribute_get_owners_res.things)
-
-    def is_attribute(self):
-        return True
-
-    def is_boolean(self):
-        return False
-
-    def is_long(self):
-        return False
-
-    def is_double(self):
-        return False
-
-    def is_string(self):
-        return False
-
-    def is_datetime(self):
-        return False
+    def get_owners(self, owner_type: ThingType = None):
+        return (concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))
+                for t in rp.attribute_get_owners_res_part.things)
 
 
-class BooleanAttribute(Attribute):
+class _BooleanAttribute(BooleanAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_, value: bool):
-        super(BooleanAttribute, self).__init__(iid, type_)
+    def __init__(self, iid: str, type_: BooleanAttributeType, value: bool):
+        super(_BooleanAttribute, self).__init__(iid)
+        self._type = type_
         self._value = value
 
     @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return BooleanAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.boolean)
+    def of(thing_proto: concept_proto.Thing):
+        return _BooleanAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.boolean)
+
+    def get_type(self) -> "BooleanAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_boolean(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class RemoteBooleanAttribute(RemoteAttribute):
+class _RemoteBooleanAttribute(RemoteBooleanAttribute, _RemoteAttribute):
 
     def __init__(self, transaction, iid: str, type_, value: bool):
-        super(RemoteBooleanAttribute, self).__init__(transaction, iid, type_)
+        super(_RemoteBooleanAttribute, self).__init__(transaction, iid)
+        self._type = type_
         self._value = value
+
+    def get_type(self) -> "BooleanAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_boolean(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class LongAttribute(Attribute):
+class _LongAttribute(LongAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_, value: int):
-        super(LongAttribute, self).__init__(iid, type_)
+    def __init__(self, iid: str, type_: LongAttributeType, value: int):
+        super(_LongAttribute, self).__init__(iid)
+        self._type = type_
         self._value = value
 
     @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return LongAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.long)
+    def of(thing_proto: concept_proto.Thing):
+        return _LongAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.long)
+
+    def get_type(self) -> "LongAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_long(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class RemoteLongAttribute(RemoteAttribute):
+class _RemoteLongAttribute(RemoteLongAttribute, _RemoteAttribute):
 
     def __init__(self, transaction, iid: str, type_, value: int):
-        super(RemoteLongAttribute, self).__init__(transaction, iid, type_)
+        super(_RemoteLongAttribute, self).__init__(transaction, iid)
+        self._type = type_
         self._value = value
+
+    def get_type(self) -> "LongAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_long(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class DoubleAttribute(Attribute):
+class _DoubleAttribute(DoubleAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_, value: float):
-        super(DoubleAttribute, self).__init__(iid, type_)
-        self._value = value
-
-    @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return DoubleAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.double)
-
-    def get_value(self):
-        return self._value
-
-    def is_double(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class RemoteDoubleAttribute(RemoteAttribute):
-
-    def __init__(self, transaction, iid: str, type_, value: float):
-        super(RemoteDoubleAttribute, self).__init__(transaction, iid, type_)
-        self._value = value
-
-    def get_value(self):
-        return self._value
-
-    def is_double(self):
-        return True
-
-    def as_remote(self, transaction):
-        return RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
-
-
-class StringAttribute(Attribute):
-
-    def __init__(self, iid: str, type_, value: str):
-        super(StringAttribute, self).__init__(iid, type_)
+    def __init__(self, iid: str, type_: DoubleAttributeType, value: float):
+        super(_DoubleAttribute, self).__init__(iid)
+        self._type = type_
         self._value = value
 
     @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return StringAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.string)
+    def of(thing_proto: concept_proto.Thing):
+        return _DoubleAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.double)
+
+    def get_type(self) -> "DoubleAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_string(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class RemoteStringAttribute(RemoteAttribute):
+class _RemoteDoubleAttribute(RemoteDoubleAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_, value: str):
-        super(RemoteStringAttribute, self).__init__(transaction, iid, type_)
+    def __init__(self, transaction, iid: str, type_: DoubleAttributeType, value: float):
+        super(_RemoteDoubleAttribute, self).__init__(transaction, iid)
+        self._type = type_
         self._value = value
 
+    def get_type(self) -> "DoubleAttributeType":
+        return self._type
+
     def get_value(self):
         return self._value
 
-    def is_string(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class DateTimeAttribute(Attribute):
+class _StringAttribute(StringAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_, value: datetime):
-        super(DateTimeAttribute, self).__init__(iid, type_)
+    def __init__(self, iid: str, type_: StringAttributeType, value: str):
+        super(_StringAttribute, self).__init__(iid)
+        self._type = type_
         self._value = value
 
     @staticmethod
-    def _of(thing_proto: concept_proto.Thing):
-        return DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
+    def of(thing_proto: concept_proto.Thing):
+        return _StringAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.string)
+
+    def get_type(self) -> "StringAttributeType":
+        return self._type
 
     def get_value(self):
         return self._value
 
-    def is_datetime(self):
-        return True
-
     def as_remote(self, transaction):
-        return RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
 
 
-class RemoteDateTimeAttribute(RemoteAttribute):
+class _RemoteStringAttribute(RemoteStringAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_, value: datetime):
-        super(RemoteDateTimeAttribute, self).__init__(transaction, iid, type_)
+    def __init__(self, transaction, iid: str, type_: StringAttributeType, value: str):
+        super(_RemoteStringAttribute, self).__init__(transaction, iid)
+        self._type = type_
         self._value = value
 
+    def get_type(self) -> "StringAttributeType":
+        return self._type
+
     def get_value(self):
         return self._value
 
-    def is_datetime(self):
-        return True
+    def as_remote(self, transaction):
+        return _RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+
+
+class _DateTimeAttribute(DateTimeAttribute, _Attribute):
+
+    def __init__(self, iid: str, type_: DateTimeAttributeType, value: datetime):
+        super(_DateTimeAttribute, self).__init__(iid)
+        self._type = type_
+        self._value = value
+
+    @staticmethod
+    def of(thing_proto: concept_proto.Thing):
+        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
+
+    def get_type(self) -> "DateTimeAttributeType":
+        return self._type
+
+    def get_value(self):
+        return self._value
 
     def as_remote(self, transaction):
-        return RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+
+
+class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):
+
+    def __init__(self, transaction, iid: str, type_: DateTimeAttributeType, value: datetime):
+        super(_RemoteDateTimeAttribute, self).__init__(transaction, iid)
+        self._type = type_
+        self._value = value
+
+    def get_type(self) -> "DateTimeAttributeType":
+        return self._type
+
+    def get_value(self):
+        return self._value
+
+    def as_remote(self, transaction):
+        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())

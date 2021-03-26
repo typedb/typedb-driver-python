@@ -24,25 +24,29 @@ from typing import List
 from behave import *
 from hamcrest import *
 
-from grakn.rpc.session import SessionType
+from grakn.api.session import GraknSession
 from tests.behaviour.config.parameters import parse_bool, parse_list
 from tests.behaviour.context import Context
 
 
-def open_sessions_for_databases(context: Context, names: list, session_type=SessionType.DATA):
+SCHEMA = GraknSession.Type.SCHEMA
+DATA = GraknSession.Type.DATA
+
+
+def open_sessions_for_databases(context: Context, names: list, session_type=DATA):
     for name in names:
         context.sessions.append(context.client.session(name, session_type))
 
 
 @step("connection open schema session for database: {database_name}")
 def step_impl(context: Context, database_name):
-    open_sessions_for_databases(context, [database_name], SessionType.SCHEMA)
+    open_sessions_for_databases(context, [database_name], SCHEMA)
 
 
 @step("connection open data session for database: {database_name}")
 @step("connection open session for database: {database_name}")
 def step_impl(context: Context, database_name: str):
-    open_sessions_for_databases(context, [database_name], SessionType.DATA)
+    open_sessions_for_databases(context, [database_name], DATA)
 
 
 @step("connection open schema session for database")
@@ -51,7 +55,7 @@ def step_impl(context: Context, database_name: str):
 @step("connection open schema sessions for databases")
 def step_impl(context: Context):
     names = parse_list(context.table)
-    open_sessions_for_databases(context, names, SessionType.SCHEMA)
+    open_sessions_for_databases(context, names, SCHEMA)
 
 
 @step("connection open data session for database")
@@ -64,7 +68,7 @@ def step_impl(context: Context):
 @step("connection open sessions for databases")
 def step_impl(context: Context):
     names = parse_list(context.table)
-    open_sessions_for_databases(context, names, SessionType.DATA)
+    open_sessions_for_databases(context, names, DATA)
 
 
 @step("connection open data sessions in parallel for databases")
@@ -74,7 +78,7 @@ def step_impl(context: Context):
     assert_that(len(names), is_(less_than_or_equal_to(context.THREAD_POOL_SIZE)))
     with ThreadPoolExecutor(max_workers=context.THREAD_POOL_SIZE) as executor:
         for name in names:
-            context.sessions_parallel.append(executor.submit(partial(context.client.session, name, SessionType.DATA)))
+            context.sessions_parallel.append(executor.submit(partial(context.client.session, name, DATA)))
 
 
 @step("connection close all sessions")

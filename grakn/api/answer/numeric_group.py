@@ -16,21 +16,18 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
 
-import enum
-
-from datetime import datetime
-from typing import Union
-
-
-class ValueType(enum.Enum):
-    # This lives here to avoid circular imports.
-    OBJECT = 0
-    BOOLEAN = 1
-    LONG = 2
-    DOUBLE = 3
-    STRING = 4
-    DATETIME = 5
+from grakn.api.answer.numeric import Numeric
+from grakn.api.concept.concept import Concept
 
 
-ValueClass = Union[bool, int, float, str, datetime]
+class NumericGroup(ABC):
+
+    @abstractmethod
+    def owner(self) -> Concept:
+        pass
+
+    @abstractmethod
+    def numeric(self) -> Numeric:
+        pass

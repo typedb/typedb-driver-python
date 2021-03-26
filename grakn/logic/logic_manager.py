@@ -16,49 +16,36 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Callable, List
+from typing import TYPE_CHECKING
 
-import grakn_protocol.protobuf.logic_pb2 as logic_proto
-import grakn_protocol.protobuf.transaction_pb2 as transaction_proto
+import grakn_protocol.common.transaction_pb2 as transaction_proto
 
-from grakn.logic.rule import Rule
+from grakn.api.logic.logic_manager import LogicManager
+from grakn.common.rpc.request_builder import logic_manager_get_rule_req, logic_manager_get_rules_req, \
+    logic_manager_put_rule_req
+from grakn.logic.rule import _Rule
+
+if TYPE_CHECKING:
+    from grakn.api.transaction import _GraknTransactionExtended
 
 
-class LogicManager:
+class _LogicManager(LogicManager):
 
-    def __init__(self, transaction):
-        self._transaction = transaction
-
-    def put_rule(self, label: str, when: str, then: str):
-        req = logic_proto.LogicManager.Req()
-        put_rule_req = logic_proto.LogicManager.PutRule.Req()
-        put_rule_req.label = label
-        put_rule_req.when = when
-        put_rule_req.then = then
-        req.put_rule_req.CopyFrom(put_rule_req)
-        res = self._execute(req)
-        return Rule._of(res.put_rule_res.rule)
+    def __init__(self, transaction_ext: "_GraknTransactionExtended"):
+        self._transaction_ext = transaction_ext
 
     def get_rule(self, label: str):
-        req = logic_proto.LogicManager.Req()
-        get_rule_req = logic_proto.LogicManager.GetRule.Req()
-        get_rule_req.label = label
-        req.get_rule_req.CopyFrom(get_rule_req)
-
-        response = self._execute(req)
-        return Rule._of(response.get_rule_res.rule) if response.get_rule_res.WhichOneof("res") == "rule" else None
+        res = self.execute(logic_manager_get_rule_req(label))
+        return _Rule.of(res.get_rule_res.rule) if res.get_rule_res.WhichOneof("res") == "rule" else None
 
     def get_rules(self):
-        method = logic_proto.LogicManager.Req()
-        method.get_rules_req.CopyFrom(logic_proto.LogicManager.GetRules.Req())
-        return self._rule_stream(method, lambda res: res.get_rules_res.rules)
+        return (_Rule.of(r) for rp in self.stream(logic_manager_get_rules_req()) for r in rp.get_rules_res_part.rules)
 
-    def _execute(self, request: logic_proto.LogicManager.Req):
-        req = transaction_proto.Transaction.Req()
-        req.logic_manager_req.CopyFrom(request)
-        return self._transaction._execute(req).logic_manager_res
+    def put_rule(self, label: str, when: str, then: str):
+        return _Rule.of(self.execute(logic_manager_put_rule_req(label, when, then)).put_rule_res.rule)
 
-    def _rule_stream(self, method: logic_proto.LogicManager.Req, rule_list_getter: Callable[[logic_proto.LogicManager.Res], List[logic_proto.Rule]]):
-        request = transaction_proto.Transaction.Req()
-        request.logic_manager_req.CopyFrom(method)
-        return map(Rule._of, self._transaction._stream(request, lambda res: rule_list_getter(res.logic_manager_res)))
+    def execute(self, req: transaction_proto.Transaction.Req):
+        return self._transaction_ext.execute(req).logic_manager_res
+
+    def stream(self, req: transaction_proto.Transaction.Req):
+        return map(lambda rp: rp.logic_manager_res_part, self._transaction_ext.stream(req))

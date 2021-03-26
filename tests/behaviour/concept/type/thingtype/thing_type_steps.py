@@ -21,8 +21,8 @@ from behave import *
 from hamcrest import *
 
 from grakn.common.exception import GraknClientException
-from grakn.concept.thing.thing import Thing
-from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel
+from grakn.common.label import Label
+from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_label
 from tests.behaviour.context import Context
 
 
@@ -63,7 +63,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, new_labe
 
 @step("{root_label:RootLabel}({type_label}) get label: {get_label}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, get_label: str):
-    assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_label(), is_(get_label))
+    assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_label().name(), is_(get_label))
 
 
 @step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}")
@@ -132,34 +132,34 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, super_la
 
 @step("{root_label:RootLabel}({type_label}) get supertypes contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()))
+    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
-        assert_that(super_label, is_in(actuals))
+        assert_that(actuals, has_item(super_label))
 
 
 @step("{root_label:RootLabel}({type_label}) get supertypes do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()))
+    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
-        assert_that(super_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(super_label)))
 
 
 @step("{root_label:RootLabel}({type_label}) get subtypes contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    sub_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()))
+    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
-        assert_that(sub_label, is_in(actuals))
+        assert_that(actuals, has_item(sub_label))
 
 
 @step("{root_label:RootLabel}({type_label}) get subtypes do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    sub_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()))
+    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
-        assert_that(sub_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(sub_label)))
 
 
 @step("{root_label:RootLabel}({type_label}) set owns key type: {att_type_label} as {overridden_label}; throws exception")
@@ -216,18 +216,18 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
 
 @step("{root_label:RootLabel}({type_label}) get owns key types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)))
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
     for attribute_label in attribute_labels:
-        assert_that(attribute_label, is_in(actuals))
+        assert_that(actuals, has_item(attribute_label))
 
 
 @step("{root_label:RootLabel}({type_label}) get owns key types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)))
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
     for attribute_label in attribute_labels:
-        assert_that(attribute_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(attribute_label)))
 
 
 @step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}; throws exception")
@@ -266,24 +266,24 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()))
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
     for attribute_label in attribute_labels:
-        assert_that(attribute_label, is_in(actuals))
+        assert_that(actuals, has_item(attribute_label))
 
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()))
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
     for attribute_label in attribute_labels:
-        assert_that(attribute_label, not_(is_in(actuals)))
+        assert_that(actuals, not_(has_item(attribute_label)))
 
 
-@step("{root_label:RootLabel}({type_label}) set plays role: {scope}:{role_label} as {overridden_scope}:{overridden_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str, overridden_scope: str, overridden_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
-    overridden_type = context.tx().concepts().get_relation_type(overridden_scope).as_remote(context.tx()).get_relates(overridden_label)
+@step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label, overridden_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
+    overridden_type = context.tx().concepts().get_relation_type(overridden_label.scope()).as_remote(context.tx()).get_relates(overridden_label.name())
     try:
         context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_plays(role_type, overridden_type)
         assert False
@@ -291,16 +291,16 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: s
         pass
 
 
-@step("{root_label:RootLabel}({type_label}) set plays role: {scope}:{role_label} as {overridden_scope}:{overridden_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str, overridden_scope: str, overridden_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
-    overridden_type = context.tx().concepts().get_relation_type(overridden_scope).as_remote(context.tx()).get_relates(overridden_label)
+@step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label, overridden_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
+    overridden_type = context.tx().concepts().get_relation_type(overridden_label.scope()).as_remote(context.tx()).get_relates(overridden_label.name())
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_plays(role_type, overridden_type)
 
 
-@step("{root_label:RootLabel}({type_label}) set plays role: {scope}:{role_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
+@step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
     try:
         context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_plays(role_type)
         assert False
@@ -308,15 +308,15 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: s
         pass
 
 
-@step("{root_label:RootLabel}({type_label}) set plays role: {scope}:{role_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
+@step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_plays(role_type)
 
 
-@step("{root_label:RootLabel}({type_label}) unset plays role: {scope}:{role_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
+@step("{root_label:RootLabel}({type_label}) unset plays role: {role_label:ScopedLabel}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
     try:
         context.get_thing_type(root_label, type_label).as_remote(context.tx()).unset_plays(role_type)
         assert False
@@ -324,55 +324,55 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: s
         pass
 
 
-@step("{root_label:RootLabel}({type_label}) unset plays role: {scope}:{role_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, scope: str, role_label: str):
-    role_type = context.tx().concepts().get_relation_type(scope).as_remote(context.tx()).get_relates(role_label)
+@step("{root_label:RootLabel}({type_label}) unset plays role: {role_label:ScopedLabel}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
+    role_type = context.tx().concepts().get_relation_type(role_label.scope()).as_remote(context.tx()).get_relates(role_label.name())
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).unset_plays(role_type)
 
 
 @step("{root_label:RootLabel}({type_label}) get playing roles contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_scoped_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()))
+    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()]
     for role_label in role_labels:
         assert_that(role_label, is_in(actuals))
 
 
 @step("{root_label:RootLabel}({type_label}) get playing roles do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_scoped_label(), context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()))
+    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()]
     for role_label in role_labels:
         assert_that(role_label, not_(is_in(actuals)))
 
 
 @step("thing type root get supertypes contain")
 def step_impl(context: Context):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()))
+    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(super_label, is_in(actuals))
 
 
 @step("thing type root get supertypes do not contain")
 def step_impl(context: Context):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()))
+    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(super_label, not_(is_in(actuals)))
 
 
 @step("thing type root get subtypes contain")
 def step_impl(context: Context):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()))
-    for super_label in super_labels:
-        assert_that(super_label, is_in(actuals))
+    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()]
+    for sub_label in sub_labels:
+        assert_that(sub_label, is_in(actuals))
 
 
 @step("thing type root get subtypes do not contain")
 def step_impl(context: Context):
-    super_labels = parse_list(context.table)
-    actuals = list(map(lambda t: t.get_label(), context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()))
-    for super_label in super_labels:
-        assert_that(super_label, not_(is_in(actuals)))
+    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()]
+    for sub_label in sub_labels:
+        assert_that(sub_label, not_(is_in(actuals)))
