@@ -30,6 +30,20 @@ from grakn.api.query.future import QueryFuture
 from grakn.api.query.query_manager import QueryManager
 
 
+class TransactionType(enum.Enum):
+    READ = 0
+    WRITE = 1
+
+    def is_read(self):
+        return self is TransactionType.READ
+
+    def is_write(self):
+        return self is TransactionType.WRITE
+
+    def proto(self):
+        return transaction_proto.Transaction.Type.Value(self.name)
+
+
 class GraknTransaction(ABC):
 
     @abstractmethod
@@ -37,7 +51,7 @@ class GraknTransaction(ABC):
         pass
 
     @abstractmethod
-    def transaction_type(self) -> "Type":
+    def transaction_type(self) -> TransactionType:
         pass
 
     @abstractmethod
@@ -75,19 +89,6 @@ class GraknTransaction(ABC):
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
-    class Type(enum.Enum):
-        READ = 0
-        WRITE = 1
-
-        def is_read(self):
-            return self is GraknTransaction.Type.READ
-
-        def is_write(self):
-            return self is GraknTransaction.Type.WRITE
-
-        def proto(self):
-            return transaction_proto.Transaction.Type.Value(self.name)
 
 
 class _GraknTransactionExtended(GraknTransaction, ABC):

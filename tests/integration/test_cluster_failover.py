@@ -25,9 +25,9 @@ from grakn.api.database import ClusterDatabaseManager
 from grakn.client import *
 
 
-SCHEMA = GraknSession.Type.SCHEMA
-WRITE = GraknTransaction.Type.WRITE
-READ = GraknTransaction.Type.READ
+SCHEMA = SessionType.SCHEMA
+WRITE = TransactionType.WRITE
+READ = TransactionType.READ
 
 
 class TestClusterFailover(TestCase):

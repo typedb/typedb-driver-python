@@ -24,8 +24,8 @@ from grakn.core.client import _CoreClient
 
 # Repackaging these symbols allows them to be imported from "grakn.client"
 from grakn.api.options import GraknOptions  # noqa # pylint: disable=unused-import
-from grakn.api.session import GraknSession  # noqa # pylint: disable=unused-import
-from grakn.api.transaction import GraknTransaction  # noqa # pylint: disable=unused-import
+from grakn.api.session import GraknSession, SessionType  # noqa # pylint: disable=unused-import
+from grakn.api.transaction import GraknTransaction, TransactionType  # noqa # pylint: disable=unused-import
 
 
 class Grakn:

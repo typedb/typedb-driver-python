@@ -26,8 +26,8 @@ from grakn.client import *
 
 
 GRAKN = "grakn"
-DATA = GraknSession.Type.DATA
-WRITE = GraknTransaction.Type.WRITE
+DATA = SessionType.DATA
+WRITE = TransactionType.WRITE
 
 
 class TestConcurrent(TestCase):

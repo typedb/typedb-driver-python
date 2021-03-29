@@ -24,7 +24,7 @@ from grpc import insecure_channel, RpcError
 
 from grakn.api.options import GraknOptions
 from grakn.api.query.future import QueryFuture
-from grakn.api.transaction import _GraknTransactionExtended, GraknTransaction
+from grakn.api.transaction import _GraknTransactionExtended, TransactionType
 from grakn.common.exception import GraknClientException, TRANSACTION_CLOSED
 from grakn.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
 from grakn.common.rpc.stub import GraknCoreStub
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 class _CoreTransaction(_GraknTransactionExtended):
 
-    def __init__(self, session: "_CoreSession", transaction_type: GraknTransaction.Type, options: GraknOptions = None):
+    def __init__(self, session: "_CoreSession", transaction_type: TransactionType, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
         self._transaction_type = transaction_type
@@ -58,7 +58,7 @@ class _CoreTransaction(_GraknTransactionExtended):
         except RpcError as e:
             raise GraknClientException.of_rpc(e)
 
-    def transaction_type(self) -> GraknTransaction.Type:
+    def transaction_type(self) -> TransactionType:
         return self._transaction_type
 
     def options(self) -> GraknOptions:

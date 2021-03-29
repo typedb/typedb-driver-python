@@ -20,7 +20,7 @@ from typing import Iterable, Dict, Set
 
 from grakn.api.client import GraknClusterClient
 from grakn.api.options import GraknOptions, GraknClusterOptions
-from grakn.api.session import GraknSession
+from grakn.api.session import SessionType
 from grakn.cluster.database import _ClusterDatabase
 from grakn.cluster.database_manager import _ClusterDatabaseManager
 from grakn.cluster.failsafe_task import _FailsafeTask
@@ -64,15 +64,15 @@ class _ClusterClient(GraknClusterClient):
     def databases(self) -> _ClusterDatabaseManager:
         return self._database_managers
 
-    def session(self, database: str, session_type: GraknSession.Type, options=None) -> _ClusterSession:
+    def session(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         if not options:
             options = GraknOptions.cluster()
         return self._session_any_replica(database, session_type, options) if options.read_any_replica else self._session_primary_replica(database, session_type, options)
 
-    def _session_primary_replica(self, database: str, session_type: GraknSession.Type, options=None) -> _ClusterSession:
+    def _session_primary_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_primary_replica()
 
-    def _session_any_replica(self, database: str, session_type: GraknSession.Type, options=None) -> _ClusterSession:
+    def _session_any_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_any_replica()
 
     def database_by_name(self) -> Dict[str, _ClusterDatabase]:
@@ -109,7 +109,7 @@ class _ClusterClient(GraknClusterClient):
 
 class _OpenSessionFailsafeTask(_FailsafeTask):
 
-    def __init__(self, database: str, session_type: GraknSession.Type, options: GraknClusterOptions, client: _ClusterClient):
+    def __init__(self, database: str, session_type: SessionType, options: GraknClusterOptions, client: _ClusterClient):
         super().__init__(client, database)
         self.session_type = session_type
         self.options = options

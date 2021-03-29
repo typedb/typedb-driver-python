@@ -26,7 +26,7 @@ from behave.model import Table
 
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from grakn.api.concept.type.attribute_type import AttributeType
-from grakn.api.transaction import GraknTransaction
+from grakn.api.transaction import TransactionType
 from grakn.common.label import Label
 
 
@@ -117,8 +117,8 @@ register_type(ValueType=parse_value_type)
 
 
 @parse.with_pattern("read|write")
-def parse_transaction_type(value: str) -> GraknTransaction.Type:
-    return GraknTransaction.Type.READ if value == "read" else GraknTransaction.Type.WRITE
+def parse_transaction_type(value: str) -> TransactionType:
+    return TransactionType.READ if value == "read" else TransactionType.WRITE
 
 
 register_type(TransactionType=parse_transaction_type)

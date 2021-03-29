@@ -25,8 +25,8 @@ import grakn_protocol.common.session_pb2 as session_proto
 from grpc import RpcError
 
 from grakn.api.options import GraknOptions
-from grakn.api.session import GraknSession
-from grakn.api.transaction import GraknTransaction
+from grakn.api.session import GraknSession, SessionType
+from grakn.api.transaction import GraknTransaction, TransactionType
 from grakn.common.concurrent.atomic import AtomicBoolean
 from grakn.common.concurrent.lock import ReadWriteLock
 from grakn.common.rpc.request_builder import session_open_req
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 class _CoreSession(GraknSession):
     _PULSE_INTERVAL_SECONDS = 5
 
-    def __init__(self, client: "_CoreClient", database: str, session_type: GraknSession.Type, options: GraknOptions = None):
+    def __init__(self, client: "_CoreClient", database: str, session_type: SessionType, options: GraknOptions = None):
         if not options:
             options = GraknOptions.core()
         self._client = client
@@ -66,7 +66,7 @@ class _CoreSession(GraknSession):
     def is_open(self) -> bool:
         return self._is_open.get()
 
-    def session_type(self) -> GraknSession.Type:
+    def session_type(self) -> SessionType:
         return self._session_type
 
     def database(self) -> _CoreDatabase:
@@ -75,7 +75,7 @@ class _CoreSession(GraknSession):
     def options(self) -> GraknOptions:
         return self._options
 
-    def transaction(self, transaction_type: GraknTransaction.Type, options: GraknOptions = None) -> GraknTransaction:
+    def transaction(self, transaction_type: TransactionType, options: GraknOptions = None) -> GraknTransaction:
         if not options:
             options = GraknOptions.core()
         try:
