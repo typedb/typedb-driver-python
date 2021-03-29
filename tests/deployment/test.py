@@ -23,10 +23,10 @@ from unittest import TestCase
 from grakn.client import *
 
 
-SCHEMA = GraknSession.Type.SCHEMA
-DATA = GraknSession.Type.DATA
-READ = GraknTransaction.Type.READ
-WRITE = GraknTransaction.Type.WRITE
+SCHEMA = SessionType.SCHEMA
+DATA = SessionType.DATA
+READ = TransactionType.READ
+WRITE = TransactionType.WRITE
 
 
 class TestClientPython(TestCase):

@@ -24,13 +24,13 @@ from typing import List
 from behave import *
 from hamcrest import *
 
-from grakn.api.session import GraknSession
+from grakn.api.session import SessionType
 from tests.behaviour.config.parameters import parse_bool, parse_list
 from tests.behaviour.context import Context
 
 
-SCHEMA = GraknSession.Type.SCHEMA
-DATA = GraknSession.Type.DATA
+SCHEMA = SessionType.SCHEMA
+DATA = SessionType.DATA
 
 
 def open_sessions_for_databases(context: Context, names: list, session_type=DATA):

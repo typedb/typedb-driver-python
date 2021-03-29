@@ -20,7 +20,7 @@ from abc import ABC, abstractmethod
 
 from grakn.api.database import DatabaseManager, ClusterDatabaseManager
 from grakn.api.options import GraknOptions
-from grakn.api.session import GraknSession
+from grakn.api.session import GraknSession, SessionType
 
 
 class GraknClient(ABC):
@@ -34,7 +34,7 @@ class GraknClient(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: GraknSession.Type, options: GraknOptions = None) -> GraknSession:
+    def session(self, database: str, session_type: SessionType, options: GraknOptions = None) -> GraknSession:
         pass
 
     @abstractmethod

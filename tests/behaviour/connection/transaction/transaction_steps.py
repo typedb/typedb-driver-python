@@ -24,13 +24,13 @@ from typing import Callable, List
 from behave import *
 from hamcrest import *
 
-from grakn.api.transaction import GraknTransaction
+from grakn.api.transaction import GraknTransaction, TransactionType
 from grakn.common.exception import GraknClientException
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
 from tests.behaviour.context import Context
 
 
-def for_each_session_open_transaction_of_type(context: Context, transaction_types: List[GraknTransaction.Type]):
+def for_each_session_open_transaction_of_type(context: Context, transaction_types: List[TransactionType]):
     for session in context.sessions:
         transactions = []
         for transaction_type in transaction_types:
@@ -54,7 +54,7 @@ def step_impl(context: Context):
     for_each_session_open_transaction_of_type(context, transaction_types)
 
 
-def open_transactions_of_type_throws_exception(context: Context, transaction_types: List[GraknTransaction.Type]):
+def open_transactions_of_type_throws_exception(context: Context, transaction_types: List[TransactionType]):
     for session in context.sessions:
         for transaction_type in transaction_types:
             try:

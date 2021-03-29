@@ -23,7 +23,21 @@ import grakn_protocol.common.session_pb2 as session_proto
 
 from grakn.api.database import Database
 from grakn.api.options import GraknOptions
-from grakn.api.transaction import GraknTransaction
+from grakn.api.transaction import GraknTransaction, TransactionType
+
+
+class SessionType(enum.Enum):
+    DATA = 0
+    SCHEMA = 1
+
+    def is_data(self):
+        return self is SessionType.DATA
+
+    def is_schema(self):
+        return self is SessionType.SCHEMA
+
+    def proto(self):
+        return session_proto.Session.Type.Value(self.name)
 
 
 class GraknSession(ABC):
@@ -33,7 +47,7 @@ class GraknSession(ABC):
         pass
 
     @abstractmethod
-    def session_type(self) -> "Type":
+    def session_type(self) -> "SessionType":
         pass
 
     @abstractmethod
@@ -45,7 +59,7 @@ class GraknSession(ABC):
         pass
 
     @abstractmethod
-    def transaction(self, transaction_type: GraknTransaction.Type, options: GraknOptions = None) -> GraknTransaction:
+    def transaction(self, transaction_type: TransactionType, options: GraknOptions = None) -> GraknTransaction:
         pass
 
     @abstractmethod
@@ -59,16 +73,3 @@ class GraknSession(ABC):
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
-    class Type(enum.Enum):
-        DATA = 0
-        SCHEMA = 1
-
-        def is_data(self):
-            return self is GraknSession.Type.DATA
-
-        def is_schema(self):
-            return self is GraknSession.Type.SCHEMA
-
-        def proto(self):
-            return session_proto.Session.Type.Value(self.name)

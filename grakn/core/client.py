@@ -22,7 +22,7 @@ from grpc import insecure_channel, Channel
 
 from grakn.api.client import GraknClient
 from grakn.api.options import GraknOptions
-from grakn.api.session import GraknSession
+from grakn.api.session import SessionType
 from grakn.common.rpc.stub import GraknCoreStub
 from grakn.core.database_manager import _CoreDatabaseManager
 from grakn.core.session import _CoreSession
@@ -41,7 +41,7 @@ class _CoreClient(GraknClient):
         self._sessions: Dict[bytes, _CoreSession] = {}
         self._is_open = True
 
-    def session(self, database: str, session_type: GraknSession.Type, options=None) -> _CoreSession:
+    def session(self, database: str, session_type: SessionType, options=None) -> _CoreSession:
         if not options:
             options = GraknOptions.core()
         session = _CoreSession(self, database, session_type, options)
