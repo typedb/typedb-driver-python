@@ -32,11 +32,11 @@ class Grakn:
     DEFAULT_ADDRESS = "localhost:1729"
 
     @staticmethod
-    def core_client(address: str, parallelisation: int = None) -> GraknClient:
+    def core_client(address: str, parallelisation: int = 2) -> GraknClient:
         return _CoreClient(address, parallelisation)
 
     @staticmethod
-    def cluster_client(addresses: Union[Iterable[str], str], parallelisation: int = None) -> GraknClusterClient:
+    def cluster_client(addresses: Union[Iterable[str], str], parallelisation: int = 2) -> GraknClusterClient:
         if isinstance(addresses, str):
             return _ClusterClient([addresses], parallelisation)
         else:

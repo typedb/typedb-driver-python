@@ -29,16 +29,10 @@ from grakn.core.session import _CoreSession
 from grakn.stream.request_transmitter import RequestTransmitter
 
 
-def calculate_parallelisation():
-    # TODO: cores = Runtime.getRuntime().availableProcessors()
-    return 3
-
-
 class _CoreClient(GraknClient):
 
-    def __init__(self, address: str, parallelisation: int = None):
-        if parallelisation is None:
-            parallelisation = calculate_parallelisation()
+    # TODO: Detect number of available CPUs
+    def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
         self._channel = insecure_channel(self._address)
         self._stub = GraknCoreStub(self._channel)
