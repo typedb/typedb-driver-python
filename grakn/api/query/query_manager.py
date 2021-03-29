@@ -23,6 +23,7 @@ from grakn.api.answer.concept_map import ConceptMap
 from grakn.api.answer.concept_map_group import ConceptMapGroup
 from grakn.api.answer.numeric import Numeric
 from grakn.api.answer.numeric_group import NumericGroup
+from grakn.api.logic.explanation import Explanation
 from grakn.api.options import GraknOptions
 from grakn.api.query.future import QueryFuture
 
@@ -55,6 +56,10 @@ class QueryManager(ABC):
 
     @abstractmethod
     def update(self, query: str, options: GraknOptions = None) -> Iterator[ConceptMap]:
+        pass
+
+    @abstractmethod
+    def explain(self, explainable: ConceptMap.Explainable, options: GraknOptions = None) -> Iterator[Explanation]:
         pass
 
     @abstractmethod

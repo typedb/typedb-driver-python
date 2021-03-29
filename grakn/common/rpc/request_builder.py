@@ -229,6 +229,14 @@ def query_manager_update_req(query: str, options: options_proto.Options):
     return query_manager_req(query_mgr_req, options)
 
 
+def query_manager_explain_req(explainable_id: int, options: options_proto.Options):
+    query_mgr_req = query_proto.QueryManager.Req()
+    explain_req = query_proto.QueryManager.Explain.Req()
+    explain_req.explainable_id = explainable_id
+    query_mgr_req.explain_req.CopyFrom(explain_req)
+    return query_manager_req(query_mgr_req, options)
+
+
 # ConceptManager
 
 def concept_manager_req(concept_mgr_req: concept_proto.ConceptManager.Req):

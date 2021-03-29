@@ -102,7 +102,9 @@ MISSING_LABEL = ConceptErrorMessage(4, "Label cannot be null or empty.")
 BAD_ENCODING = ConceptErrorMessage(5, "The encoding '%s' was not recognised.")
 BAD_VALUE_TYPE = ConceptErrorMessage(6, "The value type '%s' was not recognised.")
 BAD_ATTRIBUTE_VALUE = ConceptErrorMessage(7, "The attribute value '%s' was not recognised.")
-GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(8, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, only_key]")
+NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(8, "The concept identified by '%s' is not explainable.")
+NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(9, "The ownership by owner '%s' of attribute '%s' is not explainable.")
+GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(10, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, only_key]")
 
 
 class QueryErrorMessage(ErrorMessage):

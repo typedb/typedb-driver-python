@@ -16,24 +16,27 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
+from typing import Mapping, Set
 
-## To install all dependencies, run: pip3 install -r requirements_dev.txt
-
-
-## Configuration options
-
-# Allow importing of snapshots
---extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple
+from grakn.api.answer.concept_map import ConceptMap
+from grakn.api.logic.rule import Rule
 
 
-## Dependencies
+class Explanation(ABC):
 
-grakn-protocol==0.0.0-38d442fdb2f1a5f2f9707c3ee5625fe09efc3a97
-grpcio==1.36.1
-protobuf==3.15.5
+    @abstractmethod
+    def rule(self) -> Rule:
+        pass
 
+    @abstractmethod
+    def then_answer(self) -> ConceptMap:
+        pass
 
-# Dev dependencies (not required to use the grakn-client package, but necessary for its development)
+    @abstractmethod
+    def when_answer(self) -> ConceptMap:
+        pass
 
-behave==1.2.6
-PyHamcrest==2.0.2
+    @abstractmethod
+    def variable_mapping(self) -> Mapping[str, Set[str]]:
+        pass
