@@ -88,7 +88,7 @@ class _QueryManager(QueryManager):
     def explain(self, explainable: ConceptMap.Explainable, options: GraknOptions = None) -> Iterator[Explanation]:
         if not options:
             options = GraknOptions.core()
-        return (_Explanation.of(ex) for rp in self.stream(query_manager_explain_req(explainable.explainable_id(), options)) for ex in rp.explain_res_part.explanations)
+        return (_Explanation.of(ex) for rp in self.stream(query_manager_explain_req(explainable.explainable_id(), options.proto())) for ex in rp.explain_res_part.explanations)
 
     def define(self, query: str, options: GraknOptions = None) -> QueryFuture:
         if not options:

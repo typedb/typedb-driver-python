@@ -31,7 +31,7 @@ def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarsList])
     mapping = {}
     for from_ in var_mapping:
         tos = var_mapping[from_]
-        mapping[from_] = set(tos.vars_list)
+        mapping[from_] = set(tos.vars)
     return mapping
 
 
