@@ -30,11 +30,11 @@ class Explanation(ABC):
         pass
 
     @abstractmethod
-    def then_answer(self) -> ConceptMap:
+    def conclusion(self) -> ConceptMap:
         pass
 
     @abstractmethod
-    def when_answer(self) -> ConceptMap:
+    def condition(self) -> ConceptMap:
         pass
 
     @abstractmethod

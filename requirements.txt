@@ -30,6 +30,6 @@
 ## Dependencies
 
 # IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-grakn-protocol==0.0.0-38d442fdb2f1a5f2f9707c3ee5625fe09efc3a97
+grakn-protocol==0.0.0-db450964d23303ab73a04c781db0dd0ef53fa869
 grpcio==1.36.1
 protobuf==3.15.5

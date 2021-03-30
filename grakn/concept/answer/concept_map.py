@@ -28,21 +28,6 @@ from grakn.common.exception import GraknClientException, VARIABLE_DOES_NOT_EXIST
 from grakn.concept.proto import concept_proto_reader
 
 
-def _explainables_of(explainables: answer_proto.Explainables):
-    relations: Dict[str, ConceptMap.Explainable] = {}
-    for var in explainables.explainable_relations:
-        explainable = explainables.explainable_relations[var]
-        relations[var] = _ConceptMap.Explainable.of(explainable)
-    attributes: Dict[str, ConceptMap.Explainable] = {}
-    for var in explainables.explainable_attributes:
-        explainable = explainables.explainable_attributes[var]
-        attributes[var] = _ConceptMap.Explainable.of(explainable)
-    ownerships: Dict[Tuple[str, str], ConceptMap.Explainable] = {}
-    for ownership in explainables.explainable_ownerships:
-        ownerships[(ownership.owner, ownership.attribute)] = _ConceptMap.Explainable.of(ownership.explainable)
-    return _ConceptMap.Explainables(relations, attributes, ownerships)
-
-
 class _ConceptMap(ConceptMap):
 
     def __init__(self, mapping: Mapping[str, Concept], explainables: ConceptMap.Explainables = None):
@@ -54,7 +39,7 @@ class _ConceptMap(ConceptMap):
         variable_map = {}
         for res_var in res.map:
             variable_map[res_var] = concept_proto_reader.concept(res.map[res_var])
-        return _ConceptMap(variable_map, _explainables_of(res.explainables))
+        return _ConceptMap(variable_map, _ConceptMap.Explainables.of(res.explainables))
 
     def map(self):
         return self._map
@@ -90,6 +75,20 @@ class _ConceptMap(ConceptMap):
             self._relations = relations
             self._attributes = attributes
             self._ownerships = ownerships
+
+        @staticmethod
+        def of(explainables: answer_proto.Explainables):
+            relations: Dict[str, ConceptMap.Explainable] = {}
+            for [var, explainable] in explainables.relations.items():
+                relations[var] = _ConceptMap.Explainable.of(explainable)
+            attributes: Dict[str, ConceptMap.Explainable] = {}
+            for [var, explainable] in explainables.attributes.items():
+                attributes[var] = _ConceptMap.Explainable.of(explainable)
+            ownerships: Dict[Tuple[str, str], ConceptMap.Explainable] = {}
+            for [var, owned_map] in explainables.ownerships.items():
+                for [owned, explainable] in owned_map.owned.items():
+                    ownerships[(var, owned)] = _ConceptMap.Explainable.of(explainable)
+            return _ConceptMap.Explainables(relations, attributes, ownerships)
 
         def relation(self, variable: str) -> "ConceptMap.Explainable":
             explainable = self._relations.get(variable)

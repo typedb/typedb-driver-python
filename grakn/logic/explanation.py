@@ -27,7 +27,7 @@ from grakn.concept.answer.concept_map import _ConceptMap
 from grakn.logic.rule import _Rule
 
 
-def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarsList]):
+def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarList]):
     mapping = {}
     for from_ in var_mapping:
         tos = var_mapping[from_]
@@ -37,16 +37,16 @@ def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarsList])
 
 class _Explanation(Explanation):
 
-    def __init__(self, rule: Rule, variable_mapping: Mapping[str, Set[str]], then_answer: ConceptMap, when_answer: ConceptMap):
+    def __init__(self, rule: Rule, variable_mapping: Mapping[str, Set[str]], conclusion: ConceptMap, condition: ConceptMap):
         self._rule = rule
         self._variable_mapping = variable_mapping
-        self._then_answer = then_answer
-        self._when_answer = when_answer
+        self._conclusion = conclusion
+        self._condition = condition
 
     @staticmethod
     def of(explanation: logic_proto.Explanation):
         return _Explanation(_Rule.of(explanation.rule), _var_mapping_of(explanation.var_mapping),
-                            _ConceptMap.of(explanation.then_answer), _ConceptMap.of(explanation.when_answer))
+                            _ConceptMap.of(explanation.conclusion), _ConceptMap.of(explanation.condition))
 
     def rule(self) -> Rule:
         return self._rule
@@ -54,21 +54,21 @@ class _Explanation(Explanation):
     def variable_mapping(self) -> Mapping[str, Set[str]]:
         return self._variable_mapping
 
-    def then_answer(self) -> ConceptMap:
-        return self._then_answer
+    def conclusion(self) -> ConceptMap:
+        return self._conclusion
 
-    def when_answer(self) -> ConceptMap:
-        return self._when_answer
+    def condition(self) -> ConceptMap:
+        return self._condition
 
     def __str__(self):
-        return "Explanation[rule: %s, variable_mapping: %s, then_answer: %s, when_answer: %s]" % (self._rule, self._variable_mapping, self._then_answer, self._when_answer)
+        return "Explanation[rule: %s, variable_mapping: %s, then_answer: %s, when_answer: %s]" % (self._rule, self._variable_mapping, self._conclusion, self._condition)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._rule == other._rule and self._variable_mapping == other._variable_mapping and self._then_answer == other._then_answer and self._when_answer == other._when_answer
+        return self._rule == other._rule and self._variable_mapping == other._variable_mapping and self._conclusion == other._conclusion and self._condition == other._condition
 
     def __hash__(self):
-        return hash((self._rule, self._variable_mapping, self._then_answer, self._when_answer))
+        return hash((self._rule, self._variable_mapping, self._conclusion, self._condition))
