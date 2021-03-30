@@ -45,7 +45,7 @@ class _Thing(Thing, _Concept, ABC):
         return self._iid
 
     def __str__(self):
-        return type(self).__name__ + "[iid:" + self.get_iid() + "]"
+        return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())
 
     def __eq__(self, other):
         if other is self:
