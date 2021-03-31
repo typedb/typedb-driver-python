@@ -18,12 +18,9 @@
 #
 
 import unittest
-from functools import partial
-from multiprocessing.pool import ThreadPool
 from unittest import TestCase
 
 from grakn.client import *
-
 
 GRAKN = "grakn"
 SCHEMA = SessionType.SCHEMA
@@ -32,7 +29,7 @@ WRITE = TransactionType.WRITE
 READ = TransactionType.READ
 
 
-class TestConcurrent(TestCase):
+class TestDebug(TestCase):
 
     def setUp(self):
         with Grakn.core_client(Grakn.DEFAULT_ADDRESS) as client:
@@ -40,21 +37,11 @@ class TestConcurrent(TestCase):
                 client.databases().get(GRAKN).delete()
             client.databases().create(GRAKN)
 
-    def open_tx(self, session: GraknSession, *args):
-        tx = session.transaction(WRITE)
-        tx.close()
-        self.txs_closed += 1
-        print("Total txs closed: %d" % self.txs_closed)
+    # TODO: Write anything you want in this test for local debugging. A Grakn server should be running in the background
+    def test_debug(self):
+        pass
 
-    def test_open_many_transactions_in_parallel(self):
-        self.txs_closed = 0
-        with Grakn.core_client(Grakn.DEFAULT_ADDRESS) as client, client.session(GRAKN, DATA) as session:
-            pool = ThreadPool(8)
-            results = [None for _ in range(10)]
-            pool.map(partial(self.open_tx, session), results)
-            pool.close()
-            pool.join()
-
+    # TODO: This test should be migrated, ideally to BDD if possible
     def test_explanations(self):
         with Grakn.core_client(Grakn.DEFAULT_ADDRESS) as client:
             with client.session(GRAKN, SCHEMA) as session, session.transaction(WRITE) as tx:
