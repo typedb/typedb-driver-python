@@ -30,13 +30,13 @@ if TYPE_CHECKING:
     from grakn.stream.bidirectional_stream import BidirectionalStream
 
 
-class ResponseIterator(Iterator[transaction_proto.Transaction.ResPart]):
+class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
 
     def __init__(self, request_id: UUID, bidirectional_stream: "BidirectionalStream", request_dispatcher: RequestTransmitter.Dispatcher):
         self._request_id = request_id
         self._dispatcher = request_dispatcher
         self._bidirectional_stream = bidirectional_stream
-        self._state = ResponseIterator.State.EMPTY
+        self._state = ResponsePartIterator.State.EMPTY
         self._next: transaction_proto.Transaction.ResPart = None
 
     class State(Enum):
@@ -50,7 +50,7 @@ class ResponseIterator(Iterator[transaction_proto.Transaction.ResPart]):
         if res_case == "stream_res_part":
             state = res_part.stream_res_part.state
             if state == transaction_proto.Transaction.Stream.State.Value("DONE"):
-                self._state = ResponseIterator.State.DONE
+                self._state = ResponsePartIterator.State.DONE
                 return False
             elif state == transaction_proto.Transaction.Stream.State.Value("CONTINUE"):
                 self._dispatcher.dispatch(transaction_stream_req(self._request_id))
@@ -61,15 +61,15 @@ class ResponseIterator(Iterator[transaction_proto.Transaction.ResPart]):
             raise GraknClientException.of(MISSING_RESPONSE, self._request_id)
         else:
             self._next = res_part
-            self._state = ResponseIterator.State.FETCHED
+            self._state = ResponsePartIterator.State.FETCHED
             return True
 
     def _has_next(self) -> bool:
-        if self._state == ResponseIterator.State.DONE:
+        if self._state == ResponsePartIterator.State.DONE:
             return False
-        elif self._state == ResponseIterator.State.FETCHED:
+        elif self._state == ResponsePartIterator.State.FETCHED:
             return True
-        elif self._state == ResponseIterator.State.EMPTY:
+        elif self._state == ResponsePartIterator.State.EMPTY:
             return self._fetch_and_check()
         else:
             raise GraknClientException.of(ILLEGAL_STATE)
@@ -77,5 +77,5 @@ class ResponseIterator(Iterator[transaction_proto.Transaction.ResPart]):
     def __next__(self) -> transaction_proto.Transaction.ResPart:
         if not self._has_next():
             raise StopIteration
-        self._state = ResponseIterator.State.EMPTY
+        self._state = ResponsePartIterator.State.EMPTY
         return self._next
