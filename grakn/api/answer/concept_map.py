@@ -17,7 +17,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Mapping, Iterable
+from typing import Mapping, Iterable, Tuple
 
 from grakn.api.concept.concept import Concept
 
@@ -35,3 +35,43 @@ class ConceptMap(ABC):
     @abstractmethod
     def get(self, variable: str) -> Concept:
         pass
+
+    @abstractmethod
+    def explainables(self) -> "ConceptMap.Explainables":
+        pass
+
+    class Explainables(ABC):
+
+        @abstractmethod
+        def relation(self, variable: str) -> "ConceptMap.Explainable":
+            pass
+
+        @abstractmethod
+        def attribute(self, variable: str) -> "ConceptMap.Explainable":
+            pass
+
+        @abstractmethod
+        def ownership(self, owner: str, attribute: str) -> "ConceptMap.Explainable":
+            pass
+
+        @abstractmethod
+        def relations(self) -> Mapping[str, "ConceptMap.Explainable"]:
+            pass
+
+        @abstractmethod
+        def attributes(self) -> Mapping[str, "ConceptMap.Explainable"]:
+            pass
+
+        @abstractmethod
+        def ownerships(self) -> Mapping[Tuple[str, str], "ConceptMap.Explainable"]:
+            pass
+
+    class Explainable(ABC):
+
+        @abstractmethod
+        def conjunction(self) -> str:
+            pass
+
+        @abstractmethod
+        def explainable_id(self) -> int:
+            pass

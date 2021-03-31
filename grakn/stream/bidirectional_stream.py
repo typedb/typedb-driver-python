@@ -29,7 +29,7 @@ from grakn.common.exception import GraknClientException, UNKNOWN_REQUEST_ID, TRA
 from grakn.common.rpc.stub import GraknCoreStub
 from grakn.stream.request_transmitter import RequestTransmitter
 from grakn.stream.response_collector import ResponseCollector
-from grakn.stream.response_iterator import ResponseIterator
+from grakn.stream.response_part_iterator import ResponsePartIterator
 
 T = TypeVar('T')
 
@@ -58,7 +58,7 @@ class BidirectionalStream:
         req.req_id = str(request_id)
         self._response_collector.new_queue(request_id)
         self._dispatcher.dispatch(req)
-        return ResponseIterator(request_id, self, self._dispatcher)
+        return ResponsePartIterator(request_id, self, self._dispatcher)
 
     def is_open(self) -> bool:
         return self._is_open.get()
