@@ -54,9 +54,9 @@ checkstyle_test(
 )
 
 py_test(
-    name = "test_concurrent",
+    name = "test_debug",
     srcs = [
-        "integration/test_concurrent.py",
+        "integration/test_debug.py",
     ],
     deps = [
         "//:client_python",
