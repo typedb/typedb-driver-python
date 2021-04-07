@@ -45,7 +45,7 @@ class BidirectionalStream:
 
     def single(self, req: transaction_proto.Transaction.Req, batch: bool) -> "BidirectionalStream.Single[transaction_proto.Transaction.Res]":
         request_id = uuid4()
-        req.req_id = str(request_id)
+        req.req_id = request_id.bytes
         self._response_collector.new_queue(request_id)
         if batch:
             self._dispatcher.dispatch(req)
@@ -55,7 +55,7 @@ class BidirectionalStream:
 
     def stream(self, req: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         request_id = uuid4()
-        req.req_id = str(request_id)
+        req.req_id = request_id.bytes
         self._response_collector.new_queue(request_id)
         self._dispatcher.dispatch(req)
         return ResponsePartIterator(request_id, self, self._dispatcher)
@@ -91,7 +91,7 @@ class BidirectionalStream:
                 raise GraknClientException.of(ILLEGAL_ARGUMENT)
 
     def _collect(self, response: Union[transaction_proto.Transaction.Res, transaction_proto.Transaction.ResPart]):
-        request_id = UUID(response.req_id)
+        request_id = UUID(bytes=response.req_id)
         collector = self._response_collector.get(request_id)
         if collector:
             collector.put(response)
