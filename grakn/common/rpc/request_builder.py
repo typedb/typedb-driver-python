@@ -583,12 +583,6 @@ def thing_req(req: concept_proto.Thing.Req, iid: str):
     return tx_req
 
 
-def thing_is_inferred_req(iid: str):
-    req = concept_proto.Thing.Req()
-    req.thing_is_inferred_req.CopyFrom(concept_proto.Thing.IsInferred.Req())
-    return thing_req(req, iid)
-
-
 def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None, only_key: bool = False):
     if attribute_types and only_key:
         raise GraknClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)

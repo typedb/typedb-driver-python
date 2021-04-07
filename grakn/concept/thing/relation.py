@@ -32,16 +32,16 @@ from grakn.concept.type.role_type import _RoleType
 
 class _Relation(Relation, _Thing):
 
-    def __init__(self, iid: str, relation_type: RelationType):
-        super(_Relation, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, relation_type: RelationType):
+        super(_Relation, self).__init__(iid, is_inferred)
         self._type = relation_type
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _Relation(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
+        return _Relation(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
 
     def as_remote(self, transaction):
-        return _RemoteRelation(transaction, self.get_iid(), self.get_type())
+        return _RemoteRelation(transaction, self.get_iid(), self.is_inferred(), self.get_type())
 
     def get_type(self) -> "RelationType":
         return self._type
@@ -49,12 +49,12 @@ class _Relation(Relation, _Thing):
 
 class _RemoteRelation(_RemoteThing, RemoteRelation):
 
-    def __init__(self, transaction, iid: str, relation_type: RelationType):
-        super(_RemoteRelation, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, relation_type: RelationType):
+        super(_RemoteRelation, self).__init__(transaction, iid, is_inferred)
         self._type = relation_type
 
     def as_remote(self, transaction):
-        return _RemoteRelation(transaction, self.get_iid(), self.get_type())
+        return _RemoteRelation(transaction, self.get_iid(), self.is_inferred(), self.get_type())
 
     def get_type(self) -> "RelationType":
         return self._type

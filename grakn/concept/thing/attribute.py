@@ -45,14 +45,14 @@ class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
 
 class _BooleanAttribute(BooleanAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_: BooleanAttributeType, value: bool):
-        super(_BooleanAttribute, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, type_: BooleanAttributeType, value: bool):
+        super(_BooleanAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _BooleanAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.boolean)
+        return _BooleanAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.boolean)
 
     def get_type(self) -> "BooleanAttributeType":
         return self._type
@@ -61,13 +61,13 @@ class _BooleanAttribute(BooleanAttribute, _Attribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _RemoteBooleanAttribute(RemoteBooleanAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_, value: bool):
-        super(_RemoteBooleanAttribute, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, type_, value: bool):
+        super(_RemoteBooleanAttribute, self).__init__(transaction, iid, is_inferred)
         self._type = type_
         self._value = value
 
@@ -78,19 +78,19 @@ class _RemoteBooleanAttribute(RemoteBooleanAttribute, _RemoteAttribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteBooleanAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _LongAttribute(LongAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_: LongAttributeType, value: int):
-        super(_LongAttribute, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, type_: LongAttributeType, value: int):
+        super(_LongAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _LongAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.long)
+        return _LongAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.long)
 
     def get_type(self) -> "LongAttributeType":
         return self._type
@@ -99,13 +99,13 @@ class _LongAttribute(LongAttribute, _Attribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteLongAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _RemoteLongAttribute(RemoteLongAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_, value: int):
-        super(_RemoteLongAttribute, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, type_, value: int):
+        super(_RemoteLongAttribute, self).__init__(transaction, iid, is_inferred)
         self._type = type_
         self._value = value
 
@@ -116,19 +116,19 @@ class _RemoteLongAttribute(RemoteLongAttribute, _RemoteAttribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteLongAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteLongAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _DoubleAttribute(DoubleAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_: DoubleAttributeType, value: float):
-        super(_DoubleAttribute, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, type_: DoubleAttributeType, value: float):
+        super(_DoubleAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _DoubleAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.double)
+        return _DoubleAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.double)
 
     def get_type(self) -> "DoubleAttributeType":
         return self._type
@@ -137,13 +137,13 @@ class _DoubleAttribute(DoubleAttribute, _Attribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _RemoteDoubleAttribute(RemoteDoubleAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_: DoubleAttributeType, value: float):
-        super(_RemoteDoubleAttribute, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, type_: DoubleAttributeType, value: float):
+        super(_RemoteDoubleAttribute, self).__init__(transaction, iid, is_inferred)
         self._type = type_
         self._value = value
 
@@ -154,19 +154,19 @@ class _RemoteDoubleAttribute(RemoteDoubleAttribute, _RemoteAttribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDoubleAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _StringAttribute(StringAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_: StringAttributeType, value: str):
-        super(_StringAttribute, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, type_: StringAttributeType, value: str):
+        super(_StringAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _StringAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.string)
+        return _StringAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), thing_proto.value.string)
 
     def get_type(self) -> "StringAttributeType":
         return self._type
@@ -175,13 +175,13 @@ class _StringAttribute(StringAttribute, _Attribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteStringAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _RemoteStringAttribute(RemoteStringAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_: StringAttributeType, value: str):
-        super(_RemoteStringAttribute, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, type_: StringAttributeType, value: str):
+        super(_RemoteStringAttribute, self).__init__(transaction, iid, is_inferred)
         self._type = type_
         self._value = value
 
@@ -192,19 +192,19 @@ class _RemoteStringAttribute(RemoteStringAttribute, _RemoteAttribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteStringAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteStringAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _DateTimeAttribute(DateTimeAttribute, _Attribute):
 
-    def __init__(self, iid: str, type_: DateTimeAttributeType, value: datetime):
-        super(_DateTimeAttribute, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
+        super(_DateTimeAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
+        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
 
     def get_type(self) -> "DateTimeAttributeType":
         return self._type
@@ -213,13 +213,13 @@ class _DateTimeAttribute(DateTimeAttribute, _Attribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
 
 class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):
 
-    def __init__(self, transaction, iid: str, type_: DateTimeAttributeType, value: datetime):
-        super(_RemoteDateTimeAttribute, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
+        super(_RemoteDateTimeAttribute, self).__init__(transaction, iid, is_inferred)
         self._type = type_
         self._value = value
 
@@ -230,4 +230,4 @@ class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):
         return self._value
 
     def as_remote(self, transaction):
-        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.get_type(), self.get_value())
+        return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())

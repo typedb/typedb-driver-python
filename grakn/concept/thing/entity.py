@@ -27,29 +27,29 @@ from grakn.concept.thing.thing import _Thing, _RemoteThing
 
 class _Entity(Entity, _Thing):
 
-    def __init__(self, iid: str, entity_type: EntityType):
-        super(_Entity, self).__init__(iid)
+    def __init__(self, iid: str, is_inferred: bool, entity_type: EntityType):
+        super(_Entity, self).__init__(iid, is_inferred)
         self._type = entity_type
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _Entity(concept_proto_reader.iid(thing_proto.iid), concept_proto_reader.type_(thing_proto.type))
+        return _Entity(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
 
     def get_type(self) -> "EntityType":
         return self._type
 
     def as_remote(self, transaction):
-        return _RemoteEntity(transaction, self._iid, self.get_type())
+        return _RemoteEntity(transaction, self._iid, self.is_inferred(), self.get_type())
 
 
 class _RemoteEntity(_RemoteThing, RemoteEntity):
 
-    def __init__(self, transaction, iid: str, entity_type: EntityType):
-        super(_RemoteEntity, self).__init__(transaction, iid)
+    def __init__(self, transaction, iid: str, is_inferred: bool, entity_type: EntityType):
+        super(_RemoteEntity, self).__init__(transaction, iid, is_inferred)
         self._type = entity_type
 
     def as_remote(self, transaction):
-        return _RemoteEntity(transaction, self._iid, self.get_type())
+        return _RemoteEntity(transaction, self._iid, self.is_inferred(), self.get_type())
 
     def get_type(self) -> "EntityType":
         return self._type
