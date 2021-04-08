@@ -24,7 +24,7 @@ import grakn_protocol.common.transaction_pb2 as transaction_proto
 from grakn.api.concept.thing.attribute import Attribute
 from grakn.api.concept.thing.thing import Thing, RemoteThing
 from grakn.common.exception import GraknClientException, MISSING_IID, MISSING_TRANSACTION, GET_HAS_WITH_MULTIPLE_FILTERS
-from grakn.common.rpc.request_builder import thing_is_inferred_req, thing_get_has_req, thing_get_relations_req, \
+from grakn.common.rpc.request_builder import thing_get_has_req, thing_get_relations_req, \
     thing_get_playing_req, thing_set_has_req, thing_unset_has_req, thing_delete_req
 from grakn.concept.concept import _Concept, _RemoteConcept
 from grakn.concept.proto import concept_proto_reader, concept_proto_builder
@@ -36,13 +36,17 @@ if TYPE_CHECKING:
 
 class _Thing(Thing, _Concept, ABC):
 
-    def __init__(self, iid: str):
+    def __init__(self, iid: str, is_inferred: bool):
         if not iid:
             raise GraknClientException.of(MISSING_IID)
         self._iid = iid
+        self._is_inferred = is_inferred
 
     def get_iid(self):
         return self._iid
+
+    def is_inferred(self) -> bool:
+        return self._is_inferred
 
     def __str__(self):
         return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())
@@ -60,20 +64,21 @@ class _Thing(Thing, _Concept, ABC):
 
 class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
 
-    def __init__(self, transaction: Union["_GraknTransactionExtended", "GraknTransaction"], iid: str):
+    def __init__(self, transaction: Union["_GraknTransactionExtended", "GraknTransaction"], iid: str, is_inferred: bool):
         if not transaction:
             raise GraknClientException.of(MISSING_TRANSACTION)
         if not iid:
             raise GraknClientException.of(MISSING_IID)
         self._transaction_ext = transaction
         self._iid = iid
+        self._is_inferred = is_inferred
         self._hash = hash((self._transaction_ext, iid))
 
     def get_iid(self):
         return self._iid
 
-    def is_inferred(self):
-        return self.execute(thing_is_inferred_req(self.get_iid())).thing_is_inferred_res.inferred
+    def is_inferred(self) -> bool:
+        return self._is_inferred
 
     def get_has(self, attribute_type=None, attribute_types: List = None, only_key=False):
         if [bool(attribute_type), bool(attribute_types), only_key].count(True) > 1:

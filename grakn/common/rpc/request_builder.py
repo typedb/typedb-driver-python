@@ -16,9 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import uuid
 from datetime import datetime
 from typing import List
+from uuid import UUID
 
 import grakn_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 import grakn_protocol.cluster.cluster_server_pb2 as cluster_server_proto
@@ -114,9 +114,9 @@ def transaction_client_msg(reqs: List[transaction_proto.Transaction.Req]):
     return req
 
 
-def transaction_stream_req(req_id: uuid):
+def transaction_stream_req(req_id: UUID):
     req = transaction_proto.Transaction.Req()
-    req.req_id = str(req_id)
+    req.req_id = req_id.bytes
     stream_req = transaction_proto.Transaction.Stream.Req()
     req.stream_req.CopyFrom(stream_req)
     return req
@@ -581,12 +581,6 @@ def thing_req(req: concept_proto.Thing.Req, iid: str):
     tx_req = transaction_proto.Transaction.Req()
     tx_req.thing_req.CopyFrom(req)
     return tx_req
-
-
-def thing_is_inferred_req(iid: str):
-    req = concept_proto.Thing.Req()
-    req.thing_is_inferred_req.CopyFrom(concept_proto.Thing.IsInferred.Req())
-    return thing_req(req, iid)
 
 
 def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None, only_key: bool = False):

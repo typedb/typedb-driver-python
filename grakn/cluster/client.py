@@ -67,7 +67,7 @@ class _ClusterClient(GraknClusterClient):
     def session(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         if not options:
             options = GraknOptions.cluster()
-        return self._session_any_replica(database, session_type, options) if options.read_any_replica else self._session_primary_replica(database, session_type, options)
+        return self._session_any_replica(database, session_type, options) if getattr(options, "read_any_replica", False) else self._session_primary_replica(database, session_type, options)
 
     def _session_primary_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_primary_replica()

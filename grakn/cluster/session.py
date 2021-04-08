@@ -42,7 +42,7 @@ class _ClusterSession(GraknSession):
     def transaction(self, transaction_type: TransactionType, options: GraknClusterOptions = None) -> _CoreTransaction:
         if not options:
             options = GraknOptions.cluster()
-        return self._transaction_any_replica(transaction_type, options) if options.read_any_replica else self._transaction_primary_replica(transaction_type, options)
+        return self._transaction_any_replica(transaction_type, options) if getattr(options, "read_any_replica", False) else self._transaction_primary_replica(transaction_type, options)
 
     def _transaction_primary_replica(self, transaction_type: TransactionType, options: GraknClusterOptions) -> _CoreTransaction:
         return _TransactionFailsafeTask(self, transaction_type, options).run_primary_replica()

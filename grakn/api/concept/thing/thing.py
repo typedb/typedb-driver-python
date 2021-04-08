@@ -39,6 +39,10 @@ class Thing(Concept, ABC):
     def get_type(self) -> "ThingType":
         pass
 
+    @abstractmethod
+    def is_inferred(self) -> bool:
+        pass
+
     def is_thing(self) -> bool:
         return True
 
@@ -55,10 +59,6 @@ class RemoteThing(RemoteConcept, Thing, ABC):
 
     @abstractmethod
     def unset_has(self, attribute: "Attribute") -> None:
-        pass
-
-    @abstractmethod
-    def is_inferred(self) -> bool:
         pass
 
     @abstractmethod
