@@ -24,6 +24,7 @@ from typing import Callable, List
 from behave import *
 from hamcrest import *
 
+from grakn.api.options import GraknOptions
 from grakn.api.transaction import GraknTransaction, TransactionType
 from grakn.common.exception import GraknClientException
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
@@ -34,7 +35,9 @@ def for_each_session_open_transaction_of_type(context: Context, transaction_type
     for session in context.sessions:
         transactions = []
         for transaction_type in transaction_types:
-            transaction = session.transaction(transaction_type)
+            opts = GraknOptions.core()
+            opts.infer = True
+            transaction = session.transaction(transaction_type, opts)
             transactions.append(transaction)
         context.sessions_to_transactions[session] = transactions
 
