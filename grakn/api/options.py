@@ -28,7 +28,7 @@ class GraknOptions:
         self.trace_inference: Optional[bool] = None
         self.explain: Optional[bool] = None
         self.parallel: Optional[bool] = None
-        self.batch_size: Optional[int] = None
+        self.prefetch_size: Optional[int] = None
         self.prefetch: Optional[bool] = None
         self.session_idle_timeout_millis: Optional[int] = None
         self.schema_lock_acquire_timeout_millis: Optional[int] = None
@@ -55,8 +55,8 @@ class GraknOptions:
             proto_options.explain = self.explain
         if self.parallel is not None:
             proto_options.parallel = self.parallel
-        if self.batch_size is not None:
-            proto_options.batch_size = self.batch_size
+        if self.prefetch_size is not None:
+            proto_options.prefetch_size = self.prefetch_size
         if self.prefetch is not None:
             proto_options.prefetch = self.prefetch
         if self.session_idle_timeout_millis is not None:
