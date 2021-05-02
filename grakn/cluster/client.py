@@ -44,8 +44,8 @@ class _ClusterClient(GraknClusterClient):
     def _fetch_server_addresses(self, addresses: Iterable[str]) -> Set[str]:
         for address in addresses:
             try:
+                print("Fetching list of cluster servers from %s..." % address)
                 with _CoreClient(address) as client:
-                    print("Fetching list of cluster servers from %s..." % address)
                     grakn_cluster_stub = GraknClusterStub(client.channel())
                     res = grakn_cluster_stub.servers_all(cluster_server_manager_all_req())
                     members = {srv.address for srv in res.servers}
