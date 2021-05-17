@@ -49,7 +49,7 @@ checkstyle_test(
     name = "checkstyle",
     include = glob([
         "*",
-        ".grabl/automation.yml",
+        ".grabl/*",
         "typedb/**/*",
     ]),
     license_type = "apache",
