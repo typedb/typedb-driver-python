@@ -25,7 +25,7 @@ from grpc import insecure_channel, Channel
 from typedb.api.client import TypeDBClient
 from typedb.api.options import TypeDBOptions
 from typedb.api.session import SessionType
-from typedb.common.rpc.stub import TypeDBCoreStub
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.core.database_manager import _CoreDatabaseManager
 from typedb.core.session import _CoreSession
 from typedb.stream.request_transmitter import RequestTransmitter
@@ -37,7 +37,7 @@ class _CoreClient(TypeDBClient):
     def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
         self._channel = insecure_channel(self._address)
-        self._stub = TypeDBCoreStub(self._channel)
+        self._stub = TypeDBStub(self._channel)
         self._transmitter = RequestTransmitter(parallelisation)
         self._databases = _CoreDatabaseManager(self._channel)
         self._sessions: Dict[bytes, _CoreSession] = {}
@@ -82,7 +82,7 @@ class _CoreClient(TypeDBClient):
     def address(self) -> str:
         return self._address
 
-    def stub(self) -> TypeDBCoreStub:
+    def stub(self) -> TypeDBStub:
         return self._stub
 
     def transmitter(self) -> RequestTransmitter:

@@ -45,18 +45,18 @@ def resilient_call(function: Callable[[], T]) -> T:
 class TypeDBGrpcStub:
 
     @staticmethod
-    def core(channel: Channel) -> "TypeDBCoreStub":
-        return TypeDBCoreStub(channel)
+    def core(channel: Channel) -> "TypeDBStub":
+        return TypeDBStub(channel)
 
     @staticmethod
     def cluster(channel: Channel) -> "TypeDBClusterStub":
         return TypeDBClusterStub(channel)
 
 
-class TypeDBCoreStub(TypeDBGrpcStub):
+class TypeDBStub(TypeDBGrpcStub):
 
     def __init__(self, channel: Channel):
-        self._stub = core_service_proto.TypeDBCoreStub(channel)
+        self._stub = core_service_proto.TypeDBStub(channel)
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
         return resilient_call(lambda: self._stub.databases_contains(req))

@@ -26,7 +26,7 @@ from typedb.api.database import DatabaseManager
 from typedb.common.exception import TypeDBClientException, DB_DOES_NOT_EXIST, MISSING_DB_NAME
 from typedb.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
     core_database_manager_all_req
-from typedb.common.rpc.stub import TypeDBCoreStub
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.core.database import _CoreDatabase
 
 
@@ -39,7 +39,7 @@ def _not_blank(name: str) -> str:
 class _CoreDatabaseManager(DatabaseManager):
 
     def __init__(self, channel: Channel):
-        self._stub = TypeDBCoreStub(channel)
+        self._stub = TypeDBStub(channel)
 
     def get(self, name: str) -> _CoreDatabase:
         if self.contains(name):
@@ -57,5 +57,5 @@ class _CoreDatabaseManager(DatabaseManager):
         databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).names
         return [_CoreDatabase(self._stub, name) for name in databases]
 
-    def stub(self) -> TypeDBCoreStub:
+    def stub(self) -> TypeDBStub:
         return self._stub

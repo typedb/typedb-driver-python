@@ -21,12 +21,12 @@
 
 from typedb.api.database import Database
 from typedb.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
-from typedb.common.rpc.stub import TypeDBCoreStub
+from typedb.common.rpc.stub import TypeDBStub
 
 
 class _CoreDatabase(Database):
 
-    def __init__(self, stub: TypeDBCoreStub, name: str):
+    def __init__(self, stub: TypeDBStub, name: str):
         self._name = name
         self._stub = stub
 

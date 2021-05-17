@@ -28,7 +28,7 @@ from grpc import RpcError
 from typedb.api.query.future import QueryFuture
 from typedb.common.concurrent.atomic import AtomicBoolean
 from typedb.common.exception import TypeDBClientException, UNKNOWN_REQUEST_ID, TRANSACTION_CLOSED, ILLEGAL_ARGUMENT
-from typedb.common.rpc.stub import TypeDBCoreStub
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.stream.request_transmitter import RequestTransmitter
 from typedb.stream.response_collector import ResponseCollector
 from typedb.stream.response_part_iterator import ResponsePartIterator
@@ -38,7 +38,7 @@ T = TypeVar('T')
 
 class BidirectionalStream:
 
-    def __init__(self, stub: TypeDBCoreStub, transmitter: RequestTransmitter):
+    def __init__(self, stub: TypeDBStub, transmitter: RequestTransmitter):
         self._response_collector: ResponseCollector[Union[transaction_proto.Transaction.Res, transaction_proto.Transaction.ResPart]] = ResponseCollector()
         self._request_iterator = RequestIterator()
         self._response_iterator = stub.transaction(self._request_iterator)

@@ -29,7 +29,7 @@ from typedb.api.query.future import QueryFuture
 from typedb.api.transaction import _TypeDBTransactionExtended, TransactionType
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
-from typedb.common.rpc.stub import TypeDBCoreStub
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
@@ -53,7 +53,7 @@ class _CoreTransaction(_TypeDBTransactionExtended):
         try:
             # Other TypeDBClient implementations reuse a single gRPC Channel, but the Python client stalls
             # when opening several transactions in parallel from one Channel.
-            stub = TypeDBCoreStub(insecure_channel(session.address()))
+            stub = TypeDBStub(insecure_channel(session.address()))
             self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
             req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
             self.execute(request=req, batch=False)
