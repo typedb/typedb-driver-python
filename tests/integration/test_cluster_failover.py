@@ -21,8 +21,8 @@ import unittest
 from time import sleep
 from unittest import TestCase
 
-from grakn.api.database import ClusterDatabaseManager
-from grakn.client import *
+from typedb.api.database import ClusterDatabaseManager
+from typedb.client import *
 
 
 SCHEMA = SessionType.SCHEMA
@@ -33,16 +33,16 @@ READ = TransactionType.READ
 class TestClusterFailover(TestCase):
 
     def setUp(self):
-        with Grakn.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
-            if client.databases().contains("grakn"):
-                client.databases().get("grakn").delete()
-            client.databases().create("grakn")
+        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+            if client.databases().contains("typedb"):
+                client.databases().get("typedb").delete()
+            client.databases().create("typedb")
 
     def get_primary_replica(self, database_manager: ClusterDatabaseManager):
         retry_num = 0
         while retry_num < 10:
-            print("Discovering replicas for database 'grakn'...")
-            db = database_manager.get("grakn")
+            print("Discovering replicas for database 'typedb'...")
+            db = database_manager.get("typedb")
             print("Discovered " + str([str(replica) for replica in db.replicas()]))
             if db.primary_replica():
                 return db.primary_replica()
@@ -54,15 +54,15 @@ class TestClusterFailover(TestCase):
         assert False, "Retry limit exceeded while seeking a primary replica."
 
     def test_put_entity_type_to_crashed_primary_replica(self):
-        with Grakn.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
-            assert client.databases().contains("grakn")
+        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+            assert client.databases().contains("typedb")
             primary_replica = self.get_primary_replica(client.databases())
             print("Performing operations against the primary replica " + str(primary_replica))
-            with client.session("grakn", SCHEMA) as session, session.transaction(WRITE) as tx:
+            with client.session("typedb", SCHEMA) as session, session.transaction(WRITE) as tx:
                 tx.concepts().put_entity_type("person")
                 print("Put the entity type 'person'.")
                 tx.commit()
-            with client.session("grakn", SCHEMA) as session, session.transaction(READ) as tx:
+            with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
                 person = tx.concepts().get_entity_type("person")
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
                 assert person.get_label().name() == "person"
@@ -78,12 +78,12 @@ class TestClusterFailover(TestCase):
                 subprocess.check_call(["kill", "-9", primary_replica_server_pid])
                 print("Primary replica stopped successfully.")
                 sleep(0.5)
-                with client.session("grakn", SCHEMA) as session, session.transaction(READ) as tx:
+                with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
                     person = tx.concepts().get_entity_type("person")
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]
-                subprocess.Popen(["./%s/grakn" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730" % (idx, idx), "--peer", "127.0.0.1:11729:11730", "--peer", "127.0.0.1:21729:21730", "--peer", "127.0.0.1:31729:31730"])
+                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730" % (idx, idx), "--peer", "127.0.0.1:11729:11730", "--peer", "127.0.0.1:21729:21730", "--peer", "127.0.0.1:31729:31730"])
                 lsof = None
                 live_check_iteration = 0
                 while not lsof and live_check_iteration < 60:

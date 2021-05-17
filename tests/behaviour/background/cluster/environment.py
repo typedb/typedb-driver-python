@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from grakn.client import Grakn
+from typedb.client import TypeDB
 from tests.behaviour.background import environment_base
 from tests.behaviour.context import Context
 
@@ -26,7 +26,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-cluster"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = Grakn.cluster_client(addresses=["localhost:" + context.config.userdata["port"]])
+    context.client = TypeDB.cluster_client(addresses=["localhost:" + context.config.userdata["port"]])
 
 
 def before_scenario(context: Context, scenario):

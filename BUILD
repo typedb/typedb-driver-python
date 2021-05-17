@@ -19,26 +19,26 @@
 
 exports_files(["requirements.txt", "deployment.bzl", "RELEASE_TEMPLATE.md"])
 
-load("@graknlabs_client_python_pip//:requirements.bzl",
-       graknlabs_client_python_requirement = "requirement")
+load("@vaticle_typedb_client_python_pip//:requirements.bzl",
+       vaticle_typedb_client_python_requirement = "requirement")
 
-load("@graknlabs_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
-load("@graknlabs_bazel_distribution_pip//:requirements.bzl", graknlabs_bazel_distribution_requirement = "requirement")
-load("@graknlabs_bazel_distribution//github:rules.bzl", "deploy_github")
+load("@vaticle_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
+load("@vaticle_bazel_distribution_pip//:requirements.bzl", vaticle_bazel_distribution_requirement = "requirement")
+load("@vaticle_bazel_distribution//github:rules.bzl", "deploy_github")
 
-load("@graknlabs_dependencies//tool/release:rules.bzl", "release_validate_python_deps")
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
-load("@graknlabs_dependencies//distribution:deployment.bzl", "deployment")
+load("@vaticle_dependencies//tool/release:rules.bzl", "release_validate_python_deps")
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
+load("@vaticle_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
 
 
 py_library(
     name = "client_python",
-    srcs = glob(["grakn/**/*.py"]),
+    srcs = glob(["typedb/**/*.py"]),
     deps = [
-        graknlabs_client_python_requirement("grakn-protocol"),
-        graknlabs_client_python_requirement("protobuf"),
-        graknlabs_client_python_requirement("grpcio"),
+        vaticle_typedb_client_python_requirement("typedb-protocol"),
+        vaticle_typedb_client_python_requirement("protobuf"),
+        vaticle_typedb_client_python_requirement("grpcio"),
     ],
     visibility = ["//visibility:public"]
 )
@@ -48,7 +48,7 @@ checkstyle_test(
     include = glob([
         "*",
         ".grabl/automation.yml",
-        "grakn/**/*",
+        "typedb/**/*",
     ]),
     license_type = "apache",
     size = "small",
@@ -57,7 +57,7 @@ checkstyle_test(
 assemble_pip(
     name = "assemble-pip",
     target = ":client_python",
-    package_name = "grakn-client",
+    package_name = "typedb-client",
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -73,13 +73,13 @@ assemble_pip(
         "Environment :: Console",
         "Topic :: Database :: Front-Ends"
     ],
-    url = "https://github.com/graknlabs/client-python/",
-    author = "Grakn Labs",
-    author_email = "community@grakn.ai",
+    url = "https://github.com/vaticle/typedb-client-python/",
+    author = "Vaticle",
+    author_email = "community@vaticle.com",
     license = "Apache-2.0",
     requirements_file = "//:requirements.txt",
-    keywords = ["grakn", "database", "graph", "knowledgebase", "knowledge-engineering"],
-    description = "Grakn Client for Python",
+    keywords = ["typedb", "database", "graph", "knowledgebase", "knowledge-engineering"],
+    description = "TypeDB Client for Python",
     long_description_file = "//:README.md",
 )
 
@@ -95,7 +95,7 @@ deploy_pip(
 deploy_github(
     name = "deploy-github",
     release_description = "//:RELEASE_TEMPLATE.md",
-    title = "Grakn Client Python",
+    title = "TypeDB Client Python",
     title_append_version = True,
     organisation = github_deployment["github.organisation"],
     repository = github_deployment["github.repository"],
@@ -106,7 +106,7 @@ release_validate_python_deps(
     name = "release-validate-python-deps",
     requirements = "//:requirements.txt",
     tagged_deps = [
-        "grakn-protocol",
+        "typedb-protocol",
     ],
 )
 
@@ -114,8 +114,8 @@ release_validate_python_deps(
 filegroup(
     name = "ci",
     data = [
-        "@graknlabs_dependencies//tool/checkstyle:test-coverage",
-        "@graknlabs_dependencies//distribution/artifact:create-netrc",
-        "@graknlabs_dependencies//tool/release:create-notes",
+        "@vaticle_dependencies//tool/checkstyle:test-coverage",
+        "@vaticle_dependencies//distribution/artifact:create-netrc",
+        "@vaticle_dependencies//tool/release:create-notes",
     ],
 )

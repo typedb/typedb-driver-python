@@ -25,9 +25,9 @@ from behave import register_type
 from behave.model import Table
 
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
-from grakn.api.concept.type.attribute_type import AttributeType
-from grakn.api.transaction import TransactionType
-from grakn.common.label import Label
+from typedb.api.concept.type.attribute_type import AttributeType
+from typedb.api.transaction import TransactionType
+from typedb.common.label import Label
 
 
 @parse.with_pattern(r"true|false")

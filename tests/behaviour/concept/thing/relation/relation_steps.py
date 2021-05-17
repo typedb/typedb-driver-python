@@ -21,15 +21,15 @@ from datetime import datetime
 from behave import *
 from hamcrest import *
 
-from grakn.common.exception import GraknClientException
-from grakn.common.label import Label
+from typedb.common.exception import TypeDBClientException
+from typedb.common.label import Label
 from tests.behaviour.config.parameters import parse_dict, parse_var
 from tests.behaviour.context import Context
 
 
 @step("relation({type_label}) create new instance; throws exception")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(context.tx().concepts().get_relation_type(type_label).as_remote(context.tx()).create), raises(GraknClientException))
+    assert_that(calling(context.tx().concepts().get_relation_type(type_label).as_remote(context.tx()).create), raises(TypeDBClientException))
 
 
 @step("{var:Var} = relation({type_label}) create new instance")
@@ -88,7 +88,7 @@ def adding_player_throws_exception(context: Context, var1: str, role_label: str,
             context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label),
             context.get(var2))
         assert False;
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 

@@ -1,33 +1,33 @@
-# Grakn Client for Python
+# TypeDB Client for Python
 
-[![Grabl](https://grabl.io/api/status/graknlabs/client-python/badge.svg)](https://grabl.io/graknlabs/grakn)
-[![GitHub release](https://img.shields.io/github/release/graknlabs/client-python.svg)](https://github.com/graknlabs/grakn/releases/latest)
-[![Discord](https://img.shields.io/discord/665254494820368395?color=7389D8&label=chat&logo=discord&logoColor=ffffff)](https://grakn.ai/discord)
-[![Discussion Forum](https://img.shields.io/discourse/https/discuss.grakn.ai/topics.svg)](https://discuss.grakn.ai)
-[![Stack Overflow](https://img.shields.io/badge/stackoverflow-grakn-796de3.svg)](https://stackoverflow.com/questions/tagged/grakn)
-[![Stack Overflow](https://img.shields.io/badge/stackoverflow-graql-3dce8c.svg)](https://stackoverflow.com/questions/tagged/graql)
+[![Grabl](https://grabl.io/api/status/vaticle/typedb-client-python/badge.svg)](https://grabl.io/vaticle/typedb)
+[![GitHub release](https://img.shields.io/github/release/vaticle/typedb-client-python.svg)](https://github.com/vaticle/typedb/releases/latest)
+[![Discord](https://img.shields.io/discord/665254494820368395?color=7389D8&label=chat&logo=discord&logoColor=ffffff)](https://vaticle.com/discord)
+[![Discussion Forum](https://img.shields.io/discourse/https/forum.vaticle.com/topics.svg)](https://forum.vaticle.com)
+[![Stack Overflow](https://img.shields.io/badge/stackoverflow-typedb-796de3.svg)](https://stackoverflow.com/questions/tagged/typedb)
+[![Stack Overflow](https://img.shields.io/badge/stackoverflow-typeql-3dce8c.svg)](https://stackoverflow.com/questions/tagged/typeql)
 
 ## Client Architecture
-To learn about the mechanism that a Grakn Client uses to set up communication with databases running on the Grakn Server, refer to [Grakn > Client API > Overview](http://dev.grakn.ai/docs/client-api/overview).
+To learn about the mechanism that a TypeDB Client uses to set up communication with databases running on the TypeDB Server, refer to [TypeDB > Client API > Overview](http://docs.vaticle.com/docs/client-api/overview).
 
 ## API Reference
-To learn about the methods available for executing queries and retrieving their answers using Client Python, refer to [Grakn > Client API > Python > API Reference](http://dev.grakn.ai/docs/client-api/python#api-reference).
+To learn about the methods available for executing queries and retrieving their answers using Client Python, refer to [TypeDB > Client API > Python > API Reference](http://docs.vaticle.com/docs/client-api/python#api-reference).
 
 ## Concept API
-To learn about the methods available on the concepts retrieved as the answers to Graql queries, refer to [Grakn > Concept API > Overview](http://dev.grakn.ai/docs/concept-api/overview)
+To learn about the methods available on the concepts retrieved as the answers to TypeQL queries, refer to [TypeDB > Concept API > Overview](http://docs.vaticle.com/docs/concept-api/overview)
 
-## Install Grakn Client for Python through Pip
+## Install TypeDB Client for Python through Pip
 ```
-pip install grakn-client
+pip install typedb-client
 ```
 If multiple Python versions are available, you may wish to use
 ```
-pip3 install grakn-client
+pip3 install typedb-client
 ```
 
-In your python program, import from grakn.client:
+In your python program, import from typedb.client:
 ```py
-from grakn.client import *
+from typedb.client import *
 
-client = Grakn.core_client(address=Grakn.DEFAULT_ADDRESS)
+client = TypeDB.core_client(address=TypeDB.DEFAULT_ADDRESS)
 ```

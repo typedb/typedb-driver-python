@@ -20,8 +20,8 @@
 from behave import *
 from hamcrest import *
 
-from grakn.common.exception import GraknClientException
-from grakn.common.label import Label
+from typedb.common.exception import TypeDBClientException
+from typedb.common.label import Label
 from tests.behaviour.config.parameters import parse_list, parse_bool, parse_label
 from tests.behaviour.context import Context
 
@@ -31,7 +31,7 @@ def step_impl(context: Context, relation_label: str, role_label: str, super_role
     try:
         context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label, overridden_label=super_role)
         assert False
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 
@@ -45,7 +45,7 @@ def step_impl(context: Context, relation_label: str, role_label: str):
     try:
         context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).set_relates(role_label)
         assert False
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 
@@ -59,7 +59,7 @@ def step_impl(context: Context, relation_label: str, role_label: str):
     try:
         context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).unset_relates(role_label)
         assert False
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 

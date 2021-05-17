@@ -24,9 +24,9 @@ from typing import Callable, List
 from behave import *
 from hamcrest import *
 
-from grakn.api.options import GraknOptions
-from grakn.api.transaction import GraknTransaction, TransactionType
-from grakn.common.exception import GraknClientException
+from typedb.api.options import TypeDBOptions
+from typedb.api.transaction import TypeDBTransaction, TransactionType
+from typedb.common.exception import TypeDBClientException
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
 from tests.behaviour.context import Context
 
@@ -35,7 +35,7 @@ def for_each_session_open_transaction_of_type(context: Context, transaction_type
     for session in context.sessions:
         transactions = []
         for transaction_type in transaction_types:
-            opts = GraknOptions.core()
+            opts = TypeDBOptions.core()
             opts.infer = True
             transaction = session.transaction(transaction_type, opts)
             transactions.append(transaction)
@@ -63,7 +63,7 @@ def open_transactions_of_type_throws_exception(context: Context, transaction_typ
             try:
                 session.transaction(transaction_type)
                 assert False
-            except GraknClientException:
+            except TypeDBClientException:
                 pass
 
 
@@ -80,13 +80,13 @@ def step_impl(context: Context):
     open_transactions_of_type_throws_exception(context, list(map(lambda raw_type: parse_transaction_type(raw_type), parse_list(context.table))))
 
 
-def for_each_session_transactions_are(context: Context, assertion: Callable[[GraknTransaction], None]):
+def for_each_session_transactions_are(context: Context, assertion: Callable[[TypeDBTransaction], None]):
     for session in context.sessions:
         for transaction in context.sessions_to_transactions[session]:
             assertion(transaction)
 
 
-def assert_transaction_null(transaction: GraknTransaction, is_null: bool):
+def assert_transaction_null(transaction: TypeDBTransaction, is_null: bool):
     assert_that(transaction is None, is_(is_null))
 
 
@@ -98,7 +98,7 @@ def step_impl(context: Context, is_null):
     for_each_session_transactions_are(context, lambda tx: assert_transaction_null(tx, is_null))
 
 
-def assert_transaction_open(transaction: GraknTransaction, is_open: bool):
+def assert_transaction_open(transaction: TypeDBTransaction, is_open: bool):
     assert_that(transaction.is_open(), is_(is_open))
 
 
@@ -122,13 +122,13 @@ def step_impl(context: Context):
     try:
         context.tx().commit()
         assert False
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 
 @step("transaction commits; throws exception containing \"{exception}\"")
 def step_impl(context: Context, exception: str):
-    assert_that(calling(context.tx().commit), raises(GraknClientException, exception))
+    assert_that(calling(context.tx().commit), raises(TypeDBClientException, exception))
 
 
 @step("for each session, transaction commits")
@@ -147,7 +147,7 @@ def step_impl(context: Context):
             try:
                 transaction.commit()
                 assert False
-            except GraknClientException:
+            except TypeDBClientException:
                 pass
 
 
@@ -200,7 +200,7 @@ def step_impl(context: Context):
                 context.sessions_to_transactions_parallel[session].append(executor.submit(partial(session.transaction, type_)))
 
 
-def for_each_session_transactions_in_parallel_are(context: Context, assertion: Callable[[GraknTransaction], None]):
+def for_each_session_transactions_in_parallel_are(context: Context, assertion: Callable[[TypeDBTransaction], None]):
     for session in context.sessions:
         for future_transaction in context.sessions_to_transactions_parallel[session]:
             assertion(future_transaction.result())
@@ -262,5 +262,5 @@ def step_impl(context: Context, exception: str):
             try:
                 next(transaction.query().define(context.text), default=None)
                 assert False
-            except GraknClientException as e:
+            except TypeDBClientException as e:
                 assert_that(exception, is_in(str(e)))

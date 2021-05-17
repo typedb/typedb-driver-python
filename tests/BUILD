@@ -18,27 +18,27 @@
 #
 
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
-load("//tools:cluster_test_rule.bzl", "grakn_cluster_py_test")
-load("@graknlabs_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
-load("@graknlabs_common//test:rules.bzl", "native_grakn_artifact")
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
+load("//tools:cluster_test_rule.bzl", "typedb_cluster_py_test")
+load("@vaticle_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
+load("@vaticle_typedb_common//test:rules.bzl", "native_typedb_artifact")
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
-native_grakn_artifact(
-    name = "native-grakn-core-artifact",
-    mac_artifact = "@graknlabs_grakn_core_artifact_mac//file",
-    linux_artifact = "@graknlabs_grakn_core_artifact_linux//file",
-    windows_artifact = "@graknlabs_grakn_core_artifact_windows//file",
-    output = "grakn-core-server-artifact.tar.gz",
+native_typedb_artifact(
+    name = "native-typedb-artifact",
+    mac_artifact = "@vaticle_typedb_artifact_mac//file",
+    linux_artifact = "@vaticle_typedb_artifact_linux//file",
+    windows_artifact = "@vaticle_typedb_artifact_windows//file",
+    output = "typedb-server-artifact.tar.gz",
     visibility = ["//tests:__subpackages__"],
 )
 
-native_grakn_artifact(
-    name = "native-grakn-cluster-artifact",
-    mac_artifact = "@graknlabs_grakn_cluster_artifact_mac//file",
-    linux_artifact = "@graknlabs_grakn_cluster_artifact_linux//file",
-    windows_artifact = "@graknlabs_grakn_cluster_artifact_windows//file",
-    output = "grakn-cluster-server-artifact.tar.gz",
+native_typedb_artifact(
+    name = "native-typedb-cluster-artifact",
+    mac_artifact = "@vaticle_typedb_cluster_artifact_mac//file",
+    linux_artifact = "@vaticle_typedb_cluster_artifact_linux//file",
+    windows_artifact = "@vaticle_typedb_cluster_artifact_windows//file",
+    output = "typedb-cluster-server-artifact.tar.gz",
     visibility = ["//tests:__subpackages__"],
 )
 
@@ -64,7 +64,7 @@ py_test(
     python_version = "PY3"
 )
 
-grakn_cluster_py_test(
+typedb_cluster_py_test(
     name = "test_cluster_failover",
     srcs = [
         "integration/test_cluster_failover.py",
@@ -73,10 +73,10 @@ grakn_cluster_py_test(
         "//:client_python",
     ],
     size = "medium",
-    native_grakn_cluster_artifact = ":native-grakn-cluster-artifact",
+    native_typedb_cluster_artifact = ":native-typedb-cluster-artifact",
 )
 
 artifact_extractor(
-    name = "grakn-extractor",
-    artifact = ":native-grakn-core-artifact",
+    name = "typedb-extractor",
+    artifact = ":native-typedb-artifact",
 )

@@ -17,93 +17,93 @@
 # under the License.
 #
 
-workspace(name = "graknlabs_client_python")
+workspace(name = "vaticle_typedb_client_python")
 
 ################################
-# Load @graknlabs_dependencies #
+# Load @vaticle_dependencies #
 ################################
 
-load("//dependencies/graknlabs:repositories.bzl", "graknlabs_dependencies")
-graknlabs_dependencies()
+load("//dependencies/vaticle:repositories.bzl", "vaticle_dependencies")
+vaticle_dependencies()
 
 # Load //builder/bazel for RBE
-load("@graknlabs_dependencies//builder/bazel:deps.bzl", "bazel_toolchain")
+load("@vaticle_dependencies//builder/bazel:deps.bzl", "bazel_toolchain")
 bazel_toolchain()
 
 # Load //builder/java
-load("@graknlabs_dependencies//builder/java:deps.bzl", java_deps = "deps")
+load("@vaticle_dependencies//builder/java:deps.bzl", java_deps = "deps")
 java_deps()
 
 # Load //builder/kotlin
-load("@graknlabs_dependencies//builder/kotlin:deps.bzl", kotlin_deps = "deps")
+load("@vaticle_dependencies//builder/kotlin:deps.bzl", kotlin_deps = "deps")
 kotlin_deps()
 load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kotlin_repositories", "kt_register_toolchains")
 kotlin_repositories()
 kt_register_toolchains()
 
 # Load //builder/python
-load("@graknlabs_dependencies//builder/python:deps.bzl", python_deps = "deps")
+load("@vaticle_dependencies//builder/python:deps.bzl", python_deps = "deps")
 python_deps()
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip_import")
 pip_repositories()
 
 # Load //builder/grpc
-load("@graknlabs_dependencies//builder/grpc:deps.bzl", grpc_deps = "deps")
+load("@vaticle_dependencies//builder/grpc:deps.bzl", grpc_deps = "deps")
 grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl",
 com_github_grpc_grpc_deps = "grpc_deps")
 com_github_grpc_grpc_deps()
 
 # Load //tool/common
-load("@graknlabs_dependencies//tool/common:deps.bzl", "graknlabs_dependencies_ci_pip",
-    graknlabs_dependencies_tool_maven_artifacts = "maven_artifacts")
-graknlabs_dependencies_ci_pip()
+load("@vaticle_dependencies//tool/common:deps.bzl", "vaticle_dependencies_ci_pip",
+    vaticle_dependencies_tool_maven_artifacts = "maven_artifacts")
+vaticle_dependencies_ci_pip()
 
 # Load //tool/checkstyle
-load("@graknlabs_dependencies//tool/checkstyle:deps.bzl", checkstyle_deps = "deps")
+load("@vaticle_dependencies//tool/checkstyle:deps.bzl", checkstyle_deps = "deps")
 checkstyle_deps()
 
 ######################################
-# Load @graknlabs_bazel_distribution #
+# Load @vaticle_bazel_distribution #
 ######################################
 
-load("@graknlabs_dependencies//distribution:deps.bzl", "graknlabs_bazel_distribution")
-graknlabs_bazel_distribution()
+load("@vaticle_dependencies//distribution:deps.bzl", "vaticle_bazel_distribution")
+vaticle_bazel_distribution()
 
 # Load //common
-load("@graknlabs_bazel_distribution//common:deps.bzl", "rules_pkg")
+load("@vaticle_bazel_distribution//common:deps.bzl", "rules_pkg")
 rules_pkg()
 load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
 rules_pkg_dependencies()
 
 # Load //pip
-load("@graknlabs_bazel_distribution//pip:deps.bzl", pip_deps = "deps")
+load("@vaticle_bazel_distribution//pip:deps.bzl", pip_deps = "deps")
 pip_deps()
 
 # Load //github
-load("@graknlabs_bazel_distribution//github:deps.bzl", github_deps = "deps")
+load("@vaticle_bazel_distribution//github:deps.bzl", github_deps = "deps")
 github_deps()
 
 ################################
-# Load @graknlabs dependencies #
+# Load @vaticle dependencies #
 ################################
 
-load("//dependencies/graknlabs:repositories.bzl", "graknlabs_common", "graknlabs_behaviour")
-graknlabs_common()
-graknlabs_behaviour()
+load("//dependencies/vaticle:repositories.bzl", "vaticle_typedb_common", "vaticle_typedb_behaviour")
+vaticle_typedb_common()
+vaticle_typedb_behaviour()
 
 # Load artifacts
-load("//dependencies/graknlabs:artifacts.bzl", "graknlabs_grakn_core_artifacts", "graknlabs_grakn_cluster_artifacts")
-graknlabs_grakn_core_artifacts()
-graknlabs_grakn_cluster_artifacts()
+load("//dependencies/vaticle:artifacts.bzl", "vaticle_typedb_artifacts", "vaticle_typedb_cluster_artifacts")
+vaticle_typedb_artifacts()
+vaticle_typedb_cluster_artifacts()
 
 #################################
-# Load @graknlabs_client_python #
+# Load @vaticle_typedb_client_python #
 #################################
 
 load("@rules_python//python:pip.bzl", "pip_install")
 pip_install(
-    name = "graknlabs_client_python_pip",
+    name = "vaticle_typedb_client_python_pip",
     requirements = "//:requirements_dev.txt",
 )
 
@@ -111,13 +111,13 @@ pip_install(
 # Load @maven dependencies #
 ############################
 
-load("@graknlabs_dependencies//library/maven:rules.bzl", "maven")
-maven(graknlabs_dependencies_tool_maven_artifacts)
+load("@vaticle_dependencies//library/maven:rules.bzl", "maven")
+maven(vaticle_dependencies_tool_maven_artifacts)
 
 ##################################################
-# Create @graknlabs_client_python_workspace_refs #
+# Create @vaticle_typedb_client_python_workspace_refs #
 ##################################################
-load("@graknlabs_bazel_distribution//common:rules.bzl", "workspace_refs")
+load("@vaticle_bazel_distribution//common:rules.bzl", "workspace_refs")
 workspace_refs(
-    name = "graknlabs_client_python_workspace_refs"
+    name = "vaticle_typedb_client_python_workspace_refs"
 )

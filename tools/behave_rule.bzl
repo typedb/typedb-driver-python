@@ -26,7 +26,7 @@
 # * http://pythonhosted.org/behave/gherkin.html
 # =============================================================================
 
-# TODO: We should split this rule up into grakn_py_behave_test and py_behave_test.
+# TODO: We should split this rule up into typedb_py_behave_test and py_behave_test.
 def _rule_implementation(ctx):
     """
     Implementation of the rule py_behave_test.
@@ -38,36 +38,36 @@ def _rule_implementation(ctx):
     # behave requires a 'steps' folder to exist in the test root directory.
     steps_out_dir = ctx.files.feats[0].dirname + "/steps"
 
-    grakn_distro = str(ctx.files.native_grakn_artifact[0].short_path)
+    typedb_distro = str(ctx.files.native_typedb_artifact[0].short_path)
 
-    cmd = "set -e && GRAKN_DISTRO=%s" % grakn_distro
+    cmd = "set -e && TYPEDB_DISTRO=%s" % typedb_distro
     cmd += """
 
-           if test -d grakn_distribution; then
+           if test -d typedb_distribution; then
              echo Existing distribution detected. Cleaning.
-             rm -rf grakn_distribution
+             rm -rf typedb_distribution
            fi
-           mkdir grakn_distribution
-           echo Attempting to unarchive Grakn distribution from $GRAKN_DISTRO
-           if [[ ${GRAKN_DISTRO: -7} == ".tar.gz" ]]; then
-             tar -xf $GRAKN_DISTRO -C ./grakn_distribution
+           mkdir typedb_distribution
+           echo Attempting to unarchive TypeDB distribution from $TYPEDB_DISTRO
+           if [[ ${TYPEDB_DISTRO: -7} == ".tar.gz" ]]; then
+             tar -xf $TYPEDB_DISTRO -C ./typedb_distribution
            else
-             if [[ ${GRAKN_DISTRO: -4} == ".zip" ]]; then
-               unzip -q $GRAKN_DISTRO -d ./grakn_distribution
+             if [[ ${TYPEDB_DISTRO: -4} == ".zip" ]]; then
+               unzip -q $TYPEDB_DISTRO -d ./typedb_distribution
              else
                echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
                exit 1
              fi
            fi
-           DIRECTORY=$(ls ./grakn_distribution)
+           DIRECTORY=$(ls ./typedb_distribution)
 
-           if [[ $GRAKN_DISTRO == *"cluster"* ]]; then
+           if [[ $TYPEDB_DISTRO == *"cluster"* ]]; then
              PRODUCT=Cluster
            else
              PRODUCT=Core
            fi
 
-           echo Successfully unarchived Grakn $PRODUCT distribution.
+           echo Successfully unarchived TypeDB $PRODUCT distribution.
 
            RND=20001
            while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
@@ -76,12 +76,12 @@ def _rule_implementation(ctx):
            done
            PORT=$((40000 + $RND))
 
-           echo Starting Grakn $PRODUCT Server.
-           mkdir ./grakn_distribution/"$DIRECTORY"/grakn_test
+           echo Starting TypeDB $PRODUCT Server.
+           mkdir ./typedb_distribution/"$DIRECTORY"/typedb_test
            if [[ $PRODUCT == "Core" ]]; then
-             ./grakn_distribution/"$DIRECTORY"/grakn server --port $PORT --data grakn_test &
+             ./typedb_distribution/"$DIRECTORY"/typedb server --port $PORT --data typedb_test &
            else
-             ./grakn_distribution/"$DIRECTORY"/grakn server --address "127.0.0.1:$PORT:$(($PORT+1))" --data grakn_test &
+             ./typedb_distribution/"$DIRECTORY"/typedb server --address "127.0.0.1:$PORT:$(($PORT+1))" --data typedb_test &
            fi
 
            POLL_INTERVAL_SECS=0.5
@@ -90,7 +90,7 @@ def _rule_implementation(ctx):
            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
-               echo Waiting for Grakn $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
+               echo Waiting for TypeDB $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
              fi
              lsof -i :$PORT && STARTED=1 || STARTED=0
              if [[ $STARTED -eq 1 ]]; then
@@ -99,10 +99,10 @@ def _rule_implementation(ctx):
              sleep $POLL_INTERVAL_SECS
            done
            if [[ $STARTED -eq 0 ]]; then
-             echo Failed to start Grakn $PRODUCT server
+             echo Failed to start TypeDB $PRODUCT server
              exit 1
            fi
-           echo Grakn $PRODUCT database server started
+           echo TypeDB $PRODUCT database server started
 
            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
@@ -133,7 +133,7 @@ def _rule_implementation(ctx):
     # https://bazel.build/versions/master/docs/skylark/rules.html#runfiles
     return [DefaultInfo(
         # The shell executable - the output of this rule - can use these files at runtime.
-        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps + ctx.files.native_grakn_artifact)
+        runfiles = ctx.runfiles(files = ctx.files.feats + ctx.files.background + ctx.files.steps + ctx.files.deps + ctx.files.native_typedb_artifact)
     )]
 
 """
@@ -159,30 +159,30 @@ py_behave_test = rule(
         "steps": attr.label_list(mandatory=True,allow_empty=False),
         "background": attr.label_list(mandatory=True,allow_empty=False),
         "deps": attr.label_list(mandatory=True,allow_empty=False),
-        "native_grakn_artifact": attr.label(mandatory=True)
+        "native_typedb_artifact": attr.label(mandatory=True)
     },
     test=True,
 )
 
 
-def grakn_behaviour_py_test(
+def typedb_behaviour_py_test(
         name,
         background_core,
         background_cluster,
-        native_grakn_artifact_core,
-        native_grakn_artifact_cluster,
+        native_typedb_artifact,
+        native_typedb_cluster_artifact,
         **kwargs):
 
     py_behave_test(
         name = name + "-core",
         background = background_core,
-        native_grakn_artifact = native_grakn_artifact_core,
+        native_typedb_artifact = native_typedb_artifact,
         **kwargs,
     )
 
     py_behave_test(
         name = name + "-cluster",
         background = background_cluster,
-        native_grakn_artifact = native_grakn_artifact_cluster,
+        native_typedb_artifact = native_typedb_cluster_artifact,
         **kwargs,
     )

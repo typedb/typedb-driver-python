@@ -19,27 +19,27 @@
 
 import unittest
 import uuid
-import grakn
-from grakn import GraknClient, ValueType, Transaction
-from grakn import GraknError
+import typedb
+from typedb import TypeDBClient, ValueType, Transaction
+from typedb import TypeDBError
 
-from tests.integration.base import test_base, GraknServer
+from tests.integration.base import test_base, TypeDBServer
 
 
 # TODO: we should ensure that all these tests are migrated to BDD
 class test_client_PreDbSetup(test_base):
     """ Tests Database interactions *before* anything needs to be inserted/created """
 
-    # --- Test grakn client instantiation for one URI ---
+    # --- Test typedb client instantiation for one URI ---
     def test_client_init_valid(self):
         """ Test valid URI """
-        a_inst = GraknClient('localhost:48555')
-        self.assertIsInstance(a_inst, GraknClient)
+        a_inst = TypeDBClient('localhost:48555')
+        self.assertIsInstance(a_inst, TypeDBClient)
         a_inst.close()
 
     def test_client_with_statement(self):
         """ Test that client is compatible with using `with` """
-        with GraknClient("localhost:48555") as client:
+        with TypeDBClient("localhost:48555") as client:
             with client.session("testing") as session:
                 with session.transaction().read() as tx:
                     tx.query("match $x sub thing; get;")
@@ -48,13 +48,13 @@ class test_client_PreDbSetup(test_base):
 
     def test_client_init_invalid_uri(self):
         """ Test invalid URI """
-        with self.assertRaises(GraknError):
-            a_inst = GraknClient('localhost:1000')
+        with self.assertRaises(TypeDBError):
+            a_inst = TypeDBClient('localhost:1000')
             a_session = a_inst.session('testkeyspace')
             a_session.transaction().read()
 
-        with self.assertRaises(GraknError):
-            a_inst = GraknClient('localhost:1000')
+        with self.assertRaises(TypeDBError):
+            a_inst = TypeDBClient('localhost:1000')
             with a_inst.session("test") as s:
                 with s.transaction().read() as tx:
                     pass
@@ -64,50 +64,50 @@ class test_client_PreDbSetup(test_base):
     # --- Test client session for different keyspaces ---
     def test_client_session_valid_keyspace(self):
         """ Test OK uri and keyspace """
-        a_inst = GraknClient('localhost:48555')
+        a_inst = TypeDBClient('localhost:48555')
         a_session = a_inst.session('test')
-        self.assertIsInstance(a_session, grakn.rpc.Session)
+        self.assertIsInstance(a_session, typedb.rpc.Session)
         tx = a_session.transaction().read()
         tx.close()
         a_session.close()
 
         # test the `with` statement
         with a_inst.session('test') as session:
-            self.assertIsInstance(session, grakn.rpc.Session)
+            self.assertIsInstance(session, typedb.rpc.Session)
             tx = session.transaction().read()
             tx.close()
 
         a_inst.close()
 
     def test_client_session_invalid_keyspace(self):
-        client = GraknClient('localhost:48555')
+        client = TypeDBClient('localhost:48555')
         with self.assertRaises(TypeError):
             a_session = client.session(123)
             tx = a_session.transaction().read() # won't fail until opening a transaction
-        inst2 = GraknClient('localhost:48555')
-        with self.assertRaises(GraknError):
+        inst2 = TypeDBClient('localhost:48555')
+        with self.assertRaises(TypeDBError):
             a_session = inst2.session('')
             tx = a_session.transaction().read() # won't fail until opening a transaction
         client.close()
 
     def test_client_session_close(self):
-        client = GraknClient('localhost:48555')
+        client = TypeDBClient('localhost:48555')
         a_session = client.session('test')
         a_session.close()
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             a_session.transaction().read()
         client.close()
 
-    # --- Test grakn session transactions that are pre-DB setup ---
+    # --- Test typedb session transactions that are pre-DB setup ---
     def test_client_tx_valid_enum(self):
-        client = GraknClient('localhost:48555')
+        client = TypeDBClient('localhost:48555')
         a_session = client.session('test')
         tx = a_session.transaction().read()
-        self.assertIsInstance(tx, grakn.rpc.Transaction)
+        self.assertIsInstance(tx, typedb.rpc.Transaction)
         client.close()
 
     def test_client_tx_invalid_enum(self):
-        client = GraknClient('localhost:48555')
+        client = TypeDBClient('localhost:48555')
         a_session = client.session('test')
         with self.assertRaises(Exception):
             a_session.transaction('foo')
@@ -126,7 +126,7 @@ class test_client_base(test_base):
         super(test_client_base, cls).setUpClass()
 
         global client, session
-        client = GraknClient("localhost:48555")
+        client = TypeDBClient("localhost:48555")
         keyspace = "test_" + str(uuid.uuid4()).replace("-", "_")[:8]
         session = client.session(keyspace)
 
@@ -143,7 +143,7 @@ class test_client_base(test_base):
                          "age sub attribute, value long; "
                          "gender sub attribute, value string; "
                          "parentship sub relation, relates parent, relates child, relates mother, relates son;")
-            except GraknError as ce:
+            except TypeDBError as ce:
                 print(ce)
     
             answers = list(tx.query("match $x isa person, has age 20; get;"))
@@ -196,9 +196,9 @@ class test_Transaction(test_client_base):
 
     def test_query_invalid_syntax(self):
         """ Invalid syntax -- expected behavior is an exception & closed transaction """
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             next(self.tx.query("match $x bob marley; get"))
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             # should be closed
             next(self.tx.query("match $x isa person; get;"))
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after invalid syntax")
@@ -284,7 +284,7 @@ class test_Transaction(test_client_base):
 
     def test_query_tx_already_closed(self):
         self.tx.close()
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             self.tx.query("match $x isa person; get;")
             
         self.assertFalse(self.tx.is_open(), msg="Tx is not closed after close()")
@@ -298,13 +298,13 @@ class test_Transaction(test_client_base):
     def test_query_errors_async(self):
         answer = self.tx.query("match $x isa unicorn; get;")
 
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             answer.get()
 
     def test_query_errors_async_on_commit(self):
         self.tx.query("match $x isa unicorn; get;")
 
-        with self.assertRaises(GraknError):
+        with self.assertRaises(TypeDBError):
             self.tx.commit()
 
 
@@ -436,5 +436,5 @@ class test_Transaction(test_client_base):
 
 
 if __name__ == "__main__":
-    with GraknServer():
+    with TypeDBServer():
         unittest.main(verbosity=2)

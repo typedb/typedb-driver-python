@@ -19,7 +19,7 @@
 
 def _rule_implementation(ctx):
     """
-    Implementation of the rule grakn_cluster_py_test.
+    Implementation of the rule typedb_cluster_py_test.
     """
 
     # Store the path of the test source file. It is recommended to only have one source file.
@@ -28,35 +28,35 @@ def _rule_implementation(ctx):
 #    # behave requires a 'steps' folder to exist in the test root directory.
 #    steps_out_dir = ctx.files.feats[0].dirname + "/steps"
 
-    grakn_cluster_distro = str(ctx.files.native_grakn_cluster_artifact[0].short_path)
+    typedb_cluster_distro = str(ctx.files.native_typedb_cluster_artifact[0].short_path)
 
-    # TODO: This code is, mostly, copied from our Grakn behave test
-    cmd = "set -e && GRAKN_ARCHIVE=%s" % grakn_cluster_distro
+    # TODO: This code is, mostly, copied from our TypeDB behave test
+    cmd = "set -e && TYPEDB_ARCHIVE=%s" % typedb_cluster_distro
     cmd += """
 
-           if test -d grakn_distribution; then
+           if test -d typedb_distribution; then
              echo Existing distribution detected. Cleaning.
-             rm -rf grakn_distribution
+             rm -rf typedb_distribution
            fi
-           mkdir grakn_distribution
-           echo Attempting to unarchive Grakn distribution from $GRAKN_ARCHIVE
-           if [[ ${GRAKN_ARCHIVE: -7} == ".tar.gz" ]]; then
-             tar -xf $GRAKN_ARCHIVE -C ./grakn_distribution
+           mkdir typedb_distribution
+           echo Attempting to unarchive TypeDB distribution from $TYPEDB_ARCHIVE
+           if [[ ${TYPEDB_ARCHIVE: -7} == ".tar.gz" ]]; then
+             tar -xf $TYPEDB_ARCHIVE -C ./typedb_distribution
            else
-             if [[ ${GRAKN_ARCHIVE: -4} == ".zip" ]]; then
-               unzip -q $GRAKN_ARCHIVE -d ./grakn_distribution
+             if [[ ${TYPEDB_ARCHIVE: -4} == ".zip" ]]; then
+               unzip -q $TYPEDB_ARCHIVE -d ./typedb_distribution
              else
                echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
                exit 1
              fi
            fi
-           GRAKN=$(ls ./grakn_distribution)
-           echo Successfully unarchived Grakn distribution. Creating 3 copies.
-           cp -r grakn_distribution/$GRAKN/ 1 && cp -r grakn_distribution/$GRAKN/ 2 && cp -r grakn_distribution/$GRAKN/ 3
-           echo Starting 3 Grakn servers.
-           ./1/grakn server --data server/data --address 127.0.0.1:11729:11730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
-           ./2/grakn server --data server/data --address 127.0.0.1:21729:21730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
-           ./3/grakn server --data server/data --address 127.0.0.1:31729:31730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
+           TYPEDB=$(ls ./typedb_distribution)
+           echo Successfully unarchived TypeDB distribution. Creating 3 copies.
+           cp -r typedb_distribution/$TYPEDB/ 1 && cp -r typedb_distribution/$TYPEDB/ 2 && cp -r typedb_distribution/$TYPEDB/ 3
+           echo Starting 3 TypeDB servers.
+           ./1/typedb server --data server/data --address 127.0.0.1:11729:11730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
+           ./2/typedb server --data server/data --address 127.0.0.1:21729:21730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
+           ./3/typedb server --data server/data --address 127.0.0.1:31729:31730 --peer 127.0.0.1:11729:11730 --peer 127.0.0.1:21729:21730 --peer 127.0.0.1:31729:31730 &
 
            POLL_INTERVAL_SECS=0.5
            MAX_RETRIES=60
@@ -64,7 +64,7 @@ def _rule_implementation(ctx):
            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
-               echo Waiting for Grakn Cluster servers to start \($(($RETRY_NUM / 2))s\)...
+               echo Waiting for TypeDB Cluster servers to start \($(($RETRY_NUM / 2))s\)...
              fi
              lsof -i :11729 && STARTED1=1 || STARTED1=0
              lsof -i :21729 && STARTED2=1 || STARTED2=0
@@ -75,10 +75,10 @@ def _rule_implementation(ctx):
              sleep $POLL_INTERVAL_SECS
            done
            if [[ $STARTED1 -eq 0 || $STARTED2 -eq 0 || $STARTED3 -eq 0 ]]; then
-             echo Failed to start one or more Grakn Cluster servers
+             echo Failed to start one or more TypeDB Cluster servers
              exit 1
            fi
-           echo 3 Grakn Cluster database servers started
+           echo 3 TypeDB Cluster database servers started
 
            """
 
@@ -86,7 +86,7 @@ def _rule_implementation(ctx):
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping servers.
-           kill $(jps | awk '/GraknServer/ {print $1}' | paste -sd " " -)
+           kill $(jps | awk '/TypeDBServer/ {print $1}' | paste -sd " " -)
            exit $RESULT
            """
 
@@ -105,7 +105,7 @@ def _rule_implementation(ctx):
     # https://bazel.build/versions/master/docs/skylark/rules.html#runfiles
     return [DefaultInfo(
         # The shell executable - the output of this rule - can use these files at runtime.
-        runfiles = ctx.runfiles(files = ctx.files.srcs + ctx.files.deps + ctx.files.native_grakn_cluster_artifact)
+        runfiles = ctx.runfiles(files = ctx.files.srcs + ctx.files.deps + ctx.files.native_typedb_cluster_artifact)
     )]
 
 """
@@ -123,12 +123,12 @@ Args:
   deps:
     System to test.
 """
-grakn_cluster_py_test = rule(
+typedb_cluster_py_test = rule(
     implementation=_rule_implementation,
     attrs={
         "srcs": attr.label_list(mandatory=True,allow_empty=False,allow_files=True),
         "deps": attr.label_list(mandatory=True,allow_empty=False),
-        "native_grakn_cluster_artifact": attr.label(mandatory=True)
+        "native_typedb_cluster_artifact": attr.label(mandatory=True)
     },
     test=True,
 )

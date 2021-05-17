@@ -20,14 +20,14 @@
 from behave import *
 from hamcrest import *
 
-from grakn.common.exception import GraknClientException
-from grakn.common.label import Label
+from typedb.common.exception import TypeDBClientException
+from typedb.common.label import Label
 from tests.behaviour.context import Context
 
 
 @step("entity({type_label}) create new instance; throws exception")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).create), raises(GraknClientException))
+    assert_that(calling(context.tx().concepts().get_entity_type(type_label).as_remote(context.tx()).create), raises(TypeDBClientException))
 
 
 @step("{var:Var} = entity({type_label}) create new instance")

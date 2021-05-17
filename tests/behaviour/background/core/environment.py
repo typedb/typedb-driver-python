@@ -18,7 +18,7 @@
 #
 
 from tests.behaviour.background import environment_base
-from grakn.client import Grakn
+from typedb.client import TypeDB
 from tests.behaviour.context import Context
 
 
@@ -27,7 +27,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-core"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = Grakn.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
+    context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
 
 
 def before_scenario(context: Context, scenario):

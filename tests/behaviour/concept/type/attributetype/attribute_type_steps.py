@@ -20,7 +20,7 @@
 from behave import *
 from hamcrest import *
 
-from grakn.api.concept.type.attribute_type import AttributeType
+from typedb.api.concept.type.attribute_type import AttributeType
 from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
 from tests.behaviour.context import Context
 

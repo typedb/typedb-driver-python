@@ -18,8 +18,8 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "grakn_behaviour_py_test")
-load("@graknlabs_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
+load("//tools:behave_rule.bzl", "typedb_behaviour_py_test")
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
     name = "steps",
@@ -27,9 +27,9 @@ py_library(
     deps = [],
 )
 
-grakn_behaviour_py_test(
+typedb_behaviour_py_test(
     name = "test",
-    feats = ["@graknlabs_behaviour//connection:session.feature"],
+    feats = ["@vaticle_typedb_behaviour//connection:session.feature"],
     background_core = ["//tests/behaviour/background:core"],
     background_cluster = ["//tests/behaviour/background:cluster"],
     steps = [
@@ -37,7 +37,7 @@ grakn_behaviour_py_test(
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",
         "//tests/behaviour/connection/transaction:steps",
-        "//tests/behaviour/graql:steps",
+        "//tests/behaviour/typeql:steps",
     ],
     deps = [
         "//:client_python",
@@ -46,8 +46,8 @@ grakn_behaviour_py_test(
         "//tests/behaviour:util",
         "//tests/behaviour/background",
     ],
-    native_grakn_artifact_core = "//tests:native-grakn-core-artifact",
-    native_grakn_artifact_cluster = "//tests:native-grakn-cluster-artifact",
+    native_typedb_artifact = "//tests:native-typedb-artifact",
+    native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
     size = "small",
 )
 

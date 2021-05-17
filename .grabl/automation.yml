@@ -27,29 +27,29 @@ config:
 build:
   quality:
     filter:
-      owner: graknlabs
+      owner: vaticle
       branch: master
     dependency-analysis:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       command: |
-        bazel run @graknlabs_dependencies//grabl/analysis:dependency-analysis
+        bazel run @vaticle_dependencies//factory/analysis:dependency-analysis
   correctness:
     build:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         bazel build //...
-        bazel run @graknlabs_dependencies//tool/checkstyle:test-coverage
+        bazel run @vaticle_dependencies//tool/checkstyle:test-coverage
         bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
     test-behaviour-connection:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -58,12 +58,12 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         bazel test //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-concept:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -72,12 +72,12 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         bazel test //tests/behaviour/concept/... --test_output=errors
     test-behaviour-match:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -86,13 +86,13 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/match/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/get/... --test_output=errors
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+        bazel test //tests/behaviour/typeql/language/match/... --test_output=errors
+        bazel test //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-writable:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -101,14 +101,14 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/insert/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/delete/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/update/... --test_output=errors
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+        bazel test //tests/behaviour/typeql/language/insert/... --test_output=errors
+        bazel test //tests/behaviour/typeql/language/delete/... --test_output=errors
+        bazel test //tests/behaviour/typeql/language/update/... --test_output=errors
     test-behaviour-definable:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -117,14 +117,14 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
-        bazel test //tests/behaviour/graql/language/define/... --test_output=errors
-        bazel test //tests/behaviour/graql/language/undefine/... --test_output=errors
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+        bazel test //tests/behaviour/typeql/language/define/... --test_output=errors
+        bazel test //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-cluster-failover:
       machine: 4-core-8-gb
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -133,15 +133,15 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         bazel test //tests:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       dependencies: [build, test-behaviour-connection, test-behaviour-concept, test-behaviour-match, test-behaviour-writable, test-behaviour-definable, test-cluster-failover]
       filter:
-        owner: graknlabs
+        owner: vaticle
         branch: master
       type: foreground
       command: |
@@ -150,14 +150,14 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export DEPLOY_PIP_USERNAME=$REPO_GRAKN_USERNAME
-        export DEPLOY_PIP_PASSWORD=$REPO_GRAKN_PASSWORD
+        export DEPLOY_PIP_USERNAME=$REPO_VATICLE_USERNAME
+        export DEPLOY_PIP_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
     test-deployment-pip:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       dependencies: [deploy-pip-snapshot]
       filter:
-        owner: graknlabs
+        owner: vaticle
         branch: master
       type: foreground
       command: |
@@ -166,46 +166,46 @@ build:
         sudo unlink /usr/bin/python3
         sudo ln -s $(which python3) /usr/bin/python3
         sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        bazel run //tests:grakn-extractor -- grakn-core-all-linux
-        ./grakn-core-all-linux/grakn server &
-        pip install --extra-index-url https://repo.grakn.ai/repository/pypi-snapshot/simple grakn-client==0.0.0-$GRABL_COMMIT
+        bazel run //tests:typedb-extractor -- typedb-all-linux
+        ./typedb-all-linux/typedb server &
+        pip install --extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple typedb-client==0.0.0-$GRABL_COMMIT
         cd tests/deployment/ && python -m unittest test && export TEST_SUCCESS=0 || export TEST_SUCCESS=1
-        kill $(jps | awk '/GraknServer/ {print $1}')
+        kill $(jps | awk '/TypeDBServer/ {print $1}')
         exit $TEST_SUCCESS
 
 
 release:
   filter:
-    owner: graknlabs
+    owner: vaticle
     branch: master
   validation:
     validate-dependencies:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       command: bazel test //:release-validate-python-deps --test_output=streamed
   deployment:
     deploy-github:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       command: |
         pyenv install -s 3.6.10
         pyenv global 3.6.10 system
         pip3 install -U pip
         pip install certifi
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         export RELEASE_NOTES_TOKEN=$REPO_GITHUB_TOKEN
-        bazel run @graknlabs_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
+        bazel run @vaticle_dependencies//tool/release:create-notes -- client-python $(cat VERSION) ./RELEASE_TEMPLATE.md
         export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
         bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
-      image: graknlabs-ubuntu-20.04
+      image: vaticle-ubuntu-20.04
       command: |
         pyenv install -s 3.6.10
         pyenv global 3.6.10 system
         pip3 install -U pip
-        export ARTIFACT_USERNAME=$REPO_GRAKN_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_GRAKN_PASSWORD
-        bazel run @graknlabs_dependencies//distribution/artifact:create-netrc
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         export DEPLOY_PIP_USERNAME=$REPO_PYPI_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_PYPI_PASSWORD
         bazel run --define version=$(cat VERSION) //:deploy-pip -- release

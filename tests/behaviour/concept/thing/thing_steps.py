@@ -20,8 +20,8 @@
 from behave import *
 from hamcrest import *
 
-from grakn.common.exception import GraknClientException
-from grakn.common.label import Label
+from typedb.common.exception import TypeDBClientException
+from typedb.common.label import Label
 from tests.behaviour.config.parameters import parse_bool, RootLabel
 from tests.behaviour.context import Context
 
@@ -62,7 +62,7 @@ def step_impl(context: Context, var1: str, var2: str):
     try:
         context.get(var1).as_remote(context.tx()).set_has(context.get(var2))
         assert False
-    except GraknClientException:
+    except TypeDBClientException:
         pass
 
 

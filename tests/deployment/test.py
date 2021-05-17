@@ -20,7 +20,7 @@
 import unittest
 from unittest import TestCase
 
-from grakn.client import *
+from typedb.client import *
 
 
 SCHEMA = SessionType.SCHEMA
@@ -31,14 +31,14 @@ WRITE = TransactionType.WRITE
 
 class TestClientPython(TestCase):
     """
-    Very basic tests to ensure no error occur when performing simple operations with the grakn-client distribution
+    Very basic tests to ensure no error occur when performing simple operations with the typedb-client distribution
     """
 
     @classmethod
     def setUpClass(cls):
         super(TestClientPython, cls).setUpClass()
         global client
-        client = Grakn.core_client(Grakn.DEFAULT_ADDRESS)
+        client = TypeDB.core_client(TypeDB.DEFAULT_ADDRESS)
 
     @classmethod
     def tearDownClass(cls):
@@ -47,26 +47,26 @@ class TestClientPython(TestCase):
         client.close()
 
     def setUp(self):
-        if not client.databases().contains("grakn"):
-            client.databases().create("grakn")
+        if not client.databases().contains("typedb"):
+            client.databases().create("typedb")
 
     def test_database(self):
-        if client.databases().contains("grakn"):
-            client.databases().get("grakn").delete()
-        client.databases().create("grakn")
-        self.assertTrue(client.databases().contains("grakn"))
+        if client.databases().contains("typedb"):
+            client.databases().get("typedb").delete()
+        client.databases().create("typedb")
+        self.assertTrue(client.databases().contains("typedb"))
 
     def test_session(self):
-        session = client.session("grakn", SCHEMA)
+        session = client.session("typedb", SCHEMA)
         session.close()
 
     def test_transaction(self):
-        with client.session("grakn", SCHEMA) as session:
+        with client.session("typedb", SCHEMA) as session:
             with session.transaction(WRITE) as tx:
                 pass
 
     def test_define_and_undef_relation_type(self):
-        with client.session("grakn", SCHEMA) as session:
+        with client.session("typedb", SCHEMA) as session:
             with session.transaction(WRITE) as tx:
                 tx.query().define("define lionfight sub relation, relates victor, relates loser;")
                 lionfight_type = tx.concepts().get_relation_type("lionfight")
@@ -75,11 +75,11 @@ class TestClientPython(TestCase):
                 tx.commit()
 
     def test_insert_some_entities(self):
-        with client.session("grakn", SCHEMA) as session:
+        with client.session("typedb", SCHEMA) as session:
             with session.transaction(WRITE) as tx:
                 tx.query().define("define lion sub entity;")
                 tx.commit()
-        with client.session("grakn", DATA) as session:
+        with client.session("typedb", DATA) as session:
             with session.transaction(WRITE) as tx:
                 for answer in tx.query().insert("insert $a isa lion; $b isa lion; $c isa lion;"):
                     print("insert: " + str(answer))

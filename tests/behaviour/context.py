@@ -22,26 +22,26 @@ from typing import List, Union, Optional, Dict
 import behave.runner
 from behave.model import Table
 
-from grakn.api.client import GraknClient
-from grakn.api.answer.concept_map import ConceptMap
-from grakn.api.answer.concept_map_group import ConceptMapGroup
-from grakn.api.answer.numeric import Numeric
-from grakn.api.answer.numeric_group import NumericGroup
-from grakn.api.concept.concept import Concept
-from grakn.api.concept.thing.attribute import Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, \
+from typedb.api.client import TypeDBClient
+from typedb.api.answer.concept_map import ConceptMap
+from typedb.api.answer.concept_map_group import ConceptMapGroup
+from typedb.api.answer.numeric import Numeric
+from typedb.api.answer.numeric_group import NumericGroup
+from typedb.api.concept.concept import Concept
+from typedb.api.concept.thing.attribute import Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, \
     StringAttribute, DateTimeAttribute
-from grakn.api.concept.thing.entity import Entity
-from grakn.api.concept.thing.relation import Relation
-from grakn.api.concept.thing.thing import Thing
-from grakn.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
+from typedb.api.concept.thing.entity import Entity
+from typedb.api.concept.thing.relation import Relation
+from typedb.api.concept.thing.thing import Thing
+from typedb.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
     DoubleAttributeType, StringAttributeType, DateTimeAttributeType
-from grakn.api.concept.type.entity_type import EntityType
-from grakn.api.concept.type.relation_type import RelationType
-from grakn.api.concept.type.role_type import RoleType
-from grakn.api.concept.type.thing_type import ThingType
-from grakn.api.concept.type.type import Type
-from grakn.api.session import GraknSession
-from grakn.api.transaction import GraknTransaction
+from typedb.api.concept.type.entity_type import EntityType
+from typedb.api.concept.type.relation_type import RelationType
+from typedb.api.concept.type.role_type import RoleType
+from typedb.api.concept.type.thing_type import ThingType
+from typedb.api.concept.type.type import Type
+from typedb.api.session import TypeDBSession
+from typedb.api.transaction import TypeDBTransaction
 from tests.behaviour.config.parameters import RootLabel
 
 AttributeSubtype = Union[Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]
@@ -69,11 +69,11 @@ class Context(behave.runner.Context):
     def __init__(self):
         self.table: Optional[Table] = None
         self.THREAD_POOL_SIZE = 0
-        self.client: Optional[GraknClient] = None
-        self.sessions: List[GraknSession] = []
-        self.sessions_to_transactions: Dict[GraknSession, List[GraknTransaction]] = {}
-        self.sessions_parallel: List[Future[GraknSession]] = []
-        self.sessions_parallel_to_transactions_parallel: Dict[Future[GraknSession], List[GraknTransaction]] = {}
+        self.client: Optional[TypeDBClient] = None
+        self.sessions: List[TypeDBSession] = []
+        self.sessions_to_transactions: Dict[TypeDBSession, List[TypeDBTransaction]] = {}
+        self.sessions_parallel: List[Future[TypeDBSession]] = []
+        self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
         self.things: Dict[str, ThingSubtype] = {}
         self.answers: Optional[List[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
@@ -81,7 +81,7 @@ class Context(behave.runner.Context):
         self.numeric_answer_groups: Optional[List[NumericGroup]] = None
         self.config = Config()
 
-    def tx(self) -> GraknTransaction:
+    def tx(self) -> TypeDBTransaction:
         return self.sessions_to_transactions[self.sessions[0]][0]
 
     def put(self, var: str, thing: ThingSubtype) -> None:
