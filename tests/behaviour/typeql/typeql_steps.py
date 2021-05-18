@@ -474,3 +474,10 @@ def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
         assert_that(list(context.tx().query().match(query)), has_length(1))
+
+
+@step("each answer does not satisfy")
+def step_impl(context: Context):
+    for answer in context.answers:
+        query = apply_query_template(template=context.text, answer=answer)
+        assert_that(list(context.tx().query().match(query)), has_length(0))
