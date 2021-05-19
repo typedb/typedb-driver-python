@@ -23,9 +23,8 @@ from typing import Iterable, Dict, Set
 from typedb.api.client import TypeDBClusterClient
 from typedb.api.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.session import SessionType
-from typedb.cluster.database import _ClusterDatabase
+from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.cluster.database_manager import _ClusterDatabaseManager
-from typedb.cluster.failsafe_task import _FailsafeTask
 from typedb.cluster.session import _ClusterSession
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req

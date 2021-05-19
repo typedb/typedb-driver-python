@@ -79,13 +79,13 @@ class TestClusterFailover(TestCase):
                 print("Primary replica is hosted by server with PID %s" % primary_replica_server_pid)
                 subprocess.check_call(["kill", "-9", primary_replica_server_pid])
                 print("Primary replica stopped successfully.")
-                sleep(0.5)
+                sleep(5)  # TODO: This ensures the server is actually shut down, but it's odd that it needs to be so long
                 with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
                     person = tx.concepts().get_entity_type("person")
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]
-                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730" % (idx, idx), "--peer", "127.0.0.1:11729:11730", "--peer", "127.0.0.1:21729:21730", "--peer", "127.0.0.1:31729:31730"])
+                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731"])
                 lsof = None
                 live_check_iteration = 0
                 while not lsof and live_check_iteration < 60:
@@ -94,7 +94,6 @@ class TestClusterFailover(TestCase):
                         lsof = subprocess.check_output(["lsof", "-i", ":%s" % port])
                     except subprocess.CalledProcessError:
                         pass
-                    sleep(0.5)
 
 
 if __name__ == "__main__":

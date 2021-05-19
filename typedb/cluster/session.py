@@ -23,8 +23,7 @@ from typing import TYPE_CHECKING
 from typedb.api.options import TypeDBClusterOptions, TypeDBOptions
 from typedb.api.session import TypeDBSession, SessionType
 from typedb.api.transaction import TransactionType
-from typedb.cluster.database import _ClusterDatabase
-from typedb.cluster.failsafe_task import _FailsafeTask
+from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.core.database import _CoreDatabase
 from typedb.core.transaction import _CoreTransaction
 
