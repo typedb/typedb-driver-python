@@ -18,33 +18,39 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from abc import ABC, abstractmethod
+from time import sleep
 from typing import Dict, Optional, Set, TYPE_CHECKING
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 
 from typedb.api.database import ClusterDatabase
+from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_REPLICA_NOT_PRIMARY, \
+    CLUSTER_UNABLE_TO_CONNECT
+from typedb.common.rpc.request_builder import cluster_database_manager_get_req
 from typedb.core.database import _CoreDatabase
 
 if TYPE_CHECKING:
-    from typedb.cluster.database_manager import _ClusterDatabaseManager
+    from typedb.cluster.client import _ClusterClient
 
 
 class _ClusterDatabase(ClusterDatabase):
 
-    def __init__(self, database: str, cluster_database_mgr: "_ClusterDatabaseManager"):
+    def __init__(self, database: str, client: "_ClusterClient"):
         self._name = database
-        self._database_mgr = cluster_database_mgr
+        self._client = client
         self._databases: Dict[str, _CoreDatabase] = {}
         self._replicas: Set["_ClusterDatabase.Replica"] = set()
-        for address in cluster_database_mgr.database_mgrs():
-            core_database_mgr = cluster_database_mgr.database_mgrs()[address]
+        cluster_db_mgr = client.databases()
+        for address in cluster_db_mgr.database_mgrs():
+            core_database_mgr = cluster_db_mgr.database_mgrs()[address]
             self._databases[address] = _CoreDatabase(core_database_mgr.stub(), name=database)
 
     @staticmethod
-    def of(proto_db: cluster_database_proto.ClusterDatabase, cluster_database_mgr: "_ClusterDatabaseManager") -> "_ClusterDatabase":
+    def of(proto_db: cluster_database_proto.ClusterDatabase, client: "_ClusterClient") -> "_ClusterDatabase":
         assert proto_db.replicas
         database: str = proto_db.name
-        database_cluster_rpc = _ClusterDatabase(database, cluster_database_mgr)
+        database_cluster_rpc = _ClusterDatabase(database, client)
         for proto_replica in proto_db.replicas:
             database_cluster_rpc.replicas().add(_ClusterDatabase.Replica.of(proto_replica, database_cluster_rpc))
         print("Discovered database cluster: %s" % database_cluster_rpc)
@@ -57,9 +63,8 @@ class _ClusterDatabase(ClusterDatabase):
         return next(iter(self._databases.values())).schema()
 
     def delete(self) -> None:
-        for address in self._databases:
-            if self._database_mgr.database_mgrs()[address].contains(self._name):
-                self._databases[address].delete()
+        delete_db_task = _DeleteDatabaseFailsafeTask(self._client, self._name, self._databases)
+        delete_db_task.run_primary_replica()
 
     def replicas(self):
         return self._replicas
@@ -142,3 +147,99 @@ class _ClusterDatabase(ClusterDatabase):
 
             def __str__(self):
                 return "%s/%s" % (self._address, self._database)
+
+
+# This class has to live here because of circular class creation between ClusterDatabase and FailsafeTask
+class _FailsafeTask(ABC):
+
+    PRIMARY_REPLICA_TASK_MAX_RETRIES = 10
+    FETCH_REPLICAS_MAX_RETRIES = 10
+    WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS: float = 2
+
+    def __init__(self, client: "_ClusterClient", database: str):
+        self.client = client
+        self.database = database
+
+    @abstractmethod
+    def run(self, replica: "_ClusterDatabase.Replica"):
+        pass
+
+    def rerun(self, replica: "_ClusterDatabase.Replica"):
+        return self.run(replica)
+
+    def run_primary_replica(self):
+        if self.database not in self.client.database_by_name() or not self.client.database_by_name()[self.database].primary_replica():
+            self._seek_primary_replica()
+        replica = self.client.database_by_name()[self.database].primary_replica()
+        retries = 0
+        while True:
+            try:
+                return self.run(replica) if retries == 0 else self.rerun(replica)
+            except TypeDBClientException as e:
+                if e.error_message in [CLUSTER_REPLICA_NOT_PRIMARY, UNABLE_TO_CONNECT]:
+                    print("Unable to open a session or transaction, retrying in 2s... %s" % str(e))
+                    sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
+                    replica = self._seek_primary_replica()
+                else:
+                    raise e
+            retries += 1
+            if retries > self.PRIMARY_REPLICA_TASK_MAX_RETRIES:
+                raise self._cluster_not_available_exception()
+
+    def run_any_replica(self):
+        if self.database in self.client.database_by_name():
+            cluster_database = self.client.database_by_name()[self.database]
+        else:
+            cluster_database = self._fetch_database_replicas()
+
+        replicas = [cluster_database.preferred_replica()] + [replica for replica in cluster_database.replicas() if not replica.is_preferred()]
+        retries = 0
+        for replica in replicas:
+            try:
+                return self.run(replica) if retries == 0 else self.rerun(replica)
+            except TypeDBClientException as e:
+                if e.error_message is UNABLE_TO_CONNECT:
+                    print("Unable to open a session or transaction to %s. Attempting next replica. %s" % (str(replica.replica_id()), str(e)))
+                else:
+                    raise e
+            retries += 1
+        raise self._cluster_not_available_exception()
+
+    def _seek_primary_replica(self) -> "_ClusterDatabase.Replica":
+        retries = 0
+        while retries < self.FETCH_REPLICAS_MAX_RETRIES:
+            cluster_database = self._fetch_database_replicas()
+            if cluster_database.primary_replica():
+                return cluster_database.primary_replica()
+            else:
+                sleep(self.WAIT_FOR_PRIMARY_REPLICA_SELECTION_SECONDS)
+                retries += 1
+        raise self._cluster_not_available_exception()
+
+    def _fetch_database_replicas(self) -> "_ClusterDatabase":
+        for server_address in self.client.cluster_members():
+            try:
+                print("Fetching replica info from %s" % server_address)
+                res = self.client.stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
+                cluster_database = _ClusterDatabase.of(res.database, self.client)
+                self.client.database_by_name()[self.database] = cluster_database
+                return cluster_database
+            except TypeDBClientException as e:
+                if e.error_message is UNABLE_TO_CONNECT:
+                    print("Unable to fetch replica info for database '%s' from %s. Attempting next address. %s" % (self.database, server_address, str(e)))
+                else:
+                    raise e
+        raise self._cluster_not_available_exception()
+
+    def _cluster_not_available_exception(self) -> TypeDBClientException:
+        return TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, str([str(addr) for addr in self.client.cluster_members()]))
+
+
+class _DeleteDatabaseFailsafeTask(_FailsafeTask):
+
+    def __init__(self, client: "_ClusterClient", database: str, databases: Dict[str, _CoreDatabase]):
+        super().__init__(client, database)
+        self.databases = databases
+
+    def run(self, replica: _ClusterDatabase.Replica):
+        self.databases.get(replica.address()).delete()
