@@ -83,7 +83,7 @@ def _rule_implementation(ctx):
            if [[ $PRODUCT == "Core" ]]; then
              ./typedb_distribution/"$DIRECTORY"/typedb server --port $PORT --data typedb_test &
            else
-             ./typedb_distribution/"$DIRECTORY"/typedb server --address "127.0.0.1:$PORT:$(($PORT+1))" --data typedb_test &
+             ./typedb_distribution/"$DIRECTORY"/typedb server --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test &
            fi
 
            POLL_INTERVAL_SECS=0.5
