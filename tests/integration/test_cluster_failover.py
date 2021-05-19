@@ -69,7 +69,7 @@ class TestClusterFailover(TestCase):
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
                 assert person.get_label().name() == "person"
             iteration = 0
-            while iteration < 2:
+            while iteration < 10:
                 iteration += 1
                 primary_replica = self.get_primary_replica(client.databases())
                 print("Stopping primary replica (test %d/10)..." % iteration)
