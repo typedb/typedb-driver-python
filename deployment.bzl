@@ -21,5 +21,5 @@
 
 deployment = {
     "github.organisation" : "vaticle",
-    "github.repository" : "client-python",
+    "github.repository" : "typedb-client-python",
 }
