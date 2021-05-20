@@ -85,14 +85,12 @@ assemble_pip(
     long_description_file = "//:README.md",
 )
 
-
 deploy_pip(
     name = "deploy-pip",
     target = ":assemble-pip",
     snapshot = deployment["pypi.snapshot"],
     release = deployment["pypi.release"],
 )
-
 
 deploy_github(
     name = "deploy-github",
