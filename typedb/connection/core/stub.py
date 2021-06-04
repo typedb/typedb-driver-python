@@ -1,3 +1,4 @@
+#
 #   Copyright (C) 2021 Vaticle
 # 
 #   Licensed to the Apache Software Foundation (ASF) under one
@@ -16,7 +17,7 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
-
+#
 from typedb.common.rpc.stub import TypeDBStub
 from grpc import Channel
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto

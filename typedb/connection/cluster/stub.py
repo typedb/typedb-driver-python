@@ -1,3 +1,4 @@
+#
 #   Copyright (C) 2021 Vaticle
 #
 #   Licensed to the Apache Software Foundation (ASF) under one
@@ -16,6 +17,7 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
+#
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
 import typedb_protocol.cluster.cluster_service_pb2_grpc as cluster_service_proto

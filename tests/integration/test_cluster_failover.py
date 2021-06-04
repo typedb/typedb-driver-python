@@ -18,6 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import os
 import subprocess
 import unittest
 from time import sleep
@@ -35,7 +36,9 @@ READ = TransactionType.READ
 class TestClusterFailover(TestCase):
 
     def setUp(self):
-        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+        root_ca_path = os.environ["ROOT_CA"]
+        credential = TypeDBCredential("admin", "password", root_ca_path)
+        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
             if client.databases().contains("typedb"):
                 client.databases().get("typedb").delete()
             client.databases().create("typedb")

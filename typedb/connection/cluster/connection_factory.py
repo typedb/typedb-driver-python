@@ -1,3 +1,4 @@
+#
 #   Copyright (C) 2021 Vaticle
 #
 #   Licensed to the Apache Software Foundation (ASF) under one
@@ -16,11 +17,10 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
-
+#
 import grpc
 
 from typedb.api.connection.credential import TypeDBCredential
-from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.connection_factory import _TypeDBConnectionFactory
 

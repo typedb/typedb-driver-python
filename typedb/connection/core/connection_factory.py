@@ -1,3 +1,4 @@
+#
 #   Copyright (C) 2021 Vaticle
 #
 #   Licensed to the Apache Software Foundation (ASF) under one
@@ -16,7 +17,7 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
-
+#
 from grpc import Channel, insecure_channel
 
 from typedb.common.rpc.stub import TypeDBStub
