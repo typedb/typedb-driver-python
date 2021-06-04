@@ -18,13 +18,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterable, Dict, Set
+from typing import Iterable, Dict, Set, cast
 
 from typedb.api.connection.client import TypeDBClusterClient
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
 from typedb.api.connection.user import UserManager
+from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
 from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
@@ -40,7 +41,8 @@ class _ClusterClient(TypeDBClusterClient):
     def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
         self._credential = credential
         self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._stubs = {addr: _ClusterServerStub.create(client.channel(), self._credential) for (addr, client) in self._server_clients.items()}
+        self._connection_factory = _ClusterConnectionFactory(self._credential)
+        self._stubs = {addr: client.connection_factory().newTypeDBStub(client.channel()) for (addr, client) in self._server_clients.items()}
         self._database_managers = _ClusterDatabaseManager(self)
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
         self._user_manager = _ClusterUserManager(self)
@@ -52,7 +54,7 @@ class _ClusterClient(TypeDBClusterClient):
             try:
                 print("Fetching list of cluster servers from %s..." % address)
                 with _ClusterServerClient(address, self._credential) as client:
-                    typedb_cluster_stub = _ClusterServerStub.create(client.channel(), self._credential)
+                    typedb_cluster_stub = client.connection_factory().newTypeDBStub(client.channel())
                     res = typedb_cluster_stub.servers_all(cluster_server_manager_all_req())
                     members = {srv.address for srv in res.servers}
                     print("The cluster servers are %s" % [str(member) for member in members])

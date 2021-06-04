@@ -26,3 +26,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, credential: TypeDBCredential, parallelisation: int = 2):
         super(_ClusterServerClient, self).__init__(address, _ClusterConnectionFactory(credential), parallelisation)
+
+    def connection_factory(self) -> _ClusterConnectionFactory:
+        assert isinstance(self._connection_factory, _ClusterConnectionFactory)
+        return self._connection_factory

@@ -16,15 +16,14 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
-from grpc import Channel
-
-from typedb.api.connection.credential import TypeDBCredential
-from typedb.common.rpc.stub import TypeDBStub, resilient_call
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
-import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
 import typedb_protocol.cluster.cluster_service_pb2_grpc as cluster_service_proto
+import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
+from grpc import Channel
+
+from typedb.common.rpc.stub import TypeDBStub, resilient_call
 
 
 class _ClusterServerStub(TypeDBStub):
@@ -34,8 +33,7 @@ class _ClusterServerStub(TypeDBStub):
         self._clusterStub = clusterStub
 
     @staticmethod
-    def create(channel: Channel, credential: TypeDBCredential):
-         # TODO use the credential
+    def create(channel: Channel):
         return _ClusterServerStub(
             channel,
             core_service_proto.TypeDBStub(channel),
