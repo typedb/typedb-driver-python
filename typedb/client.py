@@ -21,8 +21,8 @@
 from typing import Union, Iterable
 
 from typedb.api.connection.client import TypeDBClient, TypeDBClusterClient
-from typedb.cluster.client import _ClusterClient
-from typedb.core.client import _CoreClient
+from typedb.connection.cluster.client import _ClusterClient
+from typedb.connection.core.client import _CoreClient
 
 # Repackaging these symbols allows them to be imported from "typedb.client"
 from typedb.api.connection.options import TypeDBOptions  # noqa # pylint: disable=unused-import

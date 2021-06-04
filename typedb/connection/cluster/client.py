@@ -21,22 +21,24 @@
 from typing import Iterable, Dict, Set
 
 from typedb.api.connection.client import TypeDBClusterClient
+from typedb.api.connection.credential import TypeDBCredential
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
-from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
-from typedb.cluster.database_manager import _ClusterDatabaseManager
-from typedb.cluster.session import _ClusterSession
+from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
+from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
+from typedb.connection.cluster.server_client import _ClusterServerClient
+from typedb.connection.cluster.session import _ClusterSession
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req
-from typedb.common.rpc.stub import TypeDBClusterStub
-from typedb.core.client import _CoreClient
+from typedb.connection.cluster.stub import _ClusterServerStub
 
 
 class _ClusterClient(TypeDBClusterClient):
 
-    def __init__(self, addresses: Iterable[str], parallelisation: int = None):
-        self._core_clients: Dict[str, _CoreClient] = {addr: _CoreClient(addr, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._stubs = {addr: TypeDBClusterStub(client.channel()) for (addr, client) in self._core_clients.items()}
+    def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
+        self._credential = credential
+        self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
+        self._stubs = {addr: _ClusterServerStub.create(client.channel()) for (addr, client) in self._server_clients.items()}
         self._database_managers = _ClusterDatabaseManager(self)
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
         self._is_open = True
@@ -46,8 +48,8 @@ class _ClusterClient(TypeDBClusterClient):
         for address in addresses:
             try:
                 print("Fetching list of cluster servers from %s..." % address)
-                with _CoreClient(address) as client:
-                    typedb_cluster_stub = TypeDBClusterStub(client.channel())
+                with _ClusterServerClient(address, self._credential) as client:
+                    typedb_cluster_stub = _ClusterServerStub.create(client.channel(), self._credential)
                     res = typedb_cluster_stub.servers_all(cluster_server_manager_all_req())
                     members = {srv.address for srv in res.servers}
                     print("The cluster servers are %s" % [str(member) for member in members])
@@ -79,20 +81,20 @@ class _ClusterClient(TypeDBClusterClient):
     def database_by_name(self) -> Dict[str, _ClusterDatabase]:
         return self._cluster_databases
 
-    def core_clients(self) -> Dict[str, _CoreClient]:
-        return self._core_clients
-
     def cluster_members(self) -> Set[str]:
-        return set(self._core_clients.keys())
+        return set(self._server_clients.keys())
 
-    def core_client(self, address: str) -> _CoreClient:
-        return self._core_clients.get(address)
+    def cluster_server_clients(self) -> Dict[str, _ClusterServerClient]:
+        return self._server_clients
 
-    def stub(self, address: str) -> TypeDBClusterStub:
+    def cluster_server_client(self, address: str) -> _ClusterServerClient:
+        return self._server_clients.get(address)
+
+    def stub(self, address: str) -> _ClusterServerStub:
         return self._stubs.get(address)
 
     def close(self) -> None:
-        for client in self._core_clients.values():
+        for client in self._server_clients.values():
             client.close()
         self._is_open = False
 

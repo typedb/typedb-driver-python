@@ -19,19 +19,11 @@
 # under the License.
 #
 
-## To install all dependencies, run: pip3 install -r requirements.txt
+from typedb.connection.client import _TypeDBClientImpl
+from typedb.connection.core.connection_factory import _CoreConnectionFactory
 
 
-## Configuration options
+class _CoreClient(_TypeDBClientImpl):
 
-
-# Allow importing of snapshots
---extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple
-
-
-## Dependencies
-
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-typedb-protocol==0.0.0-80950150ffb3fac09ceafc1df1c0c2a625db0957
-grpcio==1.36.1
-protobuf==3.15.5
+    def __init__(self, address: str, parallelisation: int = 2):
+        super(_CoreClient, self).__init__(address, _CoreConnectionFactory(), parallelisation)

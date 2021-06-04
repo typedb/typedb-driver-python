@@ -1,13 +1,24 @@
+#   Copyright (C) 2021 Vaticle
 #
-# Copyright (C) 2021 Vaticle
+#   Licensed to the Apache Software Foundation (ASF) under one
+#   or more contributor license agreements.  See the NOTICE file
+#   distributed with this work for additional information
+#   regarding copyright ownership.  The ASF licenses this file
+#   to you under the Apache License, Version 2.0 (the
+#   "License"); you may not use this file except in compliance
+#   with the License.  You may obtain a copy of the License at
 #
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing,
+#   software distributed under the License is distributed on an
+#   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied.  See the License for the
+#   specific language governing permissions and limitations
+#   under the License.
+
+#
+#
 #
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -32,18 +43,19 @@ from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
 from typedb.common.concurrent.atomic import AtomicBoolean
 from typedb.common.concurrent.lock import ReadWriteLock
 from typedb.common.rpc.request_builder import session_open_req
-from typedb.core.database import _CoreDatabase
-from typedb.core.transaction import _CoreTransaction
+from typedb.common.rpc.stub import TypeDBStub
+from typedb.connection.database import _TypeDBDatabaseImpl
+from typedb.connection.transaction import _TypeDBTransactionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
 
 if TYPE_CHECKING:
-    from typedb.core.client import _CoreClient
+    from typedb.connection.client import _TypeDBClientImpl
 
 
-class _CoreSession(TypeDBSession):
+class _TypeDBSessionImpl(TypeDBSession):
     _PULSE_INTERVAL_SECONDS = 5
 
-    def __init__(self, client: "_CoreClient", database: str, session_type: SessionType, options: TypeDBOptions = None):
+    def __init__(self, client: "_TypeDBClientImpl", database: str, session_type: SessionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions.core()
         self._client = client
@@ -52,11 +64,10 @@ class _CoreSession(TypeDBSession):
         self._session_type = session_type
         self._options = options
         self._rw_lock = ReadWriteLock()
-        self._stub = client.stub()
-        self._database = _CoreDatabase(stub=self._stub, name=database)
+        self._database = _TypeDBDatabaseImpl(stub=self._stub(), name=database)
 
         start_time = time.time() * 1000.0
-        res = self._stub.session_open(session_open_req(database, session_type.proto(), options.proto()))
+        res = self._stub().session_open(session_open_req(database, session_type.proto(), options.proto()))
         end_time = time.time() * 1000.0
         self._network_latency_millis = int(end_time - start_time - res.server_duration_millis)
         self._session_id = res.session_id
@@ -71,7 +82,7 @@ class _CoreSession(TypeDBSession):
     def session_type(self) -> SessionType:
         return self._session_type
 
-    def database(self) -> _CoreDatabase:
+    def database(self) -> _TypeDBDatabaseImpl:
         return self._database
 
     def options(self) -> TypeDBOptions:
@@ -82,7 +93,7 @@ class _CoreSession(TypeDBSession):
             options = TypeDBOptions.core()
         try:
             self._rw_lock.acquire_read()
-            return _CoreTransaction(self, transaction_type, options)
+            return _TypeDBTransactionImpl(self, transaction_type, options)
         finally:
             self._rw_lock.release_read()
 
@@ -110,11 +121,17 @@ class _CoreSession(TypeDBSession):
                 req = session_proto.Session.Close.Req()
                 req.session_id = self._session_id
                 try:
-                    self._stub.session_close(req)
+                    self._stub().session_close(req)
                 except RpcError:  # This generally means the session is already closed.
                     pass
         finally:
             self._rw_lock.release_write()
+
+    def client(self) -> _TypeDBClientImpl:
+        return self._client
+
+    def _stub(self) -> TypeDBStub:
+        return self._client.stub()
 
     def _transmit_pulse(self) -> None:
         if not self.is_open():
@@ -122,7 +139,7 @@ class _CoreSession(TypeDBSession):
         pulse_req = session_proto.Session.Pulse.Req()
         pulse_req.session_id = self._session_id
         try:
-            alive = self._stub.session_pulse(pulse_req).alive
+            alive = self._stub().session_pulse(pulse_req).alive
         except RpcError:
             alive = False
 

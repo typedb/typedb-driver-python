@@ -21,24 +21,24 @@
 from typing import Dict, List, TYPE_CHECKING, Callable, TypeVar
 
 from typedb.api.connection.database import ClusterDatabaseManager
-from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
+from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.common.exception import TypeDBClientException, CLUSTER_ALL_NODES_FAILED, CLUSTER_REPLICA_NOT_PRIMARY, \
     DB_DOES_NOT_EXIST
 from typedb.common.rpc.request_builder import cluster_database_manager_get_req, cluster_database_manager_all_req
-from typedb.common.rpc.stub import TypeDBClusterStub
-from typedb.core.database_manager import _CoreDatabaseManager
+from typedb.connection.cluster.stub import _ClusterServerStub
+from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 T = TypeVar("T")
 
 if TYPE_CHECKING:
-    from typedb.cluster.client import _ClusterClient
+    from typedb.connection.cluster.client import _ClusterClient
 
 
 class _ClusterDatabaseManager(ClusterDatabaseManager):
 
     def __init__(self, client: "_ClusterClient"):
         self._client = client
-        self._database_mgrs: Dict[str, _CoreDatabaseManager] = {addr: client.databases() for (addr, client) in client.core_clients().items()}
+        self._database_mgrs: Dict[str, _TypeDBDatabaseManagerImpl] = {addr: client.databases() for (addr, client) in client.cluster_server_clients().items()}
 
     def contains(self, name: str) -> bool:
         return self._failsafe_task(name, lambda stub, core_db_mgr: core_db_mgr.contains(name))
@@ -49,7 +49,7 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
     def get(self, name: str) -> _ClusterDatabase:
         return self._failsafe_task(name, lambda stub, core_db_mgr: self._get_database_task(name, stub))
 
-    def _get_database_task(self, name: str, stub: TypeDBClusterStub):
+    def _get_database_task(self, name: str, stub: _ClusterServerStub):
         if self.contains(name):
             res = stub.databases_get(cluster_database_manager_get_req(name))
             return _ClusterDatabase.of(res.database, self._client)
@@ -65,10 +65,10 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
                 errors.append("- %s: %s\n" % (address, e))
         raise TypeDBClientException.of(CLUSTER_ALL_NODES_FAILED, str([str(e) for e in errors]))
 
-    def database_mgrs(self) -> Dict[str, _CoreDatabaseManager]:
+    def database_mgrs(self) -> Dict[str, _TypeDBDatabaseManagerImpl]:
         return self._database_mgrs
 
-    def _failsafe_task(self, name: str, task: Callable[[TypeDBClusterStub, _CoreDatabaseManager], T]):
+    def _failsafe_task(self, name: str, task: Callable[[_ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
         failsafe_task = _DatabaseManagerFailsafeTask(self._client, name, task)
         try:
             return failsafe_task.run_any_replica()
@@ -80,9 +80,9 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
 
 class _DatabaseManagerFailsafeTask(_FailsafeTask):
 
-    def __init__(self, client: "_ClusterClient", database: str, task: Callable[[TypeDBClusterStub, _CoreDatabaseManager], T]):
+    def __init__(self, client: "_ClusterClient", database: str, task: Callable[[_ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
         super().__init__(client, database)
         self.task = task
 
     def run(self, replica: _ClusterDatabase.Replica) -> T:
-        return self.task(self.client.stub(replica.address()), self.client.core_client(replica.address()).databases())
+        return self.task(self.client.stub(replica.address()), self.client.cluster_server_client(replica.address()).databases())

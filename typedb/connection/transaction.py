@@ -22,26 +22,25 @@
 from typing import TYPE_CHECKING, Iterator
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
-from grpc import insecure_channel, RpcError
+from grpc import RpcError
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
 from typedb.api.connection.transaction import _TypeDBTransactionExtended, TransactionType
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
-from typedb.common.rpc.stub import TypeDBStub
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
 from typedb.stream.bidirectional_stream import BidirectionalStream
 
 if TYPE_CHECKING:
-    from typedb.core.session import _CoreSession
+    from typedb.connection.session import _TypeDBSessionImpl
 
 
-class _CoreTransaction(_TypeDBTransactionExtended):
+class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
 
-    def __init__(self, session: "_CoreSession", transaction_type: TransactionType, options: TypeDBOptions = None):
+    def __init__(self, session: "_TypeDBSessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions.core()
         self._transaction_type = transaction_type
@@ -53,7 +52,7 @@ class _CoreTransaction(_TypeDBTransactionExtended):
         try:
             # Other TypeDBClient implementations reuse a single gRPC Channel, but the Python client stalls
             # when opening several transactions in parallel from one Channel.
-            stub = TypeDBStub(insecure_channel(session.address()))
+            stub = session.client().connection_factory().newTypeDBStub(session.client().connection_factory().newChannel(session.address()))
             self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
             req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
             self.execute(request=req, batch=False)

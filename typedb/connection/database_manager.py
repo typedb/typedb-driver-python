@@ -1,13 +1,24 @@
+#   Copyright (C) 2021 Vaticle
 #
-# Copyright (C) 2021 Vaticle
+#   Licensed to the Apache Software Foundation (ASF) under one
+#   or more contributor license agreements.  See the NOTICE file
+#   distributed with this work for additional information
+#   regarding copyright ownership.  The ASF licenses this file
+#   to you under the Apache License, Version 2.0 (the
+#   "License"); you may not use this file except in compliance
+#   with the License.  You may obtain a copy of the License at
 #
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing,
+#   software distributed under the License is distributed on an
+#   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#   KIND, either express or implied.  See the License for the
+#   specific language governing permissions and limitations
+#   under the License.
+
+#
+#
 #
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -27,7 +38,7 @@ from typedb.common.exception import TypeDBClientException, DB_DOES_NOT_EXIST, MI
 from typedb.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
     core_database_manager_all_req
 from typedb.common.rpc.stub import TypeDBStub
-from typedb.core.database import _CoreDatabase
+from typedb.connection.database import _TypeDBDatabaseImpl
 
 
 def _not_blank(name: str) -> str:
@@ -36,14 +47,14 @@ def _not_blank(name: str) -> str:
     return name
 
 
-class _CoreDatabaseManager(DatabaseManager):
+class _TypeDBDatabaseManagerImpl(DatabaseManager):
 
     def __init__(self, channel: Channel):
         self._stub = TypeDBStub(channel)
 
-    def get(self, name: str) -> _CoreDatabase:
+    def get(self, name: str) -> _TypeDBDatabaseImpl:
         if self.contains(name):
-            return _CoreDatabase(self._stub, name)
+            return _TypeDBDatabaseImpl(self._stub, name)
         else:
             raise TypeDBClientException.of(DB_DOES_NOT_EXIST, name)
 
@@ -53,9 +64,9 @@ class _CoreDatabaseManager(DatabaseManager):
     def create(self, name: str) -> None:
         self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))
 
-    def all(self) -> List[_CoreDatabase]:
+    def all(self) -> List[_TypeDBDatabaseImpl]:
         databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).names
-        return [_CoreDatabase(self._stub, name) for name in databases]
+        return [_TypeDBDatabaseImpl(self._stub, name) for name in databases]
 
     def stub(self) -> TypeDBStub:
         return self._stub

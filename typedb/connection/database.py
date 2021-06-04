@@ -24,7 +24,7 @@ from typedb.common.rpc.request_builder import core_database_schema_req, core_dat
 from typedb.common.rpc.stub import TypeDBStub
 
 
-class _CoreDatabase(Database):
+class _TypeDBDatabaseImpl(Database):
 
     def __init__(self, stub: TypeDBStub, name: str):
         self._name = name
