@@ -38,7 +38,7 @@ class TestClusterFailover(TestCase):
     def setUp(self):
         root_ca_path = os.environ["ROOT_CA"]
         credential = TypeDBCredential("admin", "password", root_ca_path)
-        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
+        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             if client.databases().contains("typedb"):
                 client.databases().get("typedb").delete()
             client.databases().create("typedb")
