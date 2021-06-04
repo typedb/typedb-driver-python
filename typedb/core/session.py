@@ -26,9 +26,9 @@ from typing import TYPE_CHECKING
 import typedb_protocol.common.session_pb2 as session_proto
 from grpc import RpcError
 
-from typedb.api.options import TypeDBOptions
-from typedb.api.session import TypeDBSession, SessionType
-from typedb.api.transaction import TypeDBTransaction, TransactionType
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.session import TypeDBSession, SessionType
+from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
 from typedb.common.concurrent.atomic import AtomicBoolean
 from typedb.common.concurrent.lock import ReadWriteLock
 from typedb.common.rpc.request_builder import session_open_req

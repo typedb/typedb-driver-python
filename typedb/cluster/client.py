@@ -20,9 +20,9 @@
 #
 from typing import Iterable, Dict, Set
 
-from typedb.api.client import TypeDBClusterClient
-from typedb.api.options import TypeDBOptions, TypeDBClusterOptions
-from typedb.api.session import SessionType
+from typedb.api.connection.client import TypeDBClusterClient
+from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
+from typedb.api.connection.session import SessionType
 from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.cluster.database_manager import _ClusterDatabaseManager
 from typedb.cluster.session import _ClusterSession

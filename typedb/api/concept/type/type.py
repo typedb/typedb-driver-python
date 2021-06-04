@@ -25,7 +25,7 @@ from typedb.api.concept.concept import Concept, RemoteConcept
 from typedb.common.label import Label
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Type(Concept, ABC):

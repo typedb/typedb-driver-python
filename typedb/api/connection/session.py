@@ -23,9 +23,9 @@ from abc import ABC, abstractmethod
 
 import typedb_protocol.common.session_pb2 as session_proto
 
-from typedb.api.database import Database
-from typedb.api.options import TypeDBOptions
-from typedb.api.transaction import TypeDBTransaction, TransactionType
+from typedb.api.connection.database import Database
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
 
 
 class SessionType(enum.Enum):

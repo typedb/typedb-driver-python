@@ -20,9 +20,9 @@
 #
 from typing import TYPE_CHECKING
 
-from typedb.api.options import TypeDBClusterOptions, TypeDBOptions
-from typedb.api.session import TypeDBSession, SessionType
-from typedb.api.transaction import TransactionType
+from typedb.api.connection.options import TypeDBClusterOptions, TypeDBOptions
+from typedb.api.connection.session import TypeDBSession, SessionType
+from typedb.api.connection.transaction import TransactionType
 from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.core.database import _CoreDatabase
 from typedb.core.transaction import _CoreTransaction

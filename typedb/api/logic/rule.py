@@ -22,7 +22,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Rule(ABC):

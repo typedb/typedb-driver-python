@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from typedb.api.database import Database
+from typedb.api.connection.database import Database
 from typedb.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
 from typedb.common.rpc.stub import TypeDBStub
 

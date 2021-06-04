@@ -24,9 +24,9 @@ from typing import TYPE_CHECKING, Iterator
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 from grpc import insecure_channel, RpcError
 
-from typedb.api.options import TypeDBOptions
+from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
-from typedb.api.transaction import _TypeDBTransactionExtended, TransactionType
+from typedb.api.connection.transaction import _TypeDBTransactionExtended, TransactionType
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
 from typedb.common.rpc.stub import TypeDBStub

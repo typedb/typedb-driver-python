@@ -22,9 +22,9 @@ from typing import Dict
 
 from grpc import insecure_channel, Channel
 
-from typedb.api.client import TypeDBClient
-from typedb.api.options import TypeDBOptions
-from typedb.api.session import SessionType
+from typedb.api.connection.client import TypeDBClient
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.session import SessionType
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.core.database_manager import _CoreDatabaseManager
 from typedb.core.session import _CoreSession

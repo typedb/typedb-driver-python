@@ -23,7 +23,7 @@ import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.api.transaction import _TypeDBTransactionExtended
+from typedb.api.connection.transaction import _TypeDBTransactionExtended
 from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, concept_manager_put_relation_type_req, \
     concept_manager_put_attribute_type_req, concept_manager_get_thing_type_req, concept_manager_get_thing_req
 from typedb.concept.proto import concept_proto_reader

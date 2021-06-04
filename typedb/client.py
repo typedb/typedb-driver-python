@@ -20,14 +20,14 @@
 #
 from typing import Union, Iterable
 
-from typedb.api.client import TypeDBClient, TypeDBClusterClient
+from typedb.api.connection.client import TypeDBClient, TypeDBClusterClient
 from typedb.cluster.client import _ClusterClient
 from typedb.core.client import _CoreClient
 
 # Repackaging these symbols allows them to be imported from "typedb.client"
-from typedb.api.options import TypeDBOptions  # noqa # pylint: disable=unused-import
-from typedb.api.session import TypeDBSession, SessionType  # noqa # pylint: disable=unused-import
-from typedb.api.transaction import TypeDBTransaction, TransactionType  # noqa # pylint: disable=unused-import
+from typedb.api.connection.options import TypeDBOptions  # noqa # pylint: disable=unused-import
+from typedb.api.connection.session import TypeDBSession, SessionType  # noqa # pylint: disable=unused-import
+from typedb.api.connection.transaction import TypeDBTransaction, TransactionType  # noqa # pylint: disable=unused-import
 
 
 class TypeDB:

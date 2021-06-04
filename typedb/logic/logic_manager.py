@@ -28,7 +28,7 @@ from typedb.common.rpc.request_builder import logic_manager_get_rule_req, logic_
 from typedb.logic.rule import _Rule
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import _TypeDBTransactionExtended
+    from typedb.api.connection.transaction import _TypeDBTransactionExtended
 
 
 class _LogicManager(LogicManager):

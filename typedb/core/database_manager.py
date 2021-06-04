@@ -22,7 +22,7 @@ from typing import List
 
 from grpc import Channel
 
-from typedb.api.database import DatabaseManager
+from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientException, DB_DOES_NOT_EXIST, MISSING_DB_NAME
 from typedb.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
     core_database_manager_all_req

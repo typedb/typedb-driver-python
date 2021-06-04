@@ -18,29 +18,29 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from typedb.api.concept.thing.thing import Thing, RemoteThing
+from os import path
 
-if TYPE_CHECKING:
-    from typedb.api.concept.type.entity_type import EntityType
-    from typedb.api.connection.transaction import TypeDBTransaction
+from typedb.common.exception import TypeDBClientException, CLUSTER_INVALID_ROOT_CA_PATH
 
+class TypeDBCredential:
 
-class Entity(Thing, ABC):
+    def __init__(self, username: str, password: str, tls_root_ca_path: str = None):
+        self._username = username
+        self._password = password
 
-    def is_entity(self):
-        return True
+        if (tls_root_ca_path is not None and not path.exists(tls_root_ca_path)):
+            raise TypeDBClientException(CLUSTER_INVALID_ROOT_CA_PATH.message(tls_root_ca_path))
 
-    @abstractmethod
-    def get_type(self) -> "EntityType":
-        pass
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteEntity":
-        pass
+        self._tls_root_ca_path = tls_root_ca_path
 
 
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+    def username(self):
+        return self._username
+
+
+    def password(self):
+        return self._password
+
+    def tls_root_ca_path(self):
+        return self._tls_root_ca_path

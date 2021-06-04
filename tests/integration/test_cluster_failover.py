@@ -23,7 +23,7 @@ import unittest
 from time import sleep
 from unittest import TestCase
 
-from typedb.api.database import ClusterDatabaseManager
+from typedb.api.connection.database import ClusterDatabaseManager
 from typedb.client import *
 
 

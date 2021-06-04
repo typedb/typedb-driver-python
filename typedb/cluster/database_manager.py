@@ -20,7 +20,7 @@
 #
 from typing import Dict, List, TYPE_CHECKING, Callable, TypeVar
 
-from typedb.api.database import ClusterDatabaseManager
+from typedb.api.connection.database import ClusterDatabaseManager
 from typedb.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.common.exception import TypeDBClientException, CLUSTER_ALL_NODES_FAILED, CLUSTER_REPLICA_NOT_PRIMARY, \
     DB_DOES_NOT_EXIST

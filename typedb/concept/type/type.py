@@ -32,7 +32,7 @@ from typedb.concept.concept import _Concept, _RemoteConcept
 from typedb.concept.proto import concept_proto_reader
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import TypeDBTransaction, _TypeDBTransactionExtended
+    from typedb.api.connection.transaction import TypeDBTransaction, _TypeDBTransactionExtended
 
 
 class _Type(Type, _Concept, ABC):

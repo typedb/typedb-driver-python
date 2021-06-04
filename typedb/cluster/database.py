@@ -24,7 +24,7 @@ from typing import Dict, Optional, Set, TYPE_CHECKING
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 
-from typedb.api.database import ClusterDatabase
+from typedb.api.connection.database import ClusterDatabase
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_REPLICA_NOT_PRIMARY, \
     CLUSTER_UNABLE_TO_CONNECT
 from typedb.common.rpc.request_builder import cluster_database_manager_get_req

@@ -26,7 +26,7 @@ from typing import List
 from behave import *
 from hamcrest import *
 
-from typedb.api.session import SessionType
+from typedb.api.connection.session import SessionType
 from tests.behaviour.config.parameters import parse_bool, parse_list
 from tests.behaviour.context import Context
 

@@ -27,7 +27,7 @@ from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSIN
 from typedb.common.rpc.request_builder import rule_set_label_req, rule_delete_req
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import _TypeDBTransactionExtended, TypeDBTransaction
+    from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
 
 
 class _Rule(Rule):

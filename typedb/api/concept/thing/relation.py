@@ -26,7 +26,7 @@ from typedb.api.concept.type.role_type import RoleType
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.relation_type import RelationType
-    from typedb.api.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Relation(Thing, ABC):
