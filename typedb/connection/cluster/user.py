@@ -17,16 +17,18 @@
 #   specific language governing permissions and limitations
 #   under the License.
 
+from typing import TYPE_CHECKING
+
 from typedb.api.connection.user import User
 from typedb.common.rpc.request_builder import cluster_user_delete_req
-from typedb.connection.cluster.client import _ClusterClient
 from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
-from typedb.connection.cluster.user_manager import _SYSTEM_DB
 
+if TYPE_CHECKING:
+    from typedb.connection.cluster.client import _ClusterClient
 
 class _ClusterUser(User):
 
-    def __init__(self, client: _ClusterClient, name: str):
+    def __init__(self, client: "_ClusterClient", name: str):
         self._client = client
         self._name = name
 
@@ -40,7 +42,9 @@ class _ClusterUser(User):
 
 class _UserFailsafeTask(_FailsafeTask):
 
-    def __init__(self, client: _ClusterClient, task):
+    def __init__(self, client: "_ClusterClient", task):
+        from typedb.connection.cluster.user_manager import _SYSTEM_DB
+
         super(_UserFailsafeTask, self).__init__(client, _SYSTEM_DB)
         self._task = task
 

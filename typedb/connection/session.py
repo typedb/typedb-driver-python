@@ -127,7 +127,7 @@ class _TypeDBSessionImpl(TypeDBSession):
         finally:
             self._rw_lock.release_write()
 
-    def client(self) -> _TypeDBClientImpl:
+    def client(self) -> "_TypeDBClientImpl":
         return self._client
 
     def _stub(self) -> TypeDBStub:

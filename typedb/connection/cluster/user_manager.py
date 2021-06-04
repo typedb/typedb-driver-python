@@ -16,22 +16,23 @@
 #   KIND, either express or implied.  See the License for the
 #   specific language governing permissions and limitations
 #   under the License.
-from typing import List
+from typing import List,TYPE_CHECKING
 
 from typedb.api.connection.user import UserManager, User
 from typedb.common.rpc.request_builder import cluster_user_manager_create_req, cluster_user_manager_all_req, \
     cluster_user_manager_contains_req
-from typedb.connection.cluster.client import _ClusterClient
 from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
 from typedb.connection.cluster.user import _ClusterUser
 from typedb.common.exception import TypeDBClientException, CLUSTER_USER_DOES_NOT_EXIST
 
 _SYSTEM_DB = "_system"
 
+if TYPE_CHECKING:
+    from typedb.connection.cluster.client import _ClusterClient
 
 class _ClusterUserManager(UserManager):
 
-    def __init__(self, client: _ClusterClient):
+    def __init__(self, client: "_ClusterClient"):
         self._client = client
 
     def create(self, name: str, password: str) -> None:
@@ -69,7 +70,7 @@ class _ClusterUserManager(UserManager):
 
 class _UserManagerFailsafeTask(_FailsafeTask):
 
-    def __init__(self, client: _ClusterClient, task):
+    def __init__(self, client: "_ClusterClient", task):
         super(_UserManagerFailsafeTask, self).__init__(client, _SYSTEM_DB)
         self._task = task
 

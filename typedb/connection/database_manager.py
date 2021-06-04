@@ -49,8 +49,8 @@ def _not_blank(name: str) -> str:
 
 class _TypeDBDatabaseManagerImpl(DatabaseManager):
 
-    def __init__(self, channel: Channel):
-        self._stub = TypeDBStub(channel)
+    def __init__(self, stub: TypeDBStub):
+        self._stub = stub
 
     def get(self, name: str) -> _TypeDBDatabaseImpl:
         if self.contains(name):

@@ -36,10 +36,10 @@ class _TypeDBClientImpl(TypeDBClient):
     def __init__(self, address: str, connection_factory: _TypeDBConnectionFactory, parallelisation: int = 2):
         self._address = address
         self._connection_factory = connection_factory
-        self._channel = self.connection_factory.newChannel(self._address)
-        self._stub = self.connection_factory.newTypeDBStub(self._channel)
+        self._channel = self._connection_factory.newChannel(self._address)
+        self._stub = self._connection_factory.newTypeDBStub(self._channel)
         self._transmitter = RequestTransmitter(parallelisation)
-        self._databases = _TypeDBDatabaseManagerImpl(self._channel)
+        self._databases = _TypeDBDatabaseManagerImpl(self._stub)
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
