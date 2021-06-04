@@ -59,7 +59,9 @@ class TestClusterFailover(TestCase):
         assert False, "Retry limit exceeded while seeking a primary replica."
 
     def test_put_entity_type_to_crashed_primary_replica(self):
-        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+        root_ca_path = os.environ["ROOT_CA"]
+        credential = TypeDBCredential("admin", "password", root_ca_path)
+        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             assert client.databases().contains("typedb")
             primary_replica = self.get_primary_replica(client.databases())
             print("Performing operations against the primary replica " + str(primary_replica))
