@@ -60,6 +60,9 @@ def _rule_implementation(ctx):
            ./2/typedb server --data server/data --address 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:31729:31730:31731 &
            ./3/typedb server --data server/data --address 127.0.0.1:31729:31730:31731 --peer 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:31729:31730:31731 &
 
+           ROOT_CA=`realpath typedb_distribution/$TYPEDB/server/conf/encryption/rpc-root-ca.pem`
+           export ROOT_CA
+
            POLL_INTERVAL_SECS=0.5
            MAX_RETRIES=60
            RETRY_NUM=0

@@ -18,6 +18,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import os
+
+from typedb.api.connection.credential import TypeDBCredential
 from typedb.client import TypeDB
 from tests.behaviour.background import environment_base
 from tests.behaviour.context import Context
@@ -28,7 +31,10 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-cluster"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = TypeDB.cluster_client(addresses=["localhost:" + context.config.userdata["port"]])
+
+    root_ca_path = os.environ["ROOT_CA"]
+    credential = TypeDBCredential("admin", "password", root_ca_path)
+    context.client = TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential)
 
 
 def before_scenario(context: Context, scenario):

@@ -33,5 +33,5 @@
 
 # IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
 typedb-protocol==0.0.0-80950150ffb3fac09ceafc1df1c0c2a625db0957
-grpcio==1.36.1
+grpcio==1.38.0
 protobuf==3.15.5
