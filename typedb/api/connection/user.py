@@ -41,7 +41,7 @@ class UserManager(ABC):
     def get(self, name: str) -> User:
         pass
 
-    @abs
+    @abstractmethod
     def contains(self, name: str) -> bool:
         pass
 

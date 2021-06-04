@@ -24,6 +24,7 @@ from uuid import UUID
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
+import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.common.concept_pb2 as concept_proto
 import typedb_protocol.common.logic_pb2 as logic_proto
 import typedb_protocol.common.options_pb2 as options_proto
@@ -81,9 +82,33 @@ def cluster_database_manager_get_req(name: str):
     req.name = name
     return req
 
-
 def cluster_database_manager_all_req():
     return cluster_database_proto.ClusterDatabaseManager.All.Req()
+
+
+# ClusterUserManager
+
+def cluster_user_manager_all_req():
+    return cluster_user_proto.ClusterUserManager.All.Req()
+
+def cluster_user_manager_create_req(name: str, password: str):
+    req = cluster_user_proto.ClusterUserManager.Create.Req()
+    req.name = name
+    req.password = password
+    return req
+
+def cluster_user_manager_contains_req(name: str):
+    req = cluster_user_proto.ClusterUserManager.Contains.Req()
+    req.name = name
+    return req
+
+
+# ClusterUser
+
+def cluster_user_delete_req(name: str):
+    req = cluster_user_proto.ClusterUser.Delete.Req()
+    req.name = name
+    return req
 
 
 # Session

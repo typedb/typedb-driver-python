@@ -89,7 +89,8 @@ CLUSTER_UNABLE_TO_CONNECT = ClientErrorMessage(11, "Unable to connect to TypeDB 
 CLUSTER_REPLICA_NOT_PRIMARY = ClientErrorMessage(12, "The replica is not the primary replica.")
 CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(13, "Attempted connecting to all cluster members, but the following errors occurred: \n%s")
 CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(14, "The provided Root CA path '%s' does not exist.")
-CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(15, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
+CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(15, "The user '%s' does not exist.")
+CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(16, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
 
 
 class ConceptErrorMessage(ErrorMessage):

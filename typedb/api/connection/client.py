@@ -23,6 +23,7 @@ from abc import ABC, abstractmethod
 from typedb.api.connection.database import DatabaseManager, ClusterDatabaseManager
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import TypeDBSession, SessionType
+from typedb.api.connection.user import UserManager
 
 
 class TypeDBClient(ABC):
@@ -60,4 +61,8 @@ class TypeDBClusterClient(TypeDBClient):
 
     @abstractmethod
     def databases(self) -> ClusterDatabaseManager:
+        pass
+
+    @abstractmethod
+    def users(self) -> UserManager:
         pass
