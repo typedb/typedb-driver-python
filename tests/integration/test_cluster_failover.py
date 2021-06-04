@@ -90,7 +90,7 @@ class TestClusterFailover(TestCase):
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]
-                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731"])
+                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731", "--encryption-enabled=true"])
                 lsof = None
                 live_check_iteration = 0
                 while not lsof and live_check_iteration < 60:
