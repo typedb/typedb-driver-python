@@ -91,7 +91,10 @@ def _rule_implementation(ctx):
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping servers.
-           kill $(jps | awk '/TypeDBNode/ {print $1}' | paste -sd " " -)
+           procs=$(jps | awk '/TypeDBNode/ {print $1}' | paste -sd " " -)
+           if [ -n "$procs" ]; then
+             kill $procs
+           fi
            exit $RESULT
            """
 
