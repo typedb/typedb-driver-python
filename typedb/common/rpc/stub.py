@@ -37,6 +37,7 @@ T = TypeVar('T')
 
 def resilient_call(function: Callable[[], T]) -> T:
     try:
+        # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
         return function()
     except RpcError as e:
         raise TypeDBClientException.of_rpc(e)
