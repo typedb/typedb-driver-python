@@ -25,29 +25,26 @@ from tests.behaviour.context import Context
 from typedb.api.connection.client import TypeDBClusterClient
 
 
-@step("users contains: {name}")
-def step_impl(context: Context, name: str):
+def _get_client(context: Context):
     client = context.client
     assert isinstance(client, TypeDBClusterClient)
-    assert_that([u.name() for u in client.users().all()], has_item(name))
+    return client
+
+@step("users contains: {name}")
+def step_impl(context: Context, name: str):
+    assert_that([u.name() for u in _get_client(context).users().all()], has_item(name))
 
 @step("users not contains: {name}")
 def step_impl(context: Context, name: str):
-    client = context.client
-    assert isinstance(client, TypeDBClusterClient)
-    assert_that([u.name() for u in client.users().all()], not_(has_item(name)))
+    assert_that([u.name() for u in _get_client(context).users().all()], not_(has_item(name)))
 
 @step("users create: {name}, {password}")
 def step_impl(context: Context, name: str, password: str):
-    client = context.client
-    assert isinstance(client, TypeDBClusterClient)
-    client.users().create(name, password)
+    _get_client(context).users().create(name, password)
 
 @step("user delete: {name}")
 def step_impl(context: Context, name: str):
-    client = context.client
-    assert isinstance(client, TypeDBClusterClient)
-    user = client.users().get(name)
+    user = _get_client(context).users().get(name)
     user.delete()
 
 
