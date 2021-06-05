@@ -19,7 +19,7 @@
 #   under the License.
 #
 from behave import step
-from hamcrest import assert_that, contains_exactly, has_item, not_
+from hamcrest import assert_that, has_item, not_
 
 from tests.behaviour.context import Context
 from typedb.api.connection.client import TypeDBClusterClient
@@ -31,7 +31,7 @@ def step_impl(context: Context, name: str):
     assert isinstance(client, TypeDBClusterClient)
     assert_that([u.name() for u in client.users().all()], has_item(name))
 
-@step("not users contains: {name}")
+@step("users not contains: {name}")
 def step_impl(context: Context, name: str):
     client = context.client
     assert isinstance(client, TypeDBClusterClient)
