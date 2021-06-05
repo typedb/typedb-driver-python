@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType, BooleanAttributeType, LongAttributeType, \
         DoubleAttributeType, StringAttributeType, DateTimeAttributeType
     from typedb.api.concept.type.thing_type import ThingType
-    from typedb.api.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Attribute(Thing, ABC):

@@ -33,7 +33,7 @@ from typedb.concept.proto import concept_proto_reader, concept_proto_builder
 from typedb.concept.type.role_type import _RoleType
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import _TypeDBTransactionExtended, TypeDBTransaction
+    from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
 
 
 class _Thing(Thing, _Concept, ABC):

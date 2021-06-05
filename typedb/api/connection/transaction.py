@@ -27,7 +27,7 @@ import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.logic.logic_manager import LogicManager
-from typedb.api.options import TypeDBOptions
+from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
 from typedb.api.query.query_manager import QueryManager
 

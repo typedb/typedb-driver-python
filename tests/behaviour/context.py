@@ -24,7 +24,7 @@ from typing import List, Union, Optional, Dict
 import behave.runner
 from behave.model import Table
 
-from typedb.api.client import TypeDBClient
+from typedb.api.connection.client import TypeDBClient
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.api.answer.numeric import Numeric
@@ -42,8 +42,8 @@ from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType
 from typedb.api.concept.type.type import Type
-from typedb.api.session import TypeDBSession
-from typedb.api.transaction import TypeDBTransaction
+from typedb.api.connection.session import TypeDBSession
+from typedb.api.connection.transaction import TypeDBTransaction
 from tests.behaviour.config.parameters import RootLabel
 
 AttributeSubtype = Union[Attribute, BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, DateTimeAttribute]

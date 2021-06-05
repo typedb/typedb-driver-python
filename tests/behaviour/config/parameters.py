@@ -28,7 +28,7 @@ from behave.model import Table
 
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.api.transaction import TransactionType
+from typedb.api.connection.transaction import TransactionType
 from typedb.common.label import Label
 
 

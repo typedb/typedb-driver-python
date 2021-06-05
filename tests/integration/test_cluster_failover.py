@@ -18,12 +18,13 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import os
 import subprocess
 import unittest
 from time import sleep
 from unittest import TestCase
 
-from typedb.api.database import ClusterDatabaseManager
+from typedb.api.connection.database import ClusterDatabaseManager
 from typedb.client import *
 
 
@@ -35,7 +36,9 @@ READ = TransactionType.READ
 class TestClusterFailover(TestCase):
 
     def setUp(self):
-        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+        root_ca_path = os.environ["ROOT_CA"]
+        credential = TypeDBCredential("admin", "password", root_ca_path)
+        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             if client.databases().contains("typedb"):
                 client.databases().get("typedb").delete()
             client.databases().create("typedb")
@@ -56,7 +59,9 @@ class TestClusterFailover(TestCase):
         assert False, "Retry limit exceeded while seeking a primary replica."
 
     def test_put_entity_type_to_crashed_primary_replica(self):
-        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"]) as client:
+        root_ca_path = os.environ["ROOT_CA"]
+        credential = TypeDBCredential("admin", "password", root_ca_path)
+        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             assert client.databases().contains("typedb")
             primary_replica = self.get_primary_replica(client.databases())
             print("Performing operations against the primary replica " + str(primary_replica))
@@ -85,7 +90,7 @@ class TestClusterFailover(TestCase):
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]
-                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731"])
+                subprocess.Popen(["./%s/typedb" % idx, "server", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731", "--encryption-enabled=true"])
                 lsof = None
                 live_check_iteration = 0
                 while not lsof and live_check_iteration < 60:

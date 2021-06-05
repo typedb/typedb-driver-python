@@ -22,7 +22,7 @@
 import unittest
 import uuid
 import typedb
-from typedb import TypeDBClient, ValueType, Transaction
+from typedb.connection import TypeDBClient, ValueType, Transaction
 from typedb import TypeDBError
 
 from tests.integration.base import test_base, TypeDBServer

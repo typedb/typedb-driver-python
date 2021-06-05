@@ -18,11 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from abc import ABC
 from typing import TypeVar, Callable, Iterator
 
-import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
-import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
-import typedb_protocol.cluster.cluster_service_pb2_grpc as cluster_service_proto
+
 import typedb_protocol.common.session_pb2 as session_proto
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 import typedb_protocol.core.core_database_pb2 as core_database_proto
@@ -42,22 +42,11 @@ def resilient_call(function: Callable[[], T]) -> T:
     except RpcError as e:
         raise TypeDBClientException.of_rpc(e)
 
+class TypeDBStub(ABC):
 
-class TypeDBGrpcStub:
-
-    @staticmethod
-    def core(channel: Channel) -> "TypeDBStub":
-        return TypeDBStub(channel)
-
-    @staticmethod
-    def cluster(channel: Channel) -> "TypeDBClusterStub":
-        return TypeDBClusterStub(channel)
-
-
-class TypeDBStub(TypeDBGrpcStub):
-
-    def __init__(self, channel: Channel):
-        self._stub = core_service_proto.TypeDBStub(channel)
+    def __init__(self, channel: Channel, stub: core_service_proto.TypeDBStub):
+        self._channel = channel
+        self._stub = stub
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
         return resilient_call(lambda: self._stub.databases_contains(req))
@@ -86,17 +75,3 @@ class TypeDBStub(TypeDBGrpcStub):
     def transaction(self, request_iterator: Iterator[transaction_proto.Transaction.Client]) -> Iterator[transaction_proto.Transaction.Server]:
         return resilient_call(lambda: self._stub.transaction(request_iterator))
 
-
-class TypeDBClusterStub(TypeDBGrpcStub):
-
-    def __init__(self, channel: Channel):
-        self._stub = cluster_service_proto.TypeDBClusterStub(channel)
-
-    def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
-        return resilient_call(lambda: self._stub.servers_all(req))
-
-    def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
-        return resilient_call(lambda: self._stub.databases_get(req))
-
-    def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
-        return resilient_call(lambda: self._stub.databases_all(req))

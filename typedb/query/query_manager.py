@@ -28,7 +28,7 @@ from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.api.answer.numeric import Numeric
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.api.logic.explanation import Explanation
-from typedb.api.options import TypeDBOptions
+from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
 from typedb.api.query.query_manager import QueryManager
 from typedb.common.rpc.request_builder import query_manager_match_req, query_manager_match_aggregate_req, \
@@ -42,7 +42,7 @@ from typedb.concept.answer.numeric_group import _NumericGroup
 from typedb.logic.explanation import _Explanation
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import _TypeDBTransactionExtended, TypeDBTransaction
+    from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
 
 
 class _QueryManager(QueryManager):

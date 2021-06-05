@@ -24,14 +24,14 @@ from typing import Dict, Optional, Set, TYPE_CHECKING
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 
-from typedb.api.database import ClusterDatabase
+from typedb.api.connection.database import ClusterDatabase
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_REPLICA_NOT_PRIMARY, \
     CLUSTER_UNABLE_TO_CONNECT
 from typedb.common.rpc.request_builder import cluster_database_manager_get_req
-from typedb.core.database import _CoreDatabase
+from typedb.connection.database import _TypeDBDatabaseImpl
 
 if TYPE_CHECKING:
-    from typedb.cluster.client import _ClusterClient
+    from typedb.connection.cluster.client import _ClusterClient
 
 
 class _ClusterDatabase(ClusterDatabase):
@@ -39,12 +39,12 @@ class _ClusterDatabase(ClusterDatabase):
     def __init__(self, database: str, client: "_ClusterClient"):
         self._name = database
         self._client = client
-        self._databases: Dict[str, _CoreDatabase] = {}
+        self._databases: Dict[str, _TypeDBDatabaseImpl] = {}
         self._replicas: Set["_ClusterDatabase.Replica"] = set()
         cluster_db_mgr = client.databases()
         for address in cluster_db_mgr.database_mgrs():
             core_database_mgr = cluster_db_mgr.database_mgrs()[address]
-            self._databases[address] = _CoreDatabase(core_database_mgr.stub(), name=database)
+            self._databases[address] = _TypeDBDatabaseImpl(core_database_mgr.stub(), name=database)
 
     @staticmethod
     def of(proto_db: cluster_database_proto.ClusterDatabase, client: "_ClusterClient") -> "_ClusterDatabase":
@@ -220,7 +220,7 @@ class _FailsafeTask(ABC):
         for server_address in self.client.cluster_members():
             try:
                 print("Fetching replica info from %s" % server_address)
-                res = self.client.stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
+                res = self.client._stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
                 cluster_database = _ClusterDatabase.of(res.database, self.client)
                 self.client.database_by_name()[self.database] = cluster_database
                 return cluster_database
@@ -237,7 +237,7 @@ class _FailsafeTask(ABC):
 
 class _DeleteDatabaseFailsafeTask(_FailsafeTask):
 
-    def __init__(self, client: "_ClusterClient", database: str, databases: Dict[str, _CoreDatabase]):
+    def __init__(self, client: "_ClusterClient", database: str, databases: Dict[str, _TypeDBDatabaseImpl]):
         super().__init__(client, database)
         self.databases = databases
 

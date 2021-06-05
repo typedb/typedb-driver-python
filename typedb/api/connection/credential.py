@@ -19,25 +19,28 @@
 # under the License.
 #
 
-from typedb.api.database import Database
-from typedb.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
-from typedb.common.rpc.stub import TypeDBStub
+from os import path
+
+from typedb.common.exception import TypeDBClientException, CLUSTER_INVALID_ROOT_CA_PATH
+
+class TypeDBCredential:
+
+    def __init__(self, username: str, password: str, tls_root_ca_path: str = None):
+        self._username = username
+        self._password = password
+
+        if (tls_root_ca_path is not None and not path.exists(tls_root_ca_path)):
+            raise TypeDBClientException(CLUSTER_INVALID_ROOT_CA_PATH.message(tls_root_ca_path))
+
+        self._tls_root_ca_path = tls_root_ca_path
 
 
-class _CoreDatabase(Database):
+    def username(self):
+        return self._username
 
-    def __init__(self, stub: TypeDBStub, name: str):
-        self._name = name
-        self._stub = stub
 
-    def name(self) -> str:
-        return self._name
+    def password(self):
+        return self._password
 
-    def schema(self) -> str:
-        return self._stub.database_schema(core_database_schema_req(self._name)).schema
-
-    def delete(self) -> None:
-        self._stub.database_delete(core_database_delete_req(self._name))
-
-    def __str__(self):
-        return self._name
+    def tls_root_ca_path(self):
+        return self._tls_root_ca_path

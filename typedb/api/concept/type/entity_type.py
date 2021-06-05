@@ -25,7 +25,7 @@ from typedb.api.concept.thing.entity import Entity
 from typedb.api.concept.type.thing_type import ThingType, RemoteThingType
 
 if TYPE_CHECKING:
-    from typedb.api.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class EntityType(ThingType, ABC):

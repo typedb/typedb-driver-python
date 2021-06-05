@@ -26,7 +26,7 @@ from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.api.answer.numeric import Numeric
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.api.logic.explanation import Explanation
-from typedb.api.options import TypeDBOptions
+from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
 
 

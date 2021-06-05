@@ -18,29 +18,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from typedb.api.concept.thing.thing import Thing, RemoteThing
-
-if TYPE_CHECKING:
-    from typedb.api.concept.type.entity_type import EntityType
-    from typedb.api.connection.transaction import TypeDBTransaction
+from typedb.api.connection.database import Database
+from typedb.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
+from typedb.common.rpc.stub import TypeDBStub
 
 
-class Entity(Thing, ABC):
+class _TypeDBDatabaseImpl(Database):
 
-    def is_entity(self):
-        return True
+    def __init__(self, stub: TypeDBStub, name: str):
+        self._name = name
+        self._stub = stub
 
-    @abstractmethod
-    def get_type(self) -> "EntityType":
-        pass
+    def name(self) -> str:
+        return self._name
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteEntity":
-        pass
+    def schema(self) -> str:
+        return self._stub.database_schema(core_database_schema_req(self._name)).schema
 
+    def delete(self) -> None:
+        self._stub.database_delete(core_database_delete_req(self._name))
 
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass
+    def __str__(self):
+        return self._name

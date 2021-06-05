@@ -20,14 +20,15 @@
 #
 from typing import Union, Iterable
 
-from typedb.api.client import TypeDBClient, TypeDBClusterClient
-from typedb.cluster.client import _ClusterClient
-from typedb.core.client import _CoreClient
+from typedb.api.connection.client import TypeDBClient, TypeDBClusterClient
+from typedb.api.connection.credential import TypeDBCredential
+from typedb.connection.cluster.client import _ClusterClient
+from typedb.connection.core.client import _CoreClient
 
 # Repackaging these symbols allows them to be imported from "typedb.client"
-from typedb.api.options import TypeDBOptions  # noqa # pylint: disable=unused-import
-from typedb.api.session import TypeDBSession, SessionType  # noqa # pylint: disable=unused-import
-from typedb.api.transaction import TypeDBTransaction, TransactionType  # noqa # pylint: disable=unused-import
+from typedb.api.connection.options import TypeDBOptions  # noqa # pylint: disable=unused-import
+from typedb.api.connection.session import TypeDBSession, SessionType  # noqa # pylint: disable=unused-import
+from typedb.api.connection.transaction import TypeDBTransaction, TransactionType  # noqa # pylint: disable=unused-import
 
 
 class TypeDB:
@@ -38,8 +39,9 @@ class TypeDB:
         return _CoreClient(address, parallelisation)
 
     @staticmethod
-    def cluster_client(addresses: Union[Iterable[str], str], parallelisation: int = 2) -> TypeDBClusterClient:
+    def cluster_client(addresses: Union[Iterable[str], str], credential: TypeDBCredential,
+                       parallelisation: int = 2) -> TypeDBClusterClient:
         if isinstance(addresses, str):
-            return _ClusterClient([addresses], parallelisation)
+            return _ClusterClient([addresses], credential, parallelisation)
         else:
-            return _ClusterClient(addresses, parallelisation)
+            return _ClusterClient(addresses, credential, parallelisation)

@@ -18,50 +18,30 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import enum
 from abc import ABC, abstractmethod
 
-import typedb_protocol.common.session_pb2 as session_proto
-
-from typedb.api.database import Database
-from typedb.api.options import TypeDBOptions
-from typedb.api.transaction import TypeDBTransaction, TransactionType
-
-
-class SessionType(enum.Enum):
-    DATA = 0
-    SCHEMA = 1
-
-    def is_data(self):
-        return self is SessionType.DATA
-
-    def is_schema(self):
-        return self is SessionType.SCHEMA
-
-    def proto(self):
-        return session_proto.Session.Type.Value(self.name)
+from typedb.api.connection.database import DatabaseManager, ClusterDatabaseManager
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.session import TypeDBSession, SessionType
+from typedb.api.connection.user import UserManager
 
 
-class TypeDBSession(ABC):
+class TypeDBClient(ABC):
 
     @abstractmethod
     def is_open(self) -> bool:
         pass
 
     @abstractmethod
-    def session_type(self) -> "SessionType":
+    def databases(self) -> DatabaseManager:
         pass
 
     @abstractmethod
-    def database(self) -> Database:
+    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> TypeDBSession:
         pass
 
     @abstractmethod
-    def options(self) -> TypeDBOptions:
-        pass
-
-    @abstractmethod
-    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> TypeDBTransaction:
+    def is_cluster(self) -> bool:
         pass
 
     @abstractmethod
@@ -74,4 +54,15 @@ class TypeDBSession(ABC):
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class TypeDBClusterClient(TypeDBClient):
+
+    @abstractmethod
+    def databases(self) -> ClusterDatabaseManager:
+        pass
+
+    @abstractmethod
+    def users(self) -> UserManager:
         pass
