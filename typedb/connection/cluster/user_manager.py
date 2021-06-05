@@ -40,7 +40,7 @@ class _ClusterUserManager(UserManager):
     def create(self, name: str, password: str) -> None:
         failsafe_task = _UserManagerFailsafeTask(
             self._client,
-            lambda replica: self._client.stub(replica.address()).usersCreate(
+            lambda replica: self._client._stub(replica.address()).usersCreate(
                 cluster_user_manager_create_req(name, password))
         )
         failsafe_task.run_primary_replica()
@@ -54,13 +54,13 @@ class _ClusterUserManager(UserManager):
         return val
 
     def _get_user_list(self, replica: _ClusterDatabase.Replica):
-        users_proto = self._client.stub(replica.address()).usersAll(cluster_user_manager_all_req())
+        users_proto = self._client._stub(replica.address()).usersAll(cluster_user_manager_all_req())
         return [_ClusterUser(self._client, username) for username in users_proto.names]
 
     def contains(self, name: str) -> bool:
         failsafe_task = _UserManagerFailsafeTask(
             self._client,
-            lambda replica: self._client.stub(replica.address()).usersContains(cluster_user_manager_contains_req(name))
+            lambda replica: self._client._stub(replica.address()).usersContains(cluster_user_manager_contains_req(name))
         )
         return failsafe_task.run_primary_replica()
 

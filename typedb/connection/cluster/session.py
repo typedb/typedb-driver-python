@@ -35,9 +35,9 @@ class _ClusterSession(TypeDBSession):
 
     def __init__(self, cluster_client: "_ClusterClient", server_address: str, database: str, session_type: SessionType, options: TypeDBClusterOptions):
         self.cluster_client = cluster_client
-        self.core_client = cluster_client.cluster_server_client(server_address)
+        self.server_client = cluster_client._cluster_server_client(server_address)
         print("Opening a session to '%s'" % server_address)
-        self.core_session = self.core_client.session(database, session_type, options)
+        self.core_session = self.server_client.session(database, session_type, options)
         self._options = options
 
     def transaction(self, transaction_type: TransactionType, options: TypeDBClusterOptions = None) -> _TypeDBTransactionImpl:
@@ -89,6 +89,6 @@ class _TransactionFailsafeTask(_FailsafeTask):
     def rerun(self, replica: _ClusterDatabase.Replica):
         if self.cluster_session.core_session:
             self.cluster_session.core_session.close()
-        self.cluster_session.core_client = self.cluster_session.cluster_client.cluster_server_client(replica.address())
-        self.cluster_session.core_session = self.cluster_session.core_client.session(self.database, self.cluster_session.session_type(), self.cluster_session.options())
+        self.cluster_session.server_client = self.cluster_session.cluster_client._cluster_server_client(replica.address())
+        self.cluster_session.core_session = self.cluster_session.server_client.session(self.database, self.cluster_session.session_type(), self.cluster_session.options())
         return self.cluster_session.core_session.transaction(self.transaction_type, self.options)

@@ -220,7 +220,7 @@ class _FailsafeTask(ABC):
         for server_address in self.client.cluster_members():
             try:
                 print("Fetching replica info from %s" % server_address)
-                res = self.client.stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
+                res = self.client._stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
                 cluster_database = _ClusterDatabase.of(res.database, self.client)
                 self.client.database_by_name()[self.database] = cluster_database
                 return cluster_database

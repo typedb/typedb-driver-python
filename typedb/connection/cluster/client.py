@@ -41,7 +41,6 @@ class _ClusterClient(TypeDBClusterClient):
     def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
         self._credential = credential
         self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._connection_factory = _ClusterConnectionFactory(self._credential)
         self._stubs = {addr: client.connection_factory().newTypeDBStub(client.channel()) for (addr, client) in self._server_clients.items()}
         self._database_managers = _ClusterDatabaseManager(self)
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
@@ -92,13 +91,13 @@ class _ClusterClient(TypeDBClusterClient):
     def cluster_members(self) -> Set[str]:
         return set(self._server_clients.keys())
 
-    def cluster_server_clients(self) -> Dict[str, _ClusterServerClient]:
+    def _cluster_server_clients(self) -> Dict[str, _ClusterServerClient]:
         return self._server_clients
 
-    def cluster_server_client(self, address: str) -> _ClusterServerClient:
+    def _cluster_server_client(self, address: str) -> _ClusterServerClient:
         return self._server_clients.get(address)
 
-    def stub(self, address: str) -> _ClusterServerStub:
+    def _stub(self, address: str) -> _ClusterServerStub:
         return self._stubs.get(address)
 
     def close(self) -> None:

@@ -34,7 +34,6 @@ class User(ABC):
         pass
 
 
-
 class UserManager(ABC):
 
     @abstractmethod
