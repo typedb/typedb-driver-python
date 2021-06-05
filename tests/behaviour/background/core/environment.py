@@ -24,7 +24,7 @@ from typedb.client import TypeDB
 from tests.behaviour.context import Context
 
 
-IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-core"]
+IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 
 
 def before_all(context: Context):

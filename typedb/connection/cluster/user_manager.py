@@ -50,7 +50,8 @@ class _ClusterUserManager(UserManager):
             self._client,
             self._get_user_list
         )
-        return failsafe_task.run_primary_replica()
+        val = failsafe_task.run_primary_replica()
+        return val
 
     def _get_user_list(self, replica: _ClusterDatabase.Replica):
         users_proto = self._client.stub(replica.address()).usersAll(cluster_user_manager_all_req())
@@ -77,4 +78,5 @@ class _UserManagerFailsafeTask(_FailsafeTask):
         self._task = task
 
     def run(self, replica: _ClusterDatabase.Replica):
-        self._task(replica)
+        return self._task(replica)
+

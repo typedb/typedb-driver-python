@@ -50,4 +50,4 @@ class _UserFailsafeTask(_FailsafeTask):
         self._task = task
 
     def run(self, replica: _ClusterDatabase.Replica):
-        self._task(replica)
+        return self._task(replica)
