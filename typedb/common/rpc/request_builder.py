@@ -105,6 +105,11 @@ def cluster_user_manager_contains_req(name: str):
 
 # ClusterUser
 
+def cluster_user_password_req(name: str):
+    req = cluster_user_proto.ClusterUser.Password.Req()
+    req.name = name
+    return req
+
 def cluster_user_delete_req(name: str):
     req = cluster_user_proto.ClusterUser.Delete.Req()
     req.name = name
