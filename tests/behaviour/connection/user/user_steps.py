@@ -42,6 +42,14 @@ def step_impl(context: Context, name: str):
 def step_impl(context: Context, name: str, password: str):
     _get_client(context).users().create(name, password)
 
+@step("user password: {name}, {password}")
+def step_impl(context: Context, name: str, password: str):
+    _get_client(context).users().get(name).password(password)
+
+@step("user connect: {name}, {password}")
+def step_impl(context: Context, name: str, password: str):
+    pass
+
 @step("user delete: {name}")
 def step_impl(context: Context, name: str):
     user = _get_client(context).users().get(name)
