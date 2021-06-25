@@ -18,11 +18,14 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+import os
+
 from behave import step
 from hamcrest import assert_that, has_item, not_
 
 from tests.behaviour.context import Context
 from typedb.api.connection.client import TypeDBClusterClient
+from typedb.client import TypeDB, TypeDBCredential
 
 
 def _get_client(context: Context):
@@ -48,7 +51,10 @@ def step_impl(context: Context, name: str, password: str):
 
 @step("user connect: {name}, {password}")
 def step_impl(context: Context, name: str, password: str):
-    pass
+    root_ca_path = os.environ["ROOT_CA"]
+    credential = TypeDBCredential(name, password, root_ca_path)
+    with TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential) as client:
+        client.databases().all()
 
 @step("user delete: {name}")
 def step_impl(context: Context, name: str):
