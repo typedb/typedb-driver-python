@@ -30,6 +30,10 @@ class User(ABC):
         pass
 
     @abstractmethod
+    def password(self, password: str) -> None:
+        pass
+
+    @abstractmethod
     def delete(self) -> None:
         pass
 

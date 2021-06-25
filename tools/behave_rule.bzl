@@ -83,7 +83,7 @@ def _rule_implementation(ctx):
            if [[ $PRODUCT == "Core" ]]; then
              ./typedb_distribution/"$DIRECTORY"/typedb server --port $PORT --data typedb_test &
            else
-             ./typedb_distribution/"$DIRECTORY"/typedb server --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test --encryption-enabled=true &
+             ./typedb_distribution/"$DIRECTORY"/typedb cluster --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test --encryption-enabled=true &
 
              ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/rpc-root-ca.pem`
              export ROOT_CA

@@ -51,15 +51,18 @@ class _ClusterServerStub(TypeDBStub):
     def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
         return resilient_call(lambda: self._clusterStub.databases_all(req))
 
-    def usersAll(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
+    def users_all(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
         return resilient_call(lambda: self._clusterStub.users_all(req))
 
-    def usersContains(self, req: cluster_user_proto.ClusterUserManager.Contains.Req) -> cluster_user_proto.ClusterUserManager.Contains.Res:
+    def users_contains(self, req: cluster_user_proto.ClusterUserManager.Contains.Req) -> cluster_user_proto.ClusterUserManager.Contains.Res:
         return resilient_call(lambda: self._clusterStub.users_contains(req))
 
-    def usersCreate(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
+    def users_create(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
         return resilient_call(lambda: self._clusterStub.users_create(req))
 
-    def userDelete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
+    def user_password(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
+        return resilient_call(lambda: self._clusterStub.user_password(req))
+
+    def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
         return resilient_call(lambda: self._clusterStub.user_delete(req))
 
