@@ -21,7 +21,7 @@
 from typing import TYPE_CHECKING
 
 from typedb.api.connection.user import User
-from typedb.common.rpc.request_builder import cluster_user_delete_req
+from typedb.common.rpc.request_builder import cluster_user_password_req, cluster_user_delete_req
 from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
 
 if TYPE_CHECKING:

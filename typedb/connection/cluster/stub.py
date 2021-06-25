@@ -60,6 +60,9 @@ class _ClusterServerStub(TypeDBStub):
     def usersCreate(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
         return resilient_call(lambda: self._clusterStub.users_create(req))
 
+    def userPassword(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
+        return resilient_call(lambda: self._clusterStub.user_password(req))
+
     def userDelete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
         return resilient_call(lambda: self._clusterStub.user_delete(req))
 
