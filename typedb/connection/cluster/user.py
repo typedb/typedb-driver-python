@@ -37,11 +37,11 @@ class _ClusterUser(User):
         return self._name
 
     def password(self, password: str) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).userPassword(cluster_user_password_req(self.name(), password)))
+        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_password(cluster_user_password_req(self.name(), password)))
         failsafe_task.run_primary_replica()
 
     def delete(self) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).userDelete(cluster_user_delete_req(self.name())))
+        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_delete(cluster_user_delete_req(self.name())))
         failsafe_task.run_primary_replica()
 
 
