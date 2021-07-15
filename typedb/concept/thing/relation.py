@@ -48,6 +48,9 @@ class _Relation(Relation, _Thing):
     def get_type(self) -> "RelationType":
         return self._type
 
+    def as_relation(self) -> "Relation":
+        return self
+
 
 class _RemoteRelation(_RemoteThing, RemoteRelation):
 
@@ -60,6 +63,9 @@ class _RemoteRelation(_RemoteThing, RemoteRelation):
 
     def get_type(self) -> "RelationType":
         return self._type
+
+    def as_relation(self) -> "RemoteRelation":
+        return self
 
     def add_player(self, role_type, player):
         self.execute(relation_add_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))

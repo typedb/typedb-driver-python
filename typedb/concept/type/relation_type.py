@@ -41,11 +41,17 @@ class _RelationType(RelationType, _ThingType):
     def as_remote(self, transaction):
         return _RemoteRelationType(transaction, self.get_label(), self.is_root())
 
+    def as_relation_type(self) -> "RelationType":
+        return self
+
 
 class _RemoteRelationType(_RemoteThingType, RemoteRelationType):
 
     def as_remote(self, transaction):
         return _RemoteRelationType(transaction, self.get_label(), self.is_root())
+
+    def as_relation_type(self) -> "RemoteRelationType":
+        return self
 
     def create(self):
         return _Relation.of(self.execute(relation_type_create_req(self.get_label())).relation_type_create_res.relation)

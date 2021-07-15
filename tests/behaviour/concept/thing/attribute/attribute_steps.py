@@ -23,8 +23,7 @@ from datetime import datetime
 from behave import *
 from hamcrest import *
 
-from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.common.exception import TypeDBClientException
+from typedb.client import *
 from tests.behaviour.context import Context
 
 
@@ -40,17 +39,17 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute {var1:Var} get owners contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var2), is_in(context.get(var1).as_remote(context.tx()).get_owners()))
+    assert_that(context.get(var2), is_in(context.get(var1).as_attribute().as_remote(context.tx()).get_owners()))
 
 
 @step("attribute {var1:Var} get owners do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var2), not_(is_in(context.get(var1).as_remote(context.tx()).get_owners())))
+    assert_that(context.get(var2), not_(is_in(context.get(var1).as_attribute().as_remote(context.tx()).get_owners())))
 
 
 @step("attribute {var:Var} has value type: {value_type:ValueType}")
 def step_impl(context: Context, var: str, value_type: AttributeType.ValueType):
-    assert_that(context.get(var).get_type().get_value_type(), is_(value_type))
+    assert_that(context.get(var).as_attribute().get_type().get_value_type(), is_(value_type))
 
 
 @step("attribute({type_label}) as(boolean) put: {value:Bool}; throws exception")
@@ -130,24 +129,24 @@ def step_impl(context: Context, var: str, type_label: str, value: datetime):
 
 @step("attribute {var:Var} has boolean value: {value:Bool}")
 def step_impl(context: Context, var: str, value: bool):
-    assert_that(context.get(var).get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value(), is_(value))
 
 
 @step("attribute {var:Var} has long value: {value:Int}")
 def step_impl(context: Context, var: str, value: int):
-    assert_that(context.get(var).get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value(), is_(value))
 
 
 @step("attribute {var:Var} has double value: {value:Float}")
 def step_impl(context: Context, var: str, value: float):
-    assert_that(context.get(var).get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value(), is_(value))
 
 
 @step("attribute {var:Var} has string value: {value}")
 def step_impl(context: Context, var: str, value: str):
-    assert_that(context.get(var).get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value(), is_(value))
 
 
 @step("attribute {var:Var} has datetime value: {value:DateTime}")
 def step_impl(context: Context, var: str, value: datetime):
-    assert_that(context.get(var).get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value(), is_(value))

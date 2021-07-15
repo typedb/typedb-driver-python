@@ -35,10 +35,15 @@ from typedb.concept.thing.thing import _Thing, _RemoteThing
 
 
 class _Attribute(Attribute, _Thing, ABC):
-    pass
+
+    def as_attribute(self) -> "Attribute":
+        return self
 
 
 class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
+
+    def as_attribute(self) -> "RemoteAttribute":
+        return self
 
     def get_owners(self, owner_type: ThingType = None):
         return (concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))

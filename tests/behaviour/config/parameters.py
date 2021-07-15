@@ -27,9 +27,7 @@ from behave import register_type
 from behave.model import Table
 
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
-from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.api.connection.transaction import TransactionType
-from typedb.common.label import Label
+from typedb.client import *
 
 
 @parse.with_pattern(r"true|false")

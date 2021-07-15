@@ -36,8 +36,20 @@ class _ThingType(ThingType, _Type):
     def as_remote(self, transaction):
         return _RemoteThingType(transaction, self.get_label(), self.is_root())
 
+    def as_thing_type(self) -> "ThingType":
+        return self
+
 
 class _RemoteThingType(_RemoteType, RemoteThingType):
+
+    def as_remote(self, transaction):
+        return _RemoteThingType(transaction, self.get_label(), self.is_root())
+
+    def as_thing_type(self) -> "RemoteThingType":
+        return self
+
+    def is_deleted(self) -> bool:
+        return not self._transaction_ext.concepts().get_thing_type(self.get_label().name())
 
     def set_supertype(self, thing_type: ThingType):
         self.execute(thing_type_set_supertype_req(self.get_label(), concept_proto_builder.thing_type(thing_type)))
@@ -71,9 +83,3 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
 
     def unset_owns(self, attribute_type: AttributeType):
         self.execute(thing_type_unset_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type)))
-
-    def as_remote(self, transaction):
-        return _RemoteThingType(transaction, self.get_label(), self.is_root())
-
-    def is_deleted(self) -> bool:
-        return not self._transaction_ext.concepts().get_thing_type(self.get_label().name())

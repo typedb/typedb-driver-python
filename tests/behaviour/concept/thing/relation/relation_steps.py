@@ -23,8 +23,7 @@ from datetime import datetime
 from behave import *
 from hamcrest import *
 
-from typedb.common.exception import TypeDBClientException
-from typedb.common.label import Label
+from typedb.client import *
 from tests.behaviour.config.parameters import parse_dict, parse_var
 from tests.behaviour.context import Context
 
@@ -71,12 +70,14 @@ def step_impl(context: Context, type_label: str):
 
 @step("relation {var1:Var} add player for role({role_label}): {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    context.get(var1).as_remote(context.tx()).add_player(context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
+    relation = context.get(var1).as_relation()
+    relation.as_remote(context.tx()).add_player(relation.get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
 
 
 @step("relation {var1:Var} remove player for role({role_label}): {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    context.get(var1).as_remote(context.tx()).remove_player(context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
+    relation = context.get(var1).as_relation()
+    relation.as_remote(context.tx()).remove_player(relation.get_type().as_remote(context.tx()).get_relates(role_label), context.get(var2))
 
 
 @step("relation {var1:Var} add player for role({role_label}): {var2:Var}; throws exception")
@@ -85,9 +86,10 @@ def step_impl(context: Context, var1: str, role_label: str, var2: str):
 
 
 def adding_player_throws_exception(context: Context, var1: str, role_label: str, var2: str):
+    relation = context.get(var1).as_relation()
     try:
-        context.get(var1).as_remote(context.tx()).add_player(
-            context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label),
+        relation.as_remote(context.tx()).add_player(
+            relation.get_type().as_remote(context.tx()).get_relates(role_label),
             context.get(var2))
         assert False;
     except TypeDBClientException:
@@ -97,7 +99,7 @@ def adding_player_throws_exception(context: Context, var1: str, role_label: str,
 @step("relation {var:Var} get players contain")
 def step_impl(context: Context, var: str):
     players = parse_dict(context.table)
-    relation = context.get(var)
+    relation = context.get(var).as_relation()
     players_by_role_type = relation.as_remote(context.tx()).get_players_by_role_type()
     for (role_label, var2) in players.items():
         assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), has_item(context.get(parse_var(var2))))
@@ -106,7 +108,7 @@ def step_impl(context: Context, var: str):
 @step("relation {var:Var} get players do not contain")
 def step_impl(context: Context, var: str):
     players = parse_dict(context.table)
-    relation = context.get(var)
+    relation = context.get(var).as_relation()
     players_by_role_type = relation.as_remote(context.tx()).get_players_by_role_type()
     for (role_label, var2) in players.items():
         assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), not_(has_item(context.get(parse_var(var2)))))
@@ -114,23 +116,23 @@ def step_impl(context: Context, var: str):
 
 @step("relation {var1:Var} get players contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_players(), has_item(context.get(var2)))
+    assert_that(context.get(var1).as_relation().as_remote(context.tx()).get_players(), has_item(context.get(var2)))
 
 
 @step("relation {var1:Var} get players do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_players(), not_(has_item(context.get(var2))))
+    assert_that(context.get(var1).as_relation().as_remote(context.tx()).get_players(), not_(has_item(context.get(var2))))
 
 
 @step("relation {var1:Var} get players for role({role_label}) contain: {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_players(
-        role_types=[context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label)]),
+    relation = context.get(var1).as_relation()
+    assert_that(relation.as_remote(context.tx()).get_players(role_types=[relation.get_type().as_remote(context.tx()).get_relates(role_label)]),
         has_item(context.get(var2)))
 
 
 @step("relation {var1:Var} get players for role({role_label}) do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, role_label: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_players(
-        role_types=[context.get(var1).get_type().as_remote(context.tx()).get_relates(role_label)]),
+    relation = context.get(var1).as_relation()
+    assert_that(relation.as_remote(context.tx()).get_players(role_types=[relation.get_type().as_remote(context.tx()).get_relates(role_label)]),
         not_(has_item(context.get(var2))))

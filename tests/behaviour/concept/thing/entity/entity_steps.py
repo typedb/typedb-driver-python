@@ -22,8 +22,7 @@
 from behave import *
 from hamcrest import *
 
-from typedb.common.exception import TypeDBClientException
-from typedb.common.label import Label
+from typedb.client import *
 from tests.behaviour.context import Context
 
 

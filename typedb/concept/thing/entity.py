@@ -43,6 +43,9 @@ class _Entity(Entity, _Thing):
     def as_remote(self, transaction):
         return _RemoteEntity(transaction, self._iid, self.is_inferred(), self.get_type())
 
+    def as_entity(self) -> "Entity":
+        return self
+
 
 class _RemoteEntity(_RemoteThing, RemoteEntity):
 
@@ -55,3 +58,6 @@ class _RemoteEntity(_RemoteThing, RemoteEntity):
 
     def get_type(self) -> "EntityType":
         return self._type
+
+    def as_entity(self) -> "RemoteEntity":
+        return self

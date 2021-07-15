@@ -26,9 +26,7 @@ from typing import Callable, List
 from behave import *
 from hamcrest import *
 
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
-from typedb.common.exception import TypeDBClientException
+from typedb.client import *
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
 from tests.behaviour.context import Context
 
@@ -262,7 +260,7 @@ def step_impl(context: Context, exception: str):
     for session in context.sessions:
         for transaction in context.sessions_to_transactions[session]:
             try:
-                next(transaction.query().define(context.text), default=None)
+                transaction.query().define(context.text).get()
                 assert False
             except TypeDBClientException as e:
                 assert_that(exception, is_in(str(e)))

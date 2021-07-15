@@ -20,8 +20,7 @@
 #
 import os
 
-from typedb.api.connection.credential import TypeDBCredential
-from typedb.client import TypeDB
+from typedb.client import *
 from tests.behaviour.background import environment_base
 from tests.behaviour.context import Context
 

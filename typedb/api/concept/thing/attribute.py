@@ -20,7 +20,7 @@
 #
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Union
 
 from typedb.api.concept.thing.thing import Thing, RemoteThing
 
@@ -35,6 +35,10 @@ class Attribute(Thing, ABC):
 
     @abstractmethod
     def get_type(self) -> "AttributeType":
+        pass
+
+    @abstractmethod
+    def get_value(self) -> Union[bool, int, float, str, datetime]:
         pass
 
     def is_attribute(self):

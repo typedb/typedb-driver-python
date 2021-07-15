@@ -50,6 +50,9 @@ class _Type(Type, _Concept, ABC):
     def is_root(self):
         return self._is_root
 
+    def as_type(self) -> "Type":
+        return self
+
     def __str__(self):
         return type(self).__name__ + "[label: %s]" % self.get_label()
 
@@ -81,6 +84,9 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
 
     def is_root(self):
         return self._is_root
+
+    def as_type(self) -> "RemoteType":
+        return self
 
     def set_label(self, new_label: str):
         self.execute(type_set_label_req(self.get_label(), new_label))

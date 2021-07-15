@@ -20,7 +20,7 @@
 #
 
 from tests.behaviour.background import environment_base
-from typedb.client import TypeDB
+from typedb.client import *
 from tests.behaviour.context import Context
 
 
