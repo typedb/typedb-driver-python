@@ -37,11 +37,17 @@ class _RoleType(_Type, RoleType):
     def as_remote(self, transaction):
         return _RemoteRoleType(transaction, self.get_label(), self.is_root())
 
+    def as_role_type(self) -> "RoleType":
+        return self
+
 
 class _RemoteRoleType(_RemoteType, RemoteRoleType):
 
     def as_remote(self, transaction):
         return _RemoteRoleType(transaction, self.get_label(), self.is_root())
+
+    def as_role_type(self) -> "RemoteRoleType":
+        return self
 
     def get_relation_type(self):
         return self._transaction_ext.concepts().get_relation_type(self.get_label().scope())

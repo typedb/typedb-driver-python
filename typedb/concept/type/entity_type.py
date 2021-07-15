@@ -37,11 +37,17 @@ class _EntityType(EntityType, _ThingType):
     def as_remote(self, transaction):
         return _RemoteEntityType(transaction, self.get_label(), self.is_root())
 
+    def as_entity_type(self) -> "EntityType":
+        return self
+
 
 class _RemoteEntityType(_RemoteThingType, RemoteEntityType):
 
     def as_remote(self, transaction):
         return _RemoteEntityType(transaction, self.get_label(), self.is_root())
+
+    def as_entity_type(self) -> "RemoteEntityType":
+        return self
 
     def create(self):
         return _Entity.of(self.execute(entity_type_create_req(self.get_label())).entity_type_create_res.entity)

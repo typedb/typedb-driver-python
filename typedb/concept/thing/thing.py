@@ -50,6 +50,9 @@ class _Thing(Thing, _Concept, ABC):
     def is_inferred(self) -> bool:
         return self._is_inferred
 
+    def as_thing(self) -> "Thing":
+        return self
+
     def __str__(self):
         return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())
 
@@ -81,6 +84,9 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
 
     def is_inferred(self) -> bool:
         return self._is_inferred
+
+    def as_thing(self) -> "RemoteThing":
+        return self
 
     def get_has(self, attribute_type=None, attribute_types: List = None, only_key=False):
         if [bool(attribute_type), bool(attribute_types), only_key].count(True) > 1:

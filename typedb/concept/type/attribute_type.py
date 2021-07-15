@@ -43,30 +43,33 @@ class _AttributeType(AttributeType, _ThingType):
     def as_remote(self, transaction):
         return _RemoteAttributeType(transaction, self.get_label(), self.is_root())
 
+    def as_attribute_type(self) -> "AttributeType":
+        return self
+
     def as_boolean(self):
         if self.is_root():
             return _BooleanAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, BooleanAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, BooleanAttributeType.__name__))
 
     def as_long(self):
         if self.is_root():
             return _LongAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, LongAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, LongAttributeType.__name__))
 
     def as_double(self):
         if self.is_root():
             return _DoubleAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, DoubleAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DoubleAttributeType.__name__))
 
     def as_string(self):
         if self.is_root():
             return _StringAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, StringAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, StringAttributeType.__name__))
 
     def as_datetime(self):
         if self.is_root():
             return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, DateTimeAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DateTimeAttributeType.__name__))
 
     def __eq__(self, other):
         if other is self:
@@ -86,6 +89,9 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
 
     def as_remote(self, transaction):
         return _RemoteAttributeType(transaction, self.get_label(), self.is_root())
+
+    def as_attribute_type(self) -> "RemoteAttributeType":
+        return self
 
     def get_subtypes(self) -> Iterator[AttributeType]:
         stream = super(_RemoteAttributeType, self).get_subtypes()
@@ -112,27 +118,27 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
     def as_boolean(self):
         if self.is_root():
             return _BooleanAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, BooleanAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, BooleanAttributeType.__name__))
 
     def as_long(self):
         if self.is_root():
             return _LongAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, LongAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, LongAttributeType.__name__))
 
     def as_double(self):
         if self.is_root():
             return _DoubleAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, DoubleAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DoubleAttributeType.__name__))
 
     def as_string(self):
         if self.is_root():
             return _StringAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, StringAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, StringAttributeType.__name__))
 
     def as_datetime(self):
         if self.is_root():
             return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, DateTimeAttributeType.__name__)
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DateTimeAttributeType.__name__))
 
     def __eq__(self, other):
         if other is self:
