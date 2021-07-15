@@ -18,11 +18,12 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from behave import *
 from behave.model_core import Status
 
+from typedb.client import *
+
 from tests.behaviour.config.parameters import RootLabel
-from tests.behaviour.context import Context, ThingSubtype
+from tests.behaviour.context import Context
 
 import time
 
@@ -47,7 +48,7 @@ def before_scenario(context: Context, scenario):
     context.clear_answers = lambda: _clear_answers_impl(context)
 
 
-def _put_impl(context: Context, variable: str, thing: ThingSubtype):
+def _put_impl(context: Context, variable: str, thing: Thing):
     context.things[variable] = thing
 
 

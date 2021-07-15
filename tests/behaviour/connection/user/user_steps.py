@@ -24,8 +24,7 @@ from behave import step
 from hamcrest import assert_that, has_item, not_
 
 from tests.behaviour.context import Context
-from typedb.api.connection.client import TypeDBClusterClient
-from typedb.client import TypeDB, TypeDBCredential
+from typedb.client import *
 
 
 def _get_client(context: Context):
@@ -33,21 +32,26 @@ def _get_client(context: Context):
     assert isinstance(client, TypeDBClusterClient)
     return client
 
+
 @step("users contains: {name}")
 def step_impl(context: Context, name: str):
     assert_that([u.name() for u in _get_client(context).users().all()], has_item(name))
+
 
 @step("users not contains: {name}")
 def step_impl(context: Context, name: str):
     assert_that([u.name() for u in _get_client(context).users().all()], not_(has_item(name)))
 
+
 @step("users create: {name}, {password}")
 def step_impl(context: Context, name: str, password: str):
     _get_client(context).users().create(name, password)
 
+
 @step("user password: {name}, {password}")
 def step_impl(context: Context, name: str, password: str):
     _get_client(context).users().get(name).password(password)
+
 
 @step("user connect: {name}, {password}")
 def step_impl(context: Context, name: str, password: str):
@@ -56,9 +60,8 @@ def step_impl(context: Context, name: str, password: str):
     with TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential) as client:
         client.databases().all()
 
+
 @step("user delete: {name}")
 def step_impl(context: Context, name: str):
     user = _get_client(context).users().get(name)
     user.delete()
-
-

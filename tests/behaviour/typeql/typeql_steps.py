@@ -19,20 +19,15 @@
 # under the License.
 #
 import re
-from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import List, Tuple, Union, Optional, Any, Type
 
 from behave import *
 from hamcrest import *
 
-from typedb.common.exception import TypeDBClientException
-from typedb.common.label import Label
-from typedb.concept.answer.concept_map import ConceptMap
-from typedb.concept.answer.numeric import Numeric
+from typedb.client import *
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
     parse_label
-from tests.behaviour.context import Context, ConceptSubtype, AttributeSubtype
+from tests.behaviour.context import Context
 
 
 @step("typeql define")
@@ -196,7 +191,7 @@ class ConceptMatchResult:
 class ConceptMatcher(ABC):
 
     @abstractmethod
-    def match(self, context: Context, concept: ConceptSubtype) -> ConceptMatchResult:
+    def match(self, context: Context, concept: Concept) -> ConceptMatchResult:
         pass
 
 
@@ -205,9 +200,9 @@ class TypeLabelMatcher(ConceptMatcher):
     def __init__(self, label: str):
         self.label = parse_label(label)
 
-    def match(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: Concept):
         if concept.is_type():
-            return ConceptMatchResult.of(self.label, concept.get_label())
+            return ConceptMatchResult.of(self.label, concept.as_type().get_label())
         else:
             return ConceptMatchResult.of_error(self.label, "%s was matched by Label, but it is not a Type." % concept)
 
@@ -220,7 +215,7 @@ class AttributeMatcher(ConceptMatcher, ABC):
         assert_that(s, has_length(2), "[%s] is not a valid attribute identifier. It should have format \"type_label:value\"." % type_and_value)
         self.type_label, self.value = s
 
-    def check(self, attribute: AttributeSubtype):
+    def check(self, attribute: Attribute):
         if attribute.is_boolean():
             return ConceptMatchResult.of(parse_bool(self.value), attribute.get_value())
         elif attribute.is_long():
@@ -237,25 +232,25 @@ class AttributeMatcher(ConceptMatcher, ABC):
 
 class AttributeValueMatcher(AttributeMatcher):
 
-    def match(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: Concept):
         if not concept.is_attribute():
             return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Attribute Value, but it is not an Attribute." % concept)
 
-        attribute = concept
+        attribute = concept.as_attribute()
 
         if self.type_label != attribute.get_type().get_label().name():
-            return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Attribute Value expecting type label [%s], but its actual type is %s." % (concept, self.type_label, concept.get_type()))
+            return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Attribute Value expecting type label [%s], but its actual type is %s." % (attribute, self.type_label, attribute.get_type()))
 
         return self.check(attribute)
 
 
 class ThingKeyMatcher(AttributeMatcher):
 
-    def match(self, context: Context, concept: ConceptSubtype):
+    def match(self, context: Context, concept: Concept):
         if not concept.is_thing():
             return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Key, but it is not a Thing." % concept)
 
-        keys = [key for key in concept.as_remote(context.tx()).get_has(only_key=True)]
+        keys = [key for key in concept.as_thing().as_remote(context.tx()).get_has(only_key=True)]
 
         for key in keys:
             if key.get_type().get_label().name() == self.type_label:
@@ -460,7 +455,7 @@ def apply_query_template(template: str, answer: ConceptMap):
             concept = answer.get(required_variable)
             if not concept.is_thing():
                 raise TypeError("Cannot apply IID templating to Types")
-            query += concept.get_iid()
+            query += concept.as_thing().get_iid()
         else:
             raise ValueError("No IID available for template placeholder: [%s]" % match.group())
         i = match.span()[1]

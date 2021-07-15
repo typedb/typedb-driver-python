@@ -22,7 +22,7 @@
 from behave import *
 from hamcrest import *
 
-from typedb.api.concept.type.attribute_type import AttributeType
+from typedb.client import *
 from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
 from tests.behaviour.context import Context
 
@@ -39,7 +39,7 @@ def step_impl(context: Context, type_label: str, value_type: str):
 
 @step("attribute({type_label}) get supertype value type: {value_type}")
 def step_impl(context: Context, type_label: str, value_type: str):
-    supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_supertype()
+    supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_supertype().as_attribute_type()
     assert_that(supertype.get_value_type(), is_(parse_value_type(value_type)))
 
 
