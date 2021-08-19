@@ -23,6 +23,7 @@ from os import path
 
 from typedb.common.exception import TypeDBClientException, CLUSTER_INVALID_ROOT_CA_PATH
 
+
 class TypeDBCredential:
 
     def __init__(self, username: str, password: str, tls_root_ca_path: str = None):
@@ -30,7 +31,7 @@ class TypeDBCredential:
         self._password = password
 
         if (tls_root_ca_path is not None and not path.exists(tls_root_ca_path)):
-            raise TypeDBClientException(CLUSTER_INVALID_ROOT_CA_PATH.message(tls_root_ca_path))
+            raise TypeDBClientException.of(CLUSTER_INVALID_ROOT_CA_PATH, tls_root_ca_path)
 
         self._tls_root_ca_path = tls_root_ca_path
 

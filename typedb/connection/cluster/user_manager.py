@@ -68,7 +68,7 @@ class _ClusterUserManager(UserManager):
         if (self.contains(name)):
             return _ClusterUser(self._client, name)
         else:
-            raise TypeDBClientException(CLUSTER_USER_DOES_NOT_EXIST.message(name))
+            raise TypeDBClientException.of(CLUSTER_USER_DOES_NOT_EXIST, name)
 
 
 class _UserManagerFailsafeTask(_FailsafeTask):
