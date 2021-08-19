@@ -25,7 +25,7 @@ from grpc import RpcError, Call, StatusCode
 
 class TypeDBClientException(Exception):
 
-    def __init__(self, msg: Union["ErrorMessage", str], cause: Optional[BaseException], params: Any = None):
+    def __init__(self, msg: Union["ErrorMessage", str], cause: BaseException = None, params: Any = None):
         if isinstance(msg, str):
             self.message = msg
             self.error_message = None
