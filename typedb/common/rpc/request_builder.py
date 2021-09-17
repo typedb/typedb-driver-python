@@ -93,13 +93,13 @@ def cluster_user_manager_all_req():
 
 def cluster_user_manager_create_req(name: str, password: str):
     req = cluster_user_proto.ClusterUserManager.Create.Req()
-    req.name = name
+    req.username = name
     req.password = password
     return req
 
 def cluster_user_manager_contains_req(name: str):
     req = cluster_user_proto.ClusterUserManager.Contains.Req()
-    req.name = name
+    req.username = name
     return req
 
 
@@ -107,13 +107,13 @@ def cluster_user_manager_contains_req(name: str):
 
 def cluster_user_password_req(name: str, password: str):
     req = cluster_user_proto.ClusterUser.Password.Req()
-    req.name = name
+    req.username = name
     req.password = password
     return req
 
 def cluster_user_delete_req(name: str):
     req = cluster_user_proto.ClusterUser.Delete.Req()
-    req.name = name
+    req.username = name
     return req
 
 

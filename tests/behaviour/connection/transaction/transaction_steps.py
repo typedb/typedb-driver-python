@@ -115,6 +115,9 @@ def step_impl(context: Context, is_open):
 def step_impl(context: Context):
     context.tx().commit()
 
+@step("session transaction closes")
+def step_impl(context: Context):
+    context.tx().close()
 
 @step("session transaction commits; throws exception")
 @step("transaction commits; throws exception")
