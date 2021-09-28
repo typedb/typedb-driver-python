@@ -37,6 +37,9 @@ class _ClusterServerClient(_TypeDBClientImpl):
         self._stub = self._connection_factory.newTypeDBStub(self._channel)
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
+    def databases(self) -> _TypeDBDatabaseManagerImpl:
+        return self._databases
+
     def channel(self) -> Channel:
         return self._channel
 
@@ -45,6 +48,3 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def connection_factory(self) -> _TypeDBConnectionFactory:
         return self._connection_factory
-
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
-        return self._databases

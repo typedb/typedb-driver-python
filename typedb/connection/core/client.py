@@ -37,14 +37,14 @@ class _CoreClient(_TypeDBClientImpl):
         self._stub = self._connection_factory.newTypeDBStub(self._channel)
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
+    def databases(self) -> _TypeDBDatabaseManagerImpl:
+        return self._databases
+
     def channel(self) -> Channel:
         return self._channel
 
     def stub(self) -> TypeDBStub:
         return self._stub
-
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
-        return self._databases
 
     def connection_factory(self) -> _TypeDBConnectionFactory:
         return self._connection_factory

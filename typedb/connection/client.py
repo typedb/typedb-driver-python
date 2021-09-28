@@ -41,35 +41,18 @@ class _TypeDBClientImpl(TypeDBClient):
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
+    def is_open(self) -> bool:
+        return self._is_open
+
+    def databases(self) -> _TypeDBDatabaseManagerImpl:
+        pass
+
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
         if not options:
             options = TypeDBOptions.core()
         session = _TypeDBSessionImpl(self, database, session_type, options)
         self._sessions[session.session_id()] = session
         return session
-
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
-        pass
-
-    def is_open(self) -> bool:
-        return self._is_open
-
-    def close(self) -> None:
-        self._is_open = False
-        for session_id in self._sessions:
-            self._sessions[session_id].close()
-        self.channel().close()
-
-    def is_cluster(self) -> bool:
-        return False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        if exc_tb is not None:
-            return False
 
     def remove_session(self, session: _TypeDBSessionImpl) -> None:
         del self._sessions[session.session_id()]
@@ -88,3 +71,20 @@ class _TypeDBClientImpl(TypeDBClient):
 
     def transmitter(self) -> RequestTransmitter:
         return self._transmitter
+
+    def is_cluster(self) -> bool:
+        return False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        if exc_tb is not None:
+            return False
+
+    def close(self) -> None:
+        self._is_open = False
+        for session_id in self._sessions:
+            self._sessions[session_id].close()
+        self.channel().close()
