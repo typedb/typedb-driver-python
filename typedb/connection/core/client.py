@@ -19,11 +19,27 @@
 # under the License.
 #
 
+from grpc import Channel
+
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
+from typedb.connection.connection_factory import _TypeDBConnectionFactory
 from typedb.connection.core.connection_factory import _CoreConnectionFactory
 
 
 class _CoreClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, parallelisation: int = 2):
-        super(_CoreClient, self).__init__(address, _CoreConnectionFactory(), parallelisation)
+        super(_CoreClient, self).__init__(address, parallelisation)
+        self._connection_factory =  _CoreConnectionFactory()
+        self._channel = self._connection_factory.newChannel(self._address)
+        self._stub = self._connection_factory.newTypeDBStub(self._channel)
+
+    def channel(self) -> Channel:
+        return self._channel
+
+    def stub(self) -> TypeDBStub:
+        return self._stub
+
+    def connection_factory(self) -> _TypeDBConnectionFactory:
+        return self._connection_factory

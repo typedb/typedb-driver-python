@@ -35,13 +35,10 @@ from typedb.stream.request_transmitter import RequestTransmitter
 class _TypeDBClientImpl(TypeDBClient):
 
     # TODO: Detect number of available CPUs
-    def __init__(self, address: str, connection_factory: _TypeDBConnectionFactory, parallelisation: int = 2):
+    def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
-        self._connection_factory = connection_factory
-        self._channel = self._connection_factory.newChannel(self._address)
-        self._stub = self._connection_factory.newTypeDBStub(self._channel)
         self._transmitter = RequestTransmitter(parallelisation)
-        self._databases = _TypeDBDatabaseManagerImpl(self._stub)
+        self._databases = _TypeDBDatabaseManagerImpl(self.stub())
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
@@ -62,7 +59,7 @@ class _TypeDBClientImpl(TypeDBClient):
         self._is_open = False
         for session_id in self._sessions:
             self._sessions[session_id].close()
-        self._channel.close()
+        self.channel().close()
 
     def is_cluster(self) -> bool:
         return False
@@ -78,17 +75,17 @@ class _TypeDBClientImpl(TypeDBClient):
     def remove_session(self, session: _TypeDBSessionImpl) -> None:
         del self._sessions[session.session_id()]
 
-    def channel(self) -> Channel:
-        return self._channel
-
     def address(self) -> str:
         return self._address
 
+    def channel(self) -> Channel:
+        pass
+
     def stub(self) -> TypeDBStub:
-        return self._stub
+        pass
 
     def connection_factory(self) -> _TypeDBConnectionFactory:
-        return self._connection_factory
+        pass
 
     def transmitter(self) -> RequestTransmitter:
         return self._transmitter

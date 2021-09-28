@@ -19,12 +19,28 @@
 #   under the License.
 #
 
+from grpc import Channel
+
 from typedb.api.connection.credential import TypeDBCredential
+from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
+from typedb.connection.connection_factory import _TypeDBConnectionFactory
 
 
 class _ClusterServerClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, credential: TypeDBCredential, parallelisation: int = 2):
-        super(_ClusterServerClient, self).__init__(address, _ClusterConnectionFactory(credential), parallelisation)
+        super(_ClusterServerClient, self).__init__(address, parallelisation)
+        self._connection_factory = _ClusterConnectionFactory(credential)
+        self._channel = self._connection_factory.newChannel(self._address)
+        self._stub = self._connection_factory.newTypeDBStub(self._channel)
+
+    def channel(self) -> Channel:
+        return self._channel
+
+    def stub(self) -> TypeDBStub:
+        return self._stub
+
+    def connection_factory(self) -> _TypeDBConnectionFactory:
+        return self._connection_factory
