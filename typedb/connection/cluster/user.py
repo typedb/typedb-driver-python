@@ -29,19 +29,19 @@ if TYPE_CHECKING:
 
 class _ClusterUser(User):
 
-    def __init__(self, client: "_ClusterClient", name: str):
+    def __init__(self, client: "_ClusterClient", username: str):
         self._client = client
-        self._name = name
+        self._username = username
 
-    def name(self) -> str:
-        return self._name
+    def username(self) -> str:
+        return self._username
 
     def password(self, password: str) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_password(cluster_user_password_req(self.name(), password)))
+        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_password(cluster_user_password_req(self.username(), password)))
         failsafe_task.run_primary_replica()
 
     def delete(self) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_delete(cluster_user_delete_req(self.name())))
+        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_delete(cluster_user_delete_req(self.username())))
         failsafe_task.run_primary_replica()
 
 

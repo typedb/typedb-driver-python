@@ -33,35 +33,35 @@ def _get_client(context: Context):
     return client
 
 
-@step("users contains: {name}")
-def step_impl(context: Context, name: str):
-    assert_that([u.name() for u in _get_client(context).users().all()], has_item(name))
+@step("users contains: {username}")
+def step_impl(context: Context, username: str):
+    assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
 
 
-@step("users not contains: {name}")
-def step_impl(context: Context, name: str):
-    assert_that([u.name() for u in _get_client(context).users().all()], not_(has_item(name)))
+@step("users not contains: {username}")
+def step_impl(context: Context, username: str):
+    assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
 
 
-@step("users create: {name}, {password}")
-def step_impl(context: Context, name: str, password: str):
-    _get_client(context).users().create(name, password)
+@step("users create: {username}, {password}")
+def step_impl(context: Context, username: str, password: str):
+    _get_client(context).users().create(username, password)
 
 
-@step("user password: {name}, {password}")
-def step_impl(context: Context, name: str, password: str):
-    _get_client(context).users().get(name).password(password)
+@step("user password: {username}, {password}")
+def step_impl(context: Context, username: str, password: str):
+    _get_client(context).users().get(username).password(password)
 
 
-@step("user connect: {name}, {password}")
-def step_impl(context: Context, name: str, password: str):
+@step("user connect: {username}, {password}")
+def step_impl(context: Context, username: str, password: str):
     root_ca_path = os.environ["ROOT_CA"]
-    credential = TypeDBCredential(name, password, root_ca_path)
+    credential = TypeDBCredential(username, password, root_ca_path)
     with TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential) as client:
         client.databases().all()
 
 
-@step("user delete: {name}")
-def step_impl(context: Context, name: str):
-    user = _get_client(context).users().get(name)
+@step("user delete: {username}")
+def step_impl(context: Context, username: str):
+    user = _get_client(context).users().get(username)
     user.delete()
