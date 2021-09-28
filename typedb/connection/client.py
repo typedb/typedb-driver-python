@@ -66,9 +66,6 @@ class _TypeDBClientImpl(TypeDBClient):
     def stub(self) -> TypeDBStub:
         pass
 
-    def connection_factory(self) -> _TypeDBConnectionFactory:
-        pass
-
     def transmitter(self) -> RequestTransmitter:
         return self._transmitter
 

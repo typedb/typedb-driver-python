@@ -46,5 +46,3 @@ class _ClusterServerClient(_TypeDBClientImpl):
     def stub(self) -> TypeDBStub:
         return self._stub
 
-    def connection_factory(self) -> _TypeDBConnectionFactory:
-        return self._connection_factory

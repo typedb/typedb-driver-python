@@ -19,12 +19,13 @@
 # under the License.
 #
 
-from grpc import Channel
+from grpc import Channel, insecure_channel
 
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.connection_factory import _TypeDBConnectionFactory
 from typedb.connection.core.connection_factory import _CoreConnectionFactory
+from typedb.connection.core.stub import _CoreStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 
@@ -32,9 +33,8 @@ class _CoreClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, parallelisation: int = 2):
         super(_CoreClient, self).__init__(address, parallelisation)
-        self._connection_factory = _CoreConnectionFactory()
-        self._channel = self._connection_factory.newChannel(self._address)
-        self._stub = self._connection_factory.newTypeDBStub(self._channel)
+        self._channel = insecure_channel(self._address)
+        self._stub = _CoreStub.create(self._channel)
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
@@ -45,6 +45,3 @@ class _CoreClient(_TypeDBClientImpl):
 
     def stub(self) -> TypeDBStub:
         return self._stub
-
-    def connection_factory(self) -> _TypeDBConnectionFactory:
-        return self._connection_factory
