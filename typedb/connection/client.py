@@ -38,7 +38,6 @@ class _TypeDBClientImpl(TypeDBClient):
     def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
         self._transmitter = RequestTransmitter(parallelisation)
-        self._databases = _TypeDBDatabaseManagerImpl(self.stub())
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
@@ -50,7 +49,7 @@ class _TypeDBClientImpl(TypeDBClient):
         return session
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
-        return self._databases
+        pass
 
     def is_open(self) -> bool:
         return self._is_open
