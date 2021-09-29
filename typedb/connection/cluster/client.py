@@ -45,7 +45,6 @@ class _ClusterClient(TypeDBClusterClient):
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
         self._user_manager = _ClusterUserManager(self)
         self._is_open = True
-        print("Cluster client created")
 
     def _fetch_server_addresses(self, addresses: Iterable[str]) -> Set[str]:
         for address in addresses:
