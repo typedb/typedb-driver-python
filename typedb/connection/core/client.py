@@ -23,8 +23,6 @@ from grpc import Channel, insecure_channel
 
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
-from typedb.connection.connection_factory import _TypeDBConnectionFactory
-from typedb.connection.core.connection_factory import _CoreConnectionFactory
 from typedb.connection.core.stub import _CoreStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 

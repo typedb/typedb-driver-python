@@ -25,8 +25,8 @@ from typedb.api.connection.credential import TypeDBCredential
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
-from typedb.connection.connection_factory import _TypeDBConnectionFactory
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
+
 
 class _ClusterServerClient(_TypeDBClientImpl):
 

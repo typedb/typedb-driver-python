@@ -26,7 +26,6 @@ from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
 from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.connection_factory import _TypeDBConnectionFactory
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
