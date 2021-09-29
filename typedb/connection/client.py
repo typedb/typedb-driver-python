@@ -40,12 +40,6 @@ class _TypeDBClientImpl(TypeDBClient):
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
-    def is_open(self) -> bool:
-        return self._is_open
-
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
-        pass
-
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
         if not options:
             options = TypeDBOptions.core()
@@ -55,6 +49,12 @@ class _TypeDBClientImpl(TypeDBClient):
 
     def remove_session(self, session: _TypeDBSessionImpl) -> None:
         del self._sessions[session.session_id()]
+
+    def databases(self) -> _TypeDBDatabaseManagerImpl:
+        pass
+
+    def is_open(self) -> bool:
+        return self._is_open
 
     def address(self) -> str:
         return self._address
