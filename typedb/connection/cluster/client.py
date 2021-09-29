@@ -25,7 +25,6 @@ from typedb.api.connection.credential import TypeDBCredential
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
 from typedb.api.connection.user import UserManager
-from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
 from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
