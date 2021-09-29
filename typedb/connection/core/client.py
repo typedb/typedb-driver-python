@@ -43,3 +43,7 @@ class _CoreClient(_TypeDBClientImpl):
 
     def stub(self) -> TypeDBStub:
         return self._stub
+
+    def close(self) -> None:
+        super().close()
+        self._channel.close()

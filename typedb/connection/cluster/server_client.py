@@ -57,6 +57,10 @@ class _ClusterServerClient(_TypeDBClientImpl):
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
+    def close(self) -> None:
+        super().close()
+        self._channel.close()
+
 
 class CredentialAuth(grpc.AuthMetadataPlugin):
     def __init__(self, username, password):

@@ -83,4 +83,3 @@ class _TypeDBClientImpl(TypeDBClient):
         self._is_open = False
         for session_id in self._sessions:
             self._sessions[session_id].close()
-        self.channel().close()
