@@ -53,7 +53,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             channel_credentials = grpc.ssl_channel_credentials()
         combined_credentials = grpc.composite_channel_credentials(
             channel_credentials,
-            grpc.metadata_call_credentials(CredentialAuth(self._credential.username(), self._credential.password()))
+            grpc.metadata_call_credentials(_CredentialAuth(self._credential.username(), self._credential.password()))
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
@@ -62,7 +62,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
         self._channel.close()
 
 
-class CredentialAuth(grpc.AuthMetadataPlugin):
+class _CredentialAuth(grpc.AuthMetadataPlugin):
     def __init__(self, username, password):
         self._username = username
         self._password = password
