@@ -28,15 +28,15 @@ from grpc import Channel
 from typedb.common.rpc.stub import TypeDBStub, resilient_call
 
 
-class ClusterServerStub(TypeDBStub):
+class _ClusterServerStub(TypeDBStub):
 
     def __init__(self, channel: Channel, stub: core_service_proto.TypeDBStub, clusterStub: cluster_service_proto.TypeDBClusterStub):
-        super(ClusterServerStub, self).__init__(channel, stub)
+        super(_ClusterServerStub, self).__init__(channel, stub)
         self._clusterStub = clusterStub
 
     @staticmethod
     def create(channel: Channel):
-        return ClusterServerStub(
+        return _ClusterServerStub(
             channel,
             core_service_proto.TypeDBStub(channel),
             cluster_service_proto.TypeDBClusterStub(channel)

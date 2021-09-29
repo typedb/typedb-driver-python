@@ -23,7 +23,7 @@ import grpc
 
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.connection.client import _TypeDBClientImpl
-from typedb.connection.cluster.stub import ClusterServerStub
+from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 
@@ -41,12 +41,12 @@ class _ClusterServerClient(_TypeDBClientImpl):
     def channel(self) -> grpc.Channel:
         return self._channel
 
-    def stub(self) -> ClusterServerStub:
+    def stub(self) -> _ClusterServerStub:
         return self._stub
 
-    def new_channel_and_stub(self) -> (grpc.Channel, ClusterServerStub):
+    def new_channel_and_stub(self) -> (grpc.Channel, _ClusterServerStub):
         channel = self._new_channel()
-        return channel, ClusterServerStub.create(channel)
+        return channel, _ClusterServerStub.create(channel)
 
     def _new_channel(self) -> grpc.Channel:
         if self._credential.tls_root_ca_path() is not None:

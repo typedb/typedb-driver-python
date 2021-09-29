@@ -29,7 +29,7 @@ from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
 from typedb.connection.cluster.session import _ClusterSession
-from typedb.connection.cluster.stub import ClusterServerStub
+from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.cluster.user_manager import _ClusterUserManager
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT
@@ -93,7 +93,7 @@ class _ClusterClient(TypeDBClusterClient):
     def _cluster_server_client(self, address: str) -> _ClusterServerClient:
         return self._server_clients.get(address)
 
-    def _stub(self, address: str) -> ClusterServerStub:
+    def _stub(self, address: str) -> _ClusterServerStub:
         return self._server_clients.get(address).stub()
 
     def is_cluster(self) -> bool:

@@ -25,7 +25,7 @@ from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.common.exception import TypeDBClientException, CLUSTER_ALL_NODES_FAILED, CLUSTER_REPLICA_NOT_PRIMARY, \
     DB_DOES_NOT_EXIST
 from typedb.common.rpc.request_builder import cluster_database_manager_get_req, cluster_database_manager_all_req
-from typedb.connection.cluster.stub import ClusterServerStub
+from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 T = TypeVar("T")
@@ -49,7 +49,7 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
     def get(self, name: str) -> _ClusterDatabase:
         return self._failsafe_task(name, lambda stub, core_db_mgr: self._get_database_task(name, stub))
 
-    def _get_database_task(self, name: str, stub: ClusterServerStub):
+    def _get_database_task(self, name: str, stub: _ClusterServerStub):
         if self.contains(name):
             res = stub.databases_get(cluster_database_manager_get_req(name))
             return _ClusterDatabase.of(res.database, self._client)
@@ -68,7 +68,7 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
     def database_mgrs(self) -> Dict[str, _TypeDBDatabaseManagerImpl]:
         return self._database_mgrs
 
-    def _failsafe_task(self, name: str, task: Callable[[ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
+    def _failsafe_task(self, name: str, task: Callable[[_ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
         failsafe_task = _DatabaseManagerFailsafeTask(self._client, name, task)
         try:
             return failsafe_task.run_any_replica()
@@ -80,7 +80,7 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
 
 class _DatabaseManagerFailsafeTask(_FailsafeTask):
 
-    def __init__(self, client: "_ClusterClient", database: str, task: Callable[[ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
+    def __init__(self, client: "_ClusterClient", database: str, task: Callable[[_ClusterServerStub, _TypeDBDatabaseManagerImpl], T]):
         super().__init__(client, database)
         self.task = task
 
