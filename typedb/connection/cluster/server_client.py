@@ -22,9 +22,8 @@
 import grpc
 
 from typedb.api.connection.credential import TypeDBCredential
-from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
-from typedb.connection.cluster.stub import _ClusterServerStub
+from typedb.connection.cluster.stub import ClusterServerStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 
@@ -34,7 +33,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
         super(_ClusterServerClient, self).__init__(address, parallelisation)
         self._credential = credential
         self._channel = self._new_channel()
-        self._stub = _ClusterServerStub.create(self._channel)
+        self._stub = ClusterServerStub.create(self._channel)
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
@@ -43,7 +42,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
     def channel(self) -> grpc.Channel:
         return self._channel
 
-    def stub(self) -> TypeDBStub:
+    def stub(self) -> ClusterServerStub:
         return self._stub
 
     def _new_channel(self) -> grpc.Channel:

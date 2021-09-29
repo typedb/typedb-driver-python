@@ -29,7 +29,7 @@ from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
 from typedb.connection.cluster.session import _ClusterSession
-from typedb.connection.cluster.stub import _ClusterServerStub
+from typedb.connection.cluster.stub import ClusterServerStub
 from typedb.connection.cluster.user_manager import _ClusterUserManager
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT
@@ -40,7 +40,6 @@ class _ClusterClient(TypeDBClusterClient):
     def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
         self._credential = credential
         self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._stubs = {addr: client.connection_factory().newTypeDBStub(client.channel()) for (addr, client) in self._server_clients.items()}
         self._database_managers = _ClusterDatabaseManager(self)
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
         self._user_manager = _ClusterUserManager(self)
@@ -51,8 +50,7 @@ class _ClusterClient(TypeDBClusterClient):
             try:
                 print("Fetching list of cluster servers from %s..." % address)
                 with _ClusterServerClient(address, self._credential) as client:
-                    typedb_cluster_stub = client.connection_factory().newTypeDBStub(client.channel())
-                    res = typedb_cluster_stub.servers_all(cluster_server_manager_all_req())
+                    res = client.stub().servers_all(cluster_server_manager_all_req())
                     members = {srv.address for srv in res.servers}
                     print("The cluster servers are %s" % [str(member) for member in members])
                     return members
@@ -95,8 +93,8 @@ class _ClusterClient(TypeDBClusterClient):
     def _cluster_server_client(self, address: str) -> _ClusterServerClient:
         return self._server_clients.get(address)
 
-    def _stub(self, address: str) -> _ClusterServerStub:
-        return self._stubs.get(address)
+    def _stub(self, address: str) -> ClusterServerStub:
+        return self._server_clients.get(address).stub()
 
     def close(self) -> None:
         for client in self._server_clients.values():

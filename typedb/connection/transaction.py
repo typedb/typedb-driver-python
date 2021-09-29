@@ -52,8 +52,7 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         try:
             # Other TypeDBClient implementations reuse a single gRPC Channel, but the Python client stalls
             # when opening several transactions in parallel from one Channel.
-            stub = session.client().connection_factory().newTypeDBStub(session.client().connection_factory().newChannel(session.address()))
-            self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
+            self._bidirectional_stream = BidirectionalStream(session.client().stub(), session.transmitter())
             req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
             self.execute(request=req, batch=False)
         except RpcError as e:
