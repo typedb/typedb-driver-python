@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterable, Dict, Set, cast
+from typing import Iterable, Dict, Set
 
 from typedb.api.connection.client import TypeDBClusterClient
 from typedb.api.connection.credential import TypeDBCredential
