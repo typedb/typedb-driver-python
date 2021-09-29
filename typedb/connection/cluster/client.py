@@ -61,15 +61,6 @@ class _ClusterClient(TypeDBClusterClient):
                     raise e
         raise TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, ",".join(addresses))
 
-    def is_open(self) -> bool:
-        return self._is_open
-
-    def databases(self) -> _ClusterDatabaseManager:
-        return self._database_managers
-
-    def users(self) -> UserManager:
-        return self._user_manager
-
     def session(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         if not options:
             options = TypeDBOptions.cluster()
@@ -81,10 +72,19 @@ class _ClusterClient(TypeDBClusterClient):
     def _session_any_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_any_replica()
 
+    def is_open(self) -> bool:
+        return self._is_open
+
+    def users(self) -> UserManager:
+        return self._user_manager
+
+    def databases(self) -> _ClusterDatabaseManager:
+        return self._database_managers
+
     def database_by_name(self) -> Dict[str, _ClusterDatabase]:
         return self._cluster_databases
 
-    def cluster_members(self) -> Set[str]:
+    def server_addresses(self) -> Set[str]:
         return set(self._server_clients.keys())
 
     def _cluster_server_clients(self) -> Dict[str, _ClusterServerClient]:
@@ -96,11 +96,6 @@ class _ClusterClient(TypeDBClusterClient):
     def _stub(self, address: str) -> ClusterServerStub:
         return self._server_clients.get(address).stub()
 
-    def close(self) -> None:
-        for client in self._server_clients.values():
-            client.close()
-        self._is_open = False
-
     def is_cluster(self) -> bool:
         return True
 
@@ -111,6 +106,11 @@ class _ClusterClient(TypeDBClusterClient):
         self.close()
         if exc_tb is not None:
             return False
+
+    def close(self) -> None:
+        for client in self._server_clients.values():
+            client.close()
+        self._is_open = False
 
 
 class _OpenSessionFailsafeTask(_FailsafeTask):
