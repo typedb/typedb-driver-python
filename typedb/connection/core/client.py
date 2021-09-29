@@ -31,8 +31,7 @@ class _CoreClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, parallelisation: int = 2):
         super(_CoreClient, self).__init__(address, parallelisation)
-        self._channel = insecure_channel(self._address)
-        self._stub = _CoreStub.create(self._channel)
+        self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
@@ -41,8 +40,12 @@ class _CoreClient(_TypeDBClientImpl):
     def channel(self) -> Channel:
         return self._channel
 
-    def stub(self) -> TypeDBStub:
+    def stub(self) -> _CoreStub:
         return self._stub
+
+    def new_channel_and_stub(self) -> (Channel, _CoreStub):
+        channel = insecure_channel(self._address)
+        return channel, _CoreStub.create(channel)
 
     def close(self) -> None:
         super().close()

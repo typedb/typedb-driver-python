@@ -32,8 +32,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
     def __init__(self, address: str, credential: TypeDBCredential, parallelisation: int = 2):
         super(_ClusterServerClient, self).__init__(address, parallelisation)
         self._credential = credential
-        self._channel = self._new_channel()
-        self._stub = ClusterServerStub.create(self._channel)
+        self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
@@ -44,6 +43,10 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def stub(self) -> ClusterServerStub:
         return self._stub
+
+    def new_channel_and_stub(self) -> (grpc.Channel, ClusterServerStub):
+        channel = self._new_channel()
+        return channel, ClusterServerStub.create(channel)
 
     def _new_channel(self) -> grpc.Channel:
         if self._credential.tls_root_ca_path() is not None:

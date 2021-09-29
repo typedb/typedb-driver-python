@@ -65,6 +65,9 @@ class _TypeDBClientImpl(TypeDBClient):
     def stub(self) -> TypeDBStub:
         pass
 
+    def new_channel_and_stub(self) -> (Channel, TypeDBStub):
+        pass
+
     def transmitter(self) -> RequestTransmitter:
         return self._transmitter
 

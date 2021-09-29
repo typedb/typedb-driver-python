@@ -50,7 +50,8 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         self._logic_manager = _LogicManager(self)
 
         try:
-            self._bidirectional_stream = BidirectionalStream(session.client().stub(), session.transmitter())
+            self._channel, stub = session.client().new_channel_and_stub()
+            self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
             req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
             self.execute(request=req, batch=False)
         except RpcError as e:
@@ -98,6 +99,7 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
 
     def close(self):
         self._bidirectional_stream.close()
+        self._channel.close()
 
     def __enter__(self):
         return self
