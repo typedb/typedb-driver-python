@@ -34,31 +34,31 @@ class _ClusterServerStub(TypeDBStub):
         super(_ClusterServerStub, self).__init__()
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
-        self._clusterStub = cluster_service_proto.TypeDBClusterStub(channel)
+        self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
 
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
-        return resilient_call(lambda: self._clusterStub.servers_all(req))
+        return resilient_call(lambda: self._cluster_stub.servers_all(req))
 
     def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
-        return resilient_call(lambda: self._clusterStub.databases_get(req))
+        return resilient_call(lambda: self._cluster_stub.databases_get(req))
 
     def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
-        return resilient_call(lambda: self._clusterStub.databases_all(req))
+        return resilient_call(lambda: self._cluster_stub.databases_all(req))
 
     def users_all(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
-        return resilient_call(lambda: self._clusterStub.users_all(req))
+        return resilient_call(lambda: self._cluster_stub.users_all(req))
 
     def users_contains(self, req: cluster_user_proto.ClusterUserManager.Contains.Req) -> cluster_user_proto.ClusterUserManager.Contains.Res:
-        return resilient_call(lambda: self._clusterStub.users_contains(req))
+        return resilient_call(lambda: self._cluster_stub.users_contains(req))
 
     def users_create(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
-        return resilient_call(lambda: self._clusterStub.users_create(req))
+        return resilient_call(lambda: self._cluster_stub.users_create(req))
 
     def user_password(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return resilient_call(lambda: self._clusterStub.user_password(req))
+        return resilient_call(lambda: self._cluster_stub.user_password(req))
 
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return resilient_call(lambda: self._clusterStub.user_delete(req))
+        return resilient_call(lambda: self._cluster_stub.user_delete(req))
 
     def channel(self) -> Channel:
         return self._channel
