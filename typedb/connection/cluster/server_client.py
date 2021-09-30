@@ -56,7 +56,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             channel_credentials = grpc.ssl_channel_credentials()
         combined_credentials = grpc.composite_channel_credentials(
             channel_credentials,
-            grpc.metadata_call_credentials(_CredentialAuth(self._credential.username(), self._credential.password()))
+            grpc.metadata_call_credentials(_CredentialAuth(lambda: self._credential, lambda: self._stub.token()))
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
@@ -66,9 +66,13 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
 
 class _CredentialAuth(grpc.AuthMetadataPlugin):
-    def __init__(self, username, password):
-        self._username = username
-        self._password = password
+    def __init__(self, credential, token):
+        self._credential = credential
+        self._token = token
 
     def __call__(self, context, callback):
-        callback((('username', self._username), ('password', self._password)), None)
+        token = self._token()
+        if token is None:
+            callback((('username', self._credential.username()), ('password', self._credential.password())), None)
+        else:
+            callback((('token', token)), None)

@@ -27,19 +27,27 @@ import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
 from grpc import Channel, RpcError
 
-from typedb.common.exception import TypeDBClientException
+from typedb.api.connection.credential import TypeDBCredential
 from typedb.common.rpc.stub import TypeDBStub
+from typedb.common.exception import CLUSTER_TOKEN_CREDENTIAL_INVALID, TypeDBClientException, UNABLE_TO_CONNECT
 
 T = TypeVar('T')
 
 
 class _ClusterServerStub(TypeDBStub):
 
-    def __init__(self, channel: Channel):
+    def __init__(self, channel: Channel, credential: TypeDBCredential):
         super(_ClusterServerStub, self).__init__()
+        self._credential = credential
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
+        try:
+            self._token = self._cluster_stub.user_token_renew(self._credential.username())
+        except RpcError as e:
+            e2 = TypeDBClientException.of_rpc(e)
+            if e2.error_message is not None and e2.error_message is not UNABLE_TO_CONNECT:
+                raise e2
 
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
         return self.resilient_call(lambda: self._cluster_stub.servers_all(req))
@@ -71,10 +79,22 @@ class _ClusterServerStub(TypeDBStub):
     def stub(self) -> TypeDBStub:
         return self._stub
 
+    def token(self):
+        return self._token
+
     def resilient_call(self, function: Callable[[], T]) -> T:
         try:
             # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
             return function()
         except RpcError as e:
-            raise TypeDBClientException.of_rpc(e)
-
+            e2 = TypeDBClientException.of_rpc(e)
+            if e2.error_message is not None and e2.error_message is CLUSTER_TOKEN_CREDENTIAL_INVALID:
+                self._token = None
+                res = self._cluster_stub.user_token_renew(self._credential.username())
+                self._token = res.token
+                try:
+                    return function()
+                except RpcError as e3:
+                    raise TypeDBClientException.of_rpc(e3)
+            else:
+                raise e2
