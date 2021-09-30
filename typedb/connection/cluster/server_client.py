@@ -19,12 +19,56 @@
 #   under the License.
 #
 
+import grpc
+
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.connection.client import _TypeDBClientImpl
-from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
+from typedb.connection.cluster.stub import _ClusterServerStub
+from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 
 
 class _ClusterServerClient(_TypeDBClientImpl):
 
     def __init__(self, address: str, credential: TypeDBCredential, parallelisation: int = 2):
-        super(_ClusterServerClient, self).__init__(address, _ClusterConnectionFactory(credential), parallelisation)
+        super(_ClusterServerClient, self).__init__(address, parallelisation)
+        self._credential = credential
+        self._channel, self._stub = self.new_channel_and_stub()
+        self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+
+    def databases(self) -> _TypeDBDatabaseManagerImpl:
+        return self._databases
+
+    def channel(self) -> grpc.Channel:
+        return self._channel
+
+    def stub(self) -> _ClusterServerStub:
+        return self._stub
+
+    def new_channel_and_stub(self) -> (grpc.Channel, _ClusterServerStub):
+        channel = self._new_channel()
+        return channel, _ClusterServerStub.create(channel)
+
+    def _new_channel(self) -> grpc.Channel:
+        if self._credential.tls_root_ca_path() is not None:
+            with open(self._credential.tls_root_ca_path(), 'rb') as root_ca:
+                channel_credentials = grpc.ssl_channel_credentials(root_ca.read())
+        else:
+            channel_credentials = grpc.ssl_channel_credentials()
+        combined_credentials = grpc.composite_channel_credentials(
+            channel_credentials,
+            grpc.metadata_call_credentials(_CredentialAuth(self._credential.username(), self._credential.password()))
+        )
+        return grpc.secure_channel(self._address, combined_credentials)
+
+    def close(self) -> None:
+        super().close()
+        self._channel.close()
+
+
+class _CredentialAuth(grpc.AuthMetadataPlugin):
+    def __init__(self, username, password):
+        self._username = username
+        self._password = password
+
+    def __call__(self, context, callback):
+        callback((('username', self._username), ('password', self._password)), None)

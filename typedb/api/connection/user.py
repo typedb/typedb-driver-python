@@ -26,7 +26,7 @@ from typing import List
 class User(ABC):
 
     @abstractmethod
-    def name(self) -> str:
+    def username(self) -> str:
         pass
 
     @abstractmethod
@@ -41,15 +41,15 @@ class User(ABC):
 class UserManager(ABC):
 
     @abstractmethod
-    def get(self, name: str) -> User:
+    def get(self, username: str) -> User:
         pass
 
     @abstractmethod
-    def contains(self, name: str) -> bool:
+    def contains(self, username: str) -> bool:
         pass
 
     @abstractmethod
-    def create(self, name: str, password: str) -> None:
+    def create(self, username: str, password: str) -> None:
         pass
 
     @abstractmethod

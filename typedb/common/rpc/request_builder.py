@@ -91,29 +91,29 @@ def cluster_database_manager_all_req():
 def cluster_user_manager_all_req():
     return cluster_user_proto.ClusterUserManager.All.Req()
 
-def cluster_user_manager_create_req(name: str, password: str):
+def cluster_user_manager_create_req(username: str, password: str):
     req = cluster_user_proto.ClusterUserManager.Create.Req()
-    req.username = name
+    req.username = username
     req.password = password
     return req
 
-def cluster_user_manager_contains_req(name: str):
+def cluster_user_manager_contains_req(username: str):
     req = cluster_user_proto.ClusterUserManager.Contains.Req()
-    req.username = name
+    req.username = username
     return req
 
 
 # ClusterUser
 
-def cluster_user_password_req(name: str, password: str):
+def cluster_user_password_req(username: str, password: str):
     req = cluster_user_proto.ClusterUser.Password.Req()
-    req.username = name
+    req.username = username
     req.password = password
     return req
 
-def cluster_user_delete_req(name: str):
+def cluster_user_delete_req(username: str):
     req = cluster_user_proto.ClusterUser.Delete.Req()
-    req.username = name
+    req.username = username
     return req
 
 

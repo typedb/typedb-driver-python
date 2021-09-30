@@ -37,11 +37,11 @@ class _ClusterUserManager(UserManager):
     def __init__(self, client: "_ClusterClient"):
         self._client = client
 
-    def create(self, name: str, password: str) -> None:
+    def create(self, username: str, password: str) -> None:
         failsafe_task = _UserManagerFailsafeTask(
             self._client,
             lambda replica: self._client._stub(replica.address()).users_create(
-                cluster_user_manager_create_req(name, password))
+                cluster_user_manager_create_req(username, password))
         )
         failsafe_task.run_primary_replica()
 
@@ -57,18 +57,18 @@ class _ClusterUserManager(UserManager):
         users_proto = self._client._stub(replica.address()).users_all(cluster_user_manager_all_req())
         return [_ClusterUser(self._client, username) for username in users_proto.names]
 
-    def contains(self, name: str) -> bool:
+    def contains(self, username: str) -> bool:
         failsafe_task = _UserManagerFailsafeTask(
             self._client,
-            lambda replica: self._client._stub(replica.address()).users_contains(cluster_user_manager_contains_req(name))
+            lambda replica: self._client._stub(replica.address()).users_contains(cluster_user_manager_contains_req(username))
         )
         return failsafe_task.run_primary_replica()
 
-    def get(self, name: str) -> User:
-        if (self.contains(name)):
-            return _ClusterUser(self._client, name)
+    def get(self, username: str) -> User:
+        if (self.contains(username)):
+            return _ClusterUser(self._client, username)
         else:
-            raise TypeDBClientException.of(CLUSTER_USER_DOES_NOT_EXIST, name)
+            raise TypeDBClientException.of(CLUSTER_USER_DOES_NOT_EXIST, username)
 
 
 class _UserManagerFailsafeTask(_FailsafeTask):

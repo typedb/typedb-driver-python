@@ -217,7 +217,7 @@ class _FailsafeTask(ABC):
         raise self._cluster_not_available_exception()
 
     def _fetch_database_replicas(self) -> "_ClusterDatabase":
-        for server_address in self.client.cluster_members():
+        for server_address in self.client.server_addresses():
             try:
                 print("Fetching replica info from %s" % server_address)
                 res = self.client._stub(server_address).databases_get(cluster_database_manager_get_req(self.database))
@@ -232,7 +232,7 @@ class _FailsafeTask(ABC):
         raise self._cluster_not_available_exception()
 
     def _cluster_not_available_exception(self) -> TypeDBClientException:
-        return TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, str([str(addr) for addr in self.client.cluster_members()]))
+        return TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, str([str(addr) for addr in self.client.server_addresses()]))
 
 
 class _DeleteDatabaseFailsafeTask(_FailsafeTask):

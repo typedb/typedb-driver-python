@@ -26,7 +26,6 @@ from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
 from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.connection_factory import _TypeDBConnectionFactory
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
@@ -35,13 +34,9 @@ from typedb.stream.request_transmitter import RequestTransmitter
 class _TypeDBClientImpl(TypeDBClient):
 
     # TODO: Detect number of available CPUs
-    def __init__(self, address: str, connection_factory: _TypeDBConnectionFactory, parallelisation: int = 2):
+    def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
-        self._connection_factory = connection_factory
-        self._channel = self._connection_factory.newChannel(self._address)
-        self._stub = self._connection_factory.newTypeDBStub(self._channel)
         self._transmitter = RequestTransmitter(parallelisation)
-        self._databases = _TypeDBDatabaseManagerImpl(self._stub)
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._is_open = True
 
@@ -52,17 +47,29 @@ class _TypeDBClientImpl(TypeDBClient):
         self._sessions[session.session_id()] = session
         return session
 
+    def remove_session(self, session: _TypeDBSessionImpl) -> None:
+        del self._sessions[session.session_id()]
+
     def databases(self) -> _TypeDBDatabaseManagerImpl:
-        return self._databases
+        pass
 
     def is_open(self) -> bool:
         return self._is_open
 
-    def close(self) -> None:
-        self._is_open = False
-        for session_id in self._sessions:
-            self._sessions[session_id].close()
-        self._channel.close()
+    def address(self) -> str:
+        return self._address
+
+    def channel(self) -> Channel:
+        pass
+
+    def stub(self) -> TypeDBStub:
+        pass
+
+    def new_channel_and_stub(self) -> (Channel, TypeDBStub):
+        pass
+
+    def transmitter(self) -> RequestTransmitter:
+        return self._transmitter
 
     def is_cluster(self) -> bool:
         return False
@@ -75,20 +82,7 @@ class _TypeDBClientImpl(TypeDBClient):
         if exc_tb is not None:
             return False
 
-    def remove_session(self, session: _TypeDBSessionImpl) -> None:
-        del self._sessions[session.session_id()]
-
-    def channel(self) -> Channel:
-        return self._channel
-
-    def address(self) -> str:
-        return self._address
-
-    def stub(self) -> TypeDBStub:
-        return self._stub
-
-    def connection_factory(self) -> _TypeDBConnectionFactory:
-        return self._connection_factory
-
-    def transmitter(self) -> RequestTransmitter:
-        return self._transmitter
+    def close(self) -> None:
+        self._is_open = False
+        for session_id in self._sessions:
+            self._sessions[session_id].close()

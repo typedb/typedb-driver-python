@@ -18,14 +18,13 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterable, Dict, Set, cast
+from typing import Iterable, Dict, Set
 
 from typedb.api.connection.client import TypeDBClusterClient
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
 from typedb.api.connection.user import UserManager
-from typedb.connection.cluster.connection_factory import _ClusterConnectionFactory
 from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
@@ -41,20 +40,17 @@ class _ClusterClient(TypeDBClusterClient):
     def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
         self._credential = credential
         self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._stubs = {addr: client.connection_factory().newTypeDBStub(client.channel()) for (addr, client) in self._server_clients.items()}
         self._database_managers = _ClusterDatabaseManager(self)
         self._cluster_databases: Dict[str, _ClusterDatabase] = {}
         self._user_manager = _ClusterUserManager(self)
         self._is_open = True
-        print("Cluster client created")
 
     def _fetch_server_addresses(self, addresses: Iterable[str]) -> Set[str]:
         for address in addresses:
             try:
                 print("Fetching list of cluster servers from %s..." % address)
                 with _ClusterServerClient(address, self._credential) as client:
-                    typedb_cluster_stub = client.connection_factory().newTypeDBStub(client.channel())
-                    res = typedb_cluster_stub.servers_all(cluster_server_manager_all_req())
+                    res = client.stub().servers_all(cluster_server_manager_all_req())
                     members = {srv.address for srv in res.servers}
                     print("The cluster servers are %s" % [str(member) for member in members])
                     return members
@@ -64,15 +60,6 @@ class _ClusterClient(TypeDBClusterClient):
                 else:
                     raise e
         raise TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, ",".join(addresses))
-
-    def is_open(self) -> bool:
-        return self._is_open
-
-    def databases(self) -> _ClusterDatabaseManager:
-        return self._database_managers
-
-    def users(self) -> UserManager:
-        return self._user_manager
 
     def session(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         if not options:
@@ -85,10 +72,19 @@ class _ClusterClient(TypeDBClusterClient):
     def _session_any_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_any_replica()
 
+    def is_open(self) -> bool:
+        return self._is_open
+
+    def users(self) -> UserManager:
+        return self._user_manager
+
+    def databases(self) -> _ClusterDatabaseManager:
+        return self._database_managers
+
     def database_by_name(self) -> Dict[str, _ClusterDatabase]:
         return self._cluster_databases
 
-    def cluster_members(self) -> Set[str]:
+    def server_addresses(self) -> Set[str]:
         return set(self._server_clients.keys())
 
     def _cluster_server_clients(self) -> Dict[str, _ClusterServerClient]:
@@ -98,12 +94,7 @@ class _ClusterClient(TypeDBClusterClient):
         return self._server_clients.get(address)
 
     def _stub(self, address: str) -> _ClusterServerStub:
-        return self._stubs.get(address)
-
-    def close(self) -> None:
-        for client in self._server_clients.values():
-            client.close()
-        self._is_open = False
+        return self._server_clients.get(address).stub()
 
     def is_cluster(self) -> bool:
         return True
@@ -115,6 +106,11 @@ class _ClusterClient(TypeDBClusterClient):
         self.close()
         if exc_tb is not None:
             return False
+
+    def close(self) -> None:
+        for client in self._server_clients.values():
+            client.close()
+        self._is_open = False
 
 
 class _OpenSessionFailsafeTask(_FailsafeTask):

@@ -78,6 +78,17 @@ typedb_cluster_py_test(
     native_typedb_cluster_artifact = ":native-typedb-cluster-artifact",
 )
 
+py_test(
+    name = "test_concurrent",
+    srcs = [
+        "integration/test_concurrent.py",
+    ],
+    deps = [
+        "//:client_python",
+    ],
+    python_version = "PY3"
+)
+
 artifact_extractor(
     name = "typedb-extractor",
     artifact = ":native-typedb-artifact",
