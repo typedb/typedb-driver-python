@@ -34,6 +34,10 @@ class _ClusterServerClient(_TypeDBClientImpl):
         self._credential = credential
         self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+        try:
+            self._token = self._stub.user_token_renew()
+        except ArithmeticError as e:
+            pass
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
         return self._databases

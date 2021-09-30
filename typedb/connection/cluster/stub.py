@@ -30,17 +30,11 @@ from typedb.common.rpc.stub import TypeDBStub, resilient_call
 
 class _ClusterServerStub(TypeDBStub):
 
-    def __init__(self, channel: Channel, stub: core_service_proto.TypeDBStub, clusterStub: cluster_service_proto.TypeDBClusterStub):
-        super(_ClusterServerStub, self).__init__(channel, stub)
-        self._clusterStub = clusterStub
-
-    @staticmethod
-    def create(channel: Channel):
-        return _ClusterServerStub(
-            channel,
-            core_service_proto.TypeDBStub(channel),
-            cluster_service_proto.TypeDBClusterStub(channel)
-        )
+    def __init__(self, channel: Channel):
+        super(_ClusterServerStub, self).__init__()
+        self._channel = channel
+        self._stub = core_service_proto.TypeDBStub(channel)
+        self._clusterStub = cluster_service_proto.TypeDBClusterStub(channel)
 
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
         return resilient_call(lambda: self._clusterStub.servers_all(req))
@@ -66,3 +60,8 @@ class _ClusterServerStub(TypeDBStub):
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
         return resilient_call(lambda: self._clusterStub.user_delete(req))
 
+    def channel(self) -> Channel:
+        return self._channel
+
+    def stub(self) -> TypeDBStub:
+        return self._stub
