@@ -46,7 +46,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def new_channel_and_stub(self) -> (grpc.Channel, _ClusterServerStub):
         channel = self._new_channel()
-        return channel, _ClusterServerStub(channel)
+        return channel, _ClusterServerStub(channel, self._credential)
 
     def _new_channel(self) -> grpc.Channel:
         if self._credential.tls_root_ca_path() is not None:
