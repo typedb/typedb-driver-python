@@ -42,6 +42,7 @@ class _ClusterServerStub(TypeDBStub):
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
+        self._token = None
         try:
             self._token = self._cluster_stub.user_token_renew(self._credential.username())
         except RpcError as e:

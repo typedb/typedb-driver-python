@@ -38,6 +38,7 @@ class TypeDBClientException(Exception):
 
     @staticmethod
     def of_rpc(rpc_error: Union[RpcError, Call]) -> "TypeDBClientException":
+        print(rpc_error)
         if rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
             return TypeDBClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
