@@ -73,6 +73,6 @@ class _CredentialAuth(grpc.AuthMetadataPlugin):
     def __call__(self, context, callback):
         token = self._token()
         if token is None:
-            callback((('username', self._credential.username()), ('password', self._credential.password())), None)
+            callback((('username', self._credential().username()), ('password', self._credential().password())), None)
         else:
             callback((('token', token)), None)
