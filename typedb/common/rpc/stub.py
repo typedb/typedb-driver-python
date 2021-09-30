@@ -20,13 +20,16 @@
 #
 
 from abc import ABC
-from typing import Callable, Iterator
+from typing import Callable, Iterator, TypeVar
 
 import typedb_protocol.common.session_pb2 as session_proto
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 import typedb_protocol.core.core_database_pb2 as core_database_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
 from grpc import Channel
+
+
+T = TypeVar('T')
 
 
 class TypeDBStub(ABC):
