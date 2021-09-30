@@ -18,11 +18,15 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
-from grpc import Channel
+from typing import TypeVar, Callable
 
+import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
+from grpc import Channel, RpcError
+
+from typedb.common.exception import TypeDBClientException
 from typedb.common.rpc.stub import TypeDBStub
 
+T = TypeVar('T')
 
 class _CoreStub(TypeDBStub):
 
@@ -36,3 +40,11 @@ class _CoreStub(TypeDBStub):
 
     def stub(self) -> TypeDBStub:
         return self._stub
+
+    def resilient_call(self, function: Callable[[], T]) -> T:
+        try:
+            # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
+            return function()
+        except RpcError as e:
+            raise TypeDBClientException.of_rpc(e)
+

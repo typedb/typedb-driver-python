@@ -18,14 +18,19 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+from typing import TypeVar, Callable
+
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
 import typedb_protocol.cluster.cluster_service_pb2_grpc as cluster_service_proto
 import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
-from grpc import Channel
+from grpc import Channel, RpcError
 
-from typedb.common.rpc.stub import TypeDBStub, resilient_call
+from typedb.common.exception import TypeDBClientException
+from typedb.common.rpc.stub import TypeDBStub
+
+T = TypeVar('T')
 
 
 class _ClusterServerStub(TypeDBStub):
@@ -37,31 +42,39 @@ class _ClusterServerStub(TypeDBStub):
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
 
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
-        return resilient_call(lambda: self._cluster_stub.servers_all(req))
+        return self.resilient_call(lambda: self._cluster_stub.servers_all(req))
 
     def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
-        return resilient_call(lambda: self._cluster_stub.databases_get(req))
+        return self.resilient_call(lambda: self._cluster_stub.databases_get(req))
 
     def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
-        return resilient_call(lambda: self._cluster_stub.databases_all(req))
+        return self.resilient_call(lambda: self._cluster_stub.databases_all(req))
 
     def users_all(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
-        return resilient_call(lambda: self._cluster_stub.users_all(req))
+        return self.resilient_call(lambda: self._cluster_stub.users_all(req))
 
     def users_contains(self, req: cluster_user_proto.ClusterUserManager.Contains.Req) -> cluster_user_proto.ClusterUserManager.Contains.Res:
-        return resilient_call(lambda: self._cluster_stub.users_contains(req))
+        return self.resilient_call(lambda: self._cluster_stub.users_contains(req))
 
     def users_create(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
-        return resilient_call(lambda: self._cluster_stub.users_create(req))
+        return self.resilient_call(lambda: self._cluster_stub.users_create(req))
 
     def user_password(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return resilient_call(lambda: self._cluster_stub.user_password(req))
+        return self.resilient_call(lambda: self._cluster_stub.user_password(req))
 
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return resilient_call(lambda: self._cluster_stub.user_delete(req))
+        return self.resilient_call(lambda: self._cluster_stub.user_delete(req))
 
     def channel(self) -> Channel:
         return self._channel
 
     def stub(self) -> TypeDBStub:
         return self._stub
+
+    def resilient_call(self, function: Callable[[], T]) -> T:
+        try:
+            # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
+            return function()
+        except RpcError as e:
+            raise TypeDBClientException.of_rpc(e)
+

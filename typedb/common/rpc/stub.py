@@ -20,60 +20,49 @@
 #
 
 from abc import ABC
-from typing import TypeVar, Callable, Iterator
-
+from typing import Callable, Iterator
 
 import typedb_protocol.common.session_pb2 as session_proto
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 import typedb_protocol.core.core_database_pb2 as core_database_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
-
-from grpc import Channel, RpcError
-
-from typedb.common.exception import TypeDBClientException
-
-T = TypeVar('T')
-
-
-def resilient_call(function: Callable[[], T]) -> T:
-    try:
-        # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
-        return function()
-    except RpcError as e:
-        raise TypeDBClientException.of_rpc(e)
+from grpc import Channel
 
 
 class TypeDBStub(ABC):
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
-        return resilient_call(lambda: self.stub().databases_contains(req))
+        return self.resilient_call(lambda: self.stub().databases_contains(req))
 
     def databases_create(self, req: core_database_proto.CoreDatabaseManager.Create.Req) -> core_database_proto.CoreDatabaseManager.Create.Res:
-        return resilient_call(lambda: self.stub().databases_create(req))
+        return self.resilient_call(lambda: self.stub().databases_create(req))
 
     def databases_all(self, req: core_database_proto.CoreDatabaseManager.All.Req) -> core_database_proto.CoreDatabaseManager.All.Res:
-        return resilient_call(lambda: self.stub().databases_all(req))
+        return self.resilient_call(lambda: self.stub().databases_all(req))
 
     def database_schema(self, req: core_database_proto.CoreDatabase.Schema.Req) -> core_database_proto.CoreDatabase.Schema.Res:
-        return resilient_call(lambda: self.stub().database_schema(req))
+        return self.resilient_call(lambda: self.stub().database_schema(req))
 
     def database_delete(self, req: core_database_proto.CoreDatabase.Delete.Req) -> core_database_proto.CoreDatabase.Delete.Res:
-        return resilient_call(lambda: self.stub().database_delete(req))
+        return self.resilient_call(lambda: self.stub().database_delete(req))
 
     def session_open(self, req: session_proto.Session.Open.Req) -> session_proto.Session.Open.Res:
-        return resilient_call(lambda: self.stub().session_open(req))
+        return self.resilient_call(lambda: self.stub().session_open(req))
 
     def session_close(self, req: session_proto.Session.Close.Req) -> session_proto.Session.Close.Res:
-        return resilient_call(lambda: self.stub().session_close(req))
+        return self.resilient_call(lambda: self.stub().session_close(req))
 
     def session_pulse(self, req: session_proto.Session.Pulse.Req) -> session_proto.Session.Pulse.Res:
-        return resilient_call(lambda: self.stub().session_pulse(req))
+        return self.resilient_call(lambda: self.stub().session_pulse(req))
 
     def transaction(self, request_iterator: Iterator[transaction_proto.Transaction.Client]) -> Iterator[transaction_proto.Transaction.Server]:
-        return resilient_call(lambda: self.stub().transaction(request_iterator))
+        return self.resilient_call(lambda: self.stub().transaction(request_iterator))
 
     def channel(self) -> Channel:
         pass
 
     def stub(self) -> core_service_proto.TypeDBStub:
+        pass
+
+    def resilient_call(self, function: Callable[[], T]) -> T:
         pass
