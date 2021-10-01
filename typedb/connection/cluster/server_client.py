@@ -18,6 +18,7 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+from typing import Callable
 
 import grpc
 
@@ -56,7 +57,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             channel_credentials = grpc.ssl_channel_credentials()
         combined_credentials = grpc.composite_channel_credentials(
             channel_credentials,
-            grpc.metadata_call_credentials(_CredentialAuth(lambda: self._credential, lambda: self._stub.token()))
+            grpc.metadata_call_credentials(_CredentialAuth(credential=self._credential, token_fn=lambda: self._stub.token()))
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
@@ -66,13 +67,13 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
 
 class _CredentialAuth(grpc.AuthMetadataPlugin):
-    def __init__(self, credential, token):
+    def __init__(self, credential, token_fn: Callable[[], str]):
         self._credential = credential
-        self._token = token
+        self._token_fn = token_fn
 
     def __call__(self, context, callback):
-        token = self._token()
+        token = self._token_fn()
         if token is None:
-            callback((('username', self._credential().username()), ('password', self._credential().password())), None)
+            callback((('username', self._credential.username()), ('password', self._credential().password())), None)
         else:
             callback((('token', token)), None)
