@@ -18,17 +18,25 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+from typing import TypeVar
+
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
 from grpc import Channel
 
 from typedb.common.rpc.stub import TypeDBStub
 
+T = TypeVar('T')
+
 
 class _CoreStub(TypeDBStub):
 
-    def __init__(self, channel: Channel, stub: core_service_proto.TypeDBStub):
-        super(_CoreStub, self).__init__(channel, stub)
+    def __init__(self, channel: Channel):
+        super(_CoreStub, self).__init__()
+        self._channel = channel
+        self._stub = core_service_proto.TypeDBStub(channel)
 
-    @staticmethod
-    def create(channel: Channel):
-        return _CoreStub(channel, core_service_proto.TypeDBStub(channel))
+    def channel(self) -> Channel:
+        return self._channel
+
+    def stub(self) -> TypeDBStub:
+        return self._stub

@@ -45,7 +45,7 @@ class _CoreClient(_TypeDBClientImpl):
 
     def new_channel_and_stub(self) -> (Channel, _CoreStub):
         channel = insecure_channel(self._address)
-        return channel, _CoreStub.create(channel)
+        return channel, _CoreStub(channel)
 
     def close(self) -> None:
         super().close()

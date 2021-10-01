@@ -18,6 +18,7 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+from typing import Callable
 
 import grpc
 
@@ -46,7 +47,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def new_channel_and_stub(self) -> (grpc.Channel, _ClusterServerStub):
         channel = self._new_channel()
-        return channel, _ClusterServerStub.create(channel)
+        return channel, _ClusterServerStub(channel, self._credential)
 
     def _new_channel(self) -> grpc.Channel:
         if self._credential.tls_root_ca_path() is not None:
@@ -56,7 +57,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             channel_credentials = grpc.ssl_channel_credentials()
         combined_credentials = grpc.composite_channel_credentials(
             channel_credentials,
-            grpc.metadata_call_credentials(_CredentialAuth(self._credential.username(), self._credential.password()))
+            grpc.metadata_call_credentials(_CredentialAuth(credential=self._credential, token_fn=lambda: self._stub.token()))
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
@@ -66,9 +67,13 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
 
 class _CredentialAuth(grpc.AuthMetadataPlugin):
-    def __init__(self, username, password):
-        self._username = username
-        self._password = password
+    def __init__(self, credential, token_fn: Callable[[], str]):
+        self._credential = credential
+        self._token_fn = token_fn
 
     def __call__(self, context, callback):
-        callback((('username', self._username), ('password', self._password)), None)
+        token = self._token_fn()
+        if token is None:
+            callback((('username', self._credential.username()), ('password', self._credential.password())), None)
+        else:
+            callback((('token', token)), None)

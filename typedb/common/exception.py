@@ -88,9 +88,10 @@ CLUSTER_NO_PRIMARY_REPLICA_YET = ClientErrorMessage(10, "No replica has been mar
 CLUSTER_UNABLE_TO_CONNECT = ClientErrorMessage(11, "Unable to connect to TypeDB Cluster. Attempted connecting to the cluster members, but none are available: '%s'.")
 CLUSTER_REPLICA_NOT_PRIMARY = ClientErrorMessage(12, "The replica is not the primary replica.")
 CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(13, "Attempted connecting to all cluster members, but the following errors occurred: \n%s")
-CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(14, "The provided Root CA path '%s' does not exist.")
-CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(15, "The user '%s' does not exist.")
-CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(16, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
+CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(14, "The user '%s' does not exist.")
+CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(15, "Invalid token credential.")
+CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(16, "The provided Root CA path '%s' does not exist.")
+CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(17, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
 
 
 class ConceptErrorMessage(ErrorMessage):
