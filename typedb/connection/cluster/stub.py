@@ -51,28 +51,28 @@ class _ClusterServerStub(TypeDBStub):
                 raise e2
 
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
-        return self.resilient_call(lambda: self._cluster_stub.servers_all(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.servers_all(req))
 
     def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
-        return self.resilient_call(lambda: self._cluster_stub.databases_get(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.databases_get(req))
 
     def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
-        return self.resilient_call(lambda: self._cluster_stub.databases_all(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.databases_all(req))
 
     def users_all(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
-        return self.resilient_call(lambda: self._cluster_stub.users_all(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.users_all(req))
 
     def users_contains(self, req: cluster_user_proto.ClusterUserManager.Contains.Req) -> cluster_user_proto.ClusterUserManager.Contains.Res:
-        return self.resilient_call(lambda: self._cluster_stub.users_contains(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.users_contains(req))
 
     def users_create(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
-        return self.resilient_call(lambda: self._cluster_stub.users_create(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.users_create(req))
 
     def user_password(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return self.resilient_call(lambda: self._cluster_stub.user_password(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.user_password(req))
 
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return self.resilient_call(lambda: self._cluster_stub.user_delete(req))
+        return self.resilient_authenticated_call(lambda: self._cluster_stub.user_delete(req))
 
     def channel(self) -> Channel:
         return self._channel
@@ -83,18 +83,16 @@ class _ClusterServerStub(TypeDBStub):
     def token(self):
         return self._token
 
-    def resilient_call(self, function: Callable[[], T]) -> T:
+    def resilient_authenticated_call(self, function: Callable[[], T]) -> T:
         try:
-            # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
-            return function()
-        except RpcError as e:
-            e2 = TypeDBClientException.of_rpc(e)
+            return self.resilient_call(function)
+        except TypeDBClientException as e2:
             if e2.error_message is not None and e2.error_message is CLUSTER_TOKEN_CREDENTIAL_INVALID:
                 self._token = None
                 res = self._cluster_stub.user_token_renew(self._credential.username())
                 self._token = res.token
                 try:
-                    return function()
+                    return self.resilient_call(function)
                 except RpcError as e3:
                     raise TypeDBClientException.of_rpc(e3)
             else:

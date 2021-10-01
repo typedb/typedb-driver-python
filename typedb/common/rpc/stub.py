@@ -20,14 +20,16 @@
 #
 
 from abc import ABC
-from typing import Callable, Iterator, TypeVar
+from typing import Iterator
+from typing import TypeVar, Callable
 
 import typedb_protocol.common.session_pb2 as session_proto
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 import typedb_protocol.core.core_database_pb2 as core_database_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
-from grpc import Channel
+from grpc import Channel, RpcError
 
+from typedb.common.exception import TypeDBClientException
 
 T = TypeVar('T')
 
@@ -68,4 +70,8 @@ class TypeDBStub(ABC):
         pass
 
     def resilient_call(self, function: Callable[[], T]) -> T:
-        pass
+        try:
+            # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
+            return function()
+        except RpcError as e:
+            raise TypeDBClientException.of_rpc(e)
