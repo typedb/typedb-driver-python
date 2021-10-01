@@ -86,14 +86,14 @@ class _ClusterServerStub(TypeDBStub):
     def resilient_authenticated_call(self, function: Callable[[], T]) -> T:
         try:
             return self.resilient_call(function)
-        except TypeDBClientException as e2:
-            if e2.error_message is not None and e2.error_message is CLUSTER_TOKEN_CREDENTIAL_INVALID:
+        except TypeDBClientException as e:
+            if e.error_message is not None and e.error_message is CLUSTER_TOKEN_CREDENTIAL_INVALID:
                 self._token = None
                 res = self._cluster_stub.user_token_renew(self._credential.username())
                 self._token = res.token
                 try:
                     return self.resilient_call(function)
-                except RpcError as e3:
-                    raise TypeDBClientException.of_rpc(e3)
+                except RpcError as e2:
+                    raise TypeDBClientException.of_rpc(e2)
             else:
-                raise e2
+                raise e
