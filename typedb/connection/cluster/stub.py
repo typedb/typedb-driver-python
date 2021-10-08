@@ -82,28 +82,28 @@ class _ClusterServerStub(TypeDBStub):
         return self.may_renew_token(lambda: self._cluster_stub.databases_get(req))
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).databases_contains(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).databases_contains(req))
 
     def databases_create(self, req: core_database_proto.CoreDatabaseManager.Create.Req) -> core_database_proto.CoreDatabaseManager.Create.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).databases_create(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).databases_create(req))
 
     def database_schema(self, req: core_database_proto.CoreDatabase.Schema.Req) -> core_database_proto.CoreDatabase.Schema.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).database_schema(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).database_schema(req))
 
     def database_delete(self, req: core_database_proto.CoreDatabase.Delete.Req) -> core_database_proto.CoreDatabase.Delete.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).database_delete(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).database_delete(req))
 
     def session_open(self, req: session_proto.Session.Open.Req) -> session_proto.Session.Open.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).session_open(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).session_open(req))
 
     def session_close(self, req: session_proto.Session.Close.Req) -> session_proto.Session.Close.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).session_close(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).session_close(req))
 
     def session_pulse(self, req: session_proto.Session.Pulse.Req) -> session_proto.Session.Pulse.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).session_pulse(req))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).session_pulse(req))
 
     def transaction(self, request_iterator: Iterator[transaction_proto.Transaction.Client]) -> Iterator[transaction_proto.Transaction.Server]:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).transaction(request_iterator))
+        return self.may_renew_token(lambda: super(_ClusterServerStub, self).transaction(request_iterator))
 
     def channel(self) -> Channel:
         return self._channel
