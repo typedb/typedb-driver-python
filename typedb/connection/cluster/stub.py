@@ -72,8 +72,11 @@ class _ClusterServerStub(TypeDBStub):
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
         return self.may_renew_token(lambda: self._cluster_stub.user_delete(req))
 
-    def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
+    def cluster_databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
         return self.may_renew_token(lambda: self._cluster_stub.databases_all(req))
+
+    def databases_all(self, req: core_database_proto.CoreDatabaseManager.All.Req) -> core_database_proto.CoreDatabaseManager.All.Res:
+        return self.may_renew_token(self.resilient_call(lambda: self.stub().databases_all(req)))
 
     def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
         return self.may_renew_token(lambda: self._cluster_stub.databases_get(req))
