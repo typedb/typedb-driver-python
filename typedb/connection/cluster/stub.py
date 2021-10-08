@@ -57,12 +57,6 @@ class _ClusterServerStub(TypeDBStub):
     def servers_all(self, req: cluster_server_proto.ServerManager.All.Req) -> cluster_server_proto.ServerManager.All.Res:
         return self.may_renew_token(lambda: self._cluster_stub.servers_all(req))
 
-    def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
-        return self.may_renew_token(lambda: self._cluster_stub.databases_get(req))
-
-    def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
-        return self.may_renew_token(lambda: self._cluster_stub.databases_all(req))
-
     def users_all(self, req: cluster_user_proto.ClusterUserManager.All.Req) -> cluster_user_proto.ClusterUserManager.All.Res:
         return self.may_renew_token(lambda: self._cluster_stub.users_all(req))
 
@@ -78,14 +72,17 @@ class _ClusterServerStub(TypeDBStub):
     def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
         return self.may_renew_token(lambda: self._cluster_stub.user_delete(req))
 
+    def databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.databases_all(req))
+
+    def databases_get(self, req: cluster_database_proto.ClusterDatabaseManager.Get.Req) -> cluster_database_proto.ClusterDatabaseManager.Get.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.databases_get(req))
+
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
         return self.may_renew_token(lambda: super(_ClusterServerStub).databases_contains(req))
 
     def databases_create(self, req: core_database_proto.CoreDatabaseManager.Create.Req) -> core_database_proto.CoreDatabaseManager.Create.Res:
         return self.may_renew_token(lambda: super(_ClusterServerStub).databases_create(req))
-
-    def databases_all(self, req: core_database_proto.CoreDatabaseManager.All.Req) -> core_database_proto.CoreDatabaseManager.All.Res:
-        return self.may_renew_token(lambda: super(_ClusterServerStub).databases_all(req))
 
     def database_schema(self, req: core_database_proto.CoreDatabase.Schema.Req) -> core_database_proto.CoreDatabase.Schema.Res:
         return self.may_renew_token(lambda: super(_ClusterServerStub).database_schema(req))
