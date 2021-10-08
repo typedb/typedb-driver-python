@@ -59,7 +59,7 @@ class _ClusterDatabaseManager(ClusterDatabaseManager):
         errors = []
         for address in self._database_mgrs:
             try:
-                res = self._client._stub(address).databases_all(cluster_database_manager_all_req())
+                res = self._client._stub(address).cluster_databases_all(cluster_database_manager_all_req())
                 return [_ClusterDatabase.of(db, self._client) for db in res.databases]
             except TypeDBClientException as e:
                 errors.append("- %s: %s\n" % (address, e))

@@ -69,7 +69,8 @@ class TypeDBStub(ABC):
     def stub(self) -> core_service_proto.TypeDBStub:
         pass
 
-    def resilient_call(self, function: Callable[[], T]) -> T:
+    @staticmethod
+    def resilient_call(function: Callable[[], T]) -> T:
         try:
             # TODO actually implement forced gRPC to reconnected rapidly, which provides resilience
             return function()
