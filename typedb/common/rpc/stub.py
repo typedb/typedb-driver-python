@@ -37,31 +37,31 @@ T = TypeVar('T')
 class TypeDBStub(ABC):
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().databases_contains(req))
 
     def databases_create(self, req: core_database_proto.CoreDatabaseManager.Create.Req) -> core_database_proto.CoreDatabaseManager.Create.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().databases_create(req))
 
     def databases_all(self, req: core_database_proto.CoreDatabaseManager.All.Req) -> core_database_proto.CoreDatabaseManager.All.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().databases_all(req))
 
     def database_schema(self, req: core_database_proto.CoreDatabase.Schema.Req) -> core_database_proto.CoreDatabase.Schema.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().database_schema(req))
 
     def database_delete(self, req: core_database_proto.CoreDatabase.Delete.Req) -> core_database_proto.CoreDatabase.Delete.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().database_delete(req))
 
     def session_open(self, req: session_proto.Session.Open.Req) -> session_proto.Session.Open.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().session_open(req))
 
     def session_close(self, req: session_proto.Session.Close.Req) -> session_proto.Session.Close.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().session_close(req))
 
     def session_pulse(self, req: session_proto.Session.Pulse.Req) -> session_proto.Session.Pulse.Res:
-        pass
+        return self.resilient_call(lambda: self.stub().session_pulse(req))
 
     def transaction(self, request_iterator: Iterator[transaction_proto.Transaction.Client]) -> Iterator[transaction_proto.Transaction.Server]:
-        pass
+        return self.resilient_call(lambda: self.stub().transaction(request_iterator))
 
     def channel(self) -> Channel:
         pass
