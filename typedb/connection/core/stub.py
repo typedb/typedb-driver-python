@@ -18,12 +18,8 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-from typing import Iterator
 from typing import TypeVar
 
-import typedb_protocol.common.session_pb2 as session_proto
-import typedb_protocol.common.transaction_pb2 as transaction_proto
-import typedb_protocol.core.core_database_pb2 as core_database_proto
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
 from grpc import Channel
 
