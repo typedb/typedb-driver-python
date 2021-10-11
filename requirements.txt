@@ -24,7 +24,6 @@
 
 ## Configuration options
 
-
 # Allow importing of snapshots
 --extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple
 
@@ -32,6 +31,6 @@
 ## Dependencies
 
 # IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
-typedb-protocol==2.4.0
+typedb-protocol==0.0.0-ec89440dadb449f223ad2c925b238aad06b80c81
 grpcio==1.38.0
 protobuf==3.15.5

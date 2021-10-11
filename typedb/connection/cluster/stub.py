@@ -33,6 +33,7 @@ from grpc import Channel, RpcError
 
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.common.exception import CLUSTER_TOKEN_CREDENTIAL_INVALID, TypeDBClientException, UNABLE_TO_CONNECT
+from typedb.common.rpc.request_builder import cluster_user_token_req
 from typedb.common.rpc.stub import TypeDBStub
 
 T = TypeVar('T')
@@ -48,7 +49,7 @@ class _ClusterServerStub(TypeDBStub):
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
         self._token = None
         try:
-            self._token = self._cluster_stub.user_token_renew(self._credential.username())
+            self._token = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
         except RpcError as e:
             e2 = TypeDBClientException.of_rpc(e)
             if e2.error_message is not None and e2.error_message is not UNABLE_TO_CONNECT:
@@ -120,7 +121,7 @@ class _ClusterServerStub(TypeDBStub):
         except TypeDBClientException as e:
             if e.error_message is not None and e.error_message is CLUSTER_TOKEN_CREDENTIAL_INVALID:
                 self._token = None
-                res = self._cluster_stub.user_token_renew(self._credential.username())
+                res = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
                 self._token = res.token
                 try:
                     return self.resilient_call(function)

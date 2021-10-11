@@ -111,6 +111,11 @@ def cluster_user_password_req(username: str, password: str):
     req.password = password
     return req
 
+def cluster_user_token_req(username: str):
+    req = cluster_user_proto.ClusterUser.Token.Req()
+    req.username = username
+    return req
+
 def cluster_user_delete_req(username: str):
     req = cluster_user_proto.ClusterUser.Delete.Req()
     req.username = username
