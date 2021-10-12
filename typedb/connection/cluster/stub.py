@@ -49,7 +49,8 @@ class _ClusterServerStub(TypeDBStub):
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
         self._token = None
         try:
-            self._token = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
+            res = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
+            self._token = res.token
         except RpcError as e:
             e2 = TypeDBClientException.of_rpc(e)
             if e2.error_message is not None and e2.error_message is not UNABLE_TO_CONNECT:
