@@ -32,12 +32,12 @@ build:
       owner: vaticle
       branch: master
     dependency-analysis:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       command: |
         bazel run @vaticle_dependencies//factory/analysis:dependency-analysis
   correctness:
     build:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -51,7 +51,7 @@ build:
         bazel run @vaticle_dependencies//tool/checkstyle:test-coverage
         bazel test $(bazel query 'kind(checkstyle_test, //...)') --test_output=errors
     test-behaviour-connection-core:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -65,7 +65,7 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-core.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-connection-cluster:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -79,7 +79,7 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-concept-core:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -93,7 +93,7 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-core.sh //tests/behaviour/concept/... --test_output=errors
     test-behaviour-concept-cluster:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -107,7 +107,7 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-cluster.sh //tests/behaviour/concept/... --test_output=errors
     test-behaviour-match-core:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -122,7 +122,7 @@ build:
         .grabl/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
         .grabl/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-match-cluster:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -137,7 +137,7 @@ build:
         .grabl/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
         .grabl/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-writable-core:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -153,7 +153,7 @@ build:
         .grabl/test-core.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
         .grabl/test-core.sh //tests/behaviour/typeql/language/update/... --test_output=errors
     test-behaviour-writable-cluster:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -169,7 +169,7 @@ build:
         .grabl/test-cluster.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
         .grabl/test-cluster.sh //tests/behaviour/typeql/language/update/... --test_output=errors
     test-behaviour-definable-core:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -184,7 +184,7 @@ build:
         .grabl/test-core.sh //tests/behaviour/typeql/language/define/... --test_output=errors
         .grabl/test-core.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-behaviour-definable-cluster:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -200,7 +200,7 @@ build:
         .grabl/test-cluster.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-failover-cluster:
       machine: 4-core-8-gb
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       type: foreground
       command: |
         pyenv global 3.6.10
@@ -214,7 +214,7 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         bazel test //tests:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       dependencies: [
         build,
         test-behaviour-connection-core, test-behaviour-connection-cluster,
@@ -238,7 +238,7 @@ build:
         export DEPLOY_PIP_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
     test-deployment-pip:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       dependencies: [deploy-pip-snapshot]
       filter:
         owner: vaticle
@@ -263,11 +263,11 @@ release:
     branch: master
   validation:
     validate-dependencies:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       command: bazel test //:release-validate-python-deps --test_output=streamed
   deployment:
     deploy-github:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       command: |
         pyenv install -s 3.6.10
         pyenv global 3.6.10 system
@@ -281,7 +281,7 @@ release:
         export DEPLOY_GITHUB_TOKEN=$REPO_GITHUB_TOKEN
         bazel run --define version=$(cat VERSION) //:deploy-github -- $GRABL_COMMIT
     deploy-pip-release:
-      image: vaticle-ubuntu-20.04
+      image: vaticle-ubuntu-21.04
       command: |
         pyenv install -s 3.6.10
         pyenv global 3.6.10 system
