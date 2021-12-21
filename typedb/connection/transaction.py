@@ -83,12 +83,12 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
     def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[
         transaction_proto.Transaction.Res]:
         if not self.is_open():
-            self._throw_transaction_closed()
+            self._raise_transaction_closed()
         return self._bidirectional_stream.single(request, batch)
 
     def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         if not self.is_open():
-            self._throw_transaction_closed()
+            self._raise_transaction_closed()
         return self._bidirectional_stream.stream(request)
 
     def commit(self):
@@ -112,7 +112,7 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         if exc_tb is not None:
             return False
 
-    def _throw_transaction_closed(self):
+    def _raise_transaction_closed(self):
         errors = self._bidirectional_stream.drain_errors()
         if len(errors) == 0:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)

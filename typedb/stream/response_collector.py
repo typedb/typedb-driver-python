@@ -51,7 +51,7 @@ class ResponseCollector(Generic[R]):
             for collector in self._collectors.values():
                 collector.close(error)
 
-    def drain_errors(self):
+    def drain_errors(self) -> [RpcError]:
         errors = []
         with self._collectors_lock:
             for collector in self._collectors.values():
@@ -79,7 +79,7 @@ class ResponseCollector(Generic[R]):
         def close(self, error: Optional[RpcError]):
             self._response_queue.put(Done(error))
 
-        def drain_errors(self):
+        def drain_errors(self) -> [RpcError]:
             errors = []
             while not self._response_queue.empty():
                 response = self._response_queue.get(block = False)
