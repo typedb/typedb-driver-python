@@ -33,6 +33,7 @@ class TypeDBOptions:
         self.prefetch_size: Optional[int] = None
         self.prefetch: Optional[bool] = None
         self.session_idle_timeout_millis: Optional[int] = None
+        self.transaction_timeout_millis: Optional[int] = None
         self.schema_lock_acquire_timeout_millis: Optional[int] = None
 
     @staticmethod
@@ -63,6 +64,8 @@ class TypeDBOptions:
             proto_options.prefetch = self.prefetch
         if self.session_idle_timeout_millis is not None:
             proto_options.session_idle_timeout_millis = self.session_idle_timeout_millis
+        if self.transaction_timeout_millis is not None:
+            proto_options.transaction_timeout_millis = self.transaction_timeout_millis
         if self.schema_lock_acquire_timeout_millis is not None:
             proto_options.schema_lock_acquire_timeout_millis = self.schema_lock_acquire_timeout_millis
 
