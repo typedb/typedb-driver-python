@@ -47,32 +47,41 @@ class TypeDBOptions:
     def is_cluster(self) -> bool:
         return False
 
-    def set_infer(self, infer: bool) -> None:
+    def set_infer(self, infer: bool):
         self.infer = infer
+        return self
 
-    def set_trace_inference(self, trace_inference: bool) -> None:
+    def set_trace_inference(self, trace_inference: bool):
         self.trace_inference = trace_inference
+        return self
 
-    def set_explain(self, explain: bool) -> None:
+    def set_explain(self, explain: bool):
         self.explain = explain
+        return self
 
-    def set_parallel(self, parallel: bool) -> None:
+    def set_parallel(self, parallel: bool):
         self.parallel = parallel
+        return self
 
-    def set_prefetch_size(self, prefetch_size: int) -> None:
+    def set_prefetch_size(self, prefetch_size: int):
         self.prefetch_size = prefetch_size
+        return self
 
-    def set_prefetch(self, prefetch: bool) -> None:
+    def set_prefetch(self, prefetch: bool):
         self.prefetch = prefetch
+        return self
 
-    def set_session_idle_timeout_millis(self, session_idle_timeout_millis: int) -> None:
+    def set_session_idle_timeout_millis(self, session_idle_timeout_millis: int):
         self.session_idle_timeout_millis = session_idle_timeout_millis
+        return self
 
-    def set_transaction_timeout_millis(self, transaction_timeout_millis: int) -> None:
+    def set_transaction_timeout_millis(self, transaction_timeout_millis: int):
         self.transaction_timeout_millis = transaction_timeout_millis
+        return self
 
-    def set_schema_lock_acquire_timeout_millis(self, schema_lock_acquire_timeout_millis: int) -> None:
+    def set_schema_lock_acquire_timeout_millis(self, schema_lock_acquire_timeout_millis: int):
         self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
+        return self
 
     def proto(self) -> options_proto.Options:
         proto_options = options_proto.Options()
@@ -108,8 +117,9 @@ class TypeDBClusterOptions(TypeDBOptions):
     def is_cluster(self) -> bool:
         return True
 
-    def set_read_any_replica(self, read_any_replica: bool) -> None:
+    def set_read_any_replica(self, read_any_replica: bool):
         self.read_any_replica = read_any_replica
+        return self
 
     def proto(self) -> options_proto.Options:
         proto_options = super(TypeDBClusterOptions, self).proto()
