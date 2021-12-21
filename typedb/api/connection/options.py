@@ -47,6 +47,33 @@ class TypeDBOptions:
     def is_cluster(self) -> bool:
         return False
 
+    def set_infer(self, infer: bool) -> None:
+        self.infer = infer
+
+    def set_trace_inference(self, trace_inference: bool) -> None:
+        self.trace_inference = trace_inference
+
+    def set_explain(self, explain: bool) -> None:
+        self.explain = explain
+
+    def set_parallel(self, parallel: bool) -> None:
+        self.parallel = parallel
+
+    def set_prefetch_size(self, prefetch_size: int) -> None:
+        self.prefetch_size = prefetch_size
+
+    def set_prefetch(self, prefetch: bool) -> None:
+        self.prefetch = prefetch
+
+    def set_session_idle_timeout_millis(self, session_idle_timeout_millis: int) -> None:
+        self.session_idle_timeout_millis = session_idle_timeout_millis
+
+    def set_transaction_timeout_millis(self, transaction_timeout_millis: int) -> None:
+        self.transaction_timeout_millis = transaction_timeout_millis
+
+    def set_schema_lock_acquire_timeout_millis(self, schema_lock_acquire_timeout_millis: int) -> None:
+        self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
+
     def proto(self) -> options_proto.Options:
         proto_options = options_proto.Options()
 
@@ -80,6 +107,9 @@ class TypeDBClusterOptions(TypeDBOptions):
 
     def is_cluster(self) -> bool:
         return True
+
+    def set_read_any_replica(self, read_any_replica: bool) -> None:
+        self.read_any_replica = read_any_replica
 
     def proto(self) -> options_proto.Options:
         proto_options = super(TypeDBClusterOptions, self).proto()

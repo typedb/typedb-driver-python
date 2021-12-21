@@ -36,6 +36,10 @@ class Config:
     def __init__(self):
         self.userdata = {}
 
+option_setters = {
+    "session-idle-timeout-millis": lambda option, value: option.set_session_idle_timeout_millis(int(value)),
+    "transaction-timeout-millis": lambda option, value: option.set_transaction_timeout_millis(int(value)),
+}
 
 class Context(behave.runner.Context):
     """
@@ -51,6 +55,9 @@ class Context(behave.runner.Context):
         self.sessions_to_transactions: Dict[TypeDBSession, List[TypeDBTransaction]] = {}
         self.sessions_parallel: List[Future[TypeDBSession]] = []
         self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
+        self.session_options = TypeDBOptions = None
+        self.transaction_options: TypeDBOptions = None
+        self.option_setters = option_setters
         self.things: Dict[str, Thing] = {}
         self.answers: Optional[List[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
