@@ -59,10 +59,7 @@ class Context(behave.runner.Context):
         self.answer_groups: Optional[List[ConceptMapGroup]] = None
         self.numeric_answer_groups: Optional[List[NumericGroup]] = None
         self.config = Config()
-        self.option_setters = {
-            "session-idle-timeout-millis": lambda option, value: option.set_session_idle_timeout_millis(int(value)),
-            "transaction-timeout-millis": lambda option, value: option.set_transaction_timeout_millis(int(value)),
-        }
+        self.option_setters = {}
 
     def tx(self) -> TypeDBTransaction:
         return self.sessions_to_transactions[self.sessions[0]][0]
