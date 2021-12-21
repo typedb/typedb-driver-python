@@ -42,8 +42,8 @@ def before_scenario(context: Context, scenario):
             scenario.skip("tagged with @" + tag)
             return
     environment_base.before_scenario(context, scenario)
-    context.session_options = TypeDBOptions.cluster().set_infer(True)
-    context.transaction_options = TypeDBOptions.cluster().set_infer(True)
+    # context.session_options = TypeDBOptions.cluster().set_infer(True)
+    # context.transaction_options = TypeDBOptions.cluster().set_infer(True)
 
 
 

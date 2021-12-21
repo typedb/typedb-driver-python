@@ -51,8 +51,8 @@ class Context(behave.runner.Context):
         self.sessions_to_transactions: Dict[TypeDBSession, List[TypeDBTransaction]] = {}
         self.sessions_parallel: List[Future[TypeDBSession]] = []
         self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
-        self.session_options = TypeDBOptions = None
-        self.transaction_options: TypeDBOptions = None
+        self.session_options: Optional[TypeDBOptions] = None
+        self.transaction_options: Optional[TypeDBOptions] = None
         self.things: Dict[str, Thing] = {}
         self.answers: Optional[List[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
