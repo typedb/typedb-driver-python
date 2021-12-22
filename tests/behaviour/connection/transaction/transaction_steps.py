@@ -35,9 +35,7 @@ def for_each_session_open_transaction_of_type(context: Context, transaction_type
     for session in context.sessions:
         transactions = []
         for transaction_type in transaction_types:
-            opts = TypeDBOptions.core()
-            opts.infer = True
-            transaction = session.transaction(transaction_type, opts)
+            transaction = session.transaction(transaction_type, context.transaction_options)
             transactions.append(transaction)
         context.sessions_to_transactions[session] = transactions
 
@@ -252,6 +250,17 @@ def step_impl(context: Context, is_null):
 def step_impl(context: Context, is_open):
     is_open = parse_bool(is_open)
     for_each_session_in_parallel_transactions_in_parallel_are(context, lambda tx: assert_transaction_open(tx, is_open))
+
+
+######################################
+# transaction configuration          #
+######################################
+
+@step("set transaction option {option} to: {value}")
+def step_impl(context: Context, option: str, value: str):
+    if option not in context.option_setters:
+        raise Exception("Unrecognised option: " + option)
+    context.option_setters[option](context.transaction_options, value)
 
 
 ######################################

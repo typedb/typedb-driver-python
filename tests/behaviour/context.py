@@ -51,12 +51,15 @@ class Context(behave.runner.Context):
         self.sessions_to_transactions: Dict[TypeDBSession, List[TypeDBTransaction]] = {}
         self.sessions_parallel: List[Future[TypeDBSession]] = []
         self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
+        self.session_options: Optional[TypeDBOptions] = None
+        self.transaction_options: Optional[TypeDBOptions] = None
         self.things: Dict[str, Thing] = {}
         self.answers: Optional[List[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
         self.answer_groups: Optional[List[ConceptMapGroup]] = None
         self.numeric_answer_groups: Optional[List[NumericGroup]] = None
         self.config = Config()
+        self.option_setters = {}
 
     def tx(self) -> TypeDBTransaction:
         return self.sessions_to_transactions[self.sessions[0]][0]

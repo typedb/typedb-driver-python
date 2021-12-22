@@ -35,9 +35,9 @@ SCHEMA = SessionType.SCHEMA
 DATA = SessionType.DATA
 
 
-def open_sessions_for_databases(context: Context, names: list, session_type=DATA):
+def open_sessions_for_databases(context: Context, names: list, session_type):
     for name in names:
-        context.sessions.append(context.client.session(name, session_type))
+        context.sessions.append(context.client.session(name, session_type, context.session_options))
 
 
 @step("connection open schema session for database: {database_name}")
@@ -147,3 +147,14 @@ def step_impl(context: Context):
     future_session_iter = iter(context.sessions_parallel)
     for name in database_names:
         assert_that(next(future_session_iter).result().database().name(), is_(name))
+
+######################################
+# session configuration              #
+######################################
+
+@step("set session option {option} to: {value}")
+def step_impl(context: Context, option: str, value: str):
+    if option not in context.option_setters:
+        raise Exception("Unrecognised option: " + option)
+    context.option_setters[option](context.session_options, value)
+

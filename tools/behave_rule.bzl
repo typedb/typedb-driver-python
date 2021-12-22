@@ -81,7 +81,7 @@ def _rule_implementation(ctx):
            echo Starting TypeDB $PRODUCT Server.
            mkdir ./typedb_distribution/"$DIRECTORY"/typedb_test
            if [[ $PRODUCT == "Core" ]]; then
-             ./typedb_distribution/"$DIRECTORY"/typedb server --port $PORT --data typedb_test &
+             ./typedb_distribution/"$DIRECTORY"/typedb server --server.address 0.0.0.0:$PORT --storage.data typedb_test &
            else
              ./typedb_distribution/"$DIRECTORY"/typedb cluster --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test --encryption-enabled=true &
 

@@ -27,7 +27,7 @@ from grpc import RpcError
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.future import QueryFuture
 from typedb.api.connection.transaction import _TypeDBTransactionExtended, TransactionType
-from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
+from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, TRANSACTION_CLOSED_WITH_ERRORS
 from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
@@ -52,7 +52,8 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         try:
             self._channel, stub = session.client().new_channel_and_stub()
             self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
-            req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(), session.network_latency_millis())
+            req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(),
+                                       session.network_latency_millis())
             self.execute(request=req, batch=False)
         except RpcError as e:
             raise TypeDBClientException.of_rpc(e)
@@ -75,17 +76,19 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
     def query(self) -> _QueryManager:
         return self._query_manager
 
-    def execute(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> transaction_proto.Transaction.Res:
+    def execute(self, request: transaction_proto.Transaction.Req,
+                batch: bool = True) -> transaction_proto.Transaction.Res:
         return self.run_query(request, batch).get()
 
-    def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[transaction_proto.Transaction.Res]:
+    def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[
+        transaction_proto.Transaction.Res]:
         if not self.is_open():
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+            self._raise_transaction_closed()
         return self._bidirectional_stream.single(request, batch)
 
     def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         if not self.is_open():
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+            self._raise_transaction_closed()
         return self._bidirectional_stream.stream(request)
 
     def commit(self):
@@ -108,3 +111,10 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         self.close()
         if exc_tb is not None:
             return False
+
+    def _raise_transaction_closed(self):
+        errors = self._bidirectional_stream.drain_errors()
+        if len(errors) == 0:
+            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+        else:
+            raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, errors)

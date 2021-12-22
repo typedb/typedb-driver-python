@@ -100,6 +100,9 @@ class BidirectionalStream:
         else:
             raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
+    def drain_errors(self) -> [RpcError]:
+        return self._response_collector.drain_errors()
+
     def close(self, error: RpcError = None):
         if self._is_open.compare_and_set(True, False):
             self._response_collector.close(error)
