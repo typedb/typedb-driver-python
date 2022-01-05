@@ -27,12 +27,7 @@ from hamcrest import *
 from typedb.client import *
 from tests.behaviour.config.parameters import parse_list
 from tests.behaviour.context import Context
-
-import sys
-from pprint import pprint
-pprint(sys.path)
-
-from tests.behaviour.utils import assert_collections_equal
+from tests.behaviour.util.utils import assert_collections_equal
 
 
 def create_databases(context: Context, names: List[str]):
