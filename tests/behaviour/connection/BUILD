@@ -19,9 +19,9 @@
 # under the License.
 #
 
-load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
-
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
+
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
     name = "steps",

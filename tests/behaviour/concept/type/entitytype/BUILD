@@ -44,7 +44,6 @@ typedb_behaviour_py_test(
     deps = [
         "//:client_python",
         "//tests/behaviour:context",
-        "//tests/behaviour/util:util",
         "//tests/behaviour/config:parameters",
         "//tests/behaviour/background",
     ],
