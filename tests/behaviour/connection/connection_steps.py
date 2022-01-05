@@ -18,7 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from time import sleep
 
 from behave import *
 
@@ -34,7 +33,3 @@ def step_impl(context: Context):
 def step_impl(context: Context):
     assert len(context.client.databases().all()) == 0
 
-
-@step("wait {seconds} seconds")
-def step_impl(context: Context, seconds: str):
-    sleep(float(seconds))

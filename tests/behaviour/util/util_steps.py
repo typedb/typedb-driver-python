@@ -19,19 +19,11 @@
 # under the License.
 #
 
-package(default_visibility = ["//tests/behaviour:__subpackages__"])
+from time import sleep
+from behave import *
+from tests.behaviour.context import Context
 
-load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-py_library(
-    name = "steps",
-    srcs = ["connection_steps.py"],
-    deps = [],
-)
-
-checkstyle_test(
-    name = "checkstyle",
-    include = glob(["*"]),
-    license_type = "apache",
-    size = "small",
-)
+@step("wait {seconds} seconds")
+def step_impl(context: Context, seconds: str):
+    sleep(float(seconds))

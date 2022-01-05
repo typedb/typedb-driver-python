@@ -19,13 +19,20 @@
 # under the License.
 #
 
+
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
 
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
-    name = "steps",
-    srcs = ["connection_steps.py"],
+    name = "util",
+    srcs = ["util.py"],
+    deps = [],
+)
+
+py_library(
+    name = "util_steps",
+    srcs = ["util_steps.py"],
     deps = [],
 )
 
