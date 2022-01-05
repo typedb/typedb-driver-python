@@ -19,7 +19,7 @@
 # under the License.
 #
 from queue import Empty, Queue
-from typing import TypeVar, Iterator, Union, Generic
+from typing import TypeVar, Iterator, Union, Generic, List
 from uuid import uuid4, UUID
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
@@ -100,7 +100,7 @@ class BidirectionalStream:
         else:
             raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
-    def drain_errors(self) -> [RpcError]:
+    def drain_errors(self) -> List[RpcError]:
         return self._response_collector.drain_errors()
 
     def close(self, error: RpcError = None):
