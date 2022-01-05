@@ -19,17 +19,26 @@
 # under the License.
 #
 
-from behave import *
 
-from tests.behaviour.context import Context
+package(default_visibility = ["//tests/behaviour:__subpackages__"])
 
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-@step("connection has been opened")
-def step_impl(context: Context):
-    assert context.client and context.client.is_open()
+py_library(
+    name = "util",
+    srcs = ["util.py"],
+    deps = [],
+)
 
+py_library(
+    name = "util_steps",
+    srcs = ["util_steps.py"],
+    deps = [],
+)
 
-@step("connection does not have any database")
-def step_impl(context: Context):
-    assert len(context.client.databases().all()) == 0
-
+checkstyle_test(
+    name = "checkstyle",
+    include = glob(["*"]),
+    license_type = "apache",
+    size = "small",
+)

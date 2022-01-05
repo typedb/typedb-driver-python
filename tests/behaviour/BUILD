@@ -29,12 +29,6 @@ py_library(
     deps = [],
 )
 
-py_library(
-    name = "util",
-    srcs = ["util.py"],
-    deps = [],
-)
-
 checkstyle_test(
     name = "checkstyle",
     include = glob(["*"]),
