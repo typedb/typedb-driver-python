@@ -25,8 +25,8 @@ package(default_visibility = ["//tests/behaviour:__subpackages__"])
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 py_library(
-    name = "utils",
-    srcs = ["utils.py"],
+    name = "util",
+    srcs = ["util.py"],
     deps = [],
 )
 
