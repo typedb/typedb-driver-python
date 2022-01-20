@@ -63,6 +63,7 @@ class BidirectionalStream:
         return ResponsePartIterator(request_id, self, self._dispatcher)
 
     def done(self, request_id: UUID):
+        print(type(self._response_collector))
         self._response_collector.remove(request_id)
 
     def is_open(self) -> bool:
