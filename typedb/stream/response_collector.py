@@ -88,7 +88,6 @@ class ResponseCollector(Generic[R]):
             return self._error
 
 
-
 class Response(Generic[R]):
 
     def __init__(self, value: R):
