@@ -78,8 +78,9 @@ class BidirectionalStream:
                     raise TypeDBClientException.of(TRANSACTION_CLOSED)
                 server_msg = next(self._response_iterator)
             except RpcError as e:
-                self.close(e)
-                raise TypeDBClientException.of_rpc(e)
+                error = TypeDBClientException.of_rpc(e)
+                self.close(error)
+                raise error
             except StopIteration:
                 self.close()
                 raise TypeDBClientException.of(TRANSACTION_CLOSED)
@@ -100,8 +101,8 @@ class BidirectionalStream:
         else:
             raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
-    def drain_errors(self) -> List[RpcError]:
-        return self._response_collector.drain_errors()
+    def get_errors(self) -> List[RpcError]:
+        return self._response_collector.get_errors()
 
     def close(self, error: RpcError = None):
         if self._is_open.compare_and_set(True, False):

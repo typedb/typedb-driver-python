@@ -113,7 +113,7 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
             return False
 
     def _raise_transaction_closed(self):
-        errors = self._bidirectional_stream.drain_errors()
+        errors = self._bidirectional_stream.get_errors()
         if len(errors) == 0:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)
         else:
