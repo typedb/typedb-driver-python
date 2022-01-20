@@ -62,6 +62,9 @@ class BidirectionalStream:
         self._dispatcher.dispatch(req)
         return ResponsePartIterator(request_id, self, self._dispatcher)
 
+    def done(self, request_id: UUID):
+        self._response_collector.remove(request_id)
+
     def is_open(self) -> bool:
         return self._is_open.get()
 
@@ -101,10 +104,10 @@ class BidirectionalStream:
         else:
             raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
-    def get_errors(self) -> List[RpcError]:
+    def get_errors(self) -> List[TypeDBClientException]:
         return self._response_collector.get_errors()
 
-    def close(self, error: RpcError = None):
+    def close(self, error: TypeDBClientException = None):
         if self._is_open.compare_and_set(True, False):
             self._response_collector.close(error)
             try:
@@ -128,7 +131,9 @@ class BidirectionalStream:
             self._stream = stream
 
         def get(self) -> T:
-            return self._stream.fetch(self._request_id)
+            value = self._stream.fetch(self._request_id)
+            self._stream.done(self._request_id)
+            return value
 
 
 class RequestIterator(Iterator[Union[transaction_proto.Transaction.Req, StopIteration]]):

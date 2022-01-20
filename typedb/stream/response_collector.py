@@ -46,12 +46,12 @@ class ResponseCollector(Generic[R]):
     def get(self, request_id: UUID) -> Optional["ResponseCollector.Queue[R]"]:
         return self._collectors.get(request_id)
 
-    def close(self, error: Optional[RpcError]):
+    def close(self, error: Optional[TypeDBClientException]):
         with self._collectors_lock:
             for collector in self._collectors.values():
                 collector.close(error)
 
-    def get_errors(self) -> [RpcError]:
+    def get_errors(self) -> [TypeDBClientException]:
         errors = []
         with self._collectors_lock:
             for collector in self._collectors.values():
@@ -64,7 +64,7 @@ class ResponseCollector(Generic[R]):
 
         def __init__(self):
             self._response_queue: queue.Queue[Union[Response[R], Done]] = queue.Queue()
-            self._error = None
+            self._error: TypeDBClientException = None
 
         def get(self, block: bool) -> R:
             response = self._response_queue.get(block=block)
@@ -80,11 +80,11 @@ class ResponseCollector(Generic[R]):
         def put(self, response: R):
             self._response_queue.put(Response(response))
 
-        def close(self, error: Optional[RpcError]):
+        def close(self, error: Optional[TypeDBClientException]):
             self._error = error
             self._response_queue.put(Done())
 
-        def get_error(self):
+        def get_error(self) -> TypeDBClientException:
             return self._error
 
 
