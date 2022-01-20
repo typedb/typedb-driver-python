@@ -28,7 +28,7 @@ load("@vaticle_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
 load("@vaticle_bazel_distribution_pip//:requirements.bzl", vaticle_bazel_distribution_requirement = "requirement")
 load("@vaticle_bazel_distribution//github:rules.bzl", "deploy_github")
 
-load("@vaticle_dependencies//tool/release:rules.bzl", "release_validate_python_deps")
+load("@vaticle_dependencies//tool/release/deps:rules.bzl", "release_validate_python_deps")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 load("@vaticle_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
@@ -116,6 +116,6 @@ filegroup(
     data = [
         "@vaticle_dependencies//tool/checkstyle:test-coverage",
         "@vaticle_dependencies//distribution/artifact:create-netrc",
-        "@vaticle_dependencies//tool/release/createnotes:bin",
+        "@vaticle_dependencies//tool/release/notes:create",
     ],
 )
