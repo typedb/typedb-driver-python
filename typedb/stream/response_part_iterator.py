@@ -18,12 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from enum import Enum
 from typing import Iterator, TYPE_CHECKING
 from uuid import UUID
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
-
+from enum import Enum
 from typedb.common.exception import TypeDBClientException, ILLEGAL_ARGUMENT, MISSING_RESPONSE, ILLEGAL_STATE
 from typedb.common.rpc.request_builder import transaction_stream_req
 from typedb.stream.request_transmitter import RequestTransmitter
@@ -78,6 +77,7 @@ class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
 
     def __next__(self) -> transaction_proto.Transaction.ResPart:
         if not self._has_next():
+            self._bidirectional_stream.done(self._request_id)
             raise StopIteration
         self._state = ResponsePartIterator.State.EMPTY
         return self._next

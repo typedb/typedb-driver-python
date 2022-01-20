@@ -21,12 +21,11 @@
 
 import queue
 from threading import Lock
-from typing import Generic, TypeVar, Dict, Optional, Union
+from typing import Generic, TypeVar, Dict, Optional
 from uuid import UUID
 
-from grpc import RpcError
-
-from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
+from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, ILLEGAL_STATE, \
+    TRANSACTION_CLOSED_WITH_ERRORS
 
 R = TypeVar('R')
 
@@ -34,68 +33,86 @@ R = TypeVar('R')
 class ResponseCollector(Generic[R]):
 
     def __init__(self):
-        self._collectors: Dict[UUID, ResponseCollector.Queue[R]] = {}
+        self._response_queues: Dict[UUID, ResponseCollector.Queue[R]] = {}
         self._collectors_lock = Lock()
 
     def new_queue(self, request_id: UUID):
         with self._collectors_lock:
             collector: ResponseCollector.Queue[R] = ResponseCollector.Queue()
-            self._collectors[request_id] = collector
+            self._response_queues[request_id] = collector
             return collector
 
     def get(self, request_id: UUID) -> Optional["ResponseCollector.Queue[R]"]:
-        return self._collectors.get(request_id)
+        return self._response_queues.get(request_id)
 
-    def close(self, error: Optional[RpcError]):
+    def remove(self, request_id: UUID):
         with self._collectors_lock:
-            for collector in self._collectors.values():
+            del self._response_queues[request_id]
+
+    def close(self, error: Optional[TypeDBClientException]):
+        with self._collectors_lock:
+            for collector in self._response_queues.values():
                 collector.close(error)
 
-    def drain_errors(self) -> [RpcError]:
+    def get_errors(self) -> [TypeDBClientException]:
         errors = []
         with self._collectors_lock:
-            for collector in self._collectors.values():
-                errors.extend(collector.drain_errors())
+            for collector in self._response_queues.values():
+                error = collector.get_error()
+                if error is not None:
+                    errors.append(error)
         return errors
-
 
     class Queue(Generic[R]):
 
         def __init__(self):
-            self._response_queue: queue.Queue[Union[Response[R], Done]] = queue.Queue()
+            self._response_queue: queue.Queue[Response] = queue.Queue()
+            self._error: TypeDBClientException = None
 
         def get(self, block: bool) -> R:
             response = self._response_queue.get(block=block)
-            if response.message:
-                return response.message
-            elif response.error:
-                raise TypeDBClientException.of_rpc(response.error)
-            else:
+            if response.is_value():
+                return response.value
+            elif response.is_done() and self._error is None:
                 raise TypeDBClientException.of(TRANSACTION_CLOSED)
+            elif response.is_done() and self._error is not None:
+                raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, self._error)
+            else:
+                raise TypeDBClientException.of(ILLEGAL_STATE)
 
         def put(self, response: R):
-            self._response_queue.put(Response(response))
+            self._response_queue.put(ValueResponse(response))
 
-        def close(self, error: Optional[RpcError]):
-            self._response_queue.put(Done(error))
+        def close(self, error: Optional[TypeDBClientException]):
+            self._error = error
+            self._response_queue.put(DoneResponse())
 
-        def drain_errors(self) -> [RpcError]:
-            errors = []
-            while not self._response_queue.empty():
-                response = self._response_queue.get(block = False)
-                if response.error:
-                    errors.append(response.error)
-            return errors
+        def get_error(self) -> TypeDBClientException:
+            return self._error
 
 
+class Response:
 
-class Response(Generic[R]):
+    def is_value(self):
+        return False
+
+    def is_done(self):
+        return False
+
+
+class ValueResponse(Response, Generic[R]):
 
     def __init__(self, value: R):
-        self.message = value
+        self.value = value
+
+    def is_value(self):
+        return True
 
 
-class Done:
+class DoneResponse(Response):
 
-    def __init__(self, error: Optional[RpcError]):
-        self.error = error
+    def __init__(self):
+        pass
+
+    def is_done(self):
+        return True
