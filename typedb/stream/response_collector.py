@@ -46,6 +46,10 @@ class ResponseCollector(Generic[R]):
     def get(self, request_id: UUID) -> Optional["ResponseCollector.Queue[R]"]:
         return self._collectors.get(request_id)
 
+    def remove(self, request_id: UUID):
+        with self._collectors_lock:
+            del self._collectors[request_id]
+
     def close(self, error: Optional[TypeDBClientException]):
         with self._collectors_lock:
             for collector in self._collectors.values():
