@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
 
-    def __init__(self, request_id: UUID, bidirectional_stream: BidirectionalStream):
+    def __init__(self, request_id: UUID, bidirectional_stream: "BidirectionalStream"):
         self._request_id = request_id
         self._bidirectional_stream = bidirectional_stream
         self._state = ResponsePartIterator.State.EMPTY
