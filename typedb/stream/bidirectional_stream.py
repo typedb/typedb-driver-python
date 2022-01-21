@@ -44,6 +44,7 @@ class BidirectionalStream:
         self._response_iterator = stub.transaction(self._request_iterator)
         self._dispatcher = transmitter.dispatcher(self._request_iterator)
         self._is_open = AtomicBoolean(True)
+        self._error: TypeDBClientException = None
 
     def single(self, req: transaction_proto.Transaction.Req, batch: bool) -> "BidirectionalStream.Single[transaction_proto.Transaction.Res]":
         request_id = uuid4()
@@ -60,7 +61,7 @@ class BidirectionalStream:
         req.req_id = request_id.bytes
         self._response_collector.new_queue(request_id)
         self._dispatcher.dispatch(req)
-        return ResponsePartIterator(request_id, self, self._dispatcher)
+        return ResponsePartIterator(request_id, self)
 
     def done(self, request_id: UUID):
         self._response_collector.remove(request_id)
@@ -104,11 +105,15 @@ class BidirectionalStream:
         else:
             raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
 
-    def get_errors(self) -> List[TypeDBClientException]:
-        return self._response_collector.get_errors()
+    def dispatcher(self):
+        return self._dispatcher
+
+    def get_error(self) -> TypeDBClientException:
+        return self._error
 
     def close(self, error: TypeDBClientException = None):
         if self._is_open.compare_and_set(True, False):
+            self._error = error
             self._response_collector.close(error)
             try:
                 self._dispatcher.close()
