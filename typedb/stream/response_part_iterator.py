@@ -25,7 +25,6 @@ import typedb_protocol.common.transaction_pb2 as transaction_proto
 from enum import Enum
 from typedb.common.exception import TypeDBClientException, ILLEGAL_ARGUMENT, MISSING_RESPONSE, ILLEGAL_STATE
 from typedb.common.rpc.request_builder import transaction_stream_req
-from typedb.stream.request_transmitter import RequestTransmitter
 
 if TYPE_CHECKING:
     from typedb.stream.bidirectional_stream import BidirectionalStream
@@ -33,9 +32,8 @@ if TYPE_CHECKING:
 
 class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
 
-    def __init__(self, request_id: UUID, bidirectional_stream: "BidirectionalStream", request_dispatcher: RequestTransmitter.Dispatcher):
+    def __init__(self, request_id: UUID, bidirectional_stream: "BidirectionalStream"):
         self._request_id = request_id
-        self._dispatcher = request_dispatcher
         self._bidirectional_stream = bidirectional_stream
         self._state = ResponsePartIterator.State.EMPTY
         self._next: transaction_proto.Transaction.ResPart = None
@@ -54,7 +52,7 @@ class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
                 self._state = ResponsePartIterator.State.DONE
                 return False
             elif state == transaction_proto.Transaction.Stream.State.Value("CONTINUE"):
-                self._dispatcher.dispatch(transaction_stream_req(self._request_id))
+                self._bidirectional_stream.dispatcher().dispatch(transaction_stream_req(self._request_id))
                 return self._fetch_and_check()
             else:
                 raise TypeDBClientException.of(ILLEGAL_ARGUMENT)
@@ -76,8 +74,11 @@ class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
             raise TypeDBClientException.of(ILLEGAL_STATE)
 
     def __next__(self) -> transaction_proto.Transaction.ResPart:
-        if not self._has_next():
+        if self._bidirectional_stream.get_error() is not None:
+            raise self._bidirectional_stream.get_error()
+        elif not self._has_next():
             self._bidirectional_stream.done(self._request_id)
             raise StopIteration
-        self._state = ResponsePartIterator.State.EMPTY
-        return self._next
+        else:
+            self._state = ResponsePartIterator.State.EMPTY
+            return self._next

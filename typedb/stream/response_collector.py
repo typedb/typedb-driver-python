@@ -54,15 +54,6 @@ class ResponseCollector(Generic[R]):
             for collector in self._response_queues.values():
                 collector.close(error)
 
-    def get_errors(self) -> [TypeDBClientException]:
-        errors = []
-        with self._collectors_lock:
-            for collector in self._response_queues.values():
-                error = collector.get_error()
-                if error is not None:
-                    errors.append(error)
-        return errors
-
     class Queue(Generic[R]):
 
         def __init__(self):
@@ -87,8 +78,6 @@ class ResponseCollector(Generic[R]):
             self._error = error
             self._response_queue.put(DoneResponse())
 
-        def get_error(self) -> TypeDBClientException:
-            return self._error
 
 
 class Response:
