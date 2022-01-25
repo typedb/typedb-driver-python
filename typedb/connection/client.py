@@ -18,6 +18,7 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
+from threading import Lock
 from typing import Dict
 
 from grpc import Channel
@@ -25,6 +26,7 @@ from grpc import Channel
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
+from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
@@ -32,23 +34,29 @@ from typedb.stream.request_transmitter import RequestTransmitter
 
 
 class _TypeDBClientImpl(TypeDBClient):
+    _PULSE_INTERVAL_SECONDS = 5
 
     # TODO: Detect number of available CPUs
     def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
         self._transmitter = RequestTransmitter(parallelisation)
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
+        self._sessions_lock = Lock()
         self._is_open = True
+        self._pulse_executor = ScheduledExecutor()
+        self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
 
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
         if not options:
             options = TypeDBOptions.core()
         session = _TypeDBSessionImpl(self, database, session_type, options)
-        self._sessions[session.session_id()] = session
+        with self._sessions_lock:
+            self._sessions[session.session_id()] = session
         return session
 
     def remove_session(self, session: _TypeDBSessionImpl) -> None:
-        del self._sessions[session.session_id()]
+        with self._sessions_lock:
+            del self._sessions[session.session_id()]
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
         pass
@@ -84,5 +92,16 @@ class _TypeDBClientImpl(TypeDBClient):
 
     def close(self) -> None:
         self._is_open = False
-        for session_id in self._sessions:
-            self._sessions[session_id].close()
+        with self._sessions_lock:
+            sessions = self._sessions.copy()
+        for session in sessions.values():
+            session.close()
+        self._pulse_executor.shutdown()
+
+    def _transmit_pulses(self) -> None:
+        if not self.is_open():
+            return
+        with self._sessions_lock:
+            sessions = self._sessions.copy()
+        for session in sessions.values():
+            session.transmit_pulse()
