@@ -18,9 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import sched
 import time
-from threading import Thread
 from typing import TYPE_CHECKING
 
 import typedb_protocol.common.session_pb2 as session_proto
@@ -37,19 +35,18 @@ from typedb.connection.database import _TypeDBDatabaseImpl
 from typedb.connection.transaction import _TypeDBTransactionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
 
+from typedb.common.exception import TypeDBClientException
+
 if TYPE_CHECKING:
     from typedb.connection.client import _TypeDBClientImpl
 
 
 class _TypeDBSessionImpl(TypeDBSession):
-    _PULSE_INTERVAL_SECONDS = 5
-
     def __init__(self, client: "_TypeDBClientImpl", database: str, session_type: SessionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions.core()
         self._client = client
         self._address = client.address()
-        self._scheduler = sched.scheduler(time.time, time.sleep)
         self._session_type = session_type
         self._options = options
         self._rw_lock = ReadWriteLock()
@@ -61,9 +58,6 @@ class _TypeDBSessionImpl(TypeDBSession):
         self._network_latency_millis = int(end_time - start_time - res.server_duration_millis)
         self._session_id = res.session_id
         self._is_open = AtomicBoolean(True)
-
-        self._pulse = self._scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-        Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
 
     def is_open(self) -> bool:
         return self._is_open.get()
@@ -103,15 +97,11 @@ class _TypeDBSessionImpl(TypeDBSession):
             self._rw_lock.acquire_write()
             if self._is_open.compare_and_set(True, False):
                 self._client.remove_session(self)
-                try:
-                    self._scheduler.cancel(self._pulse)
-                except ValueError:  # This may occur if a pulse is in transit right now.
-                    pass
                 req = session_proto.Session.Close.Req()
                 req.session_id = self._session_id
                 try:
                     self._stub().session_close(req)
-                except RpcError:  # This generally means the session is already closed.
+                except TypeDBClientException:  # This generally means the session is already closed.
                     pass
         finally:
             self._rw_lock.release_write()
@@ -121,22 +111,6 @@ class _TypeDBSessionImpl(TypeDBSession):
 
     def _stub(self) -> TypeDBStub:
         return self._client.stub()
-
-    def _transmit_pulse(self) -> None:
-        if not self.is_open():
-            return
-        pulse_req = session_proto.Session.Pulse.Req()
-        pulse_req.session_id = self._session_id
-        try:
-            alive = self._stub().session_pulse(pulse_req).alive
-        except RpcError:
-            alive = False
-
-        if alive:
-            self._pulse = self._scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulse, argument=())
-            Thread(target=self._scheduler.run, name="session_pulse_{}".format(self._session_id.hex()), daemon=True).start()
-        else:
-            self._is_open.set(False)
 
     def __enter__(self):
         return self
