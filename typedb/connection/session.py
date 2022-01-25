@@ -22,7 +22,6 @@ import time
 from typing import TYPE_CHECKING
 
 import typedb_protocol.common.session_pb2 as session_proto
-from grpc import RpcError
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import TypeDBSession, SessionType
@@ -108,6 +107,18 @@ class _TypeDBSessionImpl(TypeDBSession):
 
     def client(self) -> "_TypeDBClientImpl":
         return self._client
+
+    def transmit_pulse(self):
+        if not self.is_open():
+            return
+        pulse_req = session_proto.Session.Pulse.Req()
+        pulse_req.session_id = self._session_id
+        try:
+            alive = self._stub().session_pulse(pulse_req).alive
+        except TypeDBClientException:
+            alive = False
+        if not alive:
+            self._is_open.set(False)
 
     def _stub(self) -> TypeDBStub:
         return self._client.stub()

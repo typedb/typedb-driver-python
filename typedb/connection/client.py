@@ -26,8 +26,6 @@ from uuid import uuid4
 
 from grpc import Channel
 
-import typedb_protocol.common.session_pb2 as session_proto
-
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
@@ -35,8 +33,6 @@ from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
-
-from typedb.common.exception import TypeDBClientException
 
 
 class _TypeDBClientImpl(TypeDBClient):
@@ -101,7 +97,7 @@ class _TypeDBClientImpl(TypeDBClient):
         self._is_open = False
         with self._sessions_lock:
             sessions = self._sessions.copy()
-        for (session_id, session) in sessions.items():
+        for session in sessions.values():
             session.close()
 
     def _transmit_pulses(self) -> None:
@@ -109,14 +105,7 @@ class _TypeDBClientImpl(TypeDBClient):
             return
         with self._sessions_lock:
             sessions = self._sessions.copy()
-        for (session_id, session) in sessions.items():
-            pulse_req = session_proto.Session.Pulse.Req()
-            pulse_req.session_id = session_id
-            try:
-                alive = self.stub().session_pulse(pulse_req).alive
-            except TypeDBClientException:
-                alive = False
-            if not alive:
-                session.close()
+        for session in sessions.values():
+            session.transmit_pulse()
         self._pulse = self._pulse_scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulses, argument=())
         Thread(target=self._pulse_scheduler.run, name="session_pulse_{}".format(uuid4()), daemon=True).start()
