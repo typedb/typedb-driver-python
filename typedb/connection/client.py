@@ -18,17 +18,15 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-import sched
-import time
-from threading import Thread, Lock
+from threading import Lock
 from typing import Dict
-from uuid import uuid4
 
 from grpc import Channel
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
+from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
@@ -45,9 +43,8 @@ class _TypeDBClientImpl(TypeDBClient):
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._sessions_lock = Lock()
         self._is_open = True
-        self._pulse_scheduler = sched.scheduler(time.time, time.sleep)
-        self._pulse = self._pulse_scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulses, argument=())
-        Thread(target=self._pulse_scheduler.run, name="session_pulse_{}".format(uuid4()), daemon=True).start()
+        self._pulse_executor = ScheduledExecutor()
+        self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
 
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
         if not options:
@@ -99,6 +96,7 @@ class _TypeDBClientImpl(TypeDBClient):
             sessions = self._sessions.copy()
         for session in sessions.values():
             session.close()
+        self._pulse_executor.shutdown()
 
     def _transmit_pulses(self) -> None:
         if not self.is_open():
@@ -107,5 +105,3 @@ class _TypeDBClientImpl(TypeDBClient):
             sessions = self._sessions.copy()
         for session in sessions.values():
             session.transmit_pulse()
-        self._pulse = self._pulse_scheduler.enter(delay=self._PULSE_INTERVAL_SECONDS, priority=1, action=self._transmit_pulses, argument=())
-        Thread(target=self._pulse_scheduler.run, name="session_pulse_{}".format(uuid4()), daemon=True).start()
