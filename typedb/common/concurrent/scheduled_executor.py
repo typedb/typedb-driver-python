@@ -59,7 +59,10 @@ class ScheduledExecutor:
             if self._cancelled:
                 return
             self._schedule_run()
-            self._action()
+            try:
+                self._action()
+            except Exception as e:
+                print(e)
 
         def cancel(self):
             self._cancelled = True
