@@ -212,7 +212,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        bazel test //tests:test_cluster_failover --test_output=errors
+        bazel test //tests/integration:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
       image: vaticle-ubuntu-21.04
       dependencies: [

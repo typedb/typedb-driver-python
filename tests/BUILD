@@ -24,7 +24,6 @@ load("//tools:cluster_test_rule.bzl", "typedb_cluster_py_test")
 load("@vaticle_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 load("@vaticle_typedb_common//test:rules.bzl", "native_typedb_artifact")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
-load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 native_typedb_artifact(
     name = "native-typedb-artifact",
@@ -49,44 +48,9 @@ checkstyle_test(
     include = glob([
         "*",
         "deployment/*",
-        "integration/*",
     ]),
     license_type = "apache",
     size = "small",
-)
-
-py_test(
-    name = "test_debug",
-    srcs = [
-        "integration/test_debug.py",
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    python_version = "PY3"
-)
-
-typedb_cluster_py_test(
-    name = "test_cluster_failover",
-    srcs = [
-        "integration/test_cluster_failover.py",
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    size = "medium",
-    native_typedb_cluster_artifact = ":native-typedb-cluster-artifact",
-)
-
-py_test(
-    name = "test_concurrent",
-    srcs = [
-        "integration/test_concurrent.py",
-    ],
-    deps = [
-        "//:client_python",
-    ],
-    python_version = "PY3"
 )
 
 artifact_extractor(

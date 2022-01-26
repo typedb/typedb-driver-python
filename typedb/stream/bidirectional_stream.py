@@ -63,9 +63,6 @@ class BidirectionalStream:
         self._dispatcher.dispatch(req)
         return ResponsePartIterator(request_id, self)
 
-    def done(self, request_id: UUID):
-        self._response_collector.remove(request_id)
-
     def is_open(self) -> bool:
         return self._is_open.get()
 
@@ -103,7 +100,7 @@ class BidirectionalStream:
         if collector:
             collector.put(response)
         else:
-            raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, request_id)
+            raise TypeDBClientException.of(UNKNOWN_REQUEST_ID, (request_id, str(response)))
 
     def dispatcher(self):
         return self._dispatcher
@@ -137,7 +134,6 @@ class BidirectionalStream:
 
         def get(self) -> T:
             value = self._stream.fetch(self._request_id)
-            self._stream.done(self._request_id)
             return value
 
 
