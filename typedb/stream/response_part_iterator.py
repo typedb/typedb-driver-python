@@ -77,7 +77,6 @@ class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
         if self._bidirectional_stream.get_error() is not None:
             raise self._bidirectional_stream.get_error()
         elif not self._has_next():
-            self._bidirectional_stream.done(self._request_id)
             raise StopIteration
         else:
             self._state = ResponsePartIterator.State.EMPTY

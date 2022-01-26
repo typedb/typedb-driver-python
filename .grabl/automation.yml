@@ -64,20 +64,20 @@ build:
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-core.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
-    test-behaviour-connection-cluster:
-      image: vaticle-ubuntu-21.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip3 install -U pip
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
-        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
+#    test-behaviour-connection-cluster:
+#      image: vaticle-ubuntu-21.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip3 install -U pip
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+#        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+#        .grabl/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-concept-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -121,21 +121,21 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .grabl/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
         .grabl/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
-    test-behaviour-match-cluster:
-      image: vaticle-ubuntu-21.04
-      type: foreground
-      command: |
-        pyenv global 3.6.10
-        pip3 install -U pip
-        pip install -r requirements_dev.txt
-        sudo unlink /usr/bin/python3
-        sudo ln -s $(which python3) /usr/bin/python3
-        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
-        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
-        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
-        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
+#    test-behaviour-match-cluster:
+#      image: vaticle-ubuntu-21.04
+#      type: foreground
+#      command: |
+#        pyenv global 3.6.10
+#        pip3 install -U pip
+#        pip install -r requirements_dev.txt
+#        sudo unlink /usr/bin/python3
+#        sudo ln -s $(which python3) /usr/bin/python3
+#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.6.10/lib/python3.6/site-packages/lsb_release.py
+#        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+#        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+#        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+#        .grabl/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
+#        .grabl/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-writable-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -212,14 +212,16 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        bazel test //tests:test_cluster_failover --test_output=errors
+        bazel test //tests/integration:test_cluster_failover --test_output=errors
     deploy-pip-snapshot:
       image: vaticle-ubuntu-21.04
       dependencies: [
         build,
-        test-behaviour-connection-core, test-behaviour-connection-cluster,
+        test-behaviour-connection-core,
+        # test-behaviour-connection-cluster,
         test-behaviour-concept-core, test-behaviour-concept-cluster,
-        test-behaviour-match-core, test-behaviour-match-cluster,
+        test-behaviour-match-core,
+#        test-behaviour-match-cluster,
         test-behaviour-writable-core, test-behaviour-writable-cluster,
         test-behaviour-definable-core, test-behaviour-definable-cluster,
         test-failover-cluster

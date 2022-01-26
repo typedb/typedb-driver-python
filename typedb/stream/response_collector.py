@@ -64,12 +64,13 @@ class ResponseCollector(Generic[R]):
             response = self._response_queue.get(block=block)
             if response.is_value():
                 return response.value
-            elif response.is_done() and self._error is None:
-                raise TypeDBClientException.of(TRANSACTION_CLOSED)
-            elif response.is_done() and self._error is not None:
-                raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, self._error)
+            elif response.is_done():
+                self._raise_transaction_closed_error()
             else:
                 raise TypeDBClientException.of(ILLEGAL_STATE)
+
+        def _raise_transaction_closed_error(self):
+            raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, self._error) if self._error else TypeDBClientException.of(TRANSACTION_CLOSED)
 
         def put(self, response: R):
             self._response_queue.put(ValueResponse(response))
@@ -77,7 +78,6 @@ class ResponseCollector(Generic[R]):
         def close(self, error: Optional[TypeDBClientException]):
             self._error = error
             self._response_queue.put(DoneResponse())
-
 
 
 class Response:
