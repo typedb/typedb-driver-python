@@ -74,9 +74,7 @@ class ResponsePartIterator(Iterator[transaction_proto.Transaction.ResPart]):
             raise TypeDBClientException.of(ILLEGAL_STATE)
 
     def __next__(self) -> transaction_proto.Transaction.ResPart:
-        if self._bidirectional_stream.get_error() is not None:
-            raise self._bidirectional_stream.get_error()
-        elif not self._has_next():
+        if not self._has_next():
             raise StopIteration
         else:
             self._state = ResponsePartIterator.State.EMPTY
