@@ -19,7 +19,7 @@
 # under the License.
 #
 from queue import Empty, Queue
-from typing import TypeVar, Iterator, Union, Generic, List
+from typing import TypeVar, Iterator, Union
 from uuid import uuid4, UUID
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
@@ -133,8 +133,7 @@ class BidirectionalStream:
             self._stream = stream
 
         def get(self) -> T:
-            value = self._stream.fetch(self._request_id)
-            return value
+            return self._stream.fetch(self._request_id)
 
 
 class RequestIterator(Iterator[Union[transaction_proto.Transaction.Req, StopIteration]]):
