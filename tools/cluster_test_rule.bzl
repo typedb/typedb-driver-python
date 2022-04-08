@@ -69,7 +69,7 @@ def _rule_implementation(ctx):
            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
-               echo Waiting for TypeDB Cluster servers to start \($(($RETRY_NUM / 2))s\)...
+               echo Waiting for TypeDB Cluster servers to start \\($(($RETRY_NUM / 2))s\\)...
              fi
              lsof -i :11729 && STARTED1=1 || STARTED1=0
              lsof -i :21729 && STARTED2=1 || STARTED2=0

@@ -46,7 +46,7 @@ kt_register_toolchains()
 # Load //builder/python
 load("@vaticle_dependencies//builder/python:deps.bzl", python_deps = "deps")
 python_deps()
-load("@rules_python//python:pip.bzl", "pip_repositories", "pip_import")
+load("@rules_python//python:pip.bzl", "pip_repositories")
 pip_repositories()
 
 # Load //builder/grpc

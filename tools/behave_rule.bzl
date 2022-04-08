@@ -95,7 +95,7 @@ def _rule_implementation(ctx):
            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
-               echo Waiting for TypeDB $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
+               echo Waiting for TypeDB $PRODUCT server to start \\($(($RETRY_NUM / 2))s\\)...
              fi
              lsof -i :$PORT && STARTED=1 || STARTED=0
              if [[ $STARTED -eq 1 ]]; then
