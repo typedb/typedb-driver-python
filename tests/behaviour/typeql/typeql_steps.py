@@ -471,7 +471,7 @@ def step_impl(context: Context):
         assert_that(list(context.tx().query().match(query)), has_length(1))
 
 
-@step("each answer does not satisfy")
+@step("templated typeql match; throws exception")
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
