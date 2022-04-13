@@ -35,3 +35,4 @@
 typedb-protocol==2.6.0
 grpcio==1.43.0
 protobuf==3.15.5
+dataclasses==0.8
