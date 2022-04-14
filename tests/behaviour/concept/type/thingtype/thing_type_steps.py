@@ -77,6 +77,20 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstr
         thing_type.as_remote(context.tx()).unset_abstract()
 
 
+@step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract):
+    is_abstract = parse_bool(is_abstract)
+    thing_type = context.get_thing_type(root_label, type_label)
+    try:
+        if is_abstract:
+            thing_type.as_remote(context.tx()).set_abstract()
+        else:
+            thing_type.as_remote(context.tx()).unset_abstract()
+        assert False
+    except TypeDBClientException:
+        pass
+
+
 @step("{root_label:RootLabel}({type_label}) is abstract: {is_abstract}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract):
     is_abstract = parse_bool(is_abstract)
