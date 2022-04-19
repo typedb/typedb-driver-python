@@ -27,15 +27,15 @@ config:
     typedb-behaviour: [build]
 
 build:
-#  quality:
-#    filter:
-#      owner: vaticle
-#      branch: master
-#    dependency-analysis:
-#      image: vaticle-ubuntu-21.04
-#      command: |
-#        bazel run @vaticle_dependencies//factory/analysis:dependency-analysis
-#  correctness:
+  quality:
+    filter:
+      owner: vaticle
+      branch: master
+    dependency-analysis:
+      image: vaticle-ubuntu-21.04
+      command: |
+        bazel run @vaticle_dependencies//factory/analysis:dependency-analysis
+  correctness:
 #    build:
 #      image: vaticle-ubuntu-21.04
 #      type: foreground
