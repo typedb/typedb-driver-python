@@ -95,8 +95,8 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        sleep 3600
 #        .grabl/test-core.sh //tests/behaviour/concept/... --test_output=errors
+        sleep 3600
 #    test-behaviour-concept-cluster:
 #      image: vaticle-ubuntu-21.04
 #      type: foreground
