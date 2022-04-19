@@ -85,7 +85,7 @@ def _rule_implementation(ctx):
            else
              ./typedb_distribution/"$DIRECTORY"/typedb cluster --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test --encryption-enabled=true &
 
-             ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/rpc-root-ca.pem`
+             ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/ext-root-ca.pem`
              export ROOT_CA
            fi
 

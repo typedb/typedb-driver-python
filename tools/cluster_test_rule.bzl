@@ -76,7 +76,7 @@ def _rule_implementation(ctx):
             server_start 2 &
             server_start 3 &
 
-            ROOT_CA=`realpath typedb_distribution/$TYPEDB/server/conf/encryption/rpc-root-ca.pem`
+            ROOT_CA=`realpath typedb_distribution/$TYPEDB/server/conf/encryption/ext-root-ca.pem`
             export ROOT_CA
 
             POLL_INTERVAL_SECS=0.5
