@@ -475,4 +475,4 @@ def step_impl(context: Context):
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(list(context.tx().query().match(query)), has_length(0))
+        assert_that(calling(context.tx().query().match).with_args(query), raises(TypeDBClientException))
