@@ -35,38 +35,54 @@ def _rule_implementation(ctx):
     # TODO: This code is, mostly, copied from our TypeDB behave test
     cmd = "set -e && TYPEDB_ARCHIVE=%s" % typedb_cluster_distro
     cmd += """
-
-           if test -d typedb_distribution; then
+            function server_start() {
+              ./${1}/typedb cluster \
+                --storage.data=server/data \
+                --server.address=127.0.0.1:${1}1729 \
+                --server.internal-address.zeromq=127.0.0.1:${1}1730 \
+                --server.internal-address.grpc=127.0.0.1:${1}1731 \
+                --server.peers.peer-1.address=127.0.0.1:11729 \
+                --server.peers.peer-1.internal-address.zeromq=127.0.0.1:11730 \
+                --server.peers.peer-1.internal-address.grpc=127.0.0.1:11731 \
+                --server.peers.peer-2.address=127.0.0.1:21729 \
+                --server.peers.peer-2.internal-address.zeromq=127.0.0.1:21730 \
+                --server.peers.peer-2.internal-address.grpc=127.0.0.1:21731 \
+                --server.peers.peer-3.address=127.0.0.1:31729 \
+                --server.peers.peer-3.internal-address.zeromq=127.0.0.1:31730 \
+                --server.peers.peer-3.internal-address.grpc=127.0.0.1:31731 \
+                --server.encryption.enable=true
+            }
+            if test -d typedb_distribution; then
              echo Existing distribution detected. Cleaning.
              rm -rf typedb_distribution
-           fi
-           mkdir typedb_distribution
-           echo Attempting to unarchive TypeDB distribution from $TYPEDB_ARCHIVE
-           if [[ ${TYPEDB_ARCHIVE: -7} == ".tar.gz" ]]; then
+            fi
+            mkdir typedb_distribution
+            echo Attempting to unarchive TypeDB distribution from $TYPEDB_ARCHIVE
+            if [[ ${TYPEDB_ARCHIVE: -7} == ".tar.gz" ]]; then
              tar -xf $TYPEDB_ARCHIVE -C ./typedb_distribution
-           else
+            else
              if [[ ${TYPEDB_ARCHIVE: -4} == ".zip" ]]; then
                unzip -q $TYPEDB_ARCHIVE -d ./typedb_distribution
              else
                echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
                exit 1
              fi
-           fi
-           TYPEDB=$(ls ./typedb_distribution)
-           echo Successfully unarchived TypeDB distribution. Creating 3 copies.
-           cp -r typedb_distribution/$TYPEDB/ 1 && cp -r typedb_distribution/$TYPEDB/ 2 && cp -r typedb_distribution/$TYPEDB/ 3
-           echo Starting 3 TypeDB servers.
-           ./1/typedb cluster --data server/data --address 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:31729:31730:31731  --encryption-enabled=true &
-           ./2/typedb cluster --data server/data --address 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:31729:31730:31731  --encryption-enabled=true &
-           ./3/typedb cluster --data server/data --address 127.0.0.1:31729:31730:31731 --peer 127.0.0.1:11729:11730:11731 --peer 127.0.0.1:21729:21730:21731 --peer 127.0.0.1:31729:31730:31731  --encryption-enabled=true &
+            fi
+            TYPEDB=$(ls ./typedb_distribution)
+            echo Successfully unarchived TypeDB distribution. Creating 3 copies.
+            cp -r typedb_distribution/$TYPEDB/ 1 && cp -r typedb_distribution/$TYPEDB/ 2 && cp -r typedb_distribution/$TYPEDB/ 3
+            echo Starting 3 TypeDB servers.
+            server_start 1 &
+            server_start 2 &
+            server_start 3 &
 
-           ROOT_CA=`realpath typedb_distribution/$TYPEDB/server/conf/encryption/rpc-root-ca.pem`
-           export ROOT_CA
+            ROOT_CA=`realpath typedb_distribution/$TYPEDB/server/conf/encryption/rpc-root-ca.pem`
+            export ROOT_CA
 
-           POLL_INTERVAL_SECS=0.5
-           MAX_RETRIES=60
-           RETRY_NUM=0
-           while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
+            POLL_INTERVAL_SECS=0.5
+            MAX_RETRIES=60
+            RETRY_NUM=0
+            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
                echo Waiting for TypeDB Cluster servers to start \\($(($RETRY_NUM / 2))s\\)...
@@ -78,24 +94,24 @@ def _rule_implementation(ctx):
                break
              fi
              sleep $POLL_INTERVAL_SECS
-           done
-           if [[ $STARTED1 -eq 0 || $STARTED2 -eq 0 || $STARTED3 -eq 0 ]]; then
+            done
+            if [[ $STARTED1 -eq 0 || $STARTED2 -eq 0 || $STARTED3 -eq 0 ]]; then
              echo Failed to start one or more TypeDB Cluster servers
              exit 1
-           fi
-           echo 3 TypeDB Cluster database servers started
+            fi
+            echo 3 TypeDB Cluster database servers started
 
            """
 
     cmd += "python3 -m unittest %s && export RESULT=0 || export RESULT=1" % test_src
     cmd += """
-           echo Tests concluded with exit value $RESULT
-           echo Stopping servers.
-           procs=$(jps | awk '/TypeDBNode/ {print $1}' | paste -sd " " -)
-           if [ -n "$procs" ]; then
+            echo Tests concluded with exit value $RESULT
+            echo Stopping servers.
+            procs=$(jps | awk '/TypeDBNode/ {print $1}' | paste -sd " " -)
+            if [ -n "$procs" ]; then
              kill $procs
-           fi
-           exit $RESULT
+            fi
+            exit $RESULT
            """
 
     # We want a test target so make it create an executable output.

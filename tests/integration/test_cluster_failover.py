@@ -42,6 +42,26 @@ class TestClusterFailover(TestCase):
                 client.databases().get("typedb").delete()
             client.databases().create("typedb")
 
+    @staticmethod
+    def server_start(index):
+        subprocess.Popen([
+            "./%s/typedb" % index, "cluster",
+            "--storage.data", "server/data",
+            "--server.address", "127.0.0.1:%s1729" % index,
+            "--server.internal-address.zeromq", "127.0.0.1:%s1730" % index,
+            "--server.internal-address.grpc", "127.0.0.1:%s1731" % index,
+            "--server.peers.peer-1.address", "127.0.0.1:11729",
+            "--server.peers.peer-1.internal-address.zeromq", "127.0.0.1:11730",
+            "--server.peers.peer-1.internal-address.grpc", "127.0.0.1:11731",
+            "--server.peers.peer-2.address", "127.0.0.1:21729",
+            "--server.peers.peer-2.internal-address.zeromq", "127.0.0.1:21730",
+            "--server.peers.peer-2.internal-address.grpc", "127.0.0.1:21731",
+            "--server.peers.peer-3.address", "127.0.0.1:31729",
+            "--server.peers.peer-3.internal-address.zeromq", "127.0.0.1:31730",
+            "--server.peers.peer-3.internal-address.grpc", "127.0.0.1:31731",
+            "--server.encryption.enable", "true"
+        ])
+
     def get_primary_replica(self, database_manager: ClusterDatabaseManager):
         retry_num = 0
         while retry_num < 10:
@@ -89,7 +109,7 @@ class TestClusterFailover(TestCase):
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]
-                subprocess.Popen(["./%s/typedb" % idx, "cluster", "--data", "server/data", "--address", "127.0.0.1:%s1729:%s1730:%s1731" % (idx, idx, idx), "--peer", "127.0.0.1:11729:11730:11731", "--peer", "127.0.0.1:21729:21730:21731", "--peer", "127.0.0.1:31729:31730:31731", "--encryption-enabled=true"])
+                self.server_start(idx)
                 lsof = None
                 live_check_iteration = 0
                 while not lsof and live_check_iteration < 60:
