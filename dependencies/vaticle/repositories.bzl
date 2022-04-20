@@ -32,12 +32,12 @@ def vaticle_typedb_common():
     git_repository(
         name = "vaticle_typedb_common",
         remote = "https://github.com/lolski/typedb-common",
-        commit = "5153edae6f35443d7b140fef3ed57de91211b32a", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_common
+        commit = "ed9296c29aad4516ac72eed7920db173697ae480", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_common
     )
 
 def vaticle_typedb_behaviour():
     git_repository(
         name = "vaticle_typedb_behaviour",
         remote = "https://github.com/lolski/typedb-behaviour",
-        commit = "c569039e3ab6d2de25b8479216dfa618fadac8bb", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_behaviour
+        commit = "b6f1b0fb7fdb16f6bf028a9766200443b821d1f7", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_behaviour
     )
