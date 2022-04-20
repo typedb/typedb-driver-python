@@ -44,72 +44,75 @@ def _rule_implementation(ctx):
 
     cmd = "set -e && TYPEDB_DISTRO=%s" % typedb_distro
     cmd += """
-
-           if test -d typedb_distribution; then
+            if test -d typedb_distribution; then
              echo Existing distribution detected. Cleaning.
              rm -rf typedb_distribution
-           fi
-           mkdir typedb_distribution
-           echo Attempting to unarchive TypeDB distribution from $TYPEDB_DISTRO
-           if [[ ${TYPEDB_DISTRO: -7} == ".tar.gz" ]]; then
+            fi
+            mkdir typedb_distribution
+            echo Attempting to unarchive TypeDB distribution from $TYPEDB_DISTRO
+            if [[ ${TYPEDB_DISTRO: -7} == ".tar.gz" ]]; then
              tar -xf $TYPEDB_DISTRO -C ./typedb_distribution
-           else
+            else
              if [[ ${TYPEDB_DISTRO: -4} == ".zip" ]]; then
                unzip -q $TYPEDB_DISTRO -d ./typedb_distribution
              else
                echo Supplied artifact file was not in a recognised format. Only .tar.gz and .zip artifacts are acceptable.
                exit 1
              fi
-           fi
-           DIRECTORY=$(ls ./typedb_distribution)
+            fi
+            DIRECTORY=$(ls ./typedb_distribution)
 
-           if [[ $TYPEDB_DISTRO == *"cluster"* ]]; then
+            if [[ $TYPEDB_DISTRO == *"cluster"* ]]; then
              PRODUCT=Cluster
-           else
+            else
              PRODUCT=Core
-           fi
+            fi
 
-           echo Successfully unarchived TypeDB $PRODUCT distribution.
+            echo Successfully unarchived TypeDB $PRODUCT distribution.
 
-           RND=20001
-           while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
-           do
+            RND=20001
+            while [ $RND -gt 20000 ]  # Guarantee fair distribution of random ports
+            do
              RND=$RANDOM
-           done
-           PORT=$((40000 + $RND))
+            done
+            PORT=$((40000 + $RND))
 
-           echo Starting TypeDB $PRODUCT Server.
-           mkdir ./typedb_distribution/"$DIRECTORY"/typedb_test
-           if [[ $PRODUCT == "Core" ]]; then
+            echo Starting TypeDB $PRODUCT Server.
+            mkdir ./typedb_distribution/"$DIRECTORY"/typedb_test
+            if [[ $PRODUCT == "Core" ]]; then
              ./typedb_distribution/"$DIRECTORY"/typedb server --server.address 0.0.0.0:$PORT --storage.data typedb_test &
-           else
-             ./typedb_distribution/"$DIRECTORY"/typedb cluster --address "127.0.0.1:$PORT:$(($PORT+1)):$(($PORT+2))" --data typedb_test --encryption-enabled=true &
-
-             ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/rpc-root-ca.pem`
+            else
+            ./typedb_distribution/"$DIRECTORY"/typedb cluster \
+                --server.address=127.0.0.1:$PORT \
+                --server.internal-address.zeromq=127.0.0.1:$(($PORT+1)) \
+                --server.internal-address.grpc=127.0.0.1:$(($PORT+2)) \
+                --storage.data=typedb_test \
+                --server.encryption.enable=true &
+             ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/ext-root-ca.pem`
              export ROOT_CA
-           fi
+            fi
 
-           POLL_INTERVAL_SECS=0.5
-           MAX_RETRIES=60
-           RETRY_NUM=0
-           while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
+            POLL_INTERVAL_SECS=0.5
+            MAX_RETRIES=60
+            RETRY_NUM=0
+            while [[ $RETRY_NUM -lt $MAX_RETRIES ]]; do
              RETRY_NUM=$(($RETRY_NUM + 1))
              if [[ $(($RETRY_NUM % 4)) -eq 0 ]]; then
-               echo Waiting for TypeDB $PRODUCT server to start \($(($RETRY_NUM / 2))s\)...
+               echo Waiting for TypeDB $PRODUCT server to start \\($(($RETRY_NUM / 2))s\\)...
              fi
              lsof -i :$PORT && STARTED=1 || STARTED=0
              if [[ $STARTED -eq 1 ]]; then
                break
              fi
              sleep $POLL_INTERVAL_SECS
-           done
-           if [[ $STARTED -eq 0 ]]; then
+            done
+            if [[ $STARTED -eq 0 ]]; then
              echo Failed to start TypeDB $PRODUCT server
              exit 1
-           fi
-           echo TypeDB $PRODUCT database server started
+            fi
+            echo TypeDB $PRODUCT database server started
 
-           """
+            """
     # TODO: If two step files have the same name, we should rename the second one to prevent conflict
     cmd += "cp %s %s" % (ctx.files.background[0].path, feats_dir)
     cmd += " && rm -rf " + steps_out_dir
