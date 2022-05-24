@@ -178,7 +178,7 @@ def step_impl(context: Context, type_label: str):
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get attribute owners explicitdo not contain")
+@step("attribute({type_label}) get attribute owners explicit do not contain")
 def step_impl(context: Context, type_label: str):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
