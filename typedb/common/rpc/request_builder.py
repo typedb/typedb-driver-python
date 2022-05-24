@@ -462,6 +462,20 @@ def thing_type_get_plays_req(label: Label):
     return type_req(req, label)
 
 
+def thing_type_get_plays_explicit_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_get_plays_explicit_req.CopyFrom(concept_proto.ThingType.GetPlaysExplicit.Req())
+    return type_req(req, label)
+
+
+def thing_type_get_plays_overridden(label: Label, role_type: concept_proto.Type):
+    req = concept_proto.Type.Req()
+    get_plays_overridden_req = concept_proto.Type.GetPlaysOverridden.Req()
+    get_plays_overridden_req.role_type = role_type
+    req.thing_type_get_plays_overridden_req.CopyFrom(get_plays_overridden_req)
+    return type_req(req, label)
+
+
 def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type, overridden_role_type: concept_proto.Type = None):
     req = concept_proto.Type.Req()
     set_plays_req = concept_proto.ThingType.SetPlays.Req()
@@ -487,6 +501,24 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
     if value_type:
         get_owns_req.value_type = value_type
     req.thing_type_get_owns_req.CopyFrom(get_owns_req)
+    return type_req(req, label)
+
+
+def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None, keys_only: bool = False):
+    req = concept_proto.Type.Req()
+    get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
+    get_owns_explicit_req.keys_only = keys_only
+    if value_type:
+        get_owns_explicit_req.value_type = value_type
+    req.thing_type_get_owns_explicit_req.CopyFrom(get_owns_explicit_req)
+    return type_req(req, label)
+
+
+def thing_type_get_owns_overridden_req(label: Label, attribute_type: concept_proto.Type):
+    req = concept_proto.Type.Req()
+    get_owns_overridden_req = concept_proto.ThingType.GetOwnsOverridden.Req()
+    get_owns_overridden_req.attribute_type = attribute_type
+    req.thing_type_get_owns_overridden_req.CopyFrom(get_owns_overridden_req)
     return type_req(req, label)
 
 
@@ -544,6 +576,19 @@ def relation_type_get_relates_req(label: Label, role_label: str = None):
     return type_req(req, label)
 
 
+def relation_type_get_relates_explicit_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.relation_type_get_relates_explicit_req.CopyFrom(concept_proto.RelationType.GetRelatesExplicit.Req())
+    return type_req(req, label)
+
+def relation_type_get_relates_overridden_req(label: Label, role_label: str):
+    type_req = concept_proto.Type.Req()
+    get_relates_overridden_req = concept_proto.RelationType.GetRelatesOverridden.Req()
+    get_relates_overridden_req.label = role_label
+    type_req.relation_type_gets_relates_overridden_req.CopyFrom(get_relates_overridden_req)
+    return type_req(type_req, label)
+
+
 def relation_type_set_relates_req(label: Label, role_label: str, overridden_label: str = None):
     req = concept_proto.Type.Req()
     set_relates_req = concept_proto.RelationType.SetRelates.Req()
@@ -569,6 +614,14 @@ def attribute_type_get_owners_req(label: Label, only_key: bool = False):
     get_owners_req = concept_proto.AttributeType.GetOwners.Req()
     get_owners_req.only_key = only_key
     req.attribute_type_get_owners_req.CopyFrom(get_owners_req)
+    return type_req(req, label)
+
+
+def attribute_type_get_owners_explicit_req(label: Label, only_key: bool = False):
+    req = concept_proto.Type.Req()
+    get_owners_explicit_req = concept_proto.AttributeType.GetOwnersExplicit.Req()
+    get_owners_explicit_req.only_key = only_key
+    req.attribute_type_get_owners_explicit_req.CopyFrom(get_owners_explicit_req)
     return type_req(req, label)
 
 

@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Union
 
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.type import Type, RemoteType
@@ -75,11 +75,27 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_plays(self) -> Iterator[RoleType]:
+    def get_plays(self) -> Iterator["RoleType"]:
+        pass
+
+    @abstractmethod
+    def get_plays_explicit(self) -> Iterator["RoleType"]:
+        pass
+
+    @abstractmethod
+    def get_plays_overridden(self, role_type: "RoleType") -> Union[None, "RoleType"]:
         pass
 
     @abstractmethod
     def get_owns(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Iterator["AttributeType"]:
+        pass
+
+    @abstractmethod
+    def get_owns_explicit(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Iterator["AttributeType"]:
+        pass
+
+    @abstractmethod
+    def get_owns_overridden(self, attribute_type: "AttributeType") -> Union[None, "AttributeType"]:
         pass
 
     @abstractmethod

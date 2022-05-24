@@ -117,6 +117,10 @@ class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
         pass
 
     @abstractmethod
+    def get_owners_explicit(self, only_key: bool = False) -> Iterator[ThingType]:
+        pass
+
+    @abstractmethod
     def as_boolean(self) -> "RemoteBooleanAttributeType":
         pass
 
