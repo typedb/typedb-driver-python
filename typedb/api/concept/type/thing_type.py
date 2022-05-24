@@ -19,11 +19,11 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator, Union, Optional
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.type import Type, RemoteType
 from typedb.api.concept.type.role_type import RoleType
+from typedb.api.concept.type.type import Type, RemoteType
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType

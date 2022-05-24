@@ -65,7 +65,8 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
         self.execute(thing_type_unset_abstract_req(self.get_label()))
 
     def set_plays(self, role_type: RoleType, overridden_role_type: RoleType = None):
-        self.execute(thing_type_set_plays_req(self.get_label(), concept_proto_builder.role_type(role_type), concept_proto_builder.role_type(overridden_role_type)))
+        self.execute(thing_type_set_plays_req(self.get_label(), concept_proto_builder.role_type(role_type),
+                                              concept_proto_builder.role_type(overridden_role_type)))
 
     def unset_plays(self, role_type: RoleType):
         self.execute(thing_type_unset_plays_req(self.get_label(), concept_proto_builder.role_type(role_type)))
@@ -80,24 +81,27 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
 
     def get_plays_overridden(self, role_type: "RoleType"):
         res = self.execute(thing_type_get_plays_overridden(
-            self.get_label(),concept_proto_builder.role_type(role_type)
+            self.get_label(), concept_proto_builder.role_type(role_type)
         )).thing_type_get_plays_overridden_res
         return concept_proto_reader.type_(res.role_type) if res.HasField("role_type") else None
 
     def set_owns(self, attribute_type: AttributeType, overridden_type: AttributeType = None, is_key: bool = False):
-        self.execute(thing_type_set_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type), concept_proto_builder.thing_type(overridden_type), is_key))
+        self.execute(thing_type_set_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type),
+                                             concept_proto_builder.thing_type(overridden_type), is_key))
 
     def unset_owns(self, attribute_type: AttributeType):
         self.execute(thing_type_unset_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type)))
 
     def get_owns(self, value_type: AttributeType.ValueType = None, keys_only: bool = False):
         return (concept_proto_reader.type_(t)
-                for rp in self.stream(thing_type_get_owns_req(self.get_label(), value_type.proto() if value_type else None, keys_only))
+                for rp in self.stream(
+            thing_type_get_owns_req(self.get_label(), value_type.proto() if value_type else None, keys_only))
                 for t in rp.thing_type_get_owns_res_part.attribute_types)
 
     def get_owns_explicit(self, value_type: AttributeType.ValueType = None, keys_only: bool = False):
         return (concept_proto_reader.type_(t)
-                for rp in self.stream(thing_type_get_owns_explicit_req(self.get_label(), value_type.proto() if value_type else None, keys_only))
+                for rp in self.stream(
+            thing_type_get_owns_explicit_req(self.get_label(), value_type.proto() if value_type else None, keys_only))
                 for t in rp.thing_type_get_owns_explicit_res_part.attribute_types)
 
     def get_owns_overridden(self, attribute_type: "AttributeType"):

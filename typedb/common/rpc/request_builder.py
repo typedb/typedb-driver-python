@@ -82,6 +82,7 @@ def cluster_database_manager_get_req(name: str):
     req.name = name
     return req
 
+
 def cluster_database_manager_all_req():
     return cluster_database_proto.ClusterDatabaseManager.All.Req()
 
@@ -91,11 +92,13 @@ def cluster_database_manager_all_req():
 def cluster_user_manager_all_req():
     return cluster_user_proto.ClusterUserManager.All.Req()
 
+
 def cluster_user_manager_create_req(username: str, password: str):
     req = cluster_user_proto.ClusterUserManager.Create.Req()
     req.username = username
     req.password = password
     return req
+
 
 def cluster_user_manager_contains_req(username: str):
     req = cluster_user_proto.ClusterUserManager.Contains.Req()
@@ -111,10 +114,12 @@ def cluster_user_password_req(username: str, password: str):
     req.password = password
     return req
 
+
 def cluster_user_token_req(username: str):
     req = cluster_user_proto.ClusterUser.Token.Req()
     req.username = username
     return req
+
 
 def cluster_user_delete_req(username: str):
     req = cluster_user_proto.ClusterUser.Delete.Req()
@@ -471,12 +476,13 @@ def thing_type_get_plays_explicit_req(label: Label):
 def thing_type_get_plays_overridden(label: Label, role_type: concept_proto.Type):
     req = concept_proto.Type.Req()
     get_plays_overridden_req = concept_proto.Type.GetPlaysOverridden.Req()
-    get_plays_overridden_req.role_type = role_type
+    get_plays_overridden_req.role_type.CopyFrom(role_type)
     req.thing_type_get_plays_overridden_req.CopyFrom(get_plays_overridden_req)
     return type_req(req, label)
 
 
-def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type, overridden_role_type: concept_proto.Type = None):
+def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type,
+                             overridden_role_type: concept_proto.Type = None):
     req = concept_proto.Type.Req()
     set_plays_req = concept_proto.ThingType.SetPlays.Req()
     set_plays_req.role_type.CopyFrom(role_type)
@@ -494,7 +500,8 @@ def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
     return type_req(req, label)
 
 
-def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None, keys_only: bool = False):
+def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+                            keys_only: bool = False):
     req = concept_proto.Type.Req()
     get_owns_req = concept_proto.ThingType.GetOwns.Req()
     get_owns_req.keys_only = keys_only
@@ -504,7 +511,8 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
     return type_req(req, label)
 
 
-def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None, keys_only: bool = False):
+def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+                                     keys_only: bool = False):
     req = concept_proto.Type.Req()
     get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
     get_owns_explicit_req.keys_only = keys_only
@@ -522,7 +530,8 @@ def thing_type_get_owns_overridden_req(label: Label, attribute_type: concept_pro
     return type_req(req, label)
 
 
-def thing_type_set_owns_req(label: Label, attribute_type: concept_proto.Type, overridden_type: concept_proto.Type = None, is_key: bool = False):
+def thing_type_set_owns_req(label: Label, attribute_type: concept_proto.Type,
+                            overridden_type: concept_proto.Type = None, is_key: bool = False):
     req = concept_proto.Type.Req()
     set_owns_req = concept_proto.ThingType.SetOwns.Req()
     set_owns_req.attribute_type.CopyFrom(attribute_type)
@@ -581,12 +590,13 @@ def relation_type_get_relates_explicit_req(label: Label):
     req.relation_type_get_relates_explicit_req.CopyFrom(concept_proto.RelationType.GetRelatesExplicit.Req())
     return type_req(req, label)
 
+
 def relation_type_get_relates_overridden_req(label: Label, role_label: str):
-    type_req = concept_proto.Type.Req()
+    req = concept_proto.Type.Req()
     get_relates_overridden_req = concept_proto.RelationType.GetRelatesOverridden.Req()
     get_relates_overridden_req.label = role_label
-    type_req.relation_type_gets_relates_overridden_req.CopyFrom(get_relates_overridden_req)
-    return type_req(type_req, label)
+    req.relation_type_gets_relates_overridden_req.CopyFrom(get_relates_overridden_req)
+    return req(req, label)
 
 
 def relation_type_set_relates_req(label: Label, role_label: str, overridden_label: str = None):
