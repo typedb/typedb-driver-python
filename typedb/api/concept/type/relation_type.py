@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator, Union
+from typing import TYPE_CHECKING, Iterator, Union, Optional
 
 from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.type.role_type import RoleType
@@ -58,7 +58,7 @@ class RemoteRelationType(RemoteThingType, RelationType, ABC):
         pass
 
     @abstractmethod
-    def get_relates_overridden(self, role_label: str) -> Union[None, "RoleType"]:
+    def get_relates_overridden(self, role_label: str) -> Optional["RoleType"]:
         pass
 
     @abstractmethod

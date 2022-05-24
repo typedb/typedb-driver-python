@@ -18,12 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterator
 
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType, RemoteThingType
-from typedb.common.label import Label
 from typedb.common.rpc.request_builder import thing_type_set_supertype_req, thing_type_get_instances_req, \
     thing_type_set_abstract_req, thing_type_unset_abstract_req, thing_type_set_plays_req, thing_type_set_owns_req, \
     thing_type_get_plays_req, thing_type_get_owns_req, thing_type_unset_plays_req, thing_type_unset_owns_req, \

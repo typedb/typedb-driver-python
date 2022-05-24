@@ -18,11 +18,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterator, TYPE_CHECKING, Union
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
-from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.type.relation_type import RelationType, RemoteRelationType
 from typedb.common.label import Label
 from typedb.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
