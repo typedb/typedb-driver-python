@@ -465,9 +465,9 @@ def thing_type_get_plays_req(label: Label):
 def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type, overridden_role_type: concept_proto.Type = None):
     req = concept_proto.Type.Req()
     set_plays_req = concept_proto.ThingType.SetPlays.Req()
-    set_plays_req.role.CopyFrom(role_type)
+    set_plays_req.role_type.CopyFrom(role_type)
     if overridden_role_type:
-        set_plays_req.overridden_role.CopyFrom(overridden_role_type)
+        set_plays_req.overridden_type.CopyFrom(overridden_role_type)
     req.thing_type_set_plays_req.CopyFrom(set_plays_req)
     return type_req(req, label)
 
@@ -475,7 +475,7 @@ def thing_type_set_plays_req(label: Label, role_type: concept_proto.Type, overri
 def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
     req = concept_proto.Type.Req()
     unset_plays_req = concept_proto.ThingType.UnsetPlays.Req()
-    unset_plays_req.role.CopyFrom(role_type)
+    unset_plays_req.role_type.CopyFrom(role_type)
     req.thing_type_unset_plays_req.CopyFrom(unset_plays_req)
     return type_req(req, label)
 

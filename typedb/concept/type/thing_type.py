@@ -72,7 +72,7 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
 
     def get_plays(self):
         return (concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_plays_req(self.get_label()))
-                for t in rp.thing_type_get_plays_res_part.roles)
+                for t in rp.thing_type_get_plays_res_part.role_types)
 
     def get_owns(self, value_type: AttributeType.ValueType = None, keys_only: bool = False):
         return (concept_proto_reader.type_(t) for rp in self.stream(thing_type_get_owns_req(self.get_label(), value_type.proto() if value_type else None, keys_only))

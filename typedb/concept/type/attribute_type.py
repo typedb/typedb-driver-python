@@ -102,7 +102,7 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
 
     def get_owners(self, only_key: bool = False):
         return (concept_proto_reader.thing_type(tt) for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
-                for tt in rp.attribute_type_get_owners_res_part.owners)
+                for tt in rp.attribute_type_get_owners_res_part.thing_types)
 
     def put_internal(self, proto_value: concept_proto.Attribute.Value):
         res = self.execute(attribute_type_put_req(self.get_label(), proto_value)).attribute_type_put_res

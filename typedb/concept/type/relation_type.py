@@ -62,7 +62,7 @@ class _RemoteRelationType(_RemoteThingType, RemoteRelationType):
             return _RoleType.of(res.role_type) if res.HasField("role_type") else None
         else:
             return (_RoleType.of(rt) for rp in self.stream(relation_type_get_relates_req(self.get_label()))
-                    for rt in rp.relation_type_get_relates_res_part.roles)
+                    for rt in rp.relation_type_get_relates_res_part.role_types)
 
     def set_relates(self, role_label: str, overridden_label: str = None):
         self.execute(relation_type_set_relates_req(self.get_label(), role_label, overridden_label))
