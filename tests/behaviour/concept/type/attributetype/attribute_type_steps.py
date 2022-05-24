@@ -34,12 +34,14 @@ def step_impl(context: Context, type_label: str, value_type: str):
 
 @step("attribute({type_label}) get value type: {value_type}")
 def step_impl(context: Context, type_label: str, value_type: str):
-    assert_that(context.tx().concepts().get_attribute_type(type_label).get_value_type(), is_(parse_value_type(value_type)))
+    assert_that(context.tx().concepts().get_attribute_type(type_label).get_value_type(),
+                is_(parse_value_type(value_type)))
 
 
 @step("attribute({type_label}) get supertype value type: {value_type}")
 def step_impl(context: Context, type_label: str, value_type: str):
-    supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_supertype().as_attribute_type()
+    supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(
+        context.tx()).get_supertype().as_attribute_type()
     assert_that(supertype.get_value_type(), is_(parse_value_type(value_type)))
 
 
@@ -129,6 +131,26 @@ def step_impl(context: Context, type_label: str):
         assert_that(actuals, not_(has_item(owner_label)))
 
 
+@step("attribute({type_label}) get key owners explicit contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(
+        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
+    for owner_label in owner_labels:
+        assert_that(actuals, has_item(owner_label))
+
+
+@step("attribute({type_label}) get key owners explicit do not contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(
+        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
+    for owner_label in owner_labels:
+        assert_that(actuals, not_(has_item(owner_label)))
+
+
 @step("attribute({type_label}) get attribute owners contain")
 def step_impl(context: Context, type_label: str):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
@@ -143,5 +165,23 @@ def step_impl(context: Context, type_label: str):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
+    for owner_label in owner_labels:
+        assert_that(actuals, not_(has_item(owner_label)))
+
+
+@step("attribute({type_label}) get attribute owners explicit contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
+    for owner_label in owner_labels:
+        assert_that(actuals, has_item(owner_label))
+
+
+@step("attribute({type_label}) get attribute owners explicitdo not contain")
+def step_impl(context: Context, type_label: str):
+    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
