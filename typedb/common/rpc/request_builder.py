@@ -595,8 +595,8 @@ def relation_type_get_relates_overridden_req(label: Label, role_label: str):
     req = concept_proto.Type.Req()
     get_relates_overridden_req = concept_proto.RelationType.GetRelatesOverridden.Req()
     get_relates_overridden_req.label = role_label
-    req.relation_type_gets_relates_overridden.CopyFrom(get_relates_overridden_req)
-    return req(req, label)
+    req.relation_type_get_relates_overridden_req.CopyFrom(get_relates_overridden_req)
+    return type_req(req, label)
 
 
 def relation_type_set_relates_req(label: Label, role_label: str, overridden_label: str = None):
