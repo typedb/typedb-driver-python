@@ -525,7 +525,7 @@ def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.Att
 def thing_type_get_owns_overridden_req(label: Label, attribute_type: concept_proto.Type):
     req = concept_proto.Type.Req()
     get_owns_overridden_req = concept_proto.ThingType.GetOwnsOverridden.Req()
-    get_owns_overridden_req.attribute_type = attribute_type
+    get_owns_overridden_req.attribute_type.CopyFrom(attribute_type)
     req.thing_type_get_owns_overridden_req.CopyFrom(get_owns_overridden_req)
     return type_req(req, label)
 
