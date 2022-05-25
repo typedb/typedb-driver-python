@@ -343,17 +343,17 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
         assert_that(actuals, not_(has_item(attribute_label)))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns overridden attribute({attr_type_label}) is null: {is_null}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, attr_type_label: str, is_null):
+@step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) is null: {is_null}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, is_null):
     is_null = parse_bool(is_null)
     attribute_type = context.tx().concepts().get_attribute_type(attr_type_label)
-    assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_overridden(attribute_type) is None, is_(is_null))
+    assert_that(context.get_thing_type(root_label, type_label.name()).as_remote(context.tx()).get_owns_overridden(attribute_type) is None, is_(is_null))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns overridden attribute({attr_type_label}) get label: {label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, attr_type_label: str, label: str):
+@step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) get label: {label}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, label: str):
     attribute_type = context.tx().concepts().get_attribute_type(attr_type_label)
-    assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_overridden(attribute_type).get_label().name(), is_(label))
+    assert_that(context.get_thing_type(root_label, type_label.name()).as_remote(context.tx()).get_owns_overridden(attribute_type).get_label().name(), is_(label))
 
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}; throws exception")
