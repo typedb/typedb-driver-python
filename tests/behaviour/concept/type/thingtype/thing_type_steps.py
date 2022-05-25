@@ -22,7 +22,7 @@
 from behave import *
 from hamcrest import *
 
-from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_label
+from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_scoped_label
 from tests.behaviour.context import Context
 from typedb.client import *
 
@@ -62,7 +62,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, new_labe
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_label(new_label)
 
 
-@step("{root_label:RootLabel}({type_label}) get label: {get_label}")
+@step("{root_label:RootLabel}({type_label:Label}) get label: {get_label}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, get_label: str):
     assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_label().name(), is_(get_label))
 
@@ -147,7 +147,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, super_la
 
 @step("{root_label:RootLabel}({type_label}) get supertypes contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    super_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(actuals, has_item(super_label))
@@ -155,7 +155,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get supertypes do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    super_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(actuals, not_(has_item(super_label)))
@@ -163,7 +163,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get subtypes contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
         assert_that(actuals, has_item(sub_label))
@@ -171,7 +171,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get subtypes do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
         assert_that(actuals, not_(has_item(sub_label)))
@@ -235,7 +235,7 @@ def get_actual_owns_key_types(context: Context, root_label: RootLabel, type_labe
 
 @step("{root_label:RootLabel}({type_label}) get owns key types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
@@ -243,7 +243,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get owns key types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
@@ -255,7 +255,7 @@ def get_actual_owns_explicit_key_types(context: Context, root_label: RootLabel, 
 
 @step("{root_label:RootLabel}({type_label}) get owns explicit key types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
@@ -263,7 +263,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get owns explicit key types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
@@ -309,7 +309,7 @@ def get_actual_owns(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
@@ -317,7 +317,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
@@ -329,7 +329,7 @@ def get_actual_owns_explicit(context: Context, root_label: RootLabel, type_label
 
 @step("{root_label:RootLabel}({type_label}) get owns explicit attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_explicit(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
@@ -337,7 +337,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get owns explicit attribute types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    attribute_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_owns_explicit(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
@@ -412,7 +412,7 @@ def get_actual_plays(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get playing roles contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    role_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_plays(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, is_in(actuals))
@@ -420,7 +420,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get playing roles do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    role_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_plays(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, not_(is_in(actuals)))
@@ -432,7 +432,7 @@ def get_actual_plays_explicit(context: Context, root_label: RootLabel, type_labe
 
 @step("{root_label:RootLabel}({type_label}) get playing roles explicit contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    role_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_plays_explicit(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, is_in(actuals))
@@ -440,7 +440,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("{root_label:RootLabel}({type_label}) get playing roles explicit do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    role_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = get_actual_plays_explicit(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, not_(is_in(actuals)))
@@ -448,7 +448,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 @step("thing type root get supertypes contain")
 def step_impl(context: Context):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    super_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(super_label, is_in(actuals))
@@ -456,7 +456,7 @@ def step_impl(context: Context):
 
 @step("thing type root get supertypes do not contain")
 def step_impl(context: Context):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
+    super_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_supertypes()]
     for super_label in super_labels:
         assert_that(super_label, not_(is_in(actuals)))
@@ -464,7 +464,7 @@ def step_impl(context: Context):
 
 @step("thing type root get subtypes contain")
 def step_impl(context: Context):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
         assert_that(sub_label, is_in(actuals))
@@ -472,7 +472,7 @@ def step_impl(context: Context):
 
 @step("thing type root get subtypes do not contain")
 def step_impl(context: Context):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     actuals = [t.get_label() for t in context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_subtypes()]
     for sub_label in sub_labels:
         assert_that(sub_label, not_(is_in(actuals)))

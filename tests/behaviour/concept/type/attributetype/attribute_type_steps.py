@@ -23,7 +23,7 @@ from behave import *
 from hamcrest import *
 
 from typedb.client import *
-from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
+from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_scoped_label
 from tests.behaviour.context import Context
 
 
@@ -65,7 +65,7 @@ def attribute_type_as_value_type(context: Context, type_label: str, value_type: 
 
 @step("attribute({type_label}) as({value_type}) get subtypes contain")
 def step_impl(context: Context, type_label: str, value_type: str):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
     for sub_label in sub_labels:
@@ -74,7 +74,7 @@ def step_impl(context: Context, type_label: str, value_type: str):
 
 @step("attribute({type_label}) as({value_type}) get subtypes do not contain")
 def step_impl(context: Context, type_label: str, value_type: str):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
+    sub_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
     for sub_label in sub_labels:
@@ -115,7 +115,7 @@ def step_impl(context: Context, type_label: str, value_type):
 
 @step("attribute({type_label}) get key owners contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
     for owner_label in owner_labels:
@@ -124,7 +124,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get key owners do not contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
     for owner_label in owner_labels:
@@ -133,7 +133,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get key owners explicit contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
@@ -143,7 +143,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get key owners explicit do not contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
@@ -153,7 +153,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get attribute owners contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
     for owner_label in owner_labels:
@@ -162,7 +162,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get attribute owners do not contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
     for owner_label in owner_labels:
@@ -171,7 +171,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get attribute owners explicit contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
     for owner_label in owner_labels:
@@ -180,7 +180,7 @@ def step_impl(context: Context, type_label: str):
 
 @step("attribute({type_label}) get attribute owners explicit do not contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
+    owner_labels = [parse_scoped_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
     for owner_label in owner_labels:

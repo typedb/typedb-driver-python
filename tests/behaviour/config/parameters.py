@@ -85,12 +85,20 @@ register_type(RootLabel=parse_root_label)
 
 
 @parse.with_pattern(r"[a-zA-Z0-9-_]+:[a-zA-Z0-9-_]+")
-def parse_label(text: str) -> Label:
+def parse_scoped_label(text: str) -> Label:
     fragments = text.split(":")
     return Label.of(*fragments) if len(fragments) == 2 else Label.of(fragments[0])
 
 
-register_type(ScopedLabel=parse_label)
+register_type(ScopedLabel=parse_scoped_label)
+
+
+@parse.with_pattern(r"[a-zA-Z0-9]+")
+def parse_label(text: str):
+    return text
+
+
+register_type(Label=parse_label)
 
 
 @parse.with_pattern(r"\$([a-zA-Z0-9]+)")
