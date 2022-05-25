@@ -22,9 +22,9 @@
 from behave import *
 from hamcrest import *
 
-from typedb.client import *
 from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_label
 from tests.behaviour.context import Context
+from typedb.client import *
 
 
 @step("put {root_label:RootLabel} type: {type_label}")
@@ -51,10 +51,10 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).delete()
 
 
-@step("{root_label:RootLabel}({type_label}) is null: {is_null}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, is_null):
+@step("{root_label:RootLabel}({type_label:Label}) is null: {is_null}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, is_null):
     is_null = parse_bool(is_null)
-    assert_that(context.get_thing_type(root_label, type_label) is None, is_(is_null))
+    assert_that(context.get_thing_type(root_label, type_label.name()) is None, is_(is_null))
 
 
 @step("{root_label:RootLabel}({type_label}) set label: {new_label}")
@@ -62,9 +62,9 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, new_labe
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_label(new_label)
 
 
-@step("{root_label:RootLabel}({type_label}) get label: {get_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, get_label: str):
-    assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_label().name(), is_(get_label))
+@step("{root_label:RootLabel}({type_label:Label}) get label: {get_label}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, get_label: str):
+    assert_that(context.get_thing_type(root_label, type_label.name()).as_remote(context.tx()).get_label().name(), is_(get_label))
 
 
 @step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}; throws exception")
@@ -229,10 +229,14 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).unset_owns(attribute_type)
 
 
+def get_actual_owns_key_types(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
+
+
 @step("{root_label:RootLabel}({type_label}) get owns key types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
+    actuals = get_actual_owns_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
@@ -240,7 +244,27 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 @step("{root_label:RootLabel}({type_label}) get owns key types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
+    actuals = get_actual_owns_key_types(context, root_label, type_label)
+    for attribute_label in attribute_labels:
+        assert_that(actuals, not_(has_item(attribute_label)))
+
+
+def get_actual_owns_explicit_key_types(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_explicit(keys_only=True)]
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit key types contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
+    for attribute_label in attribute_labels:
+        assert_that(actuals, has_item(attribute_label))
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit key types do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
 
@@ -279,10 +303,14 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type)
 
 
+def get_actual_owns(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
+
+
 @step("{root_label:RootLabel}({type_label}) get owns attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
+    actuals = get_actual_owns(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
@@ -290,9 +318,42 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 @step("{root_label:RootLabel}({type_label}) get owns attribute types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
+    actuals = get_actual_owns(context, root_label, type_label)
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
+
+
+def get_actual_owns_explicit(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_explicit()]
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_owns_explicit(context, root_label, type_label)
+    for attribute_label in attribute_labels:
+        assert_that(actuals, has_item(attribute_label))
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_owns_explicit(context, root_label, type_label)
+    for attribute_label in attribute_labels:
+        assert_that(actuals, not_(has_item(attribute_label)))
+
+
+@step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) is null: {is_null}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, is_null):
+    is_null = parse_bool(is_null)
+    attribute_type = context.tx().concepts().get_attribute_type(attr_type_label)
+    assert_that(context.get_thing_type(root_label, type_label.name()).as_remote(context.tx()).get_owns_overridden(attribute_type) is None, is_(is_null))
+
+
+@step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) get label: {label}")
+def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, label: str):
+    attribute_type = context.tx().concepts().get_attribute_type(attr_type_label)
+    assert_that(context.get_thing_type(root_label, type_label.name()).as_remote(context.tx()).get_owns_overridden(attribute_type).get_label().name(), is_(label))
 
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}; throws exception")
@@ -345,10 +406,14 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).unset_plays(role_type)
 
 
+def get_actual_plays(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()]
+
+
 @step("{root_label:RootLabel}({type_label}) get playing roles contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     role_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()]
+    actuals = get_actual_plays(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, is_in(actuals))
 
@@ -356,7 +421,27 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 @step("{root_label:RootLabel}({type_label}) get playing roles do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
     role_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays()]
+    actuals = get_actual_plays(context, root_label, type_label)
+    for role_label in role_labels:
+        assert_that(role_label, not_(is_in(actuals)))
+
+
+def get_actual_plays_explicit(context: Context, root_label: RootLabel, type_label: str):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_plays_explicit()]
+
+
+@step("{root_label:RootLabel}({type_label}) get playing roles explicit contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_plays_explicit(context, root_label, type_label)
+    for role_label in role_labels:
+        assert_that(role_label, is_in(actuals))
+
+
+@step("{root_label:RootLabel}({type_label}) get playing roles explicit do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    role_labels = [parse_label(s) for s in parse_list(context.table)]
+    actuals = get_actual_plays_explicit(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, not_(is_in(actuals)))
 

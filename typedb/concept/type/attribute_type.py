@@ -31,7 +31,8 @@ from typedb.api.concept.type.attribute_type import AttributeType, RemoteAttribut
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 from typedb.common.label import Label
 from typedb.common.rpc.request_builder import attribute_type_get_owners_req, attribute_type_put_req, \
-    attribute_type_get_req, attribute_type_get_regex_req, attribute_type_set_regex_req
+    attribute_type_get_req, attribute_type_get_regex_req, attribute_type_set_regex_req, \
+    attribute_type_get_owners_explicit_req
 from typedb.concept.proto import concept_proto_builder, concept_proto_reader
 from typedb.concept.type.thing_type import _ThingType, _RemoteThingType
 
@@ -101,8 +102,14 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
             return stream
 
     def get_owners(self, only_key: bool = False):
-        return (concept_proto_reader.thing_type(tt) for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
-                for tt in rp.attribute_type_get_owners_res_part.owners)
+        return (concept_proto_reader.thing_type(tt)
+                for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
+                for tt in rp.attribute_type_get_owners_res_part.thing_types)
+
+    def get_owners_explicit(self, only_key: bool = False):
+        return (concept_proto_reader.thing_type(tt)
+                for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), only_key))
+                for tt in rp.attribute_type_get_owners_explicit_res_part.thing_types)
 
     def put_internal(self, proto_value: concept_proto.Attribute.Value):
         res = self.execute(attribute_type_put_req(self.get_label(), proto_value)).attribute_type_put_res

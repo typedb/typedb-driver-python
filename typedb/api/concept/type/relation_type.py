@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator, Union
+from typing import TYPE_CHECKING, Iterator, Union, Optional
 
 from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.type.role_type import RoleType
@@ -50,7 +50,15 @@ class RemoteRelationType(RemoteThingType, RelationType, ABC):
         pass
 
     @abstractmethod
-    def get_relates(self, role_label: str = None) -> Union[RoleType, Iterator[RoleType]]:
+    def get_relates(self, role_label: str = None) -> Union["RoleType", Iterator["RoleType"]]:
+        pass
+
+    @abstractmethod
+    def get_relates_explicit(self) -> Iterator["RoleType"]:
+        pass
+
+    @abstractmethod
+    def get_relates_overridden(self, role_label: str) -> Optional["RoleType"]:
         pass
 
     @abstractmethod
@@ -62,9 +70,9 @@ class RemoteRelationType(RemoteThingType, RelationType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Iterator[RelationType]:
+    def get_subtypes(self) -> Iterator["RelationType"]:
         pass
 
     @abstractmethod
-    def set_supertype(self, relation_type: RelationType) -> None:
+    def set_supertype(self, relation_type: "RelationType") -> None:
         pass
