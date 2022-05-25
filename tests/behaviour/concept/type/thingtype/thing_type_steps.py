@@ -51,7 +51,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).delete()
 
 
-@step("{root_label:RootLabel}({type_label}) is null: {is_null}")
+@step("{root_label:RootLabel}({type_label:Label}) is null: {is_null}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, is_null):
     is_null = parse_bool(is_null)
     assert_that(context.get_thing_type(root_label, type_label) is None, is_(is_null))
