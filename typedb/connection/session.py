@@ -54,7 +54,7 @@ class _TypeDBSessionImpl(TypeDBSession):
         start_time = time.time() * 1000.0
         res = self._stub().session_open(session_open_req(database, session_type.proto(), options.proto()))
         end_time = time.time() * 1000.0
-        self._network_latency_millis = int(end_time - start_time - res.server_duration_millis)
+        self._network_latency_millis = max(int(end_time - start_time), 1)
         self._session_id = res.session_id
         self._is_open = AtomicBoolean(True)
 
