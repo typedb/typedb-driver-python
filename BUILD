@@ -48,11 +48,22 @@ py_library(
 checkstyle_test(
     name = "checkstyle",
     include = glob([
-        "*",
+        ".bazelrc",
+        ".gitignore",
+        "BUILD",
+        "deployment.bzl",
+        "WORKSPACE",
         ".grabl/*",
         "typedb/**/*",
     ]),
-    license_type = "apache",
+    license_type = "apache-header",
+    size = "small",
+)
+
+checkstyle_test(
+    name = "checkstyle-license",
+    include = ["LICENSE"],
+    license_type = "apache-fulltext",
     size = "small",
 )
 
