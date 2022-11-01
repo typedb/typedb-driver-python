@@ -49,4 +49,3 @@ class _CoreClient(_TypeDBClientImpl):
 
     def close(self) -> None:
         super().close()
-        self._channel.close()

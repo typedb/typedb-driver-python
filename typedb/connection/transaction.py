@@ -101,7 +101,6 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
 
     def close(self):
         self._bidirectional_stream.close()
-        self._channel.close()
 
     def __enter__(self):
         return self

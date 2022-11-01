@@ -63,7 +63,6 @@ class _ClusterServerClient(_TypeDBClientImpl):
 
     def close(self) -> None:
         super().close()
-        self._channel.close()
 
 
 class _CredentialAuth(grpc.AuthMetadataPlugin):
