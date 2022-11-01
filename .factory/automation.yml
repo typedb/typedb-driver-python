@@ -160,7 +160,7 @@ build:
         .factory/test-cluster.sh //tests/behaviour/typeql/language/define/... --test_output=errors
         .factory/test-cluster.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-failover-cluster:
-      machine: 4-core-8-gb
+      machine: 4-core-16-gb
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
