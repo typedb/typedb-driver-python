@@ -65,7 +65,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-core.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
+        .factory/test-core.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
 #    test-behaviour-connection-cluster:
 #      image: vaticle-ubuntu-21.04
 #      type: foreground
@@ -80,7 +80,7 @@ build:
 #        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
 #        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
 #        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-#        .grabl/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
+#        .factory/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-concept-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -95,7 +95,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-core.sh //tests/behaviour/concept/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/concept/... --test_output=errors
     test-behaviour-concept-cluster:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -110,7 +110,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-cluster.sh //tests/behaviour/concept/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/concept/... --test_output=errors
     test-behaviour-match-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -125,8 +125,8 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
-        .grabl/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
 #    test-behaviour-match-cluster:
 #      image: vaticle-ubuntu-21.04
 #      type: foreground
@@ -141,8 +141,8 @@ build:
 #        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
 #        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
 #        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-#        .grabl/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
-#        .grabl/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
+#        .factory/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
+#        .factory/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-writable-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -157,9 +157,9 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-core.sh //tests/behaviour/typeql/language/insert/... --test_output=errors
-        .grabl/test-core.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
-        .grabl/test-core.sh //tests/behaviour/typeql/language/update/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/insert/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/update/... --test_output=errors
     test-behaviour-writable-cluster:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -174,9 +174,9 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/insert/... --test_output=errors
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/update/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/insert/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/delete/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/update/... --test_output=errors
     test-behaviour-definable-core:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -191,8 +191,8 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-core.sh //tests/behaviour/typeql/language/define/... --test_output=errors
-        .grabl/test-core.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/define/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-behaviour-definable-cluster:
       image: vaticle-ubuntu-21.04
       type: foreground
@@ -207,8 +207,8 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/define/... --test_output=errors
-        .grabl/test-cluster.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/define/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/undefine/... --test_output=errors
     test-failover-cluster:
       machine: 4-core-8-gb
       image: vaticle-ubuntu-21.04
