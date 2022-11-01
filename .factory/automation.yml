@@ -99,7 +99,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .factory/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
+        .factory/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=streamed
         .factory/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
 #    test-behaviour-match-cluster:
 #      image: vaticle-ubuntu-21.04
