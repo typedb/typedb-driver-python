@@ -50,7 +50,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -71,7 +71,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -82,7 +82,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -93,7 +93,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -121,7 +121,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -134,7 +134,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -147,7 +147,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -159,7 +159,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -172,7 +172,7 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -197,7 +197,7 @@ build:
         branch: master
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         export DEPLOY_PIP_USERNAME=$REPO_VATICLE_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_VATICLE_PASSWORD
@@ -210,7 +210,7 @@ build:
         branch: master
       type: foreground
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         bazel run //tests:typedb-extractor -- typedb-all-linux
         ./typedb-all-linux/typedb server &
@@ -231,7 +231,7 @@ release:
     deploy-github:
       image: vaticle-ubuntu-21.04
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install certifi
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
@@ -244,7 +244,7 @@ release:
     deploy-pip-release:
       image: vaticle-ubuntu-21.04
       command: |
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         python3 -m pip install -U pip
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
