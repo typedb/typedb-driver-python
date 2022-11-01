@@ -50,8 +50,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -60,8 +61,8 @@ build:
 #      image: vaticle-ubuntu-21.04
 #      type: foreground
 #      command: |
-#        pip install -U pip
-#        pip install -r requirements_dev.txt
+#        python3 -m pip install -U pip
+#        python3 -m pip install -r requirements_dev.txt
 #        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
 #        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
 #        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -70,8 +71,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -80,8 +82,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -90,8 +93,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -103,8 +107,8 @@ build:
 #      command: |
 #        pyenv install 3.7.12
 #        pyenv global 3.7.12
-#        pip install -U pip
-#        pip install -r requirements_dev.txt
+#        python3 -m pip install -U pip
+#        python3 -m pip install -r requirements_dev.txt
 #        sudo unlink /usr/bin/python3
 #        sudo ln -s $(which python3) /usr/bin/python3
 #        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.7.12/lib/python3.7/site-packages/lsb_release.py
@@ -117,8 +121,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -129,8 +134,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -141,8 +147,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -152,8 +159,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -164,8 +172,9 @@ build:
       image: vaticle-ubuntu-21.04
       type: foreground
       command: |
-        pip install -U pip
-        pip install -r requirements_dev.txt
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -188,7 +197,8 @@ build:
         branch: master
       type: foreground
       command: |
-        pip install -U pip
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
         export DEPLOY_PIP_USERNAME=$REPO_VATICLE_USERNAME
         export DEPLOY_PIP_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run --define version=$(git rev-parse HEAD) //:deploy-pip -- snapshot
@@ -200,10 +210,11 @@ build:
         branch: master
       type: foreground
       command: |
-        pip install -U pip
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
         bazel run //tests:typedb-extractor -- typedb-all-linux
         ./typedb-all-linux/typedb server &
-        pip install --extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple typedb-client==0.0.0-$GRABL_COMMIT
+        python3 -m pip install --extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple typedb-client==0.0.0-$GRABL_COMMIT
         cd tests/deployment/ && python -m unittest test && export TEST_SUCCESS=0 || export TEST_SUCCESS=1
         kill $(jps | awk '/TypeDBServer/ {print $1}')
         exit $TEST_SUCCESS
@@ -220,8 +231,9 @@ release:
     deploy-github:
       image: vaticle-ubuntu-21.04
       command: |
-        pip install -U pip
-        pip install certifi
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
+        python3 -m pip install certifi
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
@@ -232,7 +244,8 @@ release:
     deploy-pip-release:
       image: vaticle-ubuntu-21.04
       command: |
-        pip install -U pip
+        sudo apt install python3-pip
+        python3 -m pip install -U pip
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
