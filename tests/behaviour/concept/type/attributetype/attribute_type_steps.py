@@ -130,7 +130,6 @@ def step_impl(context: Context, type_label: str):
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
 
-
 @step("attribute({type_label}) get key owners explicit contain")
 def step_impl(context: Context, type_label: str):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]

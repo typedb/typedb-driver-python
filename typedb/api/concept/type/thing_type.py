@@ -105,3 +105,7 @@ class RemoteThingType(RemoteType, ThingType, ABC):
     @abstractmethod
     def unset_owns(self, attribute_type: "AttributeType") -> None:
         pass
+
+    @abstractmethod
+    def get_syntax(self) -> str:
+        pass

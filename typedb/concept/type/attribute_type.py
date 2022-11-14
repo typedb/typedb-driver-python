@@ -23,7 +23,6 @@ from datetime import datetime
 from typing import Optional, Iterator
 
 import typedb_protocol.common.concept_pb2 as concept_proto
-
 from typedb.api.concept.type.attribute_type import AttributeType, RemoteAttributeType, BooleanAttributeType, \
     RemoteBooleanAttributeType, LongAttributeType, RemoteLongAttributeType, DoubleAttributeType, \
     RemoteDoubleAttributeType, StringAttributeType, RemoteStringAttributeType, DateTimeAttributeType, \
@@ -42,34 +41,34 @@ class _AttributeType(AttributeType, _ThingType):
     ROOT_LABEL = Label.of("attribute")
 
     def as_remote(self, transaction):
-        return _RemoteAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_attribute_type(self) -> "AttributeType":
         return self
 
     def as_boolean(self):
         if self.is_root():
-            return _BooleanAttributeType(self.ROOT_LABEL, is_root=True)
+            return _BooleanAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, BooleanAttributeType.__name__))
 
     def as_long(self):
         if self.is_root():
-            return _LongAttributeType(self.ROOT_LABEL, is_root=True)
+            return _LongAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, LongAttributeType.__name__))
 
     def as_double(self):
         if self.is_root():
-            return _DoubleAttributeType(self.ROOT_LABEL, is_root=True)
+            return _DoubleAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DoubleAttributeType.__name__))
 
     def as_string(self):
         if self.is_root():
-            return _StringAttributeType(self.ROOT_LABEL, is_root=True)
+            return _StringAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, StringAttributeType.__name__))
 
     def as_datetime(self):
         if self.is_root():
-            return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
+            return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DateTimeAttributeType.__name__))
 
     def __eq__(self, other):
@@ -89,7 +88,7 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
     ROOT_LABEL = Label.of("attribute")
 
     def as_remote(self, transaction):
-        return _RemoteAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_attribute_type(self) -> "RemoteAttributeType":
         return self
@@ -124,27 +123,27 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
 
     def as_boolean(self):
         if self.is_root():
-            return _BooleanAttributeType(self.ROOT_LABEL, is_root=True)
+            return _BooleanAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, BooleanAttributeType.__name__))
 
     def as_long(self):
         if self.is_root():
-            return _LongAttributeType(self.ROOT_LABEL, is_root=True)
+            return _LongAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, LongAttributeType.__name__))
 
     def as_double(self):
         if self.is_root():
-            return _DoubleAttributeType(self.ROOT_LABEL, is_root=True)
+            return _DoubleAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DoubleAttributeType.__name__))
 
     def as_string(self):
         if self.is_root():
-            return _StringAttributeType(self.ROOT_LABEL, is_root=True)
+            return _StringAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, StringAttributeType.__name__))
 
     def as_datetime(self):
         if self.is_root():
-            return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True)
+            return _DateTimeAttributeType(self.ROOT_LABEL, is_root=True, is_abstract=True)
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, DateTimeAttributeType.__name__))
 
     def __eq__(self, other):
@@ -162,10 +161,10 @@ class _BooleanAttributeType(BooleanAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _BooleanAttributeType(Label.of(type_proto.label), type_proto.root)
+        return _BooleanAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_boolean(self):
         return self
@@ -174,7 +173,7 @@ class _BooleanAttributeType(BooleanAttributeType, _AttributeType):
 class _RemoteBooleanAttributeType(_RemoteAttributeType, RemoteBooleanAttributeType):
 
     def as_remote(self, transaction):
-        return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: bool):
         return self.put_internal(concept_proto_builder.boolean_attribute_value(value))
@@ -190,10 +189,10 @@ class _LongAttributeType(LongAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _LongAttributeType(Label.of(type_proto.label), type_proto.root)
+        return _LongAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_long(self):
         return self
@@ -202,7 +201,7 @@ class _LongAttributeType(LongAttributeType, _AttributeType):
 class _RemoteLongAttributeType(_RemoteAttributeType, RemoteLongAttributeType):
 
     def as_remote(self, transaction):
-        return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: int):
         return self.put_internal(concept_proto_builder.long_attribute_value(value))
@@ -218,10 +217,10 @@ class _DoubleAttributeType(DoubleAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _DoubleAttributeType(Label.of(type_proto.label), type_proto.root)
+        return _DoubleAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_double(self):
         return self
@@ -230,7 +229,7 @@ class _DoubleAttributeType(DoubleAttributeType, _AttributeType):
 class _RemoteDoubleAttributeType(_RemoteAttributeType, RemoteDoubleAttributeType):
 
     def as_remote(self, transaction):
-        return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: float):
         return self.put_internal(concept_proto_builder.double_attribute_value(value))
@@ -246,10 +245,10 @@ class _StringAttributeType(StringAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _StringAttributeType(Label.of(type_proto.label), type_proto.root)
+        return _StringAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_string(self):
         return self
@@ -258,7 +257,7 @@ class _StringAttributeType(StringAttributeType, _AttributeType):
 class _RemoteStringAttributeType(_RemoteAttributeType, RemoteStringAttributeType):
 
     def as_remote(self, transaction):
-        return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: str):
         return self.put_internal(concept_proto_builder.string_attribute_value(value))
@@ -284,10 +283,10 @@ class _DateTimeAttributeType(DateTimeAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _DateTimeAttributeType(Label.of(type_proto.label), type_proto.root)
+        return _DateTimeAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_datetime(self):
         return self
@@ -296,7 +295,7 @@ class _DateTimeAttributeType(DateTimeAttributeType, _AttributeType):
 class _RemoteDateTimeAttributeType(_RemoteAttributeType, RemoteDateTimeAttributeType):
 
     def as_remote(self, transaction):
-        return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root())
+        return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: datetime):
         return self.put_internal(concept_proto_builder.datetime_attribute_value(value))
