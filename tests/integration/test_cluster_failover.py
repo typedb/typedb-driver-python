@@ -26,7 +26,6 @@ from unittest import TestCase
 
 from typedb.client import *
 
-
 SCHEMA = SessionType.SCHEMA
 WRITE = TransactionType.WRITE
 READ = TransactionType.READ

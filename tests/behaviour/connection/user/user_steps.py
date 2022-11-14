@@ -22,9 +22,9 @@ import os
 
 from behave import step
 from hamcrest import assert_that, has_item, not_
+from typedb.client import *
 
 from tests.behaviour.context import Context
-from typedb.client import *
 
 
 def _get_client(context: Context):

@@ -21,8 +21,8 @@
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
 from tests.behaviour.context import Context
 

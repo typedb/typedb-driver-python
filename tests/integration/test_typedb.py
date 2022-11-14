@@ -21,11 +21,11 @@
 
 import unittest
 import uuid
-import typedb
-from typedb.connection import TypeDBClient, ValueType, Transaction
-from typedb import TypeDBError
 
+import typedb
 from tests.integration.base import test_base, TypeDBServer
+from typedb import TypeDBError
+from typedb.connection import TypeDBClient, ValueType, Transaction
 
 
 # TODO: we should ensure that all these tests are migrated to BDD

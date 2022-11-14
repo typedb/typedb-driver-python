@@ -21,9 +21,9 @@
 import os
 
 from typedb.client import *
+
 from tests.behaviour.background import environment_base
 from tests.behaviour.context import Context
-
 
 IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-cluster-client-python"]
 

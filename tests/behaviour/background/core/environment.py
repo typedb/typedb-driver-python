@@ -19,10 +19,10 @@
 # under the License.
 #
 
-from tests.behaviour.background import environment_base
 from typedb.client import *
-from tests.behaviour.context import Context
 
+from tests.behaviour.background import environment_base
+from tests.behaviour.context import Context
 
 IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 

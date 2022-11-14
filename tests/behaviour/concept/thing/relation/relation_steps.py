@@ -18,12 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from datetime import datetime
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_dict, parse_var
 from tests.behaviour.context import Context
 

@@ -26,7 +26,7 @@ import typedb_protocol.common.transaction_pb2 as transaction_proto
 from typedb.api.concept.type.type import Type, RemoteType
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import type_set_label_req, type_is_abstract_req, type_get_supertype_req, \
+from typedb.common.rpc.request_builder import type_set_label_req, type_get_supertype_req, \
     type_get_supertypes_req, type_get_subtypes_req, type_delete_req
 from typedb.concept.concept import _Concept, _RemoteConcept
 from typedb.concept.proto import concept_proto_reader

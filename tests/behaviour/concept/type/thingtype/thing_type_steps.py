@@ -21,10 +21,10 @@
 
 from behave import *
 from hamcrest import *
+from typedb.client import *
 
 from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_label
 from tests.behaviour.context import Context
-from typedb.client import *
 
 
 @step("put {root_label:RootLabel} type: {type_label}")

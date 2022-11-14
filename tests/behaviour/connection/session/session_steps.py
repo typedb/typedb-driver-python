@@ -21,15 +21,13 @@
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
-from typing import List
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_bool, parse_list
 from tests.behaviour.context import Context
-
 
 SCHEMA = SessionType.SCHEMA
 DATA = SessionType.DATA

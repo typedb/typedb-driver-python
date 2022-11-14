@@ -22,8 +22,8 @@ from concurrent.futures import Future
 
 import behave.runner
 from behave.model import Table
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import RootLabel
 
 
