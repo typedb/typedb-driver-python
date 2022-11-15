@@ -201,9 +201,9 @@ build:
         test-behaviour-definable-core, test-behaviour-definable-cluster,
         test-failover-cluster
       ]
-      filter:
-        owner: vaticle
-        branch: master
+#      filter:
+#        owner: vaticle
+#        branch: master
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
