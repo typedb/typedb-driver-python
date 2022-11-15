@@ -428,7 +428,7 @@ def role_type_get_player_types_req(label: Label):
 
 def role_type_get_player_types_explicit_req(label: Label):
     req = concept_proto.Type.Req()
-    req.role_type_get_player_types_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayersTypesExplicit.Req())
+    req.role_type_get_player_types_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayerTypesExplicit.Req())
     return type_req(req, label)
 
 
@@ -579,9 +579,9 @@ def thing_type_get_instances_req(label: Label):
     req.thing_type_get_instances_req.CopyFrom(concept_proto.ThingType.GetInstances.Req())
     return type_req(req, label)
 
-def thing_type_syntax_req(label: Label):
+def thing_type_get_syntax_req(label: Label):
     req = concept_proto.Type.Req()
-    req.thing_type_syntax_req.CopyFrom(concept_proto.ThingType.GetSyntax.Req())
+    req.thing_type_get_syntax_req.CopyFrom(concept_proto.ThingType.GetSyntax.Req())
     return type_req(req, label)
 
 

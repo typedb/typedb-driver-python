@@ -102,7 +102,7 @@ def step_impl(context: Context, relation_label: str, role_label: str, get_label:
 
 
 @step("relation({relation_label}) get role({role_label}) is abstract: {is_abstract}")
-def step_impl(context: Context, relation_label: str, role_label: str, is_abstract):
+def step_impl(context: Context, relation_label: str, role_label: str, is_abstract: str):
     is_abstract = parse_bool(is_abstract)
     assert_that(context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).is_abstract(), is_(is_abstract))
 

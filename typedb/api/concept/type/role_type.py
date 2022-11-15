@@ -68,7 +68,7 @@ class RemoteRoleType(RemoteType, RoleType, ABC):
         pass
 
     @abstractmethod
-    def get_players_explicit(self) -> Iterator["ThingType"]:
+    def get_player_types_explicit(self) -> Iterator["ThingType"]:
         pass
 
     @abstractmethod

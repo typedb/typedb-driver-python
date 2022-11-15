@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 class _Type(Type, _Concept, ABC):
 
-    def __init__(self, label: Label, is_root: bool, is_abstract):
+    def __init__(self, label: Label, is_root: bool, is_abstract: bool):
         if not label:
             raise TypeDBClientException.of(MISSING_LABEL)
         self._label = label
