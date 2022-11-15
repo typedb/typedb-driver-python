@@ -174,7 +174,7 @@ def step_impl(context: Context, relation_label: str, role_label: str):
 
 
 def get_actual_related_role_players_scoped_labels(context: Context, relation_label: str, role_label: str):
-    return [r.get_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_players()]
+    return [r.get_label() for r in context.tx().concepts().get_relation_type(relation_label).as_remote(context.tx()).get_relates(role_label).as_remote(context.tx()).get_player_types()]
 
 
 @step("relation({relation_label}) get role({role_label}) get players contain")
