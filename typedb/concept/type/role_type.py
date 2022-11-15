@@ -64,11 +64,11 @@ class _RemoteRoleType(_RemoteType, RemoteRoleType):
 
     def get_player_types(self):
         return (concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_player_types_req(self.get_label()))
-                for tt in rp.role_type_get_players_res_part.thing_types)
+                for tt in rp.role_type_get_player_types_res_part.thing_types)
 
     def get_players_explicit(self):
         return (concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_player_types_explicit_req(self.get_label()))
-                for tt in rp.role_type_get_players_res_part.thing_types)
+                for tt in rp.role_type_get_player_types_explicit_res_part.thing_types)
 
     def get_relation_instances(self):
         return (concept_proto_reader.thing(t) for res in self.stream(role_type_get_relation_instances_req(self.get_label()))
