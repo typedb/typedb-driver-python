@@ -422,13 +422,13 @@ def role_type_get_relation_types_req(label: Label):
 
 def role_type_get_player_types_req(label: Label):
     req = concept_proto.Type.Req()
-    req.role_type_get_player_types_req.CopyFrom(concept_proto.RoleType.GetPlayers.Req())
+    req.role_type_get_player_types_req.CopyFrom(concept_proto.RoleType.GetPlayerTypes.Req())
     return type_req(req, label)
 
 
 def role_type_get_player_types_explicit_req(label: Label):
     req = concept_proto.Type.Req()
-    req.role_type_get_player_types_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayersExplicit.Req())
+    req.role_type_get_player_types_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayersTypesExplicit.Req())
     return type_req(req, label)
 
 
