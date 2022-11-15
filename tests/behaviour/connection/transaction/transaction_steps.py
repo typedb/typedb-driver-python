@@ -21,12 +21,12 @@
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
-from typing import Callable, List
+from typing import Callable
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_transaction_type, parse_list, parse_bool
 from tests.behaviour.context import Context
 

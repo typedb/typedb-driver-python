@@ -21,10 +21,10 @@
 
 from behave import *
 from hamcrest import *
+from typedb.client import *
 
 from tests.behaviour.config.parameters import parse_bool, parse_list, RootLabel, parse_label
 from tests.behaviour.context import Context
-from typedb.client import *
 
 
 @step("put {root_label:RootLabel} type: {type_label}")
@@ -68,7 +68,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: Label, get_la
 
 
 @step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract):
+def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract: str):
     is_abstract = parse_bool(is_abstract)
     thing_type = context.get_thing_type(root_label, type_label)
     try:
@@ -82,7 +82,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstr
 
 
 @step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract):
+def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract: str):
     is_abstract = parse_bool(is_abstract)
     thing_type = context.get_thing_type(root_label, type_label)
     if is_abstract:
@@ -92,7 +92,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstr
 
 
 @step("{root_label:RootLabel}({type_label}) is abstract: {is_abstract}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract):
+def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstract: str):
     is_abstract = parse_bool(is_abstract)
     assert_that(context.get_thing_type(root_label, type_label).as_remote(context.tx()).is_abstract(), is_(is_abstract))
 

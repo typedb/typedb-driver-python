@@ -21,8 +21,8 @@
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
 from tests.behaviour.context import Context
 
@@ -129,7 +129,6 @@ def step_impl(context: Context, type_label: str):
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
-
 
 @step("attribute({type_label}) get key owners explicit contain")
 def step_impl(context: Context, type_label: str):

@@ -18,14 +18,13 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from behave.model_core import Status
+import time
 
+from behave.model_core import Status
 from typedb.client import *
 
 from tests.behaviour.config.parameters import RootLabel
 from tests.behaviour.context import Context
-
-import time
 
 
 def before_all(context: Context):

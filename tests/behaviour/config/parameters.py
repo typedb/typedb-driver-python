@@ -18,14 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from datetime import datetime
-from enum import Enum
-from typing import List, Dict, Tuple
-
 import parse
 from behave import register_type
 from behave.model import Table
-
+from enum import Enum
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from typedb.client import *
 

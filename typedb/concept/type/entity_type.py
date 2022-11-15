@@ -32,10 +32,10 @@ class _EntityType(EntityType, _ThingType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _EntityType(Label.of(type_proto.label), type_proto.root)
+        return _EntityType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
 
     def as_remote(self, transaction):
-        return _RemoteEntityType(transaction, self.get_label(), self.is_root())
+        return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_entity_type(self) -> "EntityType":
         return self
@@ -44,7 +44,7 @@ class _EntityType(EntityType, _ThingType):
 class _RemoteEntityType(_RemoteThingType, RemoteEntityType):
 
     def as_remote(self, transaction):
-        return _RemoteEntityType(transaction, self.get_label(), self.is_root())
+        return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_entity_type(self) -> "RemoteEntityType":
         return self

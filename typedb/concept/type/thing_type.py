@@ -26,7 +26,7 @@ from typedb.common.rpc.request_builder import thing_type_set_supertype_req, thin
     thing_type_set_abstract_req, thing_type_unset_abstract_req, thing_type_set_plays_req, thing_type_set_owns_req, \
     thing_type_get_plays_req, thing_type_get_owns_req, thing_type_unset_plays_req, thing_type_unset_owns_req, \
     thing_type_get_owns_explicit_req, thing_type_get_owns_overridden_req, thing_type_get_plays_explicit_req, \
-    thing_type_get_plays_overridden
+    thing_type_get_plays_overridden, thing_type_get_syntax_req
 from typedb.concept.proto import concept_proto_builder, concept_proto_reader
 from typedb.concept.type.type import _Type, _RemoteType
 
@@ -34,7 +34,7 @@ from typedb.concept.type.type import _Type, _RemoteType
 class _ThingType(ThingType, _Type):
 
     def as_remote(self, transaction):
-        return _RemoteThingType(transaction, self.get_label(), self.is_root())
+        return _RemoteThingType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_thing_type(self) -> "ThingType":
         return self
@@ -43,7 +43,7 @@ class _ThingType(ThingType, _Type):
 class _RemoteThingType(_RemoteType, RemoteThingType):
 
     def as_remote(self, transaction):
-        return _RemoteThingType(transaction, self.get_label(), self.is_root())
+        return _RemoteThingType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def as_thing_type(self) -> "RemoteThingType":
         return self
@@ -109,3 +109,6 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
             self.get_label(), concept_proto_builder.thing_type(attribute_type)
         )).thing_type_get_owns_overridden_res
         return concept_proto_reader.attribute_type(res.attribute_type) if res.HasField("attribute_type") else None
+
+    def get_syntax(self):
+        return self.execute(thing_type_get_syntax_req(self.get_label())).thing_type_get_syntax_res.syntax

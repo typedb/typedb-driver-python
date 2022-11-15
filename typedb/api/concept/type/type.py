@@ -37,6 +37,10 @@ class Type(Concept, ABC):
     @abstractmethod
     def is_root(self) -> bool:
         pass
+    
+    @abstractmethod
+    def is_abstract(self) -> bool:
+        pass
 
     def is_type(self) -> bool:
         return True

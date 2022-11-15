@@ -372,12 +372,6 @@ def type_req(req: concept_proto.Type.Req, label: Label):
     return tx_req
 
 
-def type_is_abstract_req(label: Label):
-    req = concept_proto.Type.Req()
-    req.type_is_abstract_req.CopyFrom(concept_proto.Type.IsAbstract.Req())
-    return type_req(req, label)
-
-
 def type_set_label_req(label: Label, new_label: str):
     req = concept_proto.Type.Req()
     set_label_req = concept_proto.Type.SetLabel.Req()
@@ -426,9 +420,39 @@ def role_type_get_relation_types_req(label: Label):
     return type_req(req, label)
 
 
-def role_type_get_players_req(label: Label):
+def role_type_get_player_types_req(label: Label):
     req = concept_proto.Type.Req()
-    req.role_type_get_players_req.CopyFrom(concept_proto.RoleType.GetPlayers.Req())
+    req.role_type_get_player_types_req.CopyFrom(concept_proto.RoleType.GetPlayerTypes.Req())
+    return type_req(req, label)
+
+
+def role_type_get_player_types_explicit_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.role_type_get_player_types_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayerTypesExplicit.Req())
+    return type_req(req, label)
+
+
+def role_type_get_relation_instances_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.role_type_get_relation_instances_req.CopyFrom(concept_proto.RoleType.GetRelationInstances.Req())
+    return type_req(req, label)
+
+
+def role_type_get_relation_instances_explicit_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.role_type_get_relation_instances_explicit_req.CopyFrom(concept_proto.RoleType.GetRelationInstancesExplicit.Req())
+    return type_req(req, label)
+
+
+def role_type_get_player_instances_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.role_type_get_player_instances_req.CopyFrom(concept_proto.RoleType.GetPlayerInstances.Req())
+    return type_req(req, label)
+
+
+def role_type_get_player_instances_explicit_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.role_type_get_player_instances_explicit_req.CopyFrom(concept_proto.RoleType.GetPlayerInstancesExplicit.Req())
     return type_req(req, label)
 
 
@@ -553,6 +577,11 @@ def thing_type_unset_owns_req(label: Label, attribute_type: concept_proto.Type):
 def thing_type_get_instances_req(label: Label):
     req = concept_proto.Type.Req()
     req.thing_type_get_instances_req.CopyFrom(concept_proto.ThingType.GetInstances.Req())
+    return type_req(req, label)
+
+def thing_type_get_syntax_req(label: Label):
+    req = concept_proto.Type.Req()
+    req.thing_type_get_syntax_req.CopyFrom(concept_proto.ThingType.GetSyntax.Req())
     return type_req(req, label)
 
 

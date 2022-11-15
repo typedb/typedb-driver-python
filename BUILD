@@ -61,13 +61,6 @@ checkstyle_test(
     size = "small",
 )
 
-checkstyle_test(
-    name = "checkstyle-license",
-    include = ["LICENSE"],
-    license_type = "apache-fulltext",
-    size = "small",
-)
-
 assemble_pip(
     name = "assemble-pip",
     target = ":client_python",
@@ -120,6 +113,13 @@ release_validate_python_deps(
     tagged_deps = [
         "typedb-protocol",
     ],
+)
+
+checkstyle_test(
+    name = "checkstyle-license",
+    include = ["LICENSE"],
+    license_type = "apache-fulltext",
+    size = "small",
 )
 
 # CI targets that are not declared in any BUILD file, but are called externally

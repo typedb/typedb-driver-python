@@ -23,8 +23,8 @@ from collections import defaultdict
 
 from behave import *
 from hamcrest import *
-
 from typedb.client import *
+
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
     parse_label
 from tests.behaviour.context import Context

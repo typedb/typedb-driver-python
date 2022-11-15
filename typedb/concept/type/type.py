@@ -26,7 +26,7 @@ import typedb_protocol.common.transaction_pb2 as transaction_proto
 from typedb.api.concept.type.type import Type, RemoteType
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import type_set_label_req, type_is_abstract_req, type_get_supertype_req, \
+from typedb.common.rpc.request_builder import type_set_label_req, type_get_supertype_req, \
     type_get_supertypes_req, type_get_subtypes_req, type_delete_req
 from typedb.concept.concept import _Concept, _RemoteConcept
 from typedb.concept.proto import concept_proto_reader
@@ -37,11 +37,12 @@ if TYPE_CHECKING:
 
 class _Type(Type, _Concept, ABC):
 
-    def __init__(self, label: Label, is_root: bool):
+    def __init__(self, label: Label, is_root: bool, is_abstract: bool):
         if not label:
             raise TypeDBClientException.of(MISSING_LABEL)
         self._label = label
         self._is_root = is_root
+        self._is_abstract = is_abstract
         self._hash = hash(label)
 
     def get_label(self):
@@ -49,6 +50,9 @@ class _Type(Type, _Concept, ABC):
 
     def is_root(self):
         return self._is_root
+
+    def is_abstract(self):
+        return self._is_abstract
 
     def as_type(self) -> "Type":
         return self
@@ -69,7 +73,8 @@ class _Type(Type, _Concept, ABC):
 
 class _RemoteType(RemoteType, _RemoteConcept, ABC):
 
-    def __init__(self, transaction: Union["_TypeDBTransactionExtended", "TypeDBTransaction"], label: Label, is_root: bool):
+    def __init__(self, transaction: Union["_TypeDBTransactionExtended", "TypeDBTransaction"], label: Label,
+                 is_root: bool, is_abstract: bool):
         if not transaction:
             raise TypeDBClientException.of(MISSING_TRANSACTION)
         if not label:
@@ -77,6 +82,7 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
         self._transaction_ext = transaction
         self._label = label
         self._is_root = is_root
+        self._is_abstract = is_abstract
         self._hash = hash((self._transaction_ext, label))
 
     def get_label(self):
@@ -94,7 +100,7 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
         self._hash = hash((self._transaction_ext, new_label))
 
     def is_abstract(self):
-        return self.execute(type_is_abstract_req(self.get_label())).type_is_abstract_res.abstract
+        return self._is_abstract
 
     def get_supertype(self):
         res = self.execute(type_get_supertype_req(self.get_label())).type_get_supertype_res
