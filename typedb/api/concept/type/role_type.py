@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Iterator
 
 from typedb.api.concept.type.type import Type, RemoteType
 
+from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.thing.thing import Thing
 
 if TYPE_CHECKING:
@@ -72,11 +73,11 @@ class RemoteRoleType(RemoteType, RoleType, ABC):
         pass
 
     @abstractmethod
-    def get_relation_instances(self) -> Iterator["Thing"]:
+    def get_relation_instances(self) -> Iterator["Relation"]:
         pass
 
     @abstractmethod
-    def get_relation_instances_explicit(self) -> Iterator["Thing"]:
+    def get_relation_instances_explicit(self) -> Iterator["Relation"]:
         pass
 
     @abstractmethod

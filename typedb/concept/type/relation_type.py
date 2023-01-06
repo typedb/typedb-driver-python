@@ -35,7 +35,7 @@ class _RelationType(RelationType, _ThingType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _RelationType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _RelationType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteRelationType(transaction, self.get_label(), self.is_root(), self.is_abstract())
