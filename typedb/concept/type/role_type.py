@@ -35,7 +35,7 @@ class _RoleType(_Type, RoleType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _RoleType(Label.of(type_proto.scope, type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _RoleType(Label.of(type_proto.scope, type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteRoleType(transaction, self.get_label(), self.is_root(), self.is_abstract())

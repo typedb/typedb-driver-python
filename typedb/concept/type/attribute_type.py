@@ -161,7 +161,7 @@ class _BooleanAttributeType(BooleanAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _BooleanAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _BooleanAttributeType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
@@ -189,7 +189,7 @@ class _LongAttributeType(LongAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _LongAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _LongAttributeType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
@@ -217,7 +217,7 @@ class _DoubleAttributeType(DoubleAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _DoubleAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _DoubleAttributeType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
@@ -245,7 +245,7 @@ class _StringAttributeType(StringAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _StringAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _StringAttributeType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
@@ -283,7 +283,7 @@ class _DateTimeAttributeType(DateTimeAttributeType, _AttributeType):
 
     @staticmethod
     def of(type_proto: concept_proto.Type):
-        return _DateTimeAttributeType(Label.of(type_proto.label), type_proto.isRoot, type_proto.isAbstract)
+        return _DateTimeAttributeType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
     def as_remote(self, transaction):
         return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
