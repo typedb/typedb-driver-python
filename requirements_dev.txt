@@ -30,7 +30,7 @@
 
 ## Dependencies
 
-typedb-protocol==0.0.0-e6f62093b54499b20e5202279bdea117bcce7c39
+typedb-protocol==2.14.1
 grpcio>=1.43.0,<2
 protobuf>=3.15.5,<4
 
