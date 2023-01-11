@@ -18,8 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import time
-
 from behave.model_core import Status
 from typedb.client import *
 
@@ -77,9 +75,6 @@ def after_scenario(context: Context, scenario):
     if scenario.status == Status.skipped:
         return
 
-    #TODO: REMOVE THIS ONCE THE CRASHES ARE FIXED
-    time.sleep(0.01)
-
     for session in context.sessions:
         session.close()
     for future_session in context.sessions_parallel:
@@ -89,7 +84,4 @@ def after_scenario(context: Context, scenario):
 
 
 def after_all(context: Context):
-    #TODO: REMOVE THIS ONCE THE CRASHES ARE FIXED
-    time.sleep(0.01)
-
     context.client.close()
