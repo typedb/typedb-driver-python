@@ -18,8 +18,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import time
-
 from behave.model_core import Status
 from typedb.client import *
 
