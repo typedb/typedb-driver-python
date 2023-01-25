@@ -33,6 +33,11 @@ class _ClusterServerClient(_TypeDBClientImpl):
     def __init__(self, address: str, credential: TypeDBCredential, parallelisation: int = 2):
         super(_ClusterServerClient, self).__init__(address, parallelisation)
         self._credential = credential
+        if self._credential.tls_root_ca_path() is not None:
+            with open(self._credential.tls_root_ca_path(), 'rb') as root_ca:
+                self._channel_credentials = grpc.ssl_channel_credentials(root_ca.read())
+        else:
+            self._channel_credentials = grpc.ssl_channel_credentials()
         self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
 
@@ -50,14 +55,12 @@ class _ClusterServerClient(_TypeDBClientImpl):
         return channel, _ClusterServerStub(channel, self._credential)
 
     def _new_channel(self) -> grpc.Channel:
-        if self._credential.tls_root_ca_path() is not None:
-            with open(self._credential.tls_root_ca_path(), 'rb') as root_ca:
-                channel_credentials = grpc.ssl_channel_credentials(root_ca.read())
-        else:
-            channel_credentials = grpc.ssl_channel_credentials()
         combined_credentials = grpc.composite_channel_credentials(
-            channel_credentials,
-            grpc.metadata_call_credentials(_CredentialAuth(credential=self._credential, token_fn=lambda: self._stub.token()))
+            self._channel_credentials,
+            grpc.metadata_call_credentials(_CredentialAuth(
+                credential=self._credential,
+                token_fn=lambda: None if self._stub is None else self._stub.token()
+            ))
         )
         return grpc.secure_channel(self._address, combined_credentials)
 
