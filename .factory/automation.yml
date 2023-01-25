@@ -51,6 +51,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -73,6 +74,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -85,6 +87,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -126,6 +129,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -140,6 +144,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -154,6 +159,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -167,6 +173,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -181,6 +188,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt
@@ -207,6 +215,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         export DEPLOY_PIP_USERNAME=$REPO_VATICLE_USERNAME
@@ -221,6 +230,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         bazel run //tests:typedb-extractor -- typedb-all-linux
