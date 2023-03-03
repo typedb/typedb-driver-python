@@ -23,7 +23,7 @@
 #  pip install -r requirements.txt
 
 ## To install ALL (including dev) dependencies, run:
-#  pip instal -r requirements_dev.txt
+#  pip install -r requirements_dev.txt
 
 
 ## Configuration options
