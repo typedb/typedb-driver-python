@@ -19,7 +19,11 @@
 # under the License.
 #
 
-## To install all dependencies, run: pip install -r requirements.txt
+## To install primary (not dev) dependencies, run: 
+#  pip install -r requirements.txt
+
+## To install ALL (including dev) dependencies, run:
+#  pip install -r requirements_dev.txt
 
 
 ## Configuration options
@@ -31,7 +35,6 @@
 
 ## Dependencies
 
-# IMPORTANT: Any changes to these dependencies should be copied to requirements_dev.txt.
 typedb-protocol==2.14.1
 grpcio>=1.43.0,<2
 protobuf>=3.15.5,<4
