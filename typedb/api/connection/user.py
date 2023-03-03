@@ -20,7 +20,7 @@
 #
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 
 class User(ABC):
@@ -30,19 +30,15 @@ class User(ABC):
         pass
 
     @abstractmethod
-    def password(self, password: str) -> None:
+    def password_expiry_days(self) -> Optional[int]:
         pass
 
     @abstractmethod
-    def delete(self) -> None:
+    def password_update(self, password_old: str, password_new: str) -> None:
         pass
 
 
 class UserManager(ABC):
-
-    @abstractmethod
-    def get(self, username: str) -> User:
-        pass
 
     @abstractmethod
     def contains(self, username: str) -> bool:
@@ -53,5 +49,17 @@ class UserManager(ABC):
         pass
 
     @abstractmethod
+    def delete(self, username: str) -> None:
+        pass
+
+    @abstractmethod
+    def get(self, username: str) -> User:
+        pass
+
+    @abstractmethod
     def all(self) -> List[User]:
+        pass
+
+    @abstractmethod
+    def password_set(self, username: str, password: str) -> None:
         pass

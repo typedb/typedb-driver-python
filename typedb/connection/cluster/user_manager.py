@@ -21,11 +21,11 @@
 from typing import List,TYPE_CHECKING
 
 from typedb.api.connection.user import UserManager, User
-from typedb.common.rpc.request_builder import cluster_user_manager_create_req, cluster_user_manager_all_req, \
-    cluster_user_manager_contains_req
+from typedb.common.rpc.request_builder import cluster_user_manager_contains_req, cluster_user_manager_create_req, \
+    cluster_user_manager_delete_req, cluster_user_manager_all_req, cluster_user_manager_password_set_req, \
+    cluster_user_manager_get_req
 from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
 from typedb.connection.cluster.user import _ClusterUser
-from typedb.common.exception import TypeDBClientException, CLUSTER_USER_DOES_NOT_EXIST
 
 _SYSTEM_DB = "_system"
 
@@ -42,6 +42,14 @@ class _ClusterUserManager(UserManager):
             self._client,
             lambda replica: self._client._stub(replica.address()).users_create(
                 cluster_user_manager_create_req(username, password))
+        )
+        failsafe_task.run_primary_replica()
+
+    def delete(self, username: str) -> None:
+        failsafe_task = _UserManagerFailsafeTask(
+            self._client,
+            lambda replica: self._client._stub(replica.address()).users_delete(
+                cluster_user_manager_delete_req(username))
         )
         failsafe_task.run_primary_replica()
 
@@ -65,10 +73,19 @@ class _ClusterUserManager(UserManager):
         return failsafe_task.run_primary_replica()
 
     def get(self, username: str) -> User:
-        if (self.contains(username)):
-            return _ClusterUser(self._client, username)
-        else:
-            raise TypeDBClientException.of(CLUSTER_USER_DOES_NOT_EXIST, username)
+        failsafe_task = _UserManagerFailsafeTask(
+            self._client,
+            lambda replica: _ClusterUser.of(self._client._stub(replica.address()).users_get(cluster_user_manager_get_req(username)).get_user(), self._client)
+        )
+        return failsafe_task.run_primary_replica()
+
+    def password_set(self, username: str, password: str) -> None:
+        failsafe_task = _UserManagerFailsafeTask(
+            self._client,
+            lambda replica: self._client._stub(replica.address()).users_password_set(
+                cluster_user_manager_password_set_req(username, password))
+        )
+        failsafe_task.run_primary_replica()
 
 
 class _UserManagerFailsafeTask(_FailsafeTask):
@@ -79,4 +96,3 @@ class _UserManagerFailsafeTask(_FailsafeTask):
 
     def run(self, replica: _ClusterDatabase.Replica):
         return self._task(replica)
-

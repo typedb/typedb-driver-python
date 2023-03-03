@@ -68,11 +68,17 @@ class _ClusterServerStub(TypeDBStub):
     def users_create(self, req: cluster_user_proto.ClusterUserManager.Create.Req) -> cluster_user_proto.ClusterUserManager.Create.Res:
         return self.may_renew_token(lambda: self._cluster_stub.users_create(req))
 
-    def user_password(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return self.may_renew_token(lambda: self._cluster_stub.user_password(req))
+    def users_delete(self, req: cluster_user_proto.ClusterUserManager.Delete.Req) -> cluster_user_proto.ClusterUserManager.Delete.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.users_delete(req))
 
-    def user_delete(self, req: cluster_user_proto.ClusterUser.Delete.Req) -> cluster_user_proto.ClusterUser.Delete.Res:
-        return self.may_renew_token(lambda: self._cluster_stub.user_delete(req))
+    def users_password_set(self, req: cluster_user_proto.ClusterUserManager.PasswordSet.Req) -> cluster_user_proto.ClusterUserManager.PasswordSet.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.users_password_set(req))
+
+    def users_get(self, req: cluster_user_proto.ClusterUserManager.Get.Req) -> cluster_user_proto.ClusterUserManager.Get.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.users_get(req))
+
+    def user_password_update(self, req: cluster_user_proto.ClusterUser.PasswordUpdate.Req) -> cluster_user_proto.ClusterUser.PasswordUpdate.Res:
+        return self.may_renew_token(lambda: self._cluster_stub.user_password_update(req))
 
     def cluster_databases_all(self, req: cluster_database_proto.ClusterDatabaseManager.All.Req) -> cluster_database_proto.ClusterDatabaseManager.All.Res:
         return self.may_renew_token(lambda: self._cluster_stub.databases_all(req))

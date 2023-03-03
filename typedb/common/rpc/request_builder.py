@@ -100,29 +100,43 @@ def cluster_user_manager_create_req(username: str, password: str):
     return req
 
 
+def cluster_user_manager_delete_req(username: str):
+    req = cluster_user_proto.ClusterUserManager.Delete.Req()
+    req.username = username
+    return req
+
+
 def cluster_user_manager_contains_req(username: str):
     req = cluster_user_proto.ClusterUserManager.Contains.Req()
     req.username = username
     return req
 
 
-# ClusterUser
-
-def cluster_user_password_req(username: str, password: str):
-    req = cluster_user_proto.ClusterUser.Password.Req()
+def cluster_user_manager_password_set_req(username: str, password: str):
+    req = cluster_user_proto.ClusterUserManager.PasswordSet.Req()
     req.username = username
     req.password = password
     return req
 
 
-def cluster_user_token_req(username: str):
-    req = cluster_user_proto.ClusterUser.Token.Req()
+def cluster_user_manager_get_req(username: str):
+    req = cluster_user_proto.ClusterUserManager.Get.Req()
     req.username = username
     return req
 
 
-def cluster_user_delete_req(username: str):
-    req = cluster_user_proto.ClusterUser.Delete.Req()
+# ClusterUser
+
+def cluster_user_password_update_req(username: str, password_old: str, password_new: str):
+    req = cluster_user_proto.ClusterUser.PasswordUpdate.Req()
+    req.username = username
+    req.password_old = password_old
+    req.password_new = password_new
+    return req
+
+
+def cluster_user_token_req(username: str):
+    req = cluster_user_proto.ClusterUser.Token.Req()
     req.username = username
     return req
 
