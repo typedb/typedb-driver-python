@@ -18,10 +18,12 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+
+import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 
 from typedb.api.connection.user import User
-from typedb.common.rpc.request_builder import cluster_user_password_req, cluster_user_delete_req
+from typedb.common.rpc.request_builder import cluster_user_password_update_req
 from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
 
 if TYPE_CHECKING:
@@ -29,19 +31,29 @@ if TYPE_CHECKING:
 
 class _ClusterUser(User):
 
-    def __init__(self, client: "_ClusterClient", username: str):
+    def __init__(self, client: "_ClusterClient", username: str, password_expiry_days: Optional[int]):
         self._client = client
         self._username = username
+        self._password_expiry_days = password_expiry_days
+
+    @staticmethod
+    def of(user: cluster_user_proto.ClusterUser, client: "_ClusterClient"):
+        if user.get_password_expiry_case() == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORDEXPIRY_NOT_SET:
+            return _ClusterUser(client, user.get_username(), None)
+        else:
+            return _ClusterUser(client, user.get_username(), user.get_password_expiry_days())
 
     def username(self) -> str:
         return self._username
 
-    def password(self, password: str) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_password(cluster_user_password_req(self.username(), password)))
-        failsafe_task.run_primary_replica()
+    def password_expiry_days(self) -> Optional[int]:
+        return self._password_expiry_days
 
-    def delete(self) -> None:
-        failsafe_task = _UserFailsafeTask(self._client, lambda replica: self._client._stub(replica.address()).user_delete(cluster_user_delete_req(self.username())))
+    def password_update(self, password_old: str, password_new: str) -> None:
+        failsafe_task = _UserFailsafeTask(
+            self._client,
+            lambda replica: self._client._stub(replica.address()).user_password_update(cluster_user_password_update_req(self.username(), password_old, password_new))
+        )
         failsafe_task.run_primary_replica()
 
 

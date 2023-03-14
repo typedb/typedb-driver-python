@@ -48,9 +48,19 @@ def step_impl(context: Context, username: str, password: str):
     _get_client(context).users().create(username, password)
 
 
-@step("user password: {username}, {password}")
+@step("users delete: {username}")
+def step_impl(context: Context, username: str):
+    _get_client(context).users().delete(username)
+
+
+@step("users password set: {username}, {password}")
 def step_impl(context: Context, username: str, password: str):
-    _get_client(context).users().get(username).password(password)
+    _get_client(context).users().password_set(username, password)
+
+
+@step("users password update: {username}, {password_old}, {password_new}")
+def step_impl(context: Context, username: str, password_old: str, password_new: str):
+    _get_client(context).users().get(username).password_update(password_old, password_new)
 
 
 @step("user connect: {username}, {password}")
@@ -59,9 +69,3 @@ def step_impl(context: Context, username: str, password: str):
     credential = TypeDBCredential(username, password, root_ca_path)
     with TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential) as client:
         client.databases().all()
-
-
-@step("user delete: {username}")
-def step_impl(context: Context, username: str):
-    user = _get_client(context).users().get(username)
-    user.delete()
