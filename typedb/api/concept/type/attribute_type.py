@@ -98,18 +98,7 @@ class AttributeType(ThingType, ABC):
             return concept_proto.AttributeType.ValueType.Value(self.name)
 
         def __str__(self):
-            if self is AttributeType.ValueType.OBJECT:
-                return "object"
-            if self is AttributeType.ValueType.BOOLEAN:
-                return "boolean"
-            if self is AttributeType.ValueType.LONG:
-                return "long"
-            if self is AttributeType.ValueType.DOUBLE:
-                return "double"
-            if self is AttributeType.ValueType.STRING:
-                return "string"
-            if self is AttributeType.ValueType.DATETIME:
-                return "datetime"
+            return self.name.lower()
 
 
 class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
