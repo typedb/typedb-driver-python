@@ -97,7 +97,7 @@ class AttributeType(ThingType, ABC):
         def proto(self) -> concept_proto.AttributeType.ValueType:
             return concept_proto.AttributeType.ValueType.Value(self.name)
 
-        def name(self):
+        def __str__(self):
             if self is AttributeType.ValueType.OBJECT:
                 return "object"
             if self is AttributeType.ValueType.BOOLEAN:

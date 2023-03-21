@@ -42,7 +42,7 @@ class _Attribute(Attribute, _Thing, ABC):
     def _json_dict(self):
         return {
             "type": self.get_type().get_label().name(),
-            "value_type": self.get_type().get_value_type().name(),
+            "value_type": str(self.get_type().get_value_type()),
             "value": self.get_value(),
         }
 
@@ -232,7 +232,7 @@ class _DateTimeAttribute(DateTimeAttribute, _Attribute):
     def _json_dict(self):
         return {
             "type": self.get_type().get_label().name(),
-            "value_type": self.get_type().get_value_type().name(),
+            "value_type": str(self.get_type().get_value_type()),
             "value": self.get_value().isoformat(timespec='milliseconds')
         }
 
