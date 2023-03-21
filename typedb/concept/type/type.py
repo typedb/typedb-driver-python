@@ -57,6 +57,9 @@ class _Type(Type, _Concept, ABC):
     def as_type(self) -> "Type":
         return self
 
+    def _json_dict(self):
+        return {"label": self.get_label().name()}
+
     def __str__(self):
         return type(self).__name__ + "[label: %s]" % self.get_label()
 
