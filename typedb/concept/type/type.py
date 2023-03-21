@@ -58,7 +58,7 @@ class _Type(Type, _Concept, ABC):
         return self
 
     def _json_dict(self):
-        return {"label": self.get_label().name()}
+        return {"label": self.get_label().scoped_name()}
 
     def __str__(self):
         return type(self).__name__ + "[label: %s]" % self.get_label()
@@ -98,7 +98,7 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
         return self
 
     def _json_dict(self):
-        return {"label": self.get_label().name()}
+        return {"label": self.get_label().scoped_name()}
 
     def set_label(self, new_label: str):
         self.execute(type_set_label_req(self.get_label(), new_label))

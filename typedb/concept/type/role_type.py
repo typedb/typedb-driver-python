@@ -43,9 +43,6 @@ class _RoleType(_Type, RoleType):
     def as_role_type(self) -> "RoleType":
         return self
 
-    def _json_dict(self):
-        return {"label": self.get_label().scoped_name()}
-
 
 class _RemoteRoleType(_RemoteType, RemoteRoleType):
 
@@ -54,9 +51,6 @@ class _RemoteRoleType(_RemoteType, RemoteRoleType):
 
     def as_role_type(self) -> "RemoteRoleType":
         return self
-
-    def _json_dict(self):
-        return {"label": self.get_label().scoped_name()}
 
     def is_deleted(self) -> bool:
         return self.get_relation_type() is not None and self.get_relation_type().as_remote(self._transaction_ext).get_relates(self.get_label().name()) is not None
