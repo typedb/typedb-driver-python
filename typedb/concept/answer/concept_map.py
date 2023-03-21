@@ -19,6 +19,7 @@
 # under the License.
 #
 
+import json
 from typing import Mapping, Dict, Tuple
 
 import typedb_protocol.common.answer_pb2 as answer_proto
@@ -48,6 +49,15 @@ class _ConceptMap(ConceptMap):
 
     def concepts(self):
         return self._map.values()
+
+    def _json_dict(self):
+        return {
+            var: concept._json_dict()
+            for var, concept in self._map.items()
+        }
+
+    def json(self):
+        return json.dumps(self._json_dict())
 
     def get(self, variable: str):
         concept = self._map[variable]

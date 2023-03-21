@@ -39,6 +39,13 @@ class _Attribute(Attribute, _Thing, ABC):
     def as_attribute(self) -> "Attribute":
         return self
 
+    def _json_dict(self):
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": self.get_type().get_value_type().name(),
+            "value": self.get_value(),
+        }
+
 
 class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
 
@@ -221,6 +228,13 @@ class _DateTimeAttribute(DateTimeAttribute, _Attribute):
 
     def as_remote(self, transaction):
         return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
+
+    def _json_dict(self):
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": self.get_type().get_value_type().name(),
+            "value": self.get_value().isoformat(timespec='milliseconds')
+        }
 
 
 class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):

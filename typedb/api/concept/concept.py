@@ -107,6 +107,10 @@ class Concept(ABC):
     def is_remote(self) -> bool:
         pass
 
+    @abstractmethod
+    def _json_dict(self):
+        pass
+
 
 class RemoteConcept(Concept, ABC):
 

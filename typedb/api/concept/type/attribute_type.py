@@ -97,6 +97,20 @@ class AttributeType(ThingType, ABC):
         def proto(self) -> concept_proto.AttributeType.ValueType:
             return concept_proto.AttributeType.ValueType.Value(self.name)
 
+        def name(self):
+            if self is AttributeType.ValueType.OBJECT:
+                return "object"
+            if self is AttributeType.ValueType.BOOLEAN:
+                return "boolean"
+            if self is AttributeType.ValueType.LONG:
+                return "long"
+            if self is AttributeType.ValueType.DOUBLE:
+                return "double"
+            if self is AttributeType.ValueType.STRING:
+                return "string"
+            if self is AttributeType.ValueType.DATETIME:
+                return "datetime"
+
 
 class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
 

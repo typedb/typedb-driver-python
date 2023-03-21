@@ -53,6 +53,9 @@ class _Thing(Thing, _Concept, ABC):
     def as_thing(self) -> "Thing":
         return self
 
+    def _json_dict(self):
+        return {"type": self.get_type().get_label().name()}
+
     def __str__(self):
         return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())
 

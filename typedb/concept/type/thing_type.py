@@ -39,6 +39,9 @@ class _ThingType(ThingType, _Type):
     def as_thing_type(self) -> "ThingType":
         return self
 
+    def _json_dict(self):
+        return {"label": self.get_label().name()}
+
 
 class _RemoteThingType(_RemoteType, RemoteThingType):
 
