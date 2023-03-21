@@ -28,6 +28,6 @@ from tests.behaviour.context import Context
 
 @step("JSON of answer concepts matches")
 def step_impl(context: Context):
-    expected = json.loads(context.text)
-    actual = [json.loads(answer.json()) for answer in context.answers]
+    expected = sorted(json.loads(context.text))
+    actual = sorted(json.loads(answer.json()) for answer in context.answers)
     assert_that(actual, equal_to(expected))
