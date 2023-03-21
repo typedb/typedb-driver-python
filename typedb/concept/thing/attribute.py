@@ -56,6 +56,13 @@ class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
         return (concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))
                 for t in rp.attribute_get_owners_res_part.things)
 
+    def _json_dict(self):
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": str(self.get_type().get_value_type()),
+            "value": self.get_value(),
+        }
+
 
 class _BooleanAttribute(BooleanAttribute, _Attribute):
 
@@ -252,3 +259,10 @@ class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):
 
     def as_remote(self, transaction):
         return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
+
+    def _json_dict(self):
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": str(self.get_type().get_value_type()),
+            "value": self.get_value().isoformat(timespec='milliseconds')
+        }

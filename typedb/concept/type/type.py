@@ -97,6 +97,9 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
     def as_type(self) -> "RemoteType":
         return self
 
+    def _json_dict(self):
+        return {"label": self.get_label().name()}
+
     def set_label(self, new_label: str):
         self.execute(type_set_label_req(self.get_label(), new_label))
         self._label = new_label
