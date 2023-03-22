@@ -42,6 +42,14 @@ class ConceptMap(ABC):
     def explainables(self) -> "ConceptMap.Explainables":
         pass
 
+    @abstractmethod
+    def _json_dict(self) -> Mapping[str, dict]:
+        pass
+
+    @abstractmethod
+    def json(self) -> str:
+        pass
+
     class Explainables(ABC):
 
         @abstractmethod

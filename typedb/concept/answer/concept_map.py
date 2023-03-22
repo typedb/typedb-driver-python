@@ -50,13 +50,13 @@ class _ConceptMap(ConceptMap):
     def concepts(self):
         return self._map.values()
 
-    def _json_dict(self):
+    def _json_dict(self) -> Mapping[str, dict]:
         return {
             var: concept._json_dict()
             for var, concept in self._map.items()
         }
 
-    def json(self):
+    def json(self) -> str:
         return json.dumps(self._json_dict())
 
     def get(self, variable: str):
