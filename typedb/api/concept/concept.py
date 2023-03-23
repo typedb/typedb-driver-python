@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import Mapping, Union, TYPE_CHECKING
 
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 
@@ -108,7 +108,7 @@ class Concept(ABC):
         pass
 
     @abstractmethod
-    def _json_dict(self):
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         pass
 
 

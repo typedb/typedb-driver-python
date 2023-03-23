@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC
-from typing import TYPE_CHECKING, Union
+from typing import Mapping, Union, TYPE_CHECKING
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
@@ -57,7 +57,7 @@ class _Type(Type, _Concept, ABC):
     def as_type(self) -> "Type":
         return self
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, str]:
         return {"label": self.get_label().scoped_name()}
 
     def __str__(self):
@@ -97,7 +97,7 @@ class _RemoteType(RemoteType, _RemoteConcept, ABC):
     def as_type(self) -> "RemoteType":
         return self
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, str]:
         return {"label": self.get_label().scoped_name()}
 
     def set_label(self, new_label: str):

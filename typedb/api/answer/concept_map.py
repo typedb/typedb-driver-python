@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Mapping, Iterable, Tuple
+from typing import Iterable, Mapping, Tuple, Union
 
 from typedb.api.concept.concept import Concept
 
@@ -43,11 +43,7 @@ class ConceptMap(ABC):
         pass
 
     @abstractmethod
-    def _json_dict(self) -> Mapping[str, dict]:
-        pass
-
-    @abstractmethod
-    def json(self) -> str:
+    def json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool]]]:
         pass
 
     class Explainables(ABC):

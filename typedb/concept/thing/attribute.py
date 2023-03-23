@@ -20,6 +20,7 @@
 #
 from abc import ABC
 from datetime import datetime
+from typing import Mapping, Union
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
@@ -39,7 +40,7 @@ class _Attribute(Attribute, _Thing, ABC):
     def as_attribute(self) -> "Attribute":
         return self
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),
@@ -56,7 +57,7 @@ class _RemoteAttribute(RemoteAttribute, _RemoteThing, ABC):
         return (concept_proto_reader.thing(t) for rp in self.stream(attribute_get_owners_req(self.get_iid(), concept_proto_builder.thing_type(owner_type)))
                 for t in rp.attribute_get_owners_res_part.things)
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),
@@ -236,7 +237,7 @@ class _DateTimeAttribute(DateTimeAttribute, _Attribute):
     def as_remote(self, transaction):
         return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),
@@ -260,7 +261,7 @@ class _RemoteDateTimeAttribute(RemoteDateTimeAttribute, _RemoteAttribute):
     def as_remote(self, transaction):
         return _RemoteDateTimeAttribute(transaction, self.get_iid(), self.is_inferred(), self.get_type(), self.get_value())
 
-    def _json_dict(self):
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),
