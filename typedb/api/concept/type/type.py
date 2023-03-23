@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import Iterator, TYPE_CHECKING
+from typing import Iterator, Mapping, TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept, RemoteConcept
 from typedb.common.label import Label
@@ -48,6 +48,9 @@ class Type(Concept, ABC):
     @abstractmethod
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteType":
         pass
+
+    def json(self) -> Mapping[str, str]:
+        return {"label": self.get_label().scoped_name()}
 
 
 class RemoteType(RemoteConcept, Type, ABC):

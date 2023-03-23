@@ -42,9 +42,11 @@ class ConceptMap(ABC):
     def explainables(self) -> "ConceptMap.Explainables":
         pass
 
-    @abstractmethod
     def json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool]]]:
-        pass
+        return {
+            var: concept.json()
+            for var, concept in self._map.items()
+        }
 
     class Explainables(ABC):
 
