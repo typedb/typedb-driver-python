@@ -97,6 +97,9 @@ class AttributeType(ThingType, ABC):
         def proto(self) -> concept_proto.AttributeType.ValueType:
             return concept_proto.AttributeType.ValueType.Value(self.name)
 
+        def __str__(self):
+            return self.name.lower()
+
 
 class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
 

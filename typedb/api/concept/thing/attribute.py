@@ -20,7 +20,7 @@
 #
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Iterator, Union
+from typing import TYPE_CHECKING, Iterator, Mapping, Union
 
 from typedb.api.concept.thing.thing import Thing, RemoteThing
 
@@ -61,6 +61,13 @@ class Attribute(Thing, ABC):
 
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteAttribute":
         pass
+
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": str(self.get_type().get_value_type()),
+            "value": self.get_value(),
+        }
 
 
 class RemoteAttribute(RemoteThing, Attribute, ABC):
@@ -174,6 +181,13 @@ class DateTimeAttribute(Attribute, ABC):
     @abstractmethod
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDateTimeAttribute":
         pass
+
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
+        return {
+            "type": self.get_type().get_label().name(),
+            "value_type": str(self.get_type().get_value_type()),
+            "value": self.get_value().isoformat(timespec='milliseconds')
+        }
 
 
 class RemoteDateTimeAttribute(RemoteAttribute, DateTimeAttribute, ABC):

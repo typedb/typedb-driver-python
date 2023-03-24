@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import Mapping, Union, TYPE_CHECKING
 
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 
@@ -105,6 +105,10 @@ class Concept(ABC):
 
     @abstractmethod
     def is_remote(self) -> bool:
+        pass
+
+    @abstractmethod
+    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
         pass
 
 
