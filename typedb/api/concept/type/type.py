@@ -49,7 +49,7 @@ class Type(Concept, ABC):
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteType":
         pass
 
-    def json(self) -> Mapping[str, str]:
+    def to_json(self) -> Mapping[str, str]:
         return {"label": self.get_label().scoped_name()}
 
 

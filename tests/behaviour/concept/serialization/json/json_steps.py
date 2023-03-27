@@ -48,8 +48,8 @@ def unordered_equal_to(expected: List[T]) -> UnorderedEqualTo[T]:
     return UnorderedEqualTo(expected)
 
 
-@step("JSON of answer concepts matches")
+@step("JSON serialization of answers matches")
 def step_impl(context: Context):
     expected = json.loads(context.text)
-    actual = [answer.json() for answer in context.answers]
+    actual = [answer.to_json() for answer in context.answers]
     assert_that(actual, unordered_equal_to(expected))
