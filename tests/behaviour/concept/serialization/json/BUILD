@@ -20,7 +20,39 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
+load("//tools:behave_rule.bzl", "typedb_behaviour_py_test")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
+
+py_library(
+    name = "steps",
+    srcs = ["json_steps.py"],
+    deps = [],
+)
+
+typedb_behaviour_py_test(
+    name = "test",
+    feats = ["@vaticle_typedb_behaviour//concept/serialization:json.feature"],
+    background_core = ["//tests/behaviour/background:core"],
+    background_cluster = ["//tests/behaviour/background:cluster"],
+    steps = [
+        ":steps",
+        "//tests/behaviour/typeql:steps",
+        "//tests/behaviour/connection:steps",
+        "//tests/behaviour/connection/database:steps",
+        "//tests/behaviour/connection/session:steps",
+        "//tests/behaviour/connection/transaction:steps",
+    ],
+    deps = [
+        "//:client_python",
+        "//tests/behaviour:context",
+        "//tests/behaviour/util:util",
+        "//tests/behaviour/config:parameters",
+        "//tests/behaviour/background",
+    ],
+    native_typedb_artifact = "//tests:native-typedb-artifact",
+    native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
+    size = "medium",
+)
 
 checkstyle_test(
     name = "checkstyle",

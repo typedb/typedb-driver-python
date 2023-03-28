@@ -62,7 +62,7 @@ class Attribute(Thing, ABC):
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteAttribute":
         pass
 
-    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),
@@ -182,7 +182,7 @@ class DateTimeAttribute(Attribute, ABC):
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDateTimeAttribute":
         pass
 
-    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "type": self.get_type().get_label().name(),
             "value_type": str(self.get_type().get_value_type()),

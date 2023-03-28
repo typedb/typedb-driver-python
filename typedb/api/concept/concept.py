@@ -108,7 +108,7 @@ class Concept(ABC):
         pass
 
     @abstractmethod
-    def json(self) -> Mapping[str, Union[str, int, float, bool]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         pass
 
 
