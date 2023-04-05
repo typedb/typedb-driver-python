@@ -31,23 +31,23 @@ if TYPE_CHECKING:
 
 class _ClusterUser(User):
 
-    def __init__(self, client: "_ClusterClient", username: str, password_expiry_days: Optional[int]):
+    def __init__(self, client: "_ClusterClient", username: str, password_expiry_seconds: Optional[int]):
         self._client = client
         self._username = username
-        self._password_expiry_days = password_expiry_days
+        self._password_expiry_seconds = password_expiry_seconds
 
     @staticmethod
     def of(user: cluster_user_proto.ClusterUser, client: "_ClusterClient"):
         if user.get_password_expiry_case() == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORDEXPIRY_NOT_SET:
             return _ClusterUser(client, user.get_username(), None)
         else:
-            return _ClusterUser(client, user.get_username(), user.get_password_expiry_days())
+            return _ClusterUser(client, user.get_username(), user.get_password_expiry_seconds())
 
     def username(self) -> str:
         return self._username
 
-    def password_expiry_days(self) -> Optional[int]:
-        return self._password_expiry_days
+    def password_expiry_seconds(self) -> Optional[int]:
+        return self._password_expiry_seconds
 
     def password_update(self, password_old: str, password_new: str) -> None:
         failsafe_task = _UserFailsafeTask(
