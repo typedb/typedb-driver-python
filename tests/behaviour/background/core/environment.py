@@ -36,6 +36,7 @@ def before_scenario(context: Context, scenario):
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
             return
+    environment_base.before_scenario(context)
 
 
 def setup_context_client(context):
