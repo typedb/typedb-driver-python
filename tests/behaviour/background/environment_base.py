@@ -29,7 +29,7 @@ def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
 
 
-def before_scenario(context: Context, scenario):
+def before_scenario(context: Context):
     # setup context state
     context.sessions = []
     context.sessions_to_transactions = {}
