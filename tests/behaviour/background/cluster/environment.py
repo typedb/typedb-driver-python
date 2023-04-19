@@ -32,7 +32,7 @@ def before_all(context: Context):
     environment_base.before_all(context)
     root_ca_path = os.environ["ROOT_CA"]
     context.credential = TypeDBCredential("admin", "password", root_ca_path)
-    context.setup_context_client_fn = setup_context_client
+    context.setup_context_client_fn = lambda: setup_context_client(context)
 
 
 def before_scenario(context: Context, scenario):

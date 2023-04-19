@@ -29,7 +29,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.setup_context_client_fn = setup_context_client
+    context.setup_context_client_fn = lambda: setup_context_client(context)
 
 def before_scenario(context: Context, scenario):
     for tag in IGNORE_TAGS:
