@@ -30,15 +30,15 @@ def before_all(context: Context):
 
 
 def before_scenario(context: Context, scenario):
-    for database in context.client.databases().all():
-        database.delete()
+    # setup context state
     context.sessions = []
     context.sessions_to_transactions = {}
     context.sessions_parallel = []
     context.sessions_to_transactions_parallel = {}
     context.sessions_parallel_to_transactions_parallel = {}
-    context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
     context.things = {}
+    # setup context functions
+    context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
     context.get = lambda var: context.things[var]
     context.put = lambda var, thing: _put_impl(context, var, thing)
     context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
@@ -81,7 +81,8 @@ def after_scenario(context: Context, scenario):
         future_session.result().close()
     for database in context.client.databases().all():
         database.delete()
+    context.client.close()
 
 
 def after_all(context: Context):
-    context.client.close()
+    pass

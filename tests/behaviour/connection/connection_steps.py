@@ -24,6 +24,18 @@ from behave import *
 from tests.behaviour.context import Context
 
 
+@step(u'typedb starts')
+def step_impl(context):
+    # TODO we should run a new TypeDB server, rather than relying on previous CI steps
+    pass
+
+@step(u'open connection')
+def step_impl(context):
+    context.setup_context_client_fn()
+    for database in context.client.databases().all():
+        database.delete()
+
+
 @step("connection has been opened")
 def step_impl(context: Context):
     assert context.client and context.client.is_open()

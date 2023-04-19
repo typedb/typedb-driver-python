@@ -30,10 +30,9 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-cluster-client-p
 
 def before_all(context: Context):
     environment_base.before_all(context)
-
     root_ca_path = os.environ["ROOT_CA"]
-    credential = TypeDBCredential("admin", "password", root_ca_path)
-    context.client = TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential)
+    context.credential = TypeDBCredential("admin", "password", root_ca_path)
+    context.setup_context_client_fn = setup_context_client
 
 
 def before_scenario(context: Context, scenario):
@@ -41,10 +40,12 @@ def before_scenario(context: Context, scenario):
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
             return
-    environment_base.before_scenario(context, scenario)
+
+
+def setup_context_client(context):
+    context.client = TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=context.credential)
     context.session_options = TypeDBOptions.cluster().set_infer(True)
     context.transaction_options = TypeDBOptions.cluster().set_infer(True)
-
 
 
 def after_scenario(context: Context, scenario):

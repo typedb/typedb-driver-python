@@ -29,17 +29,20 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
-
+    context.setup_context_client_fn = setup_context_client
 
 def before_scenario(context: Context, scenario):
     for tag in IGNORE_TAGS:
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
             return
-    environment_base.before_scenario(context, scenario)
+
+
+def setup_context_client(context):
+    context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
     context.session_options = TypeDBOptions.core().set_infer(True)
     context.transaction_options = TypeDBOptions.core().set_infer(True)
+
 
 def after_scenario(context: Context, scenario):
     environment_base.after_scenario(context, scenario)
