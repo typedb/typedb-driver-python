@@ -23,17 +23,36 @@ from behave import *
 
 from tests.behaviour.context import Context
 
+@step(u'typedb has configuration')
+def step_impl(context):
+    # TODO: implement configuring the TypeDB runner when a python typedb-runner is available
+    pass
 
 @step(u'typedb starts')
 def step_impl(context):
-    # TODO we should run a new TypeDB server, rather than relying on previous CI steps
+    # TODO: start TypeDB via a python typedb-runner once one is available
     pass
 
-@step(u'open connection')
+@step(u'connection opens without authentication')
 def step_impl(context):
     context.setup_context_client_fn()
     for database in context.client.databases().all():
         database.delete()
+
+@step(u'connection opens with authentication: {username}, {password}')
+def step_impl(context, username: str, password: str):
+    context.setup_context_client_fn(username, password)
+    for database in context.client.databases().all():
+        database.delete()
+
+@step(u'connection closes')
+def step_impl(context):
+    context.client.close()
+
+@step(u'typedb stops')
+def step_impl(context):
+    # TODO: stop TypeDB via a python typedb-runner once one is available
+    pass
 
 
 @step("connection has been opened")

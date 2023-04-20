@@ -74,14 +74,8 @@ def _clear_answers_impl(context: Context):
 def after_scenario(context: Context, scenario):
     if scenario.status == Status.skipped:
         return
-
-    for session in context.sessions:
-        session.close()
-    for future_session in context.sessions_parallel:
-        future_session.result().close()
-    for database in context.client.databases().all():
-        database.delete()
-    context.client.close()
+    if context.client.is_open():
+        context.client.close()
 
 
 def after_all(context: Context):

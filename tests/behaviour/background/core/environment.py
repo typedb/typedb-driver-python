@@ -29,7 +29,8 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.setup_context_client_fn = lambda: setup_context_client(context)
+    context.setup_context_client_fn = lambda user=None, password=None: setup_context_client(context, user, password)
+
 
 def before_scenario(context: Context, scenario):
     for tag in IGNORE_TAGS:
@@ -39,7 +40,9 @@ def before_scenario(context: Context, scenario):
     environment_base.before_scenario(context)
 
 
-def setup_context_client(context):
+def setup_context_client(context, username=None, password=None):
+    if username is not None or password is not None:
+        raise Exception("Core client does not support authentication")
     context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
     context.session_options = TypeDBOptions.core().set_infer(True)
     context.transaction_options = TypeDBOptions.core().set_infer(True)
