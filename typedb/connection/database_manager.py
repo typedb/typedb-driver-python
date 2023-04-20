@@ -53,7 +53,7 @@ class _TypeDBDatabaseManagerImpl(DatabaseManager):
         self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))
 
     def all(self) -> List[_TypeDBDatabaseImpl]:
-        databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).databases
+        databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).all
         return [_TypeDBDatabaseImpl(self._stub, name) for name in databases]
 
     def stub(self) -> TypeDBStub:
