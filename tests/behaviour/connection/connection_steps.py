@@ -47,8 +47,6 @@ def step_impl(context):
 @step(u'connection opens with authentication: {username:w}, {password:w}')
 def step_impl(context, username: str, password: str):
     context.setup_context_client_fn(username, password)
-    for database in context.client.databases().all():
-        database.delete()
 
 
 @step(u'connection opens with authentication: {username:w}, {password:w}; throws exception')
