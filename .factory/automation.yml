@@ -63,9 +63,7 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .factory/test-core.sh //tests/behaviour/connection/database --test_output=errors --jobs=1
-        .factory/test-core.sh //tests/behaviour/connection/session--test_output=errors --jobs=1
-        .factory/test-core.sh //tests/behaviour/connection/transaction--test_output=errors --jobs=1
+        .factory/test-core.sh $(bazel query //tests/behaviour/connection/... except //tests/behaviour/connection/user/...) --test_output=errors --jobs=1
     test-behaviour-connection-cluster:
       image: vaticle-ubuntu-22.04
       type: foreground
