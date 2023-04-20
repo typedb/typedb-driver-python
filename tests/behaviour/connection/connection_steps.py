@@ -20,18 +20,22 @@
 #
 
 from behave import *
+from typedb.common.exception import TypeDBClientException
 
 from tests.behaviour.context import Context
+
 
 @step(u'typedb has configuration')
 def step_impl(context):
     # TODO: implement configuring the TypeDB runner when a python typedb-runner is available
     pass
 
+
 @step(u'typedb starts')
 def step_impl(context):
     # TODO: start TypeDB via a python typedb-runner once one is available
     pass
+
 
 @step(u'connection opens without authentication')
 def step_impl(context):
@@ -39,15 +43,27 @@ def step_impl(context):
     for database in context.client.databases().all():
         database.delete()
 
+
 @step(u'connection opens with authentication: {username}, {password}')
 def step_impl(context, username: str, password: str):
     context.setup_context_client_fn(username, password)
     for database in context.client.databases().all():
         database.delete()
 
+
+@step(u'connection opens with authentication: {username}, {password}; throws exception')
+def step_impl(context, username: str, password: str):
+    try:
+        context.setup_context_client_fn(username, password)
+        assert False
+    except TypeDBClientException:
+        pass
+
+
 @step(u'connection closes')
 def step_impl(context):
     context.client.close()
+
 
 @step(u'typedb stops')
 def step_impl(context):
@@ -63,4 +79,3 @@ def step_impl(context: Context):
 @step("connection does not have any database")
 def step_impl(context: Context):
     assert len(context.client.databases().all()) == 0
-
