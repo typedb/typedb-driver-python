@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 class _ClusterUser(User):
 
-    def __init__(self, client: "_ClusterClient", username: str, password_expiry_seconds: Optional[int]):
+    def __init__(self, client: "_ClusterClient", username: str, password_expiry_seconds: Optional[int] = None):
         self._client = client
         self._username = username
         self._password_expiry_seconds = password_expiry_seconds
