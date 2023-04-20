@@ -63,7 +63,6 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-#        run everything exception the User tests
         .factory/test-core.sh //tests/behaviour/connection/database --test_output=errors --jobs=1
         .factory/test-core.sh //tests/behaviour/connection/session--test_output=errors --jobs=1
         .factory/test-core.sh //tests/behaviour/connection/transaction--test_output=errors --jobs=1
