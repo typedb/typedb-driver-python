@@ -64,6 +64,7 @@ class _ClusterUserManager(UserManager):
     def _get_user_list(self, replica: _ClusterDatabase.Replica):
         users_proto = self._client._stub(replica.address()).users_all(cluster_user_manager_all_req())
         print(users_proto)
+        print(dir(users_proto))
         return [_ClusterUser(self._client, username) for username in users_proto.names]
 
     def contains(self, username: str) -> bool:
