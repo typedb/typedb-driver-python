@@ -63,17 +63,23 @@ build:
         export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
         export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-        .factory/test-core.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
-#    test-behaviour-connection-cluster:
-#      image: vaticle-ubuntu-21.04
-#      type: foreground
-#      command: |
-#        python3 -m pip install -U pip
-#        python3 -m pip install -r requirements_dev.txt
-#        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
-#        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
-#        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-#        .factory/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
+#        run everything exception the User tests
+        .factory/test-core.sh //tests/behaviour/connection/database --test_output=errors --jobs=1
+        .factory/test-core.sh //tests/behaviour/connection/session--test_output=errors --jobs=1
+        .factory/test-core.sh //tests/behaviour/connection/transaction--test_output=errors --jobs=1
+    test-behaviour-connection-cluster:
+      image: vaticle-ubuntu-22.04
+      type: foreground
+      command: |
+        export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
+        sudo apt install python3-pip -y
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+        .factory/test-cluster.sh //tests/behaviour/connection/... --test_output=errors --jobs=1
     test-behaviour-concept-core:
       image: vaticle-ubuntu-22.04
       type: foreground
@@ -113,22 +119,20 @@ build:
         bazel run @vaticle_dependencies//distribution/artifact:create-netrc
         .factory/test-core.sh //tests/behaviour/typeql/language/match/... --test_output=errors
         .factory/test-core.sh //tests/behaviour/typeql/language/get/... --test_output=errors
-#    test-behaviour-match-cluster:
-#      image: vaticle-ubuntu-21.04
-#      type: foreground
-#      command: |
-#        pyenv install 3.7.12
-#        pyenv global 3.7.12
-#        python3 -m pip install -U pip
-#        python3 -m pip install -r requirements_dev.txt
-#        sudo unlink /usr/bin/python3
-#        sudo ln -s $(which python3) /usr/bin/python3
-#        sudo ln -s /usr/share/pyshared/lsb_release.py /opt/pyenv/versions/3.7.12/lib/python3.7/site-packages/lsb_release.py
-#        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
-#        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
-#        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
-#        .factory/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
-#        .factory/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
+    test-behaviour-match-cluster:
+      image: vaticle-ubuntu-22.04
+      type: foreground
+      command: |
+        export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
+        sudo apt install python3-pip -y
+        python3 -m pip install -U pip
+        python3 -m pip install -r requirements_dev.txt
+        export ARTIFACT_USERNAME=$REPO_VATICLE_USERNAME
+        export ARTIFACT_PASSWORD=$REPO_VATICLE_PASSWORD
+        bazel run @vaticle_dependencies//distribution/artifact:create-netrc
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/match/... --test_output=errors
+        .factory/test-cluster.sh //tests/behaviour/typeql/language/get/... --test_output=errors
     test-behaviour-writable-core:
       image: vaticle-ubuntu-22.04
       type: foreground
@@ -206,10 +210,10 @@ build:
       dependencies: [
         build,
         test-behaviour-connection-core,
-        # test-behaviour-connection-cluster,
+         test-behaviour-connection-cluster,
         test-behaviour-concept-core, test-behaviour-concept-cluster,
         test-behaviour-match-core,
-#        test-behaviour-match-cluster,
+        test-behaviour-match-cluster,
         test-behaviour-writable-core, test-behaviour-writable-cluster,
         test-behaviour-definable-core, test-behaviour-definable-cluster,
         test-failover-cluster
