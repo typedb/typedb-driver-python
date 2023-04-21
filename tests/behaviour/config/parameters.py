@@ -71,10 +71,11 @@ register_type(DateTime=parse_datetime)
 class RootLabel(Enum):
     ENTITY = 0,
     ATTRIBUTE = 1,
-    RELATION = 2
+    RELATION = 2,
+    THING = 3
 
 
-@parse.with_pattern(r"entity|attribute|relation")
+@parse.with_pattern(r"entity|attribute|relation|thing")
 def parse_root_label(text: str) -> RootLabel:
     if text == "entity":
         return RootLabel.ENTITY
@@ -82,6 +83,8 @@ def parse_root_label(text: str) -> RootLabel:
         return RootLabel.ATTRIBUTE
     elif text == "relation":
         return RootLabel.RELATION
+    elif text == "thing":
+        return RootLabel.THING
     else:
         raise ValueError("Unrecognised root label: " + text)
 
