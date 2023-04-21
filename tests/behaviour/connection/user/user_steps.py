@@ -43,9 +43,19 @@ def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
 
 
-@step("users create: {username}, {password}")
+@step("users create: {username:w}, {password:w}")
 def step_impl(context: Context, username: str, password: str):
     _get_client(context).users().create(username, password)
+
+
+
+@step("users create: {username:w}, {password:w}; throws exception")
+def step_impl(context: Context, username: str, password: str):
+    try :
+        _get_client(context).users().create(username, password)
+        assert False
+    except TypeDBClientException:
+        pass
 
 
 @step("users get all")
