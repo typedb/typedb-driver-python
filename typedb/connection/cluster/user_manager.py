@@ -65,7 +65,7 @@ class _ClusterUserManager(UserManager):
         users_proto = self._client._stub(replica.address()).users_all(cluster_user_manager_all_req())
         print(users_proto)
         print(dir(users_proto))
-        return [_ClusterUser.of(self._client, user) for user in users_proto.users]
+        return [_ClusterUser.of(user, self._client) for user in users_proto.users]
 
     def contains(self, username: str) -> bool:
         failsafe_task = _UserManagerFailsafeTask(
