@@ -117,7 +117,11 @@ def step_impl(context: Context, username: str, password: str):
 
 @step("users password set: {username:Words}, {password:Words}; throws exception")
 def step_impl(context: Context, username: str, password: str):
-    _get_client(context).users().password_set(username, password)
+    try:
+        _get_client(context).users().password_set(username, password)
+        assert False
+    except TypeDBClientException:
+        pass
 
 
 @step("users password update: {username}, {password_old}, {password_new}")
