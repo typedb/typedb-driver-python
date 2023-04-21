@@ -44,12 +44,12 @@ def step_impl(context):
         database.delete()
 
 
-@step(u'connection opens with authentication: {username:w}, {password:w}')
+@step(u'connection opens with authentication: {username:Words}, {password:Words}')
 def step_impl(context, username: str, password: str):
     context.setup_context_client_fn(username, password)
 
 
-@step(u'connection opens with authentication: {username:w}, {password:w}; throws exception')
+@step(u'connection opens with authentication: {username:Words}, {password:Words}; throws exception')
 def step_impl(context, username: str, password: str):
     try:
         context.setup_context_client_fn(username, password)

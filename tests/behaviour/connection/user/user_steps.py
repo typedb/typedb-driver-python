@@ -33,12 +33,12 @@ def _get_client(context: Context):
     return client
 
 
-@step("users contains: {username:w}")
+@step("users contains: {username:Words}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
 
 
-@step("users contains: {username:w}; throw exception")
+@step("users contains: {username:Words}; throw exception")
 def step_impl(context: Context, username: str):
     try:
         assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
@@ -53,13 +53,13 @@ def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
 
 
-@step("users create: {username:w}, {password:w}")
+@step("users create: {username:Words}, {password:Words}")
 def step_impl(context: Context, username: str, password: str):
     _get_client(context).users().create(username, password)
 
 
 
-@step("users create: {username:w}, {password:w}; throws exception")
+@step("users create: {username:Words}, {password:Words}; throws exception")
 def step_impl(context: Context, username: str, password: str):
     try :
         _get_client(context).users().create(username, password)
@@ -82,12 +82,12 @@ def step_impl(context: Context):
         pass
 
 
-@step("users get user: {username:w}")
+@step("users get user: {username:Words}")
 def step_impl(context: Context, username: str):
     _get_client(context).users().get(username)
 
 
-@step("users get user: {username:w}; throws exception")
+@step("users get user: {username:Words}; throws exception")
 def step_impl(context: Context, username: str):
     try :
         _get_client(context).users().get(username)

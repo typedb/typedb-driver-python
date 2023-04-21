@@ -18,10 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from enum import Enum
+
 import parse
 from behave import register_type
 from behave.model import Table
-from enum import Enum
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from typedb.client import *
 
@@ -46,6 +47,14 @@ def parse_float(text: str) -> float:
 
 
 register_type(Float=parse_float)
+
+
+@parse.with_pattern("[\w_-]+")
+def parseWords(text):
+    return text
+
+
+register_type(Words=parseWords)
 
 
 @parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
