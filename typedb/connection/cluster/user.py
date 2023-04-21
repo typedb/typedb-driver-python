@@ -41,11 +41,10 @@ class _ClusterUser(User):
         print("USER")
         print(user)
         print(dir(user))
-        print(dir(cluster_user_proto.ClusterUser.PasswordExpiryCase))
-        if user.WhichOneof("password_expiry") == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORD_EXPIRY_SECONDS:
-            return _ClusterUser(client, user.get_username(), None)
+        if user.WhichOneof("password_expiry") == "password_expiry_seconds":
+            return _ClusterUser(client, user.get_username(), user.password_expiry_seconds)
         else:
-            return _ClusterUser(client, user.get_username(), user.get_password_expiry_seconds())
+            return _ClusterUser(client, user.get_username(), None)
 
     def username(self) -> str:
         return self._username
