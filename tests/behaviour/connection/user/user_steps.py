@@ -33,7 +33,7 @@ def _get_client(context: Context):
     return client
 
 
-@step("users contains: {username}")
+@step("users contains: {username:w}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
 
