@@ -38,6 +38,16 @@ def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
 
 
+@step("users contains: {username:w}; throw exception")
+def step_impl(context: Context, username: str):
+    try:
+        assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
+        assert False
+    except Exception:
+        pass
+
+
+
 @step("users not contains: {username}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
