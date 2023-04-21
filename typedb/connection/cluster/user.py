@@ -41,7 +41,8 @@ class _ClusterUser(User):
         print("USER")
         print(user)
         print(dir(user))
-        if user.get_password_expiry_case() == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORDEXPIRY_NOT_SET:
+        print(dir(cluster_user_proto.ClusterUser.PasswordExpiryCase))
+        if user.WhichOneof("password_expiry") == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORD_EXPIRY_SECONDS:
             return _ClusterUser(client, user.get_username(), None)
         else:
             return _ClusterUser(client, user.get_username(), user.get_password_expiry_seconds())
