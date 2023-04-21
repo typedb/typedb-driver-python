@@ -30,7 +30,7 @@ class User(ABC):
         pass
 
     @abstractmethod
-    def password_expiry_days(self) -> Optional[int]:
+    def password_expiry_seconds(self) -> Optional[int]:
         pass
 
     @abstractmethod

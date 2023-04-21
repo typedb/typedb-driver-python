@@ -29,7 +29,7 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python"]
 
 def before_all(context: Context):
     environment_base.before_all(context)
-    context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
+    context.setup_context_client_fn = lambda user=None, password=None: setup_context_client(context, user, password)
 
 
 def before_scenario(context: Context, scenario):
@@ -37,13 +37,25 @@ def before_scenario(context: Context, scenario):
         if tag in scenario.effective_tags:
             scenario.skip("tagged with @" + tag)
             return
-    environment_base.before_scenario(context, scenario)
+    environment_base.before_scenario(context)
+
+
+def setup_context_client(context, username=None, password=None):
+    if username is not None or password is not None:
+        raise Exception("Core client does not support authentication")
+    context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
     context.session_options = TypeDBOptions.core().set_infer(True)
     context.transaction_options = TypeDBOptions.core().set_infer(True)
+
 
 def after_scenario(context: Context, scenario):
     environment_base.after_scenario(context, scenario)
 
+    # TODO: reset the database through the TypeDB runner once it exists
+    context.setup_context_client_fn()
+    for database in context.client.databases().all():
+        database.delete()
+    context.client.close()
 
 def after_all(context: Context):
     environment_base.after_all(context)

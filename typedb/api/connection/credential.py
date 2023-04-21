@@ -35,10 +35,8 @@ class TypeDBCredential:
 
         self._tls_root_ca_path = tls_root_ca_path
 
-
     def username(self):
         return self._username
-
 
     def password(self):
         return self._password

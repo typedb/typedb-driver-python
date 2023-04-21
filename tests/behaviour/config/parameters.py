@@ -18,10 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from enum import Enum
+
 import parse
 from behave import register_type
 from behave.model import Table
-from enum import Enum
 # TODO: We aren't consistently using typed parameters in step implementations - we should be.
 from typedb.client import *
 
@@ -48,6 +49,14 @@ def parse_float(text: str) -> float:
 register_type(Float=parse_float)
 
 
+@parse.with_pattern("[\w_-]+")
+def parseWords(text):
+    return text
+
+
+register_type(Words=parseWords)
+
+
 @parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
 def parse_datetime(text: str) -> datetime:
     try:
@@ -62,10 +71,11 @@ register_type(DateTime=parse_datetime)
 class RootLabel(Enum):
     ENTITY = 0,
     ATTRIBUTE = 1,
-    RELATION = 2
+    RELATION = 2,
+    THING = 3
 
 
-@parse.with_pattern(r"entity|attribute|relation")
+@parse.with_pattern(r"entity|attribute|relation|thing")
 def parse_root_label(text: str) -> RootLabel:
     if text == "entity":
         return RootLabel.ENTITY
@@ -73,6 +83,8 @@ def parse_root_label(text: str) -> RootLabel:
         return RootLabel.ATTRIBUTE
     elif text == "relation":
         return RootLabel.RELATION
+    elif text == "thing":
+        return RootLabel.THING
     else:
         raise ValueError("Unrecognised root label: " + text)
 

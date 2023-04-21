@@ -29,16 +29,16 @@ def before_all(context: Context):
     context.THREAD_POOL_SIZE = 32
 
 
-def before_scenario(context: Context, scenario):
-    for database in context.client.databases().all():
-        database.delete()
+def before_scenario(context: Context):
+    # setup context state
     context.sessions = []
     context.sessions_to_transactions = {}
     context.sessions_parallel = []
     context.sessions_to_transactions_parallel = {}
     context.sessions_parallel_to_transactions_parallel = {}
-    context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
     context.things = {}
+    # setup context functions
+    context.tx = lambda: context.sessions_to_transactions[context.sessions[0]][0]
     context.get = lambda var: context.things[var]
     context.put = lambda var, thing: _put_impl(context, var, thing)
     context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
@@ -60,6 +60,8 @@ def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: st
         return context.tx().concepts().get_attribute_type(type_label)
     elif root_label == RootLabel.RELATION:
         return context.tx().concepts().get_relation_type(type_label)
+    elif root_label == RootLabel.THING:
+        return context.tx().concepts().get_root_thing_type()
     else:
         raise ValueError("Unrecognised value")
 
@@ -74,14 +76,9 @@ def _clear_answers_impl(context: Context):
 def after_scenario(context: Context, scenario):
     if scenario.status == Status.skipped:
         return
-
-    for session in context.sessions:
-        session.close()
-    for future_session in context.sessions_parallel:
-        future_session.result().close()
-    for database in context.client.databases().all():
-        database.delete()
+    if context.client.is_open():
+        context.client.close()
 
 
 def after_all(context: Context):
-    context.client.close()
+    pass
