@@ -38,6 +38,9 @@ class _ClusterUser(User):
 
     @staticmethod
     def of(user: cluster_user_proto.ClusterUser, client: "_ClusterClient"):
+        print("USER")
+        print(user)
+        print(dir(user))
         if user.get_password_expiry_case() == cluster_user_proto.ClusterUser.PasswordExpiryCase.PASSWORDEXPIRY_NOT_SET:
             return _ClusterUser(client, user.get_username(), None)
         else:
