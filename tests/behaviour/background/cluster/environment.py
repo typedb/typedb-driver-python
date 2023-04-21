@@ -25,7 +25,7 @@ from typedb.client import *
 from tests.behaviour.background import environment_base
 from tests.behaviour.context import Context
 
-IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-cluster-client-python"]
+IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python", "ignore-typedb-cluster-client-python"]
 
 
 def before_all(context: Context):
@@ -59,7 +59,7 @@ def after_scenario(context: Context, scenario):
 
     for user in context.client.users().all():
         if user.username() != "admin":
-            user.delete()
+            context.client.users().delete(user.username())
     context.client.close()
 
 
