@@ -37,7 +37,7 @@ def step_impl(context):
     pass
 
 
-@step(u'connection opens without authentication')
+@step(u'connection opens with default authentication')
 def step_impl(context):
     context.setup_context_client_fn()
     for database in context.client.databases().all():
