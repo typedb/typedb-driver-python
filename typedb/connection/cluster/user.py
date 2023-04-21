@@ -38,13 +38,10 @@ class _ClusterUser(User):
 
     @staticmethod
     def of(user: cluster_user_proto.ClusterUser, client: "_ClusterClient"):
-        print("USER")
-        print(user)
-        print(dir(user))
         if user.WhichOneof("password_expiry") == "password_expiry_seconds":
-            return _ClusterUser(client, user.get_username(), user.password_expiry_seconds)
+            return _ClusterUser(client, user.username, user.password_expiry_seconds)
         else:
-            return _ClusterUser(client, user.get_username(), None)
+            return _ClusterUser(client, user.username, None)
 
     def username(self) -> str:
         return self._username
