@@ -18,7 +18,6 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-import os
 
 from behave import step
 from hamcrest import assert_that, has_item, not_
@@ -96,12 +95,27 @@ def step_impl(context: Context, username: str):
         pass
 
 
-@step("users delete: {username}")
+@step("users delete: {username:Words}")
 def step_impl(context: Context, username: str):
     _get_client(context).users().delete(username)
 
 
-@step("users password set: {username}, {password}")
+
+@step("users delete: {username:Words}; throws exception")
+def step_impl(context: Context, username: str):
+    try:
+        _get_client(context).users().delete(username)
+        assert False
+    except TypeDBClientException:
+        pass
+
+
+@step("users password set: {username:Words}, {password:Words}")
+def step_impl(context: Context, username: str, password: str):
+    _get_client(context).users().password_set(username, password)
+
+
+@step("users password set: {username:Words}, {password:Words}; throws exception")
 def step_impl(context: Context, username: str, password: str):
     _get_client(context).users().password_set(username, password)
 
