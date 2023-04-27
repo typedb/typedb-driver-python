@@ -32,6 +32,11 @@ def _get_client(context: Context):
     return client
 
 
+@step("user get self")
+def step_impl(context: Context):
+    _get_client(context).user()
+
+
 @step("users contains: {username:Words}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
@@ -65,11 +70,6 @@ def step_impl(context: Context, username: str, password: str):
         assert False
     except TypeDBClientException:
         pass
-
-
-@step("user get self")
-def step_impl(context: Context):
-    _get_client(context).users().all()
 
 
 @step("users get all")
