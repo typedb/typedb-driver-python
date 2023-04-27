@@ -32,7 +32,7 @@ def _get_client(context: Context):
     return client
 
 
-@step("user get self")
+@step("get connected user")
 def step_impl(context: Context):
     _get_client(context).user()
 
