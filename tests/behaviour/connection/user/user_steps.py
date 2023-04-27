@@ -32,6 +32,11 @@ def _get_client(context: Context):
     return client
 
 
+@step("get connected user")
+def step_impl(context: Context):
+    _get_client(context).user()
+
+
 @step("users contains: {username:Words}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))

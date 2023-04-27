@@ -75,7 +75,7 @@ class _ClusterUserManager(UserManager):
     def get(self, username: str) -> User:
         failsafe_task = _UserManagerFailsafeTask(
             self._client,
-            lambda replica: _ClusterUser.of(self._client._stub(replica.address()).users_get(cluster_user_manager_get_req(username)).get_user(), self._client)
+            lambda replica: _ClusterUser.of(self._client._stub(replica.address()).users_get(cluster_user_manager_get_req(username)).user, self._client)
         )
         return failsafe_task.run_primary_replica()
 

@@ -24,7 +24,7 @@ from typedb.api.connection.client import TypeDBClusterClient
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
-from typedb.api.connection.user import UserManager
+from typedb.api.connection.user import UserManager, User
 from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
 from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
 from typedb.connection.cluster.server_client import _ClusterServerClient
@@ -77,6 +77,9 @@ class _ClusterClient(TypeDBClusterClient):
 
     def users(self) -> UserManager:
         return self._user_manager
+
+    def user(self) -> User:
+        return self.users().get(self._credential.username())
 
     def databases(self) -> _ClusterDatabaseManager:
         return self._database_managers
