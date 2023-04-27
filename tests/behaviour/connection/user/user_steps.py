@@ -67,6 +67,11 @@ def step_impl(context: Context, username: str, password: str):
         pass
 
 
+@step("user get self")
+def step_impl(context: Context):
+    _get_client(context).users().all()
+
+
 @step("users get all")
 def step_impl(context: Context):
     _get_client(context).users().all()
