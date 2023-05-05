@@ -19,7 +19,7 @@
 # under the License.
 #
 
-exports_files(["requirements.txt", "deployment.bzl", "RELEASE_TEMPLATE.md"])
+exports_files(["requirements.txt", "deployment.bzl", "LATEST_RELEASE_NOTES.md"])
 
 load("@vaticle_typedb_client_python_pip//:requirements.bzl",
        vaticle_typedb_client_python_requirement = "requirement")
@@ -99,7 +99,7 @@ deploy_pip(
 
 deploy_github(
     name = "deploy-github",
-    release_description = "//:RELEASE_TEMPLATE.md",
+    release_description = "//:LATEST_RELEASE_NOTES.md",
     title = "TypeDB Client Python",
     title_append_version = True,
     organisation = github_deployment["github.organisation"],
