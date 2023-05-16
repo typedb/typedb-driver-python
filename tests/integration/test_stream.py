@@ -52,7 +52,7 @@ class TestStream(TestCase):
             for i in range(50):
                 with client.session(TYPEDB, DATA) as session, session.transaction(READ, tx_options) as tx:
                     person_type = tx.concepts().get_thing_type("person").as_entity_type().as_remote(tx)
-                    _attrs = list(person_type.get_owns(keys_only=False))
+                    _attrs = list(person_type.get_owns(annotations=set([AnnotationEnum.KEY])))
                     next(tx.query().match("match $x sub thing; limit 1;"))
 
 if __name__ == "__main__":

@@ -20,13 +20,14 @@
 #
 
 from datetime import datetime
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Set
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 from typedb.api.concept.type.attribute_type import AttributeType, RemoteAttributeType, BooleanAttributeType, \
     RemoteBooleanAttributeType, LongAttributeType, RemoteLongAttributeType, DoubleAttributeType, \
     RemoteDoubleAttributeType, StringAttributeType, RemoteStringAttributeType, DateTimeAttributeType, \
     RemoteDateTimeAttributeType
+from typedb.api.concept.type.thing_type import Annotation
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 from typedb.common.label import Label
 from typedb.common.rpc.request_builder import attribute_type_get_owners_req, attribute_type_put_req, \
@@ -100,14 +101,14 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
         else:
             return stream
 
-    def get_owners(self, only_key: bool = False):
+    def get_owners(self, annotations: Set[Annotation] = frozenset()):
         return (concept_proto_reader.thing_type(tt)
-                for rp in self.stream(attribute_type_get_owners_req(self.get_label(), only_key))
+                for rp in self.stream(attribute_type_get_owners_req(self.get_label(), {concept_proto_builder.annotation(a) for a in annotations}))
                 for tt in rp.attribute_type_get_owners_res_part.thing_types)
 
-    def get_owners_explicit(self, only_key: bool = False):
+    def get_owners_explicit(self, annotations: Set[Annotation] = frozenset()):
         return (concept_proto_reader.thing_type(tt)
-                for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), only_key))
+                for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), {concept_proto_builder.annotation(a) for a in annotations}))
                 for tt in rp.attribute_type_get_owners_explicit_res_part.thing_types)
 
     def put_internal(self, proto_value: concept_proto.Attribute.Value):

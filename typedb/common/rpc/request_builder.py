@@ -19,7 +19,7 @@
 # under the License.
 #
 from datetime import datetime
-from typing import List
+from typing import List, Set
 from uuid import UUID
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
@@ -454,7 +454,8 @@ def role_type_get_relation_instances_req(label: Label):
 
 def role_type_get_relation_instances_explicit_req(label: Label):
     req = concept_proto.Type.Req()
-    req.role_type_get_relation_instances_explicit_req.CopyFrom(concept_proto.RoleType.GetRelationInstancesExplicit.Req())
+    req.role_type_get_relation_instances_explicit_req.CopyFrom(
+        concept_proto.RoleType.GetRelationInstancesExplicit.Req())
     return type_req(req, label)
 
 
@@ -539,10 +540,11 @@ def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
 
 
 def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
-                            keys_only: bool = False):
+                            annotations: Set[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_req = concept_proto.ThingType.GetOwns.Req()
-    get_owns_req.keys_only = keys_only
+    if annotations:
+        get_owns_req.annotations.extend(annotations)
     if value_type:
         get_owns_req.value_type = value_type
     req.thing_type_get_owns_req.CopyFrom(get_owns_req)
@@ -550,10 +552,11 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
 
 
 def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
-                                     keys_only: bool = False):
+                                     annotations: Set[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
-    get_owns_explicit_req.keys_only = keys_only
+    if annotations:
+        get_owns_explicit_req.annotations.extend(annotations)
     if value_type:
         get_owns_explicit_req.value_type = value_type
     req.thing_type_get_owns_explicit_req.CopyFrom(get_owns_explicit_req)
@@ -569,11 +572,13 @@ def thing_type_get_owns_overridden_req(label: Label, attribute_type: concept_pro
 
 
 def thing_type_set_owns_req(label: Label, attribute_type: concept_proto.Type,
-                            overridden_type: concept_proto.Type = None, is_key: bool = False):
+                            overridden_type: concept_proto.Type = None,
+                            annotations: Set[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     set_owns_req = concept_proto.ThingType.SetOwns.Req()
     set_owns_req.attribute_type.CopyFrom(attribute_type)
-    set_owns_req.is_key = is_key
+    if annotations:
+        set_owns_req.annotations.extend(annotations)
     if overridden_type:
         set_owns_req.overridden_type.CopyFrom(overridden_type)
     req.thing_type_set_owns_req.CopyFrom(set_owns_req)
@@ -592,6 +597,7 @@ def thing_type_get_instances_req(label: Label):
     req = concept_proto.Type.Req()
     req.thing_type_get_instances_req.CopyFrom(concept_proto.ThingType.GetInstances.Req())
     return type_req(req, label)
+
 
 def thing_type_get_syntax_req(label: Label):
     req = concept_proto.Type.Req()
@@ -662,18 +668,18 @@ def relation_type_unset_relates_req(label: Label, role_label: str):
 
 # AttributeType
 
-def attribute_type_get_owners_req(label: Label, only_key: bool = False):
+def attribute_type_get_owners_req(label: Label, annotations: Set[concept_proto.Type.Annotation]):
     req = concept_proto.Type.Req()
     get_owners_req = concept_proto.AttributeType.GetOwners.Req()
-    get_owners_req.only_key = only_key
+    get_owners_req.annotations.extend(annotations)
     req.attribute_type_get_owners_req.CopyFrom(get_owners_req)
     return type_req(req, label)
 
 
-def attribute_type_get_owners_explicit_req(label: Label, only_key: bool = False):
+def attribute_type_get_owners_explicit_req(label: Label, annotations: Set[concept_proto.Type.Annotation]):
     req = concept_proto.Type.Req()
     get_owners_explicit_req = concept_proto.AttributeType.GetOwnersExplicit.Req()
-    get_owners_explicit_req.only_key = only_key
+    get_owners_explicit_req.annotations.extend(annotations)
     req.attribute_type_get_owners_explicit_req.CopyFrom(get_owners_explicit_req)
     return type_req(req, label)
 
@@ -727,13 +733,14 @@ def thing_req(req: concept_proto.Thing.Req, iid: str):
     return tx_req
 
 
-def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None, only_key: bool = False):
-    if attribute_types and only_key:
+def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None,
+                      annotations: Set[concept_proto.Type.Annotation] = None):
+    if attribute_types and annotations:
         raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
     req = concept_proto.Thing.Req()
     get_has_req = concept_proto.Thing.GetHas.Req()
-    if only_key:
-        get_has_req.keys_only = only_key
+    if annotations:
+        get_has_req.annotations.extend(annotations)
     elif attribute_types:
         get_has_req.attribute_types.extend(attribute_types)
     req.thing_get_has_req.CopyFrom(get_has_req)

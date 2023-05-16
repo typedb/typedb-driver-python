@@ -250,7 +250,7 @@ class ThingKeyMatcher(AttributeMatcher):
         if not concept.is_thing():
             return ConceptMatchResult.of_error(self.type_and_value, "%s was matched by Key, but it is not a Thing." % concept)
 
-        keys = [key for key in concept.as_thing().as_remote(context.tx()).get_has(only_key=True)]
+        keys = [key for key in concept.as_thing().as_remote(context.tx()).get_has(annotations=set([AnnotationEnum.KEY]))]
 
         for key in keys:
             if key.get_type().get_label().name() == self.type_label:

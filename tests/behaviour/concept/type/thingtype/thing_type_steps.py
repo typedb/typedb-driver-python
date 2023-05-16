@@ -177,42 +177,79 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
         assert_that(actuals, not_(has_item(sub_label)))
 
 
-@step("{root_label:RootLabel}({type_label}) set owns key type: {att_type_label} as {overridden_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
+def set_owns_attribute_type_as_type_with_annotations_throws_exception(context: Context, root_label: RootLabel, type_label: str,
+                                                                      att_type_label: str, overridden_label: str,
+                                                                      annotations: Set[Annotation]):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     overridden_type = context.tx().concepts().get_attribute_type(overridden_label)
     try:
-        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type, is_key=True)
+        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type, annotations=annotations)
         assert False
     except TypeDBClientException:
         pass
 
 
-@step("{root_label:RootLabel}({type_label}) set owns key type: {att_type_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str, annotations: Set[Annotation]):
+    set_owns_attribute_type_as_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, overridden_label, annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
+    set_owns_attribute_type_as_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, overridden_label, set())
+
+
+def set_owns_attribute_type_with_annotations_throws_exception(context: Context, root_label: RootLabel, type_label: str,
+                                                              att_type_label: str, annotations: Set[Annotation]):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     try:
-        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, is_key=True)
+        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, annotations=annotations)
         assert False
     except TypeDBClientException:
         pass
 
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set[Annotation]):
+    set_owns_attribute_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, annotations)
 
-@step("{root_label:RootLabel}({type_label}) set owns key type: {att_type_label} as {overridden_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
+
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}; throws exception")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
+    set_owns_attribute_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, set())
+
+
+def set_owns_attribute_type_as_type_with_annotations(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str, annotations: Set[Annotation]):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     overridden_type = context.tx().concepts().get_attribute_type(overridden_label)
-    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type, is_key=True)
+    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type, annotations=annotations)
 
 
-@step("{root_label:RootLabel}({type_label}) set owns key type: {att_type_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str, annotations: Set[Annotation]):
+    set_owns_attribute_type_as_type_with_annotations(context, root_label, type_label, att_type_label, overridden_label, annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
+    set_owns_attribute_type_as_type_with_annotations(context, root_label, type_label, att_type_label, overridden_label, set())
+
+
+def set_owns_attribute_type_with_annotations(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set[Annotation]):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
-    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, is_key=True)
+    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, annotations=annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set[Annotation]):
+    set_owns_attribute_type_with_annotations(context, root_label, type_label, att_type_label, annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
+    set_owns_attribute_type_with_annotations(context, root_label, type_label, att_type_label, set())
 
 
 @step("{root_label:RootLabel}({type_label}) unset owns attribute type: {att_type_label}; throws exception")
-@step("{root_label:RootLabel}({type_label}) unset owns key type: {att_type_label}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     try:
@@ -223,124 +260,81 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
 
 
 @step("{root_label:RootLabel}({type_label}) unset owns attribute type: {att_type_label}")
-@step("{root_label:RootLabel}({type_label}) unset owns key type: {att_type_label}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).unset_owns(attribute_type)
 
 
-def get_actual_owns_key_types(context: Context, root_label: RootLabel, type_label: str):
-    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(keys_only=True)]
+def get_actual_owns_types(context: Context, root_label: RootLabel, type_label: str, annotations):
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns(annotations=annotations)]
 
 
-@step("{root_label:RootLabel}({type_label}) get owns key types contain")
-def step_impl(context: Context, root_label: RootLabel, type_label: str):
+def get_owns_attribute_types_with_annotations_contains(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_key_types(context, root_label, type_label)
+    actuals = get_actual_owns_types(context, root_label, type_label, annotations)
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
-
-@step("{root_label:RootLabel}({type_label}) get owns key types do not contain")
-def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_key_types(context, root_label, type_label)
-    for attribute_label in attribute_labels:
-        assert_that(actuals, not_(has_item(attribute_label)))
-
-
-def get_actual_owns_explicit_key_types(context: Context, root_label: RootLabel, type_label: str):
-    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_explicit(keys_only=True)]
-
-
-@step("{root_label:RootLabel}({type_label}) get owns explicit key types contain")
-def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
-    for attribute_label in attribute_labels:
-        assert_that(actuals, has_item(attribute_label))
-
-
-@step("{root_label:RootLabel}({type_label}) get owns explicit key types do not contain")
-def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_explicit_key_types(context, root_label, type_label)
-    for attribute_label in attribute_labels:
-        assert_that(actuals, not_(has_item(attribute_label)))
-
-
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
-    attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
-    overridden_type = context.tx().concepts().get_attribute_type(overridden_label)
-    try:
-        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type)
-        assert False
-    except TypeDBClientException:
-        pass
-
-
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}; throws exception")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
-    attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
-    try:
-        context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type)
-        assert False
-    except TypeDBClientException:
-        pass
-
-
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str):
-    attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
-    overridden_type = context.tx().concepts().get_attribute_type(overridden_label)
-    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type)
-
-
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}")
-def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str):
-    attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
-    context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type)
-
-
-def get_actual_owns(context: Context, root_label: RootLabel, type_label: str):
-    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns()]
+@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations}; contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
+    get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, annotations)
 
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, set());
+
+
+def get_owns_attribute_types_with_annotations_do_not_contain(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns(context, root_label, type_label)
+    actuals = get_actual_owns_types(context, root_label, type_label, annotations)
     for attribute_label in attribute_labels:
-        assert_that(actuals, has_item(attribute_label))
+        assert_that(actuals, not_(has_item(attribute_label)))
+
+@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations}; do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
+    get_owns_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
 
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    get_owns_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, set())
+
+
+def get_owns_explicit_attribute_types_with_annotations_contain(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns(context, root_label, type_label)
-    for attribute_label in attribute_labels:
-        assert_that(actuals, not_(has_item(attribute_label)))
-
-
-def get_actual_owns_explicit(context: Context, root_label: RootLabel, type_label: str):
-    return [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(context.tx()).get_owns_explicit()]
-
-
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types contain")
-def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_explicit(context, root_label, type_label)
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(
+        context.tx()).get_owns_explicit(annotations=annotations)]
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types do not contain")
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations}; contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
+    get_owns_explicit_attribute_types_with_annotations_contain(context, root_label, type_label, annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    get_owns_explicit_attribute_types_with_annotations_contain(context, root_label, type_label, set())
+
+
+def get_owns_explicit_attribute_types_with_annotations_do_not_contain(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = get_actual_owns_explicit(context, root_label, type_label)
+    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).as_remote(
+        context.tx()).get_owns_explicit(annotations=annotations)]
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations}; do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set[Annotation]):
+    get_owns_explicit_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
+
+
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types do not contain")
+def step_impl(context: Context, root_label: RootLabel, type_label: str):
+    get_owns_explicit_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, set())
 
 
 @step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) is null: {is_null}")

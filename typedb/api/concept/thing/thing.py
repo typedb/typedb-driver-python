@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING, Iterator, Mapping
+from typing import List, TYPE_CHECKING, Iterator, Mapping, Set
 
 from typedb.api.concept.concept import Concept, RemoteConcept
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.thing.attribute import Attribute
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.type.role_type import RoleType
-    from typedb.api.concept.type.thing_type import ThingType
+    from typedb.api.concept.type.thing_type import ThingType, Annotation
     from typedb.api.connection.transaction import TypeDBTransaction
 
 
@@ -67,7 +67,7 @@ class RemoteThing(RemoteConcept, Thing, ABC):
         pass
 
     @abstractmethod
-    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, only_key: bool = False) -> Iterator["Attribute"]:
+    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, annotations: Set[Annotation] = frozenset()) -> Iterator["Attribute"]:
         pass
 
     @abstractmethod

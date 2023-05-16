@@ -113,74 +113,82 @@ def step_impl(context: Context, type_label: str, value_type):
     assert_that(attribute_type.as_remote(context.tx()).get_regex(), is_(None))
 
 
-@step("attribute({type_label}) get key owners contain")
-def step_impl(context: Context, type_label: str):
+def attribute_get_owners_with_annotations_contain(context: Context, type_label: str, annotations: Set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
+    actuals = list(
+        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(annotations=annotations)))
     for owner_label in owner_labels:
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get key owners do not contain")
-def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=True)))
-    for owner_label in owner_labels:
-        assert_that(actuals, not_(has_item(owner_label)))
-
-@step("attribute({type_label}) get key owners explicit contain")
-def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(
-        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
-    for owner_label in owner_labels:
-        assert_that(actuals, has_item(owner_label))
-
-
-@step("attribute({type_label}) get key owners explicit do not contain")
-def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(
-        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=True)))
-    for owner_label in owner_labels:
-        assert_that(actuals, not_(has_item(owner_label)))
+@step("attribute({type_label}) get owners with annotations: {annotations}; contain:")
+def step_impl(context: Context, type_label: str, annotations: Set[Annotation]):
+    attribute_get_owners_with_annotations_contain(context, type_label, annotations)
 
 
 @step("attribute({type_label}) get attribute owners contain")
 def step_impl(context: Context, type_label: str):
+    attribute_get_owners_with_annotations_contain(context, type_label, set())
+
+
+def attribute_get_owners_with_annotations_do_not_contain(context: Context, type_label: str,
+                                                         annotations: Set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
+    actuals = list(
+        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(annotations=annotations)))
     for owner_label in owner_labels:
-        assert_that(actuals, has_item(owner_label))
+        assert_that(actuals, not_(has_item(owner_label)))
+
+
+@step("attribute({type_label}) get owners with annotations: {annotations}; do not contain:")
+def step_impl(context: Context, type_label: str, annotations: Set[Annotation]):
+    attribute_get_owners_with_annotations_do_not_contain(context, type_label, annotations)
 
 
 @step("attribute({type_label}) get attribute owners do not contain")
 def step_impl(context: Context, type_label: str):
-    owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(only_key=False)))
-    for owner_label in owner_labels:
-        assert_that(actuals, not_(has_item(owner_label)))
+    attribute_get_owners_with_annotations_do_not_contain(context, type_label, set())
 
 
-@step("attribute({type_label}) get attribute owners explicit contain")
-def step_impl(context: Context, type_label: str):
+def attribute_get_owners_explicit_with_annotations_contain(context: Context, type_label: str,
+                                                           annotations: Set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
+    actuals = list(
+        map(lambda tt: tt.get_label(),
+            attribute_type.as_remote(context.tx()).get_owners_explicit(annotations=annotations)))
     for owner_label in owner_labels:
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get attribute owners explicit do not contain")
+@step("attribute({type_label}) get owners explicit with annotations: {annotations}; contain:")
+def step_impl(context: Context, type_label: str, annotations: Set[Annotation]):
+    attribute_get_owners_explicit_with_annotations_contain(context, type_label, annotations)
+
+
+@step("attribute({type_label}) get attribute owners explicit contain")
 def step_impl(context: Context, type_label: str):
+    attribute_get_owners_explicit_with_annotations_contain(context, type_label, set())
+
+
+def attribute_get_owners_explicit_with_annotations_do_not_contain(context: Context, type_label: str,
+                                                                  annotations: Set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners_explicit(only_key=False)))
+    actuals = list(
+        map(lambda tt: tt.get_label(),
+            attribute_type.as_remote(context.tx()).get_owners_explicit(annotations=annotations)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
+
+
+@step("attribute({type_label}) get owners explicit with annotations: {annotations}; do not contain:")
+def step_impl(context: Context, type_label: str, annotations: Set[Annotation]):
+    attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, annotations)
+
+
+@step("attribute({type_label}) get attribute owners explicit do not contain")
+def step_impl(context: Context, type_label: str):
+    attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, set())

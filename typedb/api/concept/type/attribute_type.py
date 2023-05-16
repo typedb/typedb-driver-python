@@ -21,13 +21,12 @@
 import enum
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING, Iterator
+from typing import Optional, TYPE_CHECKING, Iterator, Set
 
 import typedb_protocol.common.concept_pb2 as concept_proto
-
 from typedb.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
     DateTimeAttribute, Attribute
-from typedb.api.concept.type.thing_type import ThingType, RemoteThingType
+from typedb.api.concept.type.thing_type import ThingType, RemoteThingType, Annotation
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import TypeDBTransaction
@@ -116,11 +115,11 @@ class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_owners(self, only_key: bool = False) -> Iterator[ThingType]:
+    def get_owners(self, annotations: Set[Annotation] = frozenset()) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_owners_explicit(self, only_key: bool = False) -> Iterator[ThingType]:
+    def get_owners_explicit(self, annotations: Set[Annotation] = frozenset()) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
