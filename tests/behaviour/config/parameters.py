@@ -110,8 +110,6 @@ register_type(Label=parse_label)
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
 def parse_annotations(text: str) -> Set["Annotation"]:
-    if text is None:
-        return set()
     split = text.split(",")
     annotations = set()
     for annotation in split:

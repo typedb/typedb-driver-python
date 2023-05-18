@@ -122,7 +122,7 @@ def attribute_get_owners_with_annotations_contain(context: Context, type_label: 
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get owners with annotations: {annotations}; contain:")
+@step("attribute({type_label}) get owners with annotations: {annotations:Annotations}; contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_with_annotations_contain(context, type_label, annotations)
 
@@ -142,7 +142,7 @@ def attribute_get_owners_with_annotations_do_not_contain(context: Context, type_
         assert_that(actuals, not_(has_item(owner_label)))
 
 
-@step("attribute({type_label}) get owners with annotations: {annotations}; do not contain:")
+@step("attribute({type_label}) get owners with annotations: {annotations:Annotations}; do not contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_with_annotations_do_not_contain(context, type_label, annotations)
 
@@ -163,7 +163,7 @@ def attribute_get_owners_explicit_with_annotations_contain(context: Context, typ
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get owners explicit with annotations: {annotations}; contain:")
+@step("attribute({type_label}) get owners explicit with annotations: {annotations:Annotations}; contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_explicit_with_annotations_contain(context, type_label, annotations)
 
@@ -184,7 +184,7 @@ def attribute_get_owners_explicit_with_annotations_do_not_contain(context: Conte
         assert_that(actuals, not_(has_item(owner_label)))
 
 
-@step("attribute({type_label}) get owners explicit with annotations: {annotations}; do not contain:")
+@step("attribute({type_label}) get owners explicit with annotations: {annotations:Annotations}; do not contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, annotations)
 
