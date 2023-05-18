@@ -235,6 +235,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
 
 
 def set_owns_attribute_type_with_annotations(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set["Annotation"]):
+    print("Got annotations: " + str([str(a) for a in annotations]))
     attribute_type = context.tx().concepts().get_attribute_type(att_type_label)
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, annotations=annotations)
 
