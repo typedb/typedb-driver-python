@@ -47,6 +47,9 @@ class Annotation(object):
     def __init__(self, name):
         self._name = name
 
+    def name(self):
+        return self._name
+
     def __repr__(self):
         return self._name
 
@@ -61,7 +64,7 @@ class Annotations(Annotation, Enum):
     @staticmethod
     def parse_annotation(text) -> Annotation:
         for annotation in Annotations:
-            if text == annotation.name:
+            if text == annotation.name():
                 return annotation
         raise TypeDBClientException.of(BAD_ANNOTATION, text)
 
