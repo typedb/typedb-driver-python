@@ -85,14 +85,14 @@ def step_impl(context: Context, var1: str, var2: str):
 @step("attribute {var1:Var} get keys contain: {var2:Var}")
 @step("relation {var1:Var} get keys contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(only_key=True), has_item(context.get(var2).as_attribute()))
+    assert_that(context.get(var1).as_remote(context.tx()).get_has(annotations={Annotations.KEY}), has_item(context.get(var2).as_attribute()))
 
 
 @step("entity {var1:Var} get keys do not contain: {var2:Var}")
 @step("attribute {var1:Var} get keys do not contain: {var2:Var}")
 @step("relation {var1:Var} get keys do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(only_key=True), not_(has_item(context.get(var2).as_attribute())))
+    assert_that(context.get(var1).as_remote(context.tx()).get_has(annotations={Annotations.KEY}), not_(has_item(context.get(var2).as_attribute())))
 
 
 @step("entity {var1:Var} get attributes contain: {var2:Var}")
