@@ -42,9 +42,9 @@ def thing_type(tt: Optional[ThingType]):
 def annotation(annotation: Annotation = None) -> concept_proto.Type.Annotation:
     annotation_msg = concept_proto.Type.Annotation()
     if annotation is AnnotationEnum.KEY:
-        annotation_msg.key = concept_proto.Type.Annotation.Key()
+        annotation_msg.key.CopyFrom(concept_proto.Type.Annotation.Key())
     elif annotation is AnnotationEnum.UNIQUE:
-        annotation_msg.unique = concept_proto.Type.Annotation.Unique()
+        annotation_msg.unique.CopyFrom(concept_proto.Type.Annotation.Unique())
     else:
         raise TypeDBClientException.of(BAD_ANNOTATION, annotation)
     return annotation_msg
