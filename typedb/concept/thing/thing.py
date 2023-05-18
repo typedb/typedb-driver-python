@@ -95,7 +95,7 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
-        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), {concept_proto_builder.annotation(a) for a in annotations}))
+        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), [concept_proto_builder.annotation(a) for a in annotations]))
                 for a in rp.thing_get_has_res_part.attributes)
 
     def get_relations(self, role_types: list = None):

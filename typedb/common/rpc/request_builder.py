@@ -540,7 +540,7 @@ def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
 
 
 def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
-                            annotations: Set[concept_proto.Type.Annotation] = None):
+                            annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_req = concept_proto.ThingType.GetOwns.Req()
     if annotations:
@@ -552,7 +552,7 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
 
 
 def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
-                                     annotations: Set[concept_proto.Type.Annotation] = None):
+                                     annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
     if annotations:
@@ -573,7 +573,7 @@ def thing_type_get_owns_overridden_req(label: Label, attribute_type: concept_pro
 
 def thing_type_set_owns_req(label: Label, attribute_type: concept_proto.Type,
                             overridden_type: concept_proto.Type = None,
-                            annotations: Set[concept_proto.Type.Annotation] = None):
+                            annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     set_owns_req = concept_proto.ThingType.SetOwns.Req()
     set_owns_req.attribute_type.CopyFrom(attribute_type)
@@ -668,7 +668,7 @@ def relation_type_unset_relates_req(label: Label, role_label: str):
 
 # AttributeType
 
-def attribute_type_get_owners_req(label: Label, annotations: Set[concept_proto.Type.Annotation]):
+def attribute_type_get_owners_req(label: Label, annotations: List[concept_proto.Type.Annotation]):
     req = concept_proto.Type.Req()
     get_owners_req = concept_proto.AttributeType.GetOwners.Req()
     get_owners_req.annotations.extend(annotations)
@@ -676,7 +676,7 @@ def attribute_type_get_owners_req(label: Label, annotations: Set[concept_proto.T
     return type_req(req, label)
 
 
-def attribute_type_get_owners_explicit_req(label: Label, annotations: Set[concept_proto.Type.Annotation]):
+def attribute_type_get_owners_explicit_req(label: Label, annotations: List[concept_proto.Type.Annotation]):
     req = concept_proto.Type.Req()
     get_owners_explicit_req = concept_proto.AttributeType.GetOwnersExplicit.Req()
     get_owners_explicit_req.annotations.extend(annotations)
@@ -734,7 +734,7 @@ def thing_req(req: concept_proto.Thing.Req, iid: str):
 
 
 def thing_get_has_req(iid: str, attribute_types: List[concept_proto.Type] = None,
-                      annotations: Set[concept_proto.Type.Annotation] = None):
+                      annotations: List[concept_proto.Type.Annotation] = None):
     if attribute_types and annotations:
         raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
     req = concept_proto.Thing.Req()
