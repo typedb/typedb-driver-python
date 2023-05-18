@@ -95,7 +95,7 @@ def adding_player_throws_exception(context: Context, var1: str, role_label: str,
         pass
 
 
-@step("relation {var:Var} get players contain:")
+@step("relation {var:Var} get players contain")
 def step_impl(context: Context, var: str):
     players = parse_dict(context.table)
     relation = context.get(var).as_relation()
@@ -104,7 +104,7 @@ def step_impl(context: Context, var: str):
         assert_that(players_by_role_type.get(relation.get_type().as_remote(context.tx()).get_relates(role_label)), has_item(context.get(parse_var(var2))))
 
 
-@step("relation {var:Var} get players do not contain:")
+@step("relation {var:Var} get players do not contain")
 def step_impl(context: Context, var: str):
     players = parse_dict(context.table)
     relation = context.get(var).as_relation()
