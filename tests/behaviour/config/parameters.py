@@ -102,7 +102,6 @@ register_type(ScopedLabel=parse_scoped_label)
 
 @parse.with_pattern(r"[a-zA-Z0-9:]+")
 def parse_label(text: str):
-    print("Parsing label: " + text)
     return Label.of(*text.split(":"))
 
 
@@ -111,7 +110,6 @@ register_type(Label=parse_label)
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
 def parse_annotations(text: str) -> Set["Annotation"]:
-    print("Got annotation text: " + text)
     split = text.split(",")
     annotations = set()
     for annotation in split:

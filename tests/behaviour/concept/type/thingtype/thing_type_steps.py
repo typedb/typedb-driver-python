@@ -189,7 +189,7 @@ def set_owns_attribute_type_as_type_with_annotations_throws_exception(context: C
         pass
 
 
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations}; throws exception")
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations:Annotations}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str, annotations: Set["Annotation"]):
     set_owns_attribute_type_as_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, overridden_label, annotations)
 
@@ -208,7 +208,7 @@ def set_owns_attribute_type_with_annotations_throws_exception(context: Context, 
     except TypeDBClientException:
         pass
 
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations}; throws exception")
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations:Annotations}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set["Annotation"]):
     set_owns_attribute_type_with_annotations_throws_exception(context, root_label, type_label, att_type_label, annotations)
 
@@ -224,7 +224,7 @@ def set_owns_attribute_type_as_type_with_annotations(context: Context, root_labe
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, overridden_type, annotations=annotations)
 
 
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations}")
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label} as {overridden_label}, with annotations: {annotations:Annotations}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, overridden_label: str, annotations: Set["Annotation"]):
     set_owns_attribute_type_as_type_with_annotations(context, root_label, type_label, att_type_label, overridden_label, annotations)
 
@@ -240,7 +240,7 @@ def set_owns_attribute_type_with_annotations(context: Context, root_label: RootL
     context.get_thing_type(root_label, type_label).as_remote(context.tx()).set_owns(attribute_type, annotations=annotations)
 
 
-@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations}")
+@step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations:Annotations}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type_label: str, annotations: Set["Annotation"]):
     set_owns_attribute_type_with_annotations(context, root_label, type_label, att_type_label, annotations)
 
@@ -276,7 +276,7 @@ def get_owns_attribute_types_with_annotations_contains(context: Context, root_la
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
-@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations}; contain")
+@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations:Annotations}; contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, annotations)
 
@@ -292,7 +292,7 @@ def get_owns_attribute_types_with_annotations_do_not_contain(context: Context, r
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
 
-@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations}; do not contain")
+@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations:Annotations}; do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
 
@@ -310,7 +310,7 @@ def get_owns_explicit_attribute_types_with_annotations_contain(context: Context,
         assert_that(actuals, has_item(attribute_label))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations}; contain")
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations:Annotations}; contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_explicit_attribute_types_with_annotations_contain(context, root_label, type_label, annotations)
 
@@ -328,7 +328,7 @@ def get_owns_explicit_attribute_types_with_annotations_do_not_contain(context: C
         assert_that(actuals, not_(has_item(attribute_label)))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations}; do not contain")
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations:Annotations}; do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_explicit_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
 
