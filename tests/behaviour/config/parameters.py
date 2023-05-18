@@ -111,7 +111,7 @@ register_type(Label=parse_label)
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
 def parse_annotations(text: str) -> Set["Annotation"]:
     print("Got annotation text: " + text)
-    split = re.split(",", text)
+    split = text.split(",")
     annotations = set()
     for annotation in split:
         annotations.add(AnnotationEnum.parse_annotation(annotation.strip()))
