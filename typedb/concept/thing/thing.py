@@ -91,7 +91,7 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
         return self
 
     def get_has(self, attribute_type=None, attribute_types: List = None, annotations: Set["Annotation"] = frozenset()):
-        if [bool(attribute_type), bool(attribute_types), annotations is not None].count(True) > 1:
+        if [bool(attribute_type), bool(attribute_types), annotations is not None and len(annotations) > 0].count(True) > 1:
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]

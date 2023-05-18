@@ -111,7 +111,7 @@ BAD_VALUE_TYPE = ConceptErrorMessage(7, "The value type '%s' was not recognised.
 BAD_ATTRIBUTE_VALUE = ConceptErrorMessage(8, "The attribute value '%s' was not recognised.")
 NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(9, "The concept identified by '%s' is not explainable.")
 NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(10, "The ownership by owner '%s' of attribute '%s' is not explainable.")
-GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(11, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, only_key]")
+GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(11, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, annotations]")
 
 
 class QueryErrorMessage(ErrorMessage):
