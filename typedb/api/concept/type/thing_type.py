@@ -45,19 +45,19 @@ class ThingType(Type, ABC):
 class Annotation(object):
 
     def __init__(self, name):
-        self.name = name
+        self._name = name
+        print("Constructing Annotation instance: " + name)
 
     def __repr__(self):
-        return self.name
+        return self._name
 
 
 class AnnotationEnum(Annotation, Enum):
-    KEY = Annotation("key")
-    UNIQUE = Annotation("unique")
+    KEY = "key"
+    UNIQUE = "unique"
 
-    def __init__(self, name):
-        super().__init__(name)
-        self.name = name
+    def __str__(self):
+        return "[annotation: " + self._name + "]"
 
     @staticmethod
     def parse_annotation(text) -> Annotation:
