@@ -39,13 +39,15 @@ def thing_type(tt: Optional[ThingType]):
     return proto_thing_type(tt.get_label(), encoding(tt)) if tt else None
 
 
-def annotation(annotation: Annotation = None):
+def annotation(annotation: Annotation = None) -> concept_proto.Type.Annotation:
+    annotation_msg = concept_proto.Type.Annotation()
     if annotation is AnnotationEnum.KEY:
-        return concept_proto.Type.Annotation.Key()
+        annotation_msg.key = concept_proto.Type.Annotation.Key()
     elif annotation is AnnotationEnum.UNIQUE:
-        return concept_proto.Type.Annotation.Unique()
+        annotation_msg.unique = concept_proto.Type.Annotation.Unique()
     else:
         raise TypeDBClientException.of(BAD_ANNOTATION, annotation)
+    return annotation_msg
 
 
 def role_type(rt: Optional[RoleType]):
