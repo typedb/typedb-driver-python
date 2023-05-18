@@ -102,6 +102,7 @@ register_type(ScopedLabel=parse_scoped_label)
 
 @parse.with_pattern(r"[a-zA-Z0-9:]+")
 def parse_label(text: str):
+    print("Parsing label: " + text)
     return Label.of(*text.split(":"))
 
 
