@@ -115,6 +115,7 @@ def parse_annotations(text: str) -> Set["Annotation"]:
     annotations = set()
     for annotation in split:
         annotations.add(Annotations.parse_annotation(annotation.strip()))
+    print("Returning annotation set: " + annotations)
     return annotations
 
 
