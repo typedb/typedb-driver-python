@@ -275,7 +275,7 @@ def get_owns_attribute_types_with_annotations_contains(context: Context, root_la
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
-@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations:Annotations}; contain")
+@step("{root_label:RootLabel}({type_label}) get owns attribute types with annotations: {annotations:Annotations}; contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, annotations)
 
@@ -291,7 +291,7 @@ def get_owns_attribute_types_with_annotations_do_not_contain(context: Context, r
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
 
-@step("{root_label:RootLabel}({type_label}) get owns attribute types, with annotations: {annotations:Annotations}; do not contain")
+@step("{root_label:RootLabel}({type_label}) get owns attribute types with annotations: {annotations:Annotations}; do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
 
@@ -309,7 +309,7 @@ def get_owns_explicit_attribute_types_with_annotations_contain(context: Context,
         assert_that(actuals, has_item(attribute_label))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations:Annotations}; contain")
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types with annotations: {annotations:Annotations}; contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_explicit_attribute_types_with_annotations_contain(context, root_label, type_label, annotations)
 
@@ -327,7 +327,7 @@ def get_owns_explicit_attribute_types_with_annotations_do_not_contain(context: C
         assert_that(actuals, not_(has_item(attribute_label)))
 
 
-@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types, with annotations: {annotations:Annotations}; do not contain")
+@step("{root_label:RootLabel}({type_label}) get owns explicit attribute types with annotations: {annotations:Annotations}; do not contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
     get_owns_explicit_attribute_types_with_annotations_do_not_contain(context, root_label, type_label, annotations)
 
