@@ -52,7 +52,7 @@ class Annotation(object):
         return self._name
 
 
-class AnnotationEnum(Annotation, Enum):
+class Annotations(Annotation, Enum):
     KEY = "key"
     UNIQUE = "unique"
 
@@ -61,7 +61,7 @@ class AnnotationEnum(Annotation, Enum):
 
     @staticmethod
     def parse_annotation(text) -> Annotation:
-        for annotation in AnnotationEnum:
+        for annotation in Annotations:
             if text == annotation.name:
                 return annotation
         raise TypeDBClientException.of(BAD_ANNOTATION, text)

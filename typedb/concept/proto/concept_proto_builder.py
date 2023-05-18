@@ -23,7 +23,7 @@ from typing import List, Optional
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 from typedb.api.concept.type.role_type import RoleType
-from typedb.api.concept.type.thing_type import ThingType, AnnotationEnum, Annotation
+from typedb.api.concept.type.thing_type import ThingType, Annotations, Annotation
 from typedb.api.concept.type.type import Type
 from typedb.common.exception import TypeDBClientException, BAD_ENCODING, BAD_ANNOTATION
 from typedb.common.rpc.request_builder import proto_role_type, proto_thing_type, byte_string
@@ -41,9 +41,9 @@ def thing_type(tt: Optional[ThingType]):
 
 def annotation(annotation: Annotation = None) -> concept_proto.Type.Annotation:
     annotation_msg = concept_proto.Type.Annotation()
-    if annotation is AnnotationEnum.KEY:
+    if annotation is Annotations.KEY:
         annotation_msg.key.CopyFrom(concept_proto.Type.Annotation.Key())
-    elif annotation is AnnotationEnum.UNIQUE:
+    elif annotation is Annotations.UNIQUE:
         annotation_msg.unique.CopyFrom(concept_proto.Type.Annotation.Unique())
     else:
         raise TypeDBClientException.of(BAD_ANNOTATION, annotation)

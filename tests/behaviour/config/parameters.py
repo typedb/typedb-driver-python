@@ -113,7 +113,7 @@ def parse_annotations(text: str) -> Set["Annotation"]:
     split = text.split(",")
     annotations = set()
     for annotation in split:
-        annotations.add(AnnotationEnum.parse_annotation(annotation.strip()))
+        annotations.add(Annotations.parse_annotation(annotation.strip()))
     return annotations
 
 
