@@ -101,12 +101,12 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
         else:
             return stream
 
-    def get_owners(self, annotations: Set[Annotation] = frozenset()):
+    def get_owners(self, annotations: Set["Annotation"] = frozenset()):
         return (concept_proto_reader.thing_type(tt)
                 for rp in self.stream(attribute_type_get_owners_req(self.get_label(), {concept_proto_builder.annotation(a) for a in annotations}))
                 for tt in rp.attribute_type_get_owners_res_part.thing_types)
 
-    def get_owners_explicit(self, annotations: Set[Annotation] = frozenset()):
+    def get_owners_explicit(self, annotations: Set["Annotation"] = frozenset()):
         return (concept_proto_reader.thing_type(tt)
                 for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), {concept_proto_builder.annotation(a) for a in annotations}))
                 for tt in rp.attribute_type_get_owners_explicit_res_part.thing_types)

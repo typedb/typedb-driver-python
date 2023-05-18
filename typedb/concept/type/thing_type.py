@@ -87,7 +87,7 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
         return concept_proto_reader.type_(res.role_type) if res.HasField("role_type") else None
 
     def set_owns(self, attribute_type: AttributeType, overridden_type: AttributeType = None,
-                 annotations: Set[Annotation] = frozenset()):
+                 annotations: Set["Annotation"] = frozenset()):
         self.execute(thing_type_set_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type),
                                              concept_proto_builder.thing_type(overridden_type),
                                              {concept_proto_builder.annotation(a) for a in annotations}))
@@ -95,14 +95,14 @@ class _RemoteThingType(_RemoteType, RemoteThingType):
     def unset_owns(self, attribute_type: AttributeType):
         self.execute(thing_type_unset_owns_req(self.get_label(), concept_proto_builder.thing_type(attribute_type)))
 
-    def get_owns(self, value_type: AttributeType.ValueType = None, annotations: Set[Annotation] = frozenset()):
+    def get_owns(self, value_type: AttributeType.ValueType = None, annotations: Set["Annotation"] = frozenset()):
         return (concept_proto_reader.type_(t)
                 for rp in self.stream(thing_type_get_owns_req(self.get_label(),
                                                               value_type.proto() if value_type else None,
                                                               {concept_proto_builder.annotation(a) for a in annotations}))
                 for t in rp.thing_type_get_owns_res_part.attribute_types)
 
-    def get_owns_explicit(self, value_type: AttributeType.ValueType = None, annotations: Set[Annotation] = frozenset()):
+    def get_owns_explicit(self, value_type: AttributeType.ValueType = None, annotations: Set["Annotation"] = frozenset()):
         return (concept_proto_reader.type_(t)
                 for rp in self.stream(thing_type_get_owns_explicit_req(self.get_label(),
                                                                        value_type.proto() if value_type else None,

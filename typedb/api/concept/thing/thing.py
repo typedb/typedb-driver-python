@@ -67,7 +67,7 @@ class RemoteThing(RemoteConcept, Thing, ABC):
         pass
 
     @abstractmethod
-    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, annotations: Set[Annotation] = frozenset()) -> Iterator["Attribute"]:
+    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, annotations: Set["Annotation"] = frozenset()) -> Iterator["Attribute"]:
         pass
 
     @abstractmethod

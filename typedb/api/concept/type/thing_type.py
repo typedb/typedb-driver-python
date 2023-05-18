@@ -99,7 +99,7 @@ class RemoteThingType(RemoteType, ThingType, ABC):
 
     @abstractmethod
     def set_owns(self, attribute_type: "AttributeType", overridden_type: "AttributeType" = None,
-                 annotations: Set[Annotation] = frozenset()) -> None:
+                 annotations: Set["Annotation"] = frozenset()) -> None:
         pass
 
     @abstractmethod
@@ -116,12 +116,12 @@ class RemoteThingType(RemoteType, ThingType, ABC):
 
     @abstractmethod
     def get_owns(self, value_type: "AttributeType.ValueType" = None,
-                 annotations: Set[Annotation] = frozenset()) -> Iterator["AttributeType"]:
+                 annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod
     def get_owns_explicit(self, value_type: "AttributeType.ValueType" = None,
-                          annotations: Set[Annotation] = frozenset()) -> Iterator["AttributeType"]:
+                          annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod

@@ -115,11 +115,11 @@ class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
         pass
 
     @abstractmethod
-    def get_owners(self, annotations: Set[Annotation] = frozenset()) -> Iterator[ThingType]:
+    def get_owners(self, annotations: Set["Annotation"] = frozenset()) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_owners_explicit(self, annotations: Set[Annotation] = frozenset()) -> Iterator[ThingType]:
+    def get_owners_explicit(self, annotations: Set["Annotation"] = frozenset()) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
