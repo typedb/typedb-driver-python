@@ -37,12 +37,12 @@ def step_impl(context: Context):
     _get_client(context).user()
 
 
-@step("users contains: {username:Words}")
+@step("users contain: {username:Words}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
 
 
-@step("users contains: {username:Words}; throws exception")
+@step("users contain: {username:Words}; throws exception")
 def step_impl(context: Context, username: str):
     try:
         assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
@@ -52,7 +52,7 @@ def step_impl(context: Context, username: str):
 
 
 
-@step("users not contains: {username}")
+@step("users not contain: {username}")
 def step_impl(context: Context, username: str):
     assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
 

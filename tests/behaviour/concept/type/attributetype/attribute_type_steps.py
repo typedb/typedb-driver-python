@@ -63,7 +63,7 @@ def attribute_type_as_value_type(context: Context, type_label: str, value_type: 
         raise ValueError("Unrecognised value type: " + str(value_type))
 
 
-@step("attribute({type_label}) as({value_type}) get subtypes contain")
+@step("attribute({type_label}) as({value_type}) get subtypes contain:")
 def step_impl(context: Context, type_label: str, value_type: str):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
@@ -72,7 +72,7 @@ def step_impl(context: Context, type_label: str, value_type: str):
         assert_that(sub_label, is_in(actuals))
 
 
-@step("attribute({type_label}) as({value_type}) get subtypes do not contain")
+@step("attribute({type_label}) as({value_type}) get subtypes do not contain:")
 def step_impl(context: Context, type_label: str, value_type: str):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = attribute_type_as_value_type(context, type_label, parse_value_type(value_type))
@@ -122,12 +122,12 @@ def attribute_get_owners_with_annotations_contain(context: Context, type_label: 
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get owners with annotations: {annotations:Annotations}; contain")
+@step("attribute({type_label}) get owners, with annotations: {annotations:Annotations}; contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_with_annotations_contain(context, type_label, annotations)
 
 
-@step("attribute({type_label}) get attribute owners contain")
+@step("attribute({type_label}) get attribute owners contain:")
 def step_impl(context: Context, type_label: str):
     attribute_get_owners_with_annotations_contain(context, type_label, set())
 
@@ -142,12 +142,12 @@ def attribute_get_owners_with_annotations_do_not_contain(context: Context, type_
         assert_that(actuals, not_(has_item(owner_label)))
 
 
-@step("attribute({type_label}) get owners with annotations: {annotations:Annotations}; do not contain")
+@step("attribute({type_label}) get owners, with annotations: {annotations:Annotations}; do not contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_with_annotations_do_not_contain(context, type_label, annotations)
 
 
-@step("attribute({type_label}) get attribute owners do not contain")
+@step("attribute({type_label}) get attribute owners do not contain:")
 def step_impl(context: Context, type_label: str):
     attribute_get_owners_with_annotations_do_not_contain(context, type_label, set())
 
@@ -163,12 +163,12 @@ def attribute_get_owners_explicit_with_annotations_contain(context: Context, typ
         assert_that(actuals, has_item(owner_label))
 
 
-@step("attribute({type_label}) get owners explicit with annotations: {annotations:Annotations}; contain")
+@step("attribute({type_label}) get owners explicit, with annotations: {annotations:Annotations}; contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_explicit_with_annotations_contain(context, type_label, annotations)
 
 
-@step("attribute({type_label}) get attribute owners explicit contain")
+@step("attribute({type_label}) get attribute owners explicit contain:")
 def step_impl(context: Context, type_label: str):
     attribute_get_owners_explicit_with_annotations_contain(context, type_label, set())
 
@@ -184,11 +184,11 @@ def attribute_get_owners_explicit_with_annotations_do_not_contain(context: Conte
         assert_that(actuals, not_(has_item(owner_label)))
 
 
-@step("attribute({type_label}) get owners explicit with annotations: {annotations:Annotations}; do not contain")
+@step("attribute({type_label}) get owners explicit, with annotations: {annotations:Annotations}; do not contain:")
 def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
     attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, annotations)
 
 
-@step("attribute({type_label}) get attribute owners explicit do not contain")
+@step("attribute({type_label}) get attribute owners explicit do not contain:")
 def step_impl(context: Context, type_label: str):
     attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, set())
