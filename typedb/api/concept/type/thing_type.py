@@ -19,11 +19,13 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator, Optional
+from enum import Enum
+from typing import TYPE_CHECKING, Iterator, Optional, Set
 
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.type import Type, RemoteType
+from typedb.common.exception import TypeDBClientException, BAD_ANNOTATION
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType
@@ -38,6 +40,33 @@ class ThingType(Type, ABC):
     @abstractmethod
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteThingType":
         pass
+
+
+class Annotation(object):
+
+    def __init__(self, name):
+        self._name = name
+
+    def name(self):
+        return self._name
+
+    def __repr__(self):
+        return self._name
+
+
+class Annotations(Annotation, Enum):
+    KEY = "key"
+    UNIQUE = "unique"
+
+    def __str__(self):
+        return "[annotation: " + self._name + "]"
+
+    @staticmethod
+    def parse_annotation(text) -> Annotation:
+        for annotation in Annotations:
+            if text == annotation.name():
+                return annotation
+        raise TypeDBClientException.of(BAD_ANNOTATION, text)
 
 
 class RemoteThingType(RemoteType, ThingType, ABC):
@@ -71,7 +100,8 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def set_owns(self, attribute_type: "AttributeType", overridden_type: "AttributeType" = None, is_key: bool = False) -> None:
+    def set_owns(self, attribute_type: "AttributeType", overridden_type: "AttributeType" = None,
+                 annotations: Set["Annotation"] = frozenset()) -> None:
         pass
 
     @abstractmethod
@@ -87,11 +117,13 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_owns(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Iterator["AttributeType"]:
+    def get_owns(self, value_type: "AttributeType.ValueType" = None,
+                 annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, value_type: "AttributeType.ValueType" = None, keys_only: bool = False) -> Iterator["AttributeType"]:
+    def get_owns_explicit(self, value_type: "AttributeType.ValueType" = None,
+                          annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod

@@ -19,18 +19,20 @@
 # under the License.
 #
 from abc import ABC
-from typing import List, Union, TYPE_CHECKING
+from typing import List, Union, TYPE_CHECKING, Set
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
-
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.thing.thing import Thing, RemoteThing
-from typedb.common.exception import TypeDBClientException, MISSING_IID, MISSING_TRANSACTION, GET_HAS_WITH_MULTIPLE_FILTERS
+from typedb.common.exception import TypeDBClientException, MISSING_IID, MISSING_TRANSACTION, \
+    GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.rpc.request_builder import thing_get_has_req, thing_get_relations_req, \
     thing_get_playing_req, thing_set_has_req, thing_unset_has_req, thing_delete_req
 from typedb.concept.concept import _Concept, _RemoteConcept
 from typedb.concept.proto import concept_proto_reader, concept_proto_builder
 from typedb.concept.type.role_type import _RoleType
+
+from typedb.api.concept.type.thing_type import Annotation
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
@@ -88,12 +90,12 @@ class _RemoteThing(_RemoteConcept, RemoteThing, ABC):
     def as_thing(self) -> "RemoteThing":
         return self
 
-    def get_has(self, attribute_type=None, attribute_types: List = None, only_key=False):
-        if [bool(attribute_type), bool(attribute_types), only_key].count(True) > 1:
+    def get_has(self, attribute_type=None, attribute_types: List = None, annotations: Set["Annotation"] = frozenset()):
+        if [bool(attribute_type), bool(attribute_types), annotations is not None and len(annotations) > 0].count(True) > 1:
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
-        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), only_key))
+        return (concept_proto_reader.attribute(a) for rp in self.stream(thing_get_has_req(self.get_iid(), concept_proto_builder.types(attribute_types), [concept_proto_builder.annotation(a) for a in annotations]))
                 for a in rp.thing_get_has_res_part.attributes)
 
     def get_relations(self, role_types: list = None):

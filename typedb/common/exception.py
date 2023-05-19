@@ -105,12 +105,13 @@ INVALID_CONCEPT_CASTING = ConceptErrorMessage(1, "Invalid concept conversion fro
 MISSING_TRANSACTION = ConceptErrorMessage(2, "Transaction cannot be null.")
 MISSING_IID = ConceptErrorMessage(3, "IID cannot be null or empty.")
 MISSING_LABEL = ConceptErrorMessage(4, "Label cannot be null or empty.")
-BAD_ENCODING = ConceptErrorMessage(5, "The encoding '%s' was not recognised.")
-BAD_VALUE_TYPE = ConceptErrorMessage(6, "The value type '%s' was not recognised.")
-BAD_ATTRIBUTE_VALUE = ConceptErrorMessage(7, "The attribute value '%s' was not recognised.")
-NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(8, "The concept identified by '%s' is not explainable.")
-NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(9, "The ownership by owner '%s' of attribute '%s' is not explainable.")
-GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(10, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, only_key]")
+BAD_ANNOTATION = ConceptErrorMessage(5, "The annotation '%s' was not recognised.")
+BAD_ENCODING = ConceptErrorMessage(6, "The encoding '%s' was not recognised.")
+BAD_VALUE_TYPE = ConceptErrorMessage(7, "The value type '%s' was not recognised.")
+BAD_ATTRIBUTE_VALUE = ConceptErrorMessage(8, "The attribute value '%s' was not recognised.")
+NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(9, "The concept identified by '%s' is not explainable.")
+NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(10, "The ownership by owner '%s' of attribute '%s' is not explainable.")
+GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(11, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, annotations]")
 
 
 class QueryErrorMessage(ErrorMessage):

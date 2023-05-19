@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from enum import Enum
+import re
 
 import parse
 from behave import register_type
@@ -106,6 +106,18 @@ def parse_label(text: str):
 
 
 register_type(Label=parse_label)
+
+
+@parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
+def parse_annotations(text: str) -> Set["Annotation"]:
+    split = text.split(",")
+    annotations = set()
+    for annotation in split:
+        annotations.add(Annotations.parse_annotation(annotation.strip()))
+    return annotations
+
+
+register_type(Annotations=parse_annotations)
 
 
 @parse.with_pattern(r"\$([a-zA-Z0-9]+)")
