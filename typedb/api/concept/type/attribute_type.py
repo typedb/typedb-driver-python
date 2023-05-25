@@ -23,7 +23,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, Iterator, Set
 
-import typedb_protocol.common.concept_pb2 as concept_proto
+from typedb.api.concept.concept import ValueType
 from typedb.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
     DateTimeAttribute, Attribute
 from typedb.api.concept.type.thing_type import ThingType, RemoteThingType, Annotation
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 class AttributeType(ThingType, ABC):
 
     def get_value_type(self) -> "ValueType":
-        return AttributeType.ValueType.OBJECT
+        return ValueType.OBJECT
 
     def is_attribute_type(self) -> bool:
         return True
@@ -78,26 +78,6 @@ class AttributeType(ThingType, ABC):
     @abstractmethod
     def as_datetime(self) -> "DateTimeAttributeType":
         pass
-
-    class ValueType(enum.Enum):
-        OBJECT = 0
-        BOOLEAN = 1
-        LONG = 2
-        DOUBLE = 3
-        STRING = 4
-        DATETIME = 5
-
-        def is_writable(self) -> bool:
-            return self is not AttributeType.ValueType.OBJECT
-
-        def is_keyable(self) -> bool:
-            return self in [AttributeType.ValueType.LONG, AttributeType.ValueType.STRING, AttributeType.ValueType.DATETIME]
-
-        def proto(self) -> concept_proto.AttributeType.ValueType:
-            return concept_proto.AttributeType.ValueType.Value(self.name)
-
-        def __str__(self):
-            return self.name.lower()
 
 
 class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
@@ -145,8 +125,8 @@ class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
 
 class BooleanAttributeType(AttributeType, ABC):
 
-    def get_value_type(self) -> AttributeType.ValueType:
-        return AttributeType.ValueType.BOOLEAN
+    def get_value_type(self) -> ValueType:
+        return ValueType.BOOLEAN
 
     def is_boolean(self) -> bool:
         return True
@@ -181,8 +161,8 @@ class RemoteBooleanAttributeType(RemoteAttributeType, BooleanAttributeType, ABC)
 
 class LongAttributeType(AttributeType, ABC):
 
-    def get_value_type(self) -> AttributeType.ValueType:
-        return AttributeType.ValueType.LONG
+    def get_value_type(self) -> ValueType:
+        return ValueType.LONG
 
     def is_long(self) -> bool:
         return True
@@ -217,8 +197,8 @@ class RemoteLongAttributeType(RemoteAttributeType, LongAttributeType, ABC):
 
 class DoubleAttributeType(AttributeType, ABC):
 
-    def get_value_type(self) -> AttributeType.ValueType:
-        return AttributeType.ValueType.DOUBLE
+    def get_value_type(self) -> ValueType:
+        return ValueType.DOUBLE
 
     def is_double(self) -> bool:
         return True
@@ -253,8 +233,8 @@ class RemoteDoubleAttributeType(RemoteAttributeType, DoubleAttributeType, ABC):
 
 class StringAttributeType(AttributeType, ABC):
 
-    def get_value_type(self) -> AttributeType.ValueType:
-        return AttributeType.ValueType.STRING
+    def get_value_type(self) -> ValueType:
+        return ValueType.STRING
 
     def is_string(self) -> bool:
         return True
@@ -297,8 +277,8 @@ class RemoteStringAttributeType(RemoteAttributeType, StringAttributeType, ABC):
 
 class DateTimeAttributeType(AttributeType, ABC):
 
-    def get_value_type(self) -> AttributeType.ValueType:
-        return AttributeType.ValueType.DATETIME
+    def get_value_type(self) -> ValueType:
+        return ValueType.DATETIME
 
     def is_datetime(self) -> bool:
         return True

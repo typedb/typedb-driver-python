@@ -20,6 +20,7 @@
 #
 from abc import ABC, abstractmethod
 
+from typedb.api.concept.concept import ValueType
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.entity_type import EntityType
@@ -74,5 +75,5 @@ class ConceptManager(ABC):
         pass
 
     @abstractmethod
-    def put_attribute_type(self, label: str, value_type: AttributeType.ValueType) -> AttributeType:
+    def put_attribute_type(self, label: str, value_type: ValueType) -> AttributeType:
         pass

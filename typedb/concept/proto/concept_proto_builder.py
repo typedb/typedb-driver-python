@@ -58,32 +58,32 @@ def types(ts: Optional[List[Type]]):
     return map(lambda t: thing_type(t) if t.is_thing_type() else role_type(t), ts) if ts else None
 
 
-def boolean_attribute_value(value: bool):
-    value_proto = concept_proto.Attribute.Value()
+def boolean_value(value: bool):
+    value_proto = concept_proto.ConceptValue()
     value_proto.boolean = value
     return value_proto
 
 
-def long_attribute_value(value: int):
-    value_proto = concept_proto.Attribute.Value()
+def long_value(value: int):
+    value_proto = concept_proto.ConceptValue()
     value_proto.long = value
     return value_proto
 
 
-def double_attribute_value(value: float):
-    value_proto = concept_proto.Attribute.Value()
+def double_value(value: float):
+    value_proto = concept_proto.ConceptValue()
     value_proto.double = value
     return value_proto
 
 
-def string_attribute_value(value: str):
-    value_proto = concept_proto.Attribute.Value()
+def string_value(value: str):
+    value_proto = concept_proto.ConceptValue()
     value_proto.string = value
     return value_proto
 
 
-def datetime_attribute_value(value: datetime):
-    value_proto = concept_proto.Attribute.Value()
+def datetime_value(value: datetime):
+    value_proto = concept_proto.ConceptValue()
     value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
     return value_proto
 

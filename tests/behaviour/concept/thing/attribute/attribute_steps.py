@@ -47,7 +47,7 @@ def step_impl(context: Context, var1: str, var2: str):
 
 
 @step("attribute {var:Var} has value type: {value_type:ValueType}")
-def step_impl(context: Context, var: str, value_type: AttributeType.ValueType):
+def step_impl(context: Context, var: str, value_type: ValueType):
     assert_that(context.get(var).as_attribute().get_type().get_value_type(), is_(value_type))
 
 
