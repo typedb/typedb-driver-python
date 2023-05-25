@@ -133,10 +133,7 @@ class ValueType(enum.Enum):
         return concept_proto.ValueType.Value(self.name)
 
     def __str__(self):
-        return self.name()
-
-    def name(self):
-        return self.name().lower()
+        return self.name.lower()
 
 
 class RemoteConcept(Concept, ABC):

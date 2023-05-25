@@ -293,7 +293,7 @@ class ValueMatcher(ConceptMatcher):
 
         value = concept.as_value()
 
-        if self.value_type_name != value.get_value_type().name():
+        if self.value_type_name != str(value.get_value_type()):
             return ConceptMatchResult.of_error(self.value_type_and_value,
                                                "%s was matched by Value expecting value type [%s], but its actual value type is %s." % (
                                                    value, self.value_type_name, value.get_value_type()))
