@@ -113,11 +113,11 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
                 for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), [concept_proto_builder.annotation(a) for a in annotations]))
                 for tt in rp.attribute_type_get_owners_explicit_res_part.thing_types)
 
-    def put_internal(self, proto_value: concept_proto.Attribute.Value):
+    def put_internal(self, proto_value: concept_proto.ConceptValue):
         res = self.execute(attribute_type_put_req(self.get_label(), proto_value)).attribute_type_put_res
         return concept_proto_reader.attribute(res.attribute)
 
-    def get_internal(self, proto_value: concept_proto.Attribute.Value):
+    def get_internal(self, proto_value: concept_proto.ConceptValue):
         res = self.execute(attribute_type_get_req(self.get_label(), proto_value)).attribute_type_get_res
         return concept_proto_reader.attribute(res.attribute) if res.WhichOneof("res") == "attribute" else None
 

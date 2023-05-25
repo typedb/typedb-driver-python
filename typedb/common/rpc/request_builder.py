@@ -684,7 +684,7 @@ def attribute_type_get_owners_explicit_req(label: Label, annotations: List[conce
     return type_req(req, label)
 
 
-def attribute_type_put_req(label: Label, value: concept_proto.Attribute.Value):
+def attribute_type_put_req(label: Label, value: concept_proto.ConceptValue):
     req = concept_proto.Type.Req()
     put_req = concept_proto.AttributeType.Put.Req()
     put_req.value.CopyFrom(value)
@@ -692,7 +692,7 @@ def attribute_type_put_req(label: Label, value: concept_proto.Attribute.Value):
     return type_req(req, label)
 
 
-def attribute_type_get_req(label: Label, value: concept_proto.Attribute.Value):
+def attribute_type_get_req(label: Label, value: concept_proto.ConceptValue):
     req = concept_proto.Type.Req()
     get_req = concept_proto.AttributeType.Get.Req()
     get_req.value.CopyFrom(value)
