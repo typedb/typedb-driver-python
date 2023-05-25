@@ -76,7 +76,6 @@ def attribute(proto_thing: concept_proto.Thing):
 
 
 def value(proto_value: concept_proto.Value):
-    print("Value proto: " + str(proto_value))
     if proto_value.value_type == concept_proto.ValueType.Value("BOOLEAN"):
         return _BooleanValue.of(proto_value)
     elif proto_value.value_type == concept_proto.ValueType.Value("LONG"):
