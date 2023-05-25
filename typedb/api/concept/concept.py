@@ -129,7 +129,7 @@ class ValueType(enum.Enum):
     STRING = 4
     DATETIME = 5
 
-    def proto(self) -> concept_proto.AttributeType.ValueType:
+    def proto(self) -> concept_proto.ValueType:
         return concept_proto.ValueType.Value(self.name)
 
     def __str__(self):

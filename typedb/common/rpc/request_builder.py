@@ -318,7 +318,7 @@ def concept_manager_put_relation_type_req(label: str):
     return concept_manager_req(req)
 
 
-def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto.AttributeType.ValueType):
+def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto.ValueType):
     req = concept_proto.ConceptManager.Req()
     put_attribute_type_req = concept_proto.ConceptManager.PutAttributeType.Req()
     put_attribute_type_req.label = label
@@ -539,7 +539,7 @@ def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
     return type_req(req, label)
 
 
-def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+def thing_type_get_owns_req(label: Label, value_type: concept_proto.ValueType = None,
                             annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_req = concept_proto.ThingType.GetOwns.Req()
@@ -551,7 +551,7 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
     return type_req(req, label)
 
 
-def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.ValueType = None,
                                      annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
