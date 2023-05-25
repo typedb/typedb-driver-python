@@ -838,36 +838,6 @@ def attribute_get_owners_req(iid: str, owner_type: concept_proto.Type = None):
     return thing_req(req, iid)
 
 
-def proto_boolean_attribute_value(value: bool):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.boolean = value
-    return value_proto
-
-
-def proto_long_attribute_value(value: int):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.long = value
-    return value_proto
-
-
-def proto_double_attribute_value(value: float):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.double = value
-    return value_proto
-
-
-def proto_string_attribute_value(value: str):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.string = value
-    return value_proto
-
-
-def proto_datetime_attribute_value(value: datetime):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
-    return value_proto
-
-
 # Rule
 
 def rule_req(label: str, req: logic_proto.Rule.Req):
