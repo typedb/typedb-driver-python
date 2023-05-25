@@ -19,6 +19,7 @@
 # under the License.
 #
 from abc import ABC
+from datetime import datetime
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
@@ -104,13 +105,13 @@ class _StringValue(StringValue, _Value):
 
 class _DateTimeValue(DateTimeValue, _Value):
 
-    def __init__(self, value: str):
+    def __init__(self, value: datetime):
         super(_DateTimeValue, self).__init__()
         self._value = value
 
     @staticmethod
     def of(value_proto: concept_proto.Value):
-        return _DateTimeValue(value_proto.value.date_time)
+        return _DateTimeValue(datetime.fromtimestamp(float(value_proto.value.date_time) / 1000.0))
 
     def get_value(self):
         return self._value
