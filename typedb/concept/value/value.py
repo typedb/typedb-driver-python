@@ -110,7 +110,7 @@ class _DateTimeValue(DateTimeValue, _Value):
 
     @staticmethod
     def of(value_proto: concept_proto.Value):
-        return _DateTimeValue(value_proto.value.datetime)
+        return _DateTimeValue(value_proto.value.date_time)
 
     def get_value(self):
         return self._value

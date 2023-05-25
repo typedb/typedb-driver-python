@@ -18,8 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from datetime import datetime
-from typing import List, Set
+from typing import List
 from uuid import UUID
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
