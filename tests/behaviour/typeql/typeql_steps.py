@@ -58,7 +58,6 @@ def step_impl(context: Context):
 
 @step("typeql undefine; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    print(f"Expected assertion: '{pattern}'")
     assert_that(calling(context.tx().query().undefine(query=context.text).get), raises(TypeDBClientException, pattern))
 
 
@@ -126,7 +125,7 @@ def step_impl(context: Context):
     assert_that(calling(next).with_args(context.tx().query().match(query=context.text)), raises(TypeDBClientException))
 
 
-@step("typeql match; throws exception containing {pattern}")
+@step("typeql match; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
     assert_that(calling(next).with_args(context.tx().query().match(query=context.text)),
                 raises(TypeDBClientException, pattern.lower()))
