@@ -18,8 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from datetime import datetime
-from typing import List, Set
+from typing import List
 from uuid import UUID
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
@@ -318,7 +317,7 @@ def concept_manager_put_relation_type_req(label: str):
     return concept_manager_req(req)
 
 
-def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto.AttributeType.ValueType):
+def concept_manager_put_attribute_type_req(label: str, value_type: concept_proto.ValueType):
     req = concept_proto.ConceptManager.Req()
     put_attribute_type_req = concept_proto.ConceptManager.PutAttributeType.Req()
     put_attribute_type_req.label = label
@@ -539,7 +538,7 @@ def thing_type_unset_plays_req(label: Label, role_type: concept_proto.Type):
     return type_req(req, label)
 
 
-def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+def thing_type_get_owns_req(label: Label, value_type: concept_proto.ValueType = None,
                             annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_req = concept_proto.ThingType.GetOwns.Req()
@@ -551,7 +550,7 @@ def thing_type_get_owns_req(label: Label, value_type: concept_proto.AttributeTyp
     return type_req(req, label)
 
 
-def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.AttributeType.ValueType = None,
+def thing_type_get_owns_explicit_req(label: Label, value_type: concept_proto.ValueType = None,
                                      annotations: List[concept_proto.Type.Annotation] = None):
     req = concept_proto.Type.Req()
     get_owns_explicit_req = concept_proto.ThingType.GetOwnsExplicit.Req()
@@ -684,7 +683,7 @@ def attribute_type_get_owners_explicit_req(label: Label, annotations: List[conce
     return type_req(req, label)
 
 
-def attribute_type_put_req(label: Label, value: concept_proto.Attribute.Value):
+def attribute_type_put_req(label: Label, value: concept_proto.ConceptValue):
     req = concept_proto.Type.Req()
     put_req = concept_proto.AttributeType.Put.Req()
     put_req.value.CopyFrom(value)
@@ -692,7 +691,7 @@ def attribute_type_put_req(label: Label, value: concept_proto.Attribute.Value):
     return type_req(req, label)
 
 
-def attribute_type_get_req(label: Label, value: concept_proto.Attribute.Value):
+def attribute_type_get_req(label: Label, value: concept_proto.ConceptValue):
     req = concept_proto.Type.Req()
     get_req = concept_proto.AttributeType.Get.Req()
     get_req.value.CopyFrom(value)
@@ -836,36 +835,6 @@ def attribute_get_owners_req(iid: str, owner_type: concept_proto.Type = None):
         get_owners_req.thing_type = owner_type
     req.attribute_get_owners_req.CopyFrom(get_owners_req)
     return thing_req(req, iid)
-
-
-def proto_boolean_attribute_value(value: bool):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.boolean = value
-    return value_proto
-
-
-def proto_long_attribute_value(value: int):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.long = value
-    return value_proto
-
-
-def proto_double_attribute_value(value: float):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.double = value
-    return value_proto
-
-
-def proto_string_attribute_value(value: str):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.string = value
-    return value_proto
-
-
-def proto_datetime_attribute_value(value: datetime):
-    value_proto = concept_proto.Attribute.Value()
-    value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
-    return value_proto
 
 
 # Rule

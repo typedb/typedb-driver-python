@@ -18,8 +18,11 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+import enum
 from abc import ABC, abstractmethod
 from typing import Mapping, Union, TYPE_CHECKING
+
+import typedb_protocol.common.concept_pb2 as concept_proto
 
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 
@@ -69,6 +72,9 @@ class Concept(ABC):
     def is_relation(self) -> bool:
         return False
 
+    def is_value(self) -> bool:
+        return False
+
     def as_type(self) -> "Type":
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Type"))
 
@@ -99,6 +105,9 @@ class Concept(ABC):
     def as_relation(self) -> "Relation":
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Relation"))
 
+    def as_value(self) -> "Value":
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Value"))
+
     @abstractmethod
     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteConcept":
         pass
@@ -110,6 +119,21 @@ class Concept(ABC):
     @abstractmethod
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         pass
+
+
+class ValueType(enum.Enum):
+    OBJECT = 0
+    BOOLEAN = 1
+    LONG = 2
+    DOUBLE = 3
+    STRING = 4
+    DATETIME = 5
+
+    def proto(self) -> concept_proto.ValueType:
+        return concept_proto.ValueType.Value(self.name)
+
+    def __str__(self):
+        return self.name.lower()
 
 
 class RemoteConcept(Concept, ABC):

@@ -21,10 +21,11 @@
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
+from typedb.api.concept.concept import ValueType
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.connection.transaction import _TypeDBTransactionExtended
-from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, concept_manager_put_relation_type_req, \
+from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, \
+    concept_manager_put_relation_type_req, \
     concept_manager_put_attribute_type_req, concept_manager_get_thing_type_req, concept_manager_get_thing_req
 from typedb.concept.proto import concept_proto_reader
 from typedb.concept.type.entity_type import _EntityType
@@ -63,7 +64,7 @@ class _ConceptManager(ConceptManager):
         _type = self.get_thing_type(label)
         return _type if _type and _type.is_relation_type() else None
 
-    def put_attribute_type(self, label: str, value_type: AttributeType.ValueType):
+    def put_attribute_type(self, label: str, value_type: ValueType):
         res = self.execute(concept_manager_put_attribute_type_req(label, value_type.proto()))
         return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
 

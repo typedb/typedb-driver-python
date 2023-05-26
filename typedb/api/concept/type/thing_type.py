@@ -22,6 +22,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Iterator, Optional, Set
 
+from typedb.api.concept.concept import ValueType
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.type import Type, RemoteType
@@ -117,12 +118,12 @@ class RemoteThingType(RemoteType, ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_owns(self, value_type: "AttributeType.ValueType" = None,
+    def get_owns(self, value_type: "ValueType" = None,
                  annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, value_type: "AttributeType.ValueType" = None,
+    def get_owns_explicit(self, value_type: "ValueType" = None,
                           annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
         pass
 

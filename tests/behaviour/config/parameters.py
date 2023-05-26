@@ -129,13 +129,13 @@ register_type(Var=parse_var)
 
 
 @parse.with_pattern(r"long|double|string|boolean|datetime")
-def parse_value_type(value: str) -> AttributeType.ValueType:
+def parse_value_type(value: str) -> ValueType:
     mapping = {
-        "long": AttributeType.ValueType.LONG,
-        "double": AttributeType.ValueType.DOUBLE,
-        "string": AttributeType.ValueType.STRING,
-        "boolean": AttributeType.ValueType.BOOLEAN,
-        "datetime": AttributeType.ValueType.DATETIME
+        "long": ValueType.LONG,
+        "double": ValueType.DOUBLE,
+        "string": ValueType.STRING,
+        "boolean": ValueType.BOOLEAN,
+        "datetime": ValueType.DATETIME
     }
     return mapping[value]
 

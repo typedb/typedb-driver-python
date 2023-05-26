@@ -33,6 +33,7 @@ from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
 from typedb.concept.type.role_type import _RoleType
 from typedb.concept.type.thing_type import _ThingType
+from typedb.concept.value.value import _BooleanValue, _LongValue, _DoubleValue, _StringValue, _DateTimeValue
 
 
 def iid(proto_iid: bytes):
@@ -40,7 +41,12 @@ def iid(proto_iid: bytes):
 
 
 def concept(proto_concept: concept_proto.Concept):
-    return thing(proto_concept.thing) if proto_concept.HasField("thing") else type_(proto_concept.type)
+    if proto_concept.HasField("thing"):
+        return thing(proto_concept.thing)
+    elif proto_concept.HasField("type"):
+        return type_(proto_concept.type)
+    else:
+        return value(proto_concept.value)
 
 
 def thing(proto_thing: concept_proto.Thing):
@@ -55,18 +61,33 @@ def thing(proto_thing: concept_proto.Thing):
 
 
 def attribute(proto_thing: concept_proto.Thing):
-    if proto_thing.type.value_type == concept_proto.AttributeType.ValueType.Value("BOOLEAN"):
+    if proto_thing.type.value_type == concept_proto.ValueType.Value("BOOLEAN"):
         return _BooleanAttribute.of(proto_thing)
-    elif proto_thing.type.value_type == concept_proto.AttributeType.ValueType.Value("LONG"):
+    elif proto_thing.type.value_type == concept_proto.ValueType.Value("LONG"):
         return _LongAttribute.of(proto_thing)
-    elif proto_thing.type.value_type == concept_proto.AttributeType.ValueType.Value("DOUBLE"):
+    elif proto_thing.type.value_type == concept_proto.ValueType.Value("DOUBLE"):
         return _DoubleAttribute.of(proto_thing)
-    elif proto_thing.type.value_type == concept_proto.AttributeType.ValueType.Value("STRING"):
+    elif proto_thing.type.value_type == concept_proto.ValueType.Value("STRING"):
         return _StringAttribute.of(proto_thing)
-    elif proto_thing.type.value_type == concept_proto.AttributeType.ValueType.Value("DATETIME"):
+    elif proto_thing.type.value_type == concept_proto.ValueType.Value("DATETIME"):
         return _DateTimeAttribute.of(proto_thing)
     else:
         raise TypeDBClientException.of(BAD_VALUE_TYPE, proto_thing.type.value_type)
+
+
+def value(proto_value: concept_proto.Value):
+    if proto_value.value_type == concept_proto.ValueType.Value("BOOLEAN"):
+        return _BooleanValue.of(proto_value)
+    elif proto_value.value_type == concept_proto.ValueType.Value("LONG"):
+        return _LongValue.of(proto_value)
+    elif proto_value.value_type == concept_proto.ValueType.Value("DOUBLE"):
+        return _DoubleValue.of(proto_value)
+    elif proto_value.value_type == concept_proto.ValueType.Value("STRING"):
+        return _StringValue.of(proto_value)
+    elif proto_value.value_type == concept_proto.ValueType.Value("DATETIME"):
+        return _DateTimeValue.of(proto_value)
+    else:
+        raise TypeDBClientException.of(BAD_VALUE_TYPE, proto_value.type.value_type)
 
 
 def type_(proto_type: concept_proto.Type):
@@ -90,17 +111,17 @@ def thing_type(proto_type: concept_proto.Type):
 
 
 def attribute_type(proto_type: concept_proto.Type):
-    if proto_type.value_type == concept_proto.AttributeType.ValueType.Value("BOOLEAN"):
+    if proto_type.value_type == concept_proto.ValueType.Value("BOOLEAN"):
         return _BooleanAttributeType.of(proto_type)
-    elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("LONG"):
+    elif proto_type.value_type == concept_proto.ValueType.Value("LONG"):
         return _LongAttributeType.of(proto_type)
-    elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("DOUBLE"):
+    elif proto_type.value_type == concept_proto.ValueType.Value("DOUBLE"):
         return _DoubleAttributeType.of(proto_type)
-    elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("STRING"):
+    elif proto_type.value_type == concept_proto.ValueType.Value("STRING"):
         return _StringAttributeType.of(proto_type)
-    elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("DATETIME"):
+    elif proto_type.value_type == concept_proto.ValueType.Value("DATETIME"):
         return _DateTimeAttributeType.of(proto_type)
-    elif proto_type.value_type == concept_proto.AttributeType.ValueType.Value("OBJECT"):
+    elif proto_type.value_type == concept_proto.ValueType.Value("OBJECT"):
         return _AttributeType(Label.of(proto_type.label), proto_type.is_root, proto_type.is_abstract)
     else:
         raise TypeDBClientException.of(BAD_VALUE_TYPE, proto_type.value_type)

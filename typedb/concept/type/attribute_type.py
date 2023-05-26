@@ -23,6 +23,8 @@ from datetime import datetime
 from typing import Optional, Iterator, Set
 
 import typedb_protocol.common.concept_pb2 as concept_proto
+
+from typedb.api.concept.concept import ValueType
 from typedb.api.concept.type.attribute_type import AttributeType, RemoteAttributeType, BooleanAttributeType, \
     RemoteBooleanAttributeType, LongAttributeType, RemoteLongAttributeType, DoubleAttributeType, \
     RemoteDoubleAttributeType, StringAttributeType, RemoteStringAttributeType, DateTimeAttributeType, \
@@ -96,7 +98,7 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
 
     def get_subtypes(self) -> Iterator[AttributeType]:
         stream = super(_RemoteAttributeType, self).get_subtypes()
-        if self.is_root() and self.get_value_type() is not AttributeType.ValueType.OBJECT:
+        if self.is_root() and self.get_value_type() is not ValueType.OBJECT:
             return (subtype for subtype in stream if subtype.get_value_type() is self.get_value_type() or subtype.get_label() == self.get_label())
         else:
             return stream
@@ -111,11 +113,11 @@ class _RemoteAttributeType(_RemoteThingType, RemoteAttributeType):
                 for rp in self.stream(attribute_type_get_owners_explicit_req(self.get_label(), [concept_proto_builder.annotation(a) for a in annotations]))
                 for tt in rp.attribute_type_get_owners_explicit_res_part.thing_types)
 
-    def put_internal(self, proto_value: concept_proto.Attribute.Value):
+    def put_internal(self, proto_value: concept_proto.ConceptValue):
         res = self.execute(attribute_type_put_req(self.get_label(), proto_value)).attribute_type_put_res
         return concept_proto_reader.attribute(res.attribute)
 
-    def get_internal(self, proto_value: concept_proto.Attribute.Value):
+    def get_internal(self, proto_value: concept_proto.ConceptValue):
         res = self.execute(attribute_type_get_req(self.get_label(), proto_value)).attribute_type_get_res
         return concept_proto_reader.attribute(res.attribute) if res.WhichOneof("res") == "attribute" else None
 
@@ -177,10 +179,10 @@ class _RemoteBooleanAttributeType(_RemoteAttributeType, RemoteBooleanAttributeTy
         return _RemoteBooleanAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: bool):
-        return self.put_internal(concept_proto_builder.boolean_attribute_value(value))
+        return self.put_internal(concept_proto_builder.boolean_value(value))
 
     def get(self, value: bool):
-        return self.get_internal(concept_proto_builder.boolean_attribute_value(value))
+        return self.get_internal(concept_proto_builder.boolean_value(value))
 
     def as_boolean(self):
         return self
@@ -205,10 +207,10 @@ class _RemoteLongAttributeType(_RemoteAttributeType, RemoteLongAttributeType):
         return _RemoteLongAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: int):
-        return self.put_internal(concept_proto_builder.long_attribute_value(value))
+        return self.put_internal(concept_proto_builder.long_value(value))
 
     def get(self, value: int):
-        return self.get_internal(concept_proto_builder.long_attribute_value(value))
+        return self.get_internal(concept_proto_builder.long_value(value))
 
     def as_long(self):
         return self
@@ -233,10 +235,10 @@ class _RemoteDoubleAttributeType(_RemoteAttributeType, RemoteDoubleAttributeType
         return _RemoteDoubleAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: float):
-        return self.put_internal(concept_proto_builder.double_attribute_value(value))
+        return self.put_internal(concept_proto_builder.double_value(value))
 
     def get(self, value: float):
-        return self.get_internal(concept_proto_builder.double_attribute_value(value))
+        return self.get_internal(concept_proto_builder.double_value(value))
 
     def as_double(self):
         return self
@@ -261,10 +263,10 @@ class _RemoteStringAttributeType(_RemoteAttributeType, RemoteStringAttributeType
         return _RemoteStringAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: str):
-        return self.put_internal(concept_proto_builder.string_attribute_value(value))
+        return self.put_internal(concept_proto_builder.string_value(value))
 
     def get(self, value: str):
-        return self.get_internal(concept_proto_builder.string_attribute_value(value))
+        return self.get_internal(concept_proto_builder.string_value(value))
 
     def get_regex(self):
         res = self.execute(attribute_type_get_regex_req(self.get_label()))
@@ -299,10 +301,10 @@ class _RemoteDateTimeAttributeType(_RemoteAttributeType, RemoteDateTimeAttribute
         return _RemoteDateTimeAttributeType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
     def put(self, value: datetime):
-        return self.put_internal(concept_proto_builder.datetime_attribute_value(value))
+        return self.put_internal(concept_proto_builder.datetime_value(value))
 
     def get(self, value: datetime):
-        return self.get_internal(concept_proto_builder.datetime_attribute_value(value))
+        return self.get_internal(concept_proto_builder.datetime_value(value))
 
     def as_datetime(self):
         return self
