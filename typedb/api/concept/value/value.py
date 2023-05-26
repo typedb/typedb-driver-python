@@ -26,8 +26,6 @@ from typedb.api.concept.concept import Concept, ValueType
 from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.exception import TypeDBClientException, VALUE_HAS_NO_REMOTE
 
-if TYPE_CHECKING:
-    pass
 
 
 class Value(Concept, ABC):
