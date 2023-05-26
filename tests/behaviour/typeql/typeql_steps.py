@@ -128,7 +128,7 @@ def step_impl(context: Context):
 @step("typeql match; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
     assert_that(calling(next).with_args(context.tx().query().match(query=context.text)),
-                raises(TypeDBClientException, pattern.lower()))
+                raises(TypeDBClientException, pattern))
 
 
 @step("get answer of typeql match aggregate")
