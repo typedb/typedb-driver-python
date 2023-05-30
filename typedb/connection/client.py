@@ -45,7 +45,6 @@ class _TypeDBClientImpl(TypeDBClient):
         self._sessions_lock = Lock()
         self._pulse_executor = ScheduledExecutor()
         self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
-        self._is_open = False
 
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
         if not self.is_open():
