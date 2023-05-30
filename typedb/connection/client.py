@@ -42,7 +42,6 @@ class _TypeDBClientImpl(TypeDBClient):
         self._transmitter = RequestTransmitter(parallelisation)
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._sessions_lock = Lock()
-        self._is_open = True
         self._pulse_executor = ScheduledExecutor()
         self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
 

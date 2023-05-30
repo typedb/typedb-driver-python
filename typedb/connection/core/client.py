@@ -33,6 +33,7 @@ class _CoreClient(_TypeDBClientImpl):
         super(_CoreClient, self).__init__(address, parallelisation)
         self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+        self._is_open = True
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
         return self._databases
