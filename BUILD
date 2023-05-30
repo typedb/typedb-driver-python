@@ -19,7 +19,7 @@
 # under the License.
 #
 
-exports_files(["requirements.txt", "deployment.bzl", "LATEST_RELEASE_NOTES.md"])
+exports_files(["requirements.txt", "deployment.bzl"])
 
 load("@vaticle_typedb_client_python_pip//:requirements.bzl",
        vaticle_typedb_client_python_requirement = "requirement")
