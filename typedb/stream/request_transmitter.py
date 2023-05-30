@@ -27,7 +27,7 @@ from typing import List, TYPE_CHECKING
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.common.concurrent.lock import ReadWriteLock
-from typedb.common.exception import TypeDBClientException, CLIENT_CLOSED
+from typedb.common.exception import TypeDBClientException, CLIENT_NOT_OPEN
 from typedb.common.rpc.request_builder import transaction_client_msg
 
 if TYPE_CHECKING:
@@ -58,7 +58,7 @@ class RequestTransmitter:
         try:
             self.access_lock.acquire_read()
             if not self._is_open:
-                raise TypeDBClientException.of(CLIENT_CLOSED)
+                raise TypeDBClientException.of(CLIENT_NOT_OPEN)
             executor = self._next_executor()
             disp = RequestTransmitter.Dispatcher(executor, request_iterator, self)
             executor.dispatchers.append(disp)
@@ -158,7 +158,7 @@ class RequestTransmitter:
             try:
                 self._transmitter.access_lock.acquire_read()
                 if not self._transmitter.is_open():
-                    raise TypeDBClientException.of(CLIENT_CLOSED)
+                    raise TypeDBClientException.of(CLIENT_NOT_OPEN)
                 self._request_queue.put(proto_req)
                 self._executor.may_start_running()
             finally:
@@ -168,7 +168,7 @@ class RequestTransmitter:
             try:
                 self._transmitter.access_lock.acquire_read()
                 if not self._transmitter.is_open():
-                    raise TypeDBClientException.of(CLIENT_CLOSED)
+                    raise TypeDBClientException.of(CLIENT_NOT_OPEN)
                 self._request_queue.put(proto_req)
                 self.send_batched_requests()
             finally:

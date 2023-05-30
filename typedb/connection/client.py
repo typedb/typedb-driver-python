@@ -27,6 +27,7 @@ from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
 from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
+from typedb.common.exception import CLIENT_NOT_OPEN, TypeDBClientException
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
@@ -42,11 +43,13 @@ class _TypeDBClientImpl(TypeDBClient):
         self._transmitter = RequestTransmitter(parallelisation)
         self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
         self._sessions_lock = Lock()
-        self._is_open = True
         self._pulse_executor = ScheduledExecutor()
         self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
 
     def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
+        if not self.is_open():
+            raise TypeDBClientException.of(CLIENT_NOT_OPEN)
+
         if not options:
             options = TypeDBOptions.core()
         session = _TypeDBSessionImpl(self, database, session_type, options)

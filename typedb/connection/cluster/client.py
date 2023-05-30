@@ -32,7 +32,7 @@ from typedb.connection.cluster.session import _ClusterSession
 from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.cluster.user_manager import _ClusterUserManager
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req
-from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT
+from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT, CLIENT_NOT_OPEN
 
 
 class _ClusterClient(TypeDBClusterClient):
@@ -62,9 +62,12 @@ class _ClusterClient(TypeDBClusterClient):
         raise TypeDBClientException.of(CLUSTER_UNABLE_TO_CONNECT, ",".join(addresses))
 
     def session(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
+        if not self.is_open():
+            raise TypeDBClientException.of(CLIENT_NOT_OPEN)
         if not options:
             options = TypeDBOptions.cluster()
-        return self._session_any_replica(database, session_type, options) if getattr(options, "read_any_replica", False) else self._session_primary_replica(database, session_type, options)
+        return self._session_any_replica(database, session_type, options) if getattr(options, "read_any_replica", False) \
+            else self._session_primary_replica(database, session_type, options)
 
     def _session_primary_replica(self, database: str, session_type: SessionType, options=None) -> _ClusterSession:
         return _OpenSessionFailsafeTask(database, session_type, options, self).run_primary_replica()

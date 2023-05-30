@@ -40,6 +40,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             self._channel_credentials = grpc.ssl_channel_credentials()
         self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+        self._is_open = True
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
         return self._databases

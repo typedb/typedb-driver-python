@@ -33,7 +33,7 @@ from grpc import Channel, RpcError
 
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.common.exception import CLUSTER_TOKEN_CREDENTIAL_INVALID, TypeDBClientException, UNABLE_TO_CONNECT
-from typedb.common.rpc.request_builder import cluster_user_token_req
+from typedb.common.rpc.request_builder import cluster_user_token_req, connection_open_req
 from typedb.common.rpc.stub import TypeDBStub
 
 T = TypeVar('T')
@@ -47,8 +47,10 @@ class _ClusterServerStub(TypeDBStub):
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
         self._cluster_stub = cluster_service_proto.TypeDBClusterStub(channel)
+
         self._token = None
         try:
+            self._stub.connection_open(connection_open_req())
             res = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
             self._token = res.token
         except RpcError as e:

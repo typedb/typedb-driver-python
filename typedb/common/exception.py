@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Optional, Union, Any
+from typing import Union, Any
 
 from grpc import RpcError, Call, StatusCode
 
@@ -38,7 +38,9 @@ class TypeDBClientException(Exception):
 
     @staticmethod
     def of_rpc(rpc_error: Union[RpcError, Call]) -> "TypeDBClientException":
-        if rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
+        if rpc_error.code() is StatusCode.UNIMPLEMENTED:
+            return TypeDBClientException(msg=RPC_METHOD_UNAVAILABLE, cause=rpc_error.details())
+        elif rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
             return TypeDBClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
             return TypeDBClientException(msg=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
@@ -75,24 +77,25 @@ class ClientErrorMessage(ErrorMessage):
         super(ClientErrorMessage, self).__init__(code_prefix="CLI", code_number=code, message_prefix="Client Error", message_body=message)
 
 
-CLIENT_CLOSED = ClientErrorMessage(1, "The client has been closed and no further operation is allowed.")
-SESSION_CLOSED = ClientErrorMessage(2, "The session has been closed and no further operation is allowed.")
-TRANSACTION_CLOSED = ClientErrorMessage(3, "The transaction has been closed and no further operation is allowed.")
-TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(4, "The transaction has been closed with error(s):\n%s.")
-UNABLE_TO_CONNECT = ClientErrorMessage(5, "Unable to connect to TypeDB server.")
-NEGATIVE_VALUE_NOT_ALLOWED = ClientErrorMessage(6, "Value cannot be less than 1, was: '%d'.")
-MISSING_DB_NAME = ClientErrorMessage(7, "Database name cannot be empty.")
-DB_DOES_NOT_EXIST = ClientErrorMessage(8, "The database '%s' does not exist.")
-MISSING_RESPONSE = ClientErrorMessage(9, "Unexpected empty response for request ID '%s'.")
-UNKNOWN_REQUEST_ID = ClientErrorMessage(10, "Received a response with unknown request id '%s':\n%s")
-CLUSTER_NO_PRIMARY_REPLICA_YET = ClientErrorMessage(11, "No replica has been marked as the primary replica for latest known term '%d'.")
-CLUSTER_UNABLE_TO_CONNECT = ClientErrorMessage(12, "Unable to connect to TypeDB Cluster. Attempted connecting to the cluster members, but none are available: '%s'.")
-CLUSTER_REPLICA_NOT_PRIMARY = ClientErrorMessage(13, "The replica is not the primary replica.")
-CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(14, "Attempted connecting to all cluster members, but the following errors occurred: \n%s")
-CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(15, "The user '%s' does not exist.")
-CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(16, "Invalid token credential.")
-CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(17, "The provided Root CA path '%s' does not exist.")
-CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(18, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
+RPC_METHOD_UNAVAILABLE = ClientErrorMessage(1, "The server does not support this method, please check the client-server compatibility:\n'%s'.")
+CLIENT_NOT_OPEN = ClientErrorMessage(2, "The client is not open.")
+SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no further operation is allowed.")
+TRANSACTION_CLOSED = ClientErrorMessage(4, "The transaction has been closed and no further operation is allowed.")
+TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
+UNABLE_TO_CONNECT = ClientErrorMessage(6, "Unable to connect to TypeDB server.")
+NEGATIVE_VALUE_NOT_ALLOWED = ClientErrorMessage(7, "Value cannot be less than 1, was: '%d'.")
+MISSING_DB_NAME = ClientErrorMessage(8, "Database name cannot be empty.")
+DB_DOES_NOT_EXIST = ClientErrorMessage(9, "The database '%s' does not exist.")
+MISSING_RESPONSE = ClientErrorMessage(10, "Unexpected empty response for request ID '%s'.")
+UNKNOWN_REQUEST_ID = ClientErrorMessage(11, "Received a response with unknown request id '%s':\n%s")
+CLUSTER_NO_PRIMARY_REPLICA_YET = ClientErrorMessage(12, "No replica has been marked as the primary replica for latest known term '%d'.")
+CLUSTER_UNABLE_TO_CONNECT = ClientErrorMessage(13, "Unable to connect to TypeDB Cluster. Attempted connecting to the cluster members, but none are available: '%s'.")
+CLUSTER_REPLICA_NOT_PRIMARY = ClientErrorMessage(14, "The replica is not the primary replica.")
+CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(15, "Attempted connecting to all cluster members, but the following errors occurred: \n%s")
+CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(16, "The user '%s' does not exist.")
+CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(17, "Invalid token credential.")
+CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(18, "The provided Root CA path '%s' does not exist.")
+CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(19, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
 
 
 class ConceptErrorMessage(ErrorMessage):
