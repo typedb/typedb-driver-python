@@ -23,6 +23,7 @@ from abc import ABC
 from typing import Iterator
 from typing import TypeVar, Callable
 
+import typedb_protocol.common.connection_pb2 as connection_proto
 import typedb_protocol.common.session_pb2 as session_proto
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 import typedb_protocol.core.core_database_pb2 as core_database_proto
@@ -35,6 +36,9 @@ T = TypeVar('T')
 
 
 class TypeDBStub(ABC):
+
+    def connection_open(self, req: connection_proto.Connection.Open.Req) -> connection_proto.Connection.Open.Res:
+        return self.resilient_call(lambda: self.stub().connection_open(req))
 
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
         return self.resilient_call(lambda: self.stub().databases_contains(req))

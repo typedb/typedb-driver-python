@@ -25,6 +25,8 @@ import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 import typedb_protocol.cluster.cluster_server_pb2 as cluster_server_proto
 import typedb_protocol.cluster.cluster_user_pb2 as cluster_user_proto
 import typedb_protocol.common.concept_pb2 as concept_proto
+import typedb_protocol.common.connection_pb2 as connection_proto
+import typedb_protocol.common.version_pb2 as version_proto
 import typedb_protocol.common.logic_pb2 as logic_proto
 import typedb_protocol.common.options_pb2 as options_proto
 import typedb_protocol.common.query_pb2 as query_proto
@@ -34,6 +36,13 @@ import typedb_protocol.core.core_database_pb2 as core_database_proto
 
 from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.label import Label
+
+# Connection
+
+def connection_open_req():
+    req = connection_proto.Connection.Open.Req()
+    req.version = version_proto.Version.VERSION
+    return req
 
 
 # CoreDatabaseManager

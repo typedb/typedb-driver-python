@@ -21,8 +21,9 @@
 from typing import TypeVar
 
 import typedb_protocol.core.core_service_pb2_grpc as core_service_proto
-from grpc import Channel
+from grpc import Channel, RpcError
 
+from typedb.common.rpc.request_builder import connection_open_req
 from typedb.common.rpc.stub import TypeDBStub
 
 T = TypeVar('T')
@@ -34,6 +35,11 @@ class _CoreStub(TypeDBStub):
         super(_CoreStub, self).__init__()
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
+        try:
+            self.connection_open(connection_open_req())
+        except RpcError as e:
+            # TODO: do we want to do any error elimination as in the Cluster stub?
+            raise e
 
     def channel(self) -> Channel:
         return self._channel
