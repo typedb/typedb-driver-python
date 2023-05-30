@@ -20,7 +20,7 @@
 #
 
 # Note: Do NOT rename this folder to 'test' as it conflicts with a built-in Python package!
-load("//tools:cluster_test_rule.bzl", "typedb_cluster_py_test")
+load("//tool:cluster_test_rule.bzl", "typedb_cluster_py_test")
 load("@vaticle_bazel_distribution//artifact:rules.bzl", "artifact_extractor")
 load("@vaticle_typedb_common//test:rules.bzl", "native_typedb_artifact")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
