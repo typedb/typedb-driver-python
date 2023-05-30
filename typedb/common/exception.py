@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Optional, Union, Any
+from typing import Union, Any
 
 from grpc import RpcError, Call, StatusCode
 
@@ -38,7 +38,7 @@ class TypeDBClientException(Exception):
 
     @staticmethod
     def of_rpc(rpc_error: Union[RpcError, Call]) -> "TypeDBClientException":
-        if rpc_error.code() in [StatusCode.UNIMPLEMENTED]:
+        if rpc_error.code() is StatusCode.UNIMPLEMENTED:
             return TypeDBClientException(msg=RPC_METHOD_UNAVAILABLE, cause=rpc_error.details())
         elif rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
             return TypeDBClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)

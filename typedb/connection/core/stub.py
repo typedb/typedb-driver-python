@@ -36,7 +36,7 @@ class _CoreStub(TypeDBStub):
         self._channel = channel
         self._stub = core_service_proto.TypeDBStub(channel)
         try:
-            self.connection_open(connection_open_req())
+            self._stub.connection_open(connection_open_req())
         except RpcError as e:
             # TODO: do we want to do any error elimination as in the Cluster stub?
             raise e

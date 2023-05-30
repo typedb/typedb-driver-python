@@ -50,7 +50,7 @@ class _ClusterServerStub(TypeDBStub):
 
         self._token = None
         try:
-            self.connection_open(connection_open_req())
+            self._stub.connection_open(connection_open_req())
             res = self._cluster_stub.user_token(cluster_user_token_req(self._credential.username()))
             self._token = res.token
         except RpcError as e:

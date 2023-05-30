@@ -37,9 +37,6 @@ T = TypeVar('T')
 
 class TypeDBStub(ABC):
 
-    def connection_open(self, req: connection_proto.Connection.Open.Req) -> connection_proto.Connection.Open.Res:
-        return self.resilient_call(lambda: self.stub().connection_open(req))
-
     def databases_contains(self, req: core_database_proto.CoreDatabaseManager.Contains.Req) -> core_database_proto.CoreDatabaseManager.Contains.Res:
         return self.resilient_call(lambda: self.stub().databases_contains(req))
 
