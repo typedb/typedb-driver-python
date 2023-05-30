@@ -21,6 +21,7 @@
 
 from grpc import Channel, insecure_channel
 
+from typedb.common.exception import TypeDBClientException, CLIENT_NOT_OPEN
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.core.stub import _CoreStub
@@ -36,6 +37,8 @@ class _CoreClient(_TypeDBClientImpl):
         self._is_open = True
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:
+        if not self.is_open():
+            raise TypeDBClientException.of(CLIENT_NOT_OPEN)
         return self._databases
 
     def channel(self) -> Channel:

@@ -78,7 +78,7 @@ class ClientErrorMessage(ErrorMessage):
 
 
 RPC_METHOD_UNAVAILABLE = ClientErrorMessage(1, "The server does not support this method, please check the client-server compatibility:\n'%s'.")
-CLIENT_CLOSED = ClientErrorMessage(2, "The client has been closed and no further operation is allowed.")
+CLIENT_NOT_OPEN = ClientErrorMessage(2, "The client is not open.")
 SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no further operation is allowed.")
 TRANSACTION_CLOSED = ClientErrorMessage(4, "The transaction has been closed and no further operation is allowed.")
 TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
