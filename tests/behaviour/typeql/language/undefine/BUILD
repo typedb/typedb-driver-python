@@ -20,7 +20,7 @@
 #
 
 package(default_visibility = ["//tests/behaviour:__subpackages__"])
-load("//tools:behave_rule.bzl", "typedb_behaviour_py_test")
+load("//tool:behave_rule.bzl", "typedb_behaviour_py_test")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
 typedb_behaviour_py_test(

@@ -19,35 +19,11 @@
 # under the License.
 #
 
-load("//tool:cluster_test_rule.bzl", "typedb_cluster_py_test")
 load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
-load("@rules_python//python:defs.bzl", "py_test")
-
-typedb_cluster_py_test(
-    name = "test_cluster_failover",
-    srcs = ["test_cluster_failover.py"],
-    deps = ["//:client_python"],
-    size = "medium",
-    native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
-)
-
-py_test(
-    name = "test_debug",
-    srcs = ["test_debug.py"],
-    deps = ["//:client_python"],
-    python_version = "PY3"
-)
-
-py_test(
-    name = "test_stream",
-    srcs = ["test_stream.py"],
-    deps = ["//:client_python"],
-    python_version = "PY3"
-)
 
 checkstyle_test(
     name = "checkstyle",
     include = glob(["*"]),
     license_type = "apache-header",
-    size = "small",
 )
+
