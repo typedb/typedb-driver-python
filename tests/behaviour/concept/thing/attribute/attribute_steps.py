@@ -22,6 +22,7 @@
 from behave import *
 from hamcrest import *
 from typedb.client import *
+
 from tests.behaviour.context import Context
 import os
 import time
@@ -105,6 +106,7 @@ def step_impl(context: Context, var: str, type_label: str, value: datetime):
 @step("{var:Var} = attribute({type_label}) as(boolean) get: {value:Bool}")
 def step_impl(context: Context, var: str, type_label: str, value: bool):
     context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_boolean().get(value))
+
 
 @step("{var:Var} = attribute({type_label}) as(long) get: {value:Int}")
 def step_impl(context: Context, var: str, type_label: str, value: int):

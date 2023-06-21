@@ -61,7 +61,6 @@ checkstyle_test(
     size = "small",
 )
 
-
 assemble_pip(
     name = "assemble-pip",
     target = ":client_python",
