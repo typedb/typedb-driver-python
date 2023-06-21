@@ -204,14 +204,14 @@ class _RemoteStringAttribute(RemoteStringAttribute, _RemoteAttribute):
 
 class _DateTimeAttribute(DateTimeAttribute, _Attribute):
 
-    def __init__(self, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
+    def    __init__(self, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
         super(_DateTimeAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
+        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), datetime.utcfromtimestamp(float(thing_proto.value.date_time) / 1000.0))
 
     def get_type(self) -> "DateTimeAttributeType":
         return self._type

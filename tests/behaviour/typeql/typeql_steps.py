@@ -20,7 +20,8 @@
 #
 import re
 from collections import defaultdict
-
+import os
+import time
 from behave import *
 from hamcrest import *
 
@@ -178,6 +179,11 @@ def step_impl(context: Context, rule_label: str):
 def step_impl(context: Context, rule_label: str):
     return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
 
+@step("set time-zone is: {time_zone_label}")
+def step_impl(context: Context, time_zone_label: str):
+    os.environ["TZ"] = time_zone_label
+    time.tzset()
+
 
 class ConceptMatchResult:
 
@@ -225,7 +231,7 @@ class AttributeMatcher(ConceptMatcher, ABC):
 
     def __init__(self, type_and_value: str):
         self.type_and_value = type_and_value
-        s = type_and_value.split(":")
+        s = type_and_value.split(":", 1)
         assert_that(s, has_length(2),
                     "[%s] is not a valid attribute identifier. It should have format \"type_label:value\"." % type_and_value)
         self.type_label, self.value_string = s
@@ -284,7 +290,7 @@ class ValueMatcher(ConceptMatcher):
 
     def __init__(self, value_type_and_value: str):
         self.value_type_and_value = value_type_and_value
-        s = value_type_and_value.split(":")
+        s = value_type_and_value.split(":", 1)
         assert_that(s, has_length(2),
                     "[%s] is not a valid identifier. It should have format \"value_type:value\"." % value_type_and_value)
         self.value_type_name, self.value_string = s

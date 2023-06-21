@@ -111,7 +111,7 @@ class _DateTimeValue(DateTimeValue, _Value):
 
     @staticmethod
     def of(value_proto: concept_proto.Value):
-        return _DateTimeValue(datetime.fromtimestamp(float(value_proto.value.date_time) / 1000.0))
+        return _DateTimeValue(datetime.utcfromtimestamp(float(value_proto.value.date_time) / 1000.0))
 
     def get_value(self):
         return self._value

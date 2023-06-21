@@ -61,6 +61,18 @@ checkstyle_test(
     size = "small",
 )
 
+py_binary(
+    name = "tester",
+    srcs = ["tester.py"],
+    deps = [
+            "//:client_python",
+            vaticle_typedb_client_python_requirement("typedb-protocol"),
+            vaticle_typedb_client_python_requirement("protobuf"),
+            vaticle_typedb_client_python_requirement("grpcio"),
+        ],
+)
+
+
 assemble_pip(
     name = "assemble-pip",
     target = ":client_python",
