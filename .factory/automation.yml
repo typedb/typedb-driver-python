@@ -20,7 +20,7 @@
 #
 
 config:
-  version-candi     date: VERSION
+  version-candidate: VERSION
   dependencies:
     dependencies: [build]
     typedb-common: [build, release]
