@@ -22,8 +22,9 @@
 from behave import *
 from hamcrest import *
 from typedb.client import *
-
 from tests.behaviour.context import Context
+import os
+import time
 
 
 @step("attribute({type_label}) get instances contain: {var:Var}")
@@ -93,6 +94,7 @@ def step_impl(context: Context, var: str, type_label: str, value: str):
 
 @step("attribute({type_label}) as(datetime) put: {value:DateTime}; throws exception")
 def step_impl(context: Context, type_label: str, value: datetime):
+
     assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_datetime().put).with_args(value), raises(TypeDBClientException))
 
 
@@ -104,7 +106,6 @@ def step_impl(context: Context, var: str, type_label: str, value: datetime):
 @step("{var:Var} = attribute({type_label}) as(boolean) get: {value:Bool}")
 def step_impl(context: Context, var: str, type_label: str, value: bool):
     context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_boolean().get(value))
-
 
 @step("{var:Var} = attribute({type_label}) as(long) get: {value:Int}")
 def step_impl(context: Context, var: str, type_label: str, value: int):
@@ -149,3 +150,9 @@ def step_impl(context: Context, var: str, value: str):
 @step("attribute {var:Var} has datetime value: {value:DateTime}")
 def step_impl(context: Context, var: str, value: datetime):
     assert_that(context.get(var).as_attribute().get_value(), is_(value))
+
+
+@step("set time-zone is: {time_zone_label}")
+def step_impl(context: Context, time_zone_label: str):
+    os.environ["TZ"] = time_zone_label
+    time.tzset()

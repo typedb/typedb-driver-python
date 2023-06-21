@@ -118,7 +118,7 @@ def _rule_implementation(ctx):
     cmd += " && rm -rf " + steps_out_dir
     cmd += " && mkdir " + steps_out_dir + " && "
     cmd += " && ".join(["cp %s %s" % (step_file.path, steps_out_dir) for step_file in ctx.files.steps])
-    cmd += " && behave %s --no-capture -D port=$PORT && export RESULT=0 || export RESULT=1" % feats_dir
+    cmd += " && python3 -m behave %s --no-capture -D port=$PORT && export RESULT=0 || export RESULT=1" % feats_dir
     cmd += """
            echo Tests concluded with exit value $RESULT
            echo Stopping server.
