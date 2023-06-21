@@ -94,7 +94,6 @@ def step_impl(context: Context, var: str, type_label: str, value: str):
 
 @step("attribute({type_label}) as(datetime) put: {value:DateTime}; throws exception")
 def step_impl(context: Context, type_label: str, value: datetime):
-
     assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_datetime().put).with_args(value), raises(TypeDBClientException))
 
 
