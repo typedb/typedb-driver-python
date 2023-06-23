@@ -204,7 +204,7 @@ class _RemoteStringAttribute(RemoteStringAttribute, _RemoteAttribute):
 
 class _DateTimeAttribute(DateTimeAttribute, _Attribute):
 
-    def    __init__(self, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
+    def __init__(self, iid: str, is_inferred: bool, type_: DateTimeAttributeType, value: datetime):
         super(_DateTimeAttribute, self).__init__(iid, is_inferred)
         self._type = type_
         self._value = value
