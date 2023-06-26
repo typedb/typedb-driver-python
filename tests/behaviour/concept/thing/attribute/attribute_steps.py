@@ -152,9 +152,3 @@ def step_impl(context: Context, var: str, value: str):
 def step_impl(context: Context, var: str, value: datetime):
     assert_that(context.get(var).as_attribute().get_value(), is_(value))
 
-
-@step("set time-zone is: {time_zone_label}")
-def step_impl(context: Context, time_zone_label: str):
-    os.environ["TZ"] = time_zone_label
-    time.tzset()
-

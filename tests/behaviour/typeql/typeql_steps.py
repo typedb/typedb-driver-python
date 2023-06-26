@@ -180,11 +180,6 @@ def step_impl(context: Context, rule_label: str):
 def step_impl(context: Context, rule_label: str):
     return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
 
-@step("set time-zone is: {time_zone_label}")
-def step_impl(context: Context, time_zone_label: str):
-    os.environ["TZ"] = time_zone_label
-    time.tzset()
-
 
 class ConceptMatchResult:
 
