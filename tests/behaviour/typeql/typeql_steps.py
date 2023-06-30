@@ -21,8 +21,6 @@
 import re
 from collections import defaultdict
 
-import os
-import time
 from behave import *
 from hamcrest import *
 

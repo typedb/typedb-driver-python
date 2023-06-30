@@ -58,6 +58,10 @@ register_type(Words=parseWords)
 
 
 @parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
+def parse_datetime_pattern(text: str) -> datetime:
+    return parse_datetime(str)
+
+
 def parse_datetime(text: str) -> datetime:
     try:
         return datetime.strptime(text, "%Y-%m-%dT%H:%M:%S")
@@ -66,7 +70,6 @@ def parse_datetime(text: str) -> datetime:
             return datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
         except ValueError:
             return datetime.strptime(text, "%Y-%m-%d")
-
 
 
 register_type(DateTime=parse_datetime)
