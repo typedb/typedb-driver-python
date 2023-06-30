@@ -24,8 +24,6 @@ from hamcrest import *
 from typedb.client import *
 
 from tests.behaviour.context import Context
-import os
-import time
 
 
 @step("attribute({type_label}) get instances contain: {var:Var}")
