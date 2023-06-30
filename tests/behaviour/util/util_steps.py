@@ -25,6 +25,13 @@ from behave import *
 
 from tests.behaviour.context import Context
 
+import os
+import time
+
+@step("set time-zone is: {time_zone_label}")
+def step_impl(context: Context, time_zone_label: str):
+    os.environ["TZ"] = time_zone_label
+    time.tzset()
 
 @step("wait {seconds} seconds")
 def step_impl(context: Context, seconds: str):

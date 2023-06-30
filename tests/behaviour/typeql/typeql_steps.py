@@ -225,7 +225,7 @@ class AttributeMatcher(ConceptMatcher, ABC):
 
     def __init__(self, type_and_value: str):
         self.type_and_value = type_and_value
-        s = type_and_value.split(":")
+        s = type_and_value.split(":", 1)
         assert_that(s, has_length(2),
                     "[%s] is not a valid attribute identifier. It should have format \"type_label:value\"." % type_and_value)
         self.type_label, self.value_string = s
@@ -284,7 +284,7 @@ class ValueMatcher(ConceptMatcher):
 
     def __init__(self, value_type_and_value: str):
         self.value_type_and_value = value_type_and_value
-        s = value_type_and_value.split(":")
+        s = value_type_and_value.split(":", 1)
         assert_that(s, has_length(2),
                     "[%s] is not a valid identifier. It should have format \"value_type:value\"." % value_type_and_value)
         self.value_type_name, self.value_string = s

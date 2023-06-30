@@ -113,6 +113,7 @@ build:
       type: foreground
       command: |
         export PATH="$HOME/.local/bin:$PATH"
+        sudo apt-get update
         sudo apt install python3-pip -y
         python3 -m pip install -U pip
         python3 -m pip install -r requirements_dev.txt

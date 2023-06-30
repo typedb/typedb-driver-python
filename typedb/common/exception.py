@@ -116,7 +116,7 @@ VALUE_HAS_NO_REMOTE = ConceptErrorMessage(9, "A 'value' has no remote concept.")
 NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(10, "The concept identified by '%s' is not explainable.")
 NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(11, "The ownership by owner '%s' of attribute '%s' is not explainable.")
 GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(12, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, annotations]")
-
+UNSUPPORTED_TIMEZONE_INFORMATION = ConceptErrorMessage(13, "A date-time attribute cannot accept timezone aware datetime objects.")
 
 class QueryErrorMessage(ErrorMessage):
 

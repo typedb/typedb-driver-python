@@ -25,7 +25,7 @@ import typedb_protocol.common.concept_pb2 as concept_proto
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType, Annotations, Annotation
 from typedb.api.concept.type.type import Type
-from typedb.common.exception import TypeDBClientException, BAD_ENCODING, BAD_ANNOTATION
+from typedb.common.exception import TypeDBClientException, BAD_ENCODING, BAD_ANNOTATION, UNSUPPORTED_TIMEZONE_INFORMATION
 from typedb.common.rpc.request_builder import proto_role_type, proto_thing_type, byte_string
 
 
@@ -83,6 +83,8 @@ def string_value(value: str):
 
 
 def datetime_value(value: datetime):
+    if value.tzinfo is not None:
+        raise TypeDBClientException.of(UNSUPPORTED_TIMEZONE_INFORMATION)
     value_proto = concept_proto.ConceptValue()
     value_proto.date_time = int((value - datetime(1970, 1, 1)).total_seconds() * 1000)
     return value_proto

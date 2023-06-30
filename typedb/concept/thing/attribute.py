@@ -211,7 +211,7 @@ class _DateTimeAttribute(DateTimeAttribute, _Attribute):
 
     @staticmethod
     def of(thing_proto: concept_proto.Thing):
-        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), datetime.fromtimestamp(float(thing_proto.value.date_time) / 1000.0))
+        return _DateTimeAttribute(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.attribute_type(thing_proto.type), datetime.utcfromtimestamp(float(thing_proto.value.date_time) / 1000.0))
 
     def get_type(self) -> "DateTimeAttributeType":
         return self._type
