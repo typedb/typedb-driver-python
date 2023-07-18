@@ -51,7 +51,7 @@ typedb_behaviour_py_test(
     ],
     native_typedb_artifact = "//tests:native-typedb-artifact",
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
-    size = "small",
+    size = "medium",
 )
 
 checkstyle_test(
