@@ -34,15 +34,33 @@ load("@vaticle_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
 
 
+genrule(
+    name = "python-ffi",
+    outs = ["typedb/typedb_client_python.py"],
+    srcs = ["@vaticle_typedb_driver_java//rust:typedb_client_python"],
+    cmd = "cp $< $@",
+    visibility = ["//visibility:public"]
+)
+
+genrule(
+    name = "python-lib",
+    outs = ["typedb/_typedb_client_python.so"],
+    srcs = ["@vaticle_typedb_driver_java//rust:_typedb_client_python"],
+    cmd = "cp $< $@",
+    visibility = ["//visibility:public"]
+)
+
 py_library(
     name = "client_python",
-    srcs = glob(["typedb/**/*.py"]),
-    deps = [
-#        vaticle_typedb_client_python_requirement("typedb-protocol"),
-#        vaticle_typedb_client_python_requirement("protobuf"),
-#        vaticle_typedb_client_python_requirement("grpcio"),
-        "@vaticle_typedb_driver_java//rust:typedb_client_python",
-    ],
+    srcs = glob(["typedb/**/*.py"]) + [":python-ffi"] ,
+#    data = [
+##        vaticle_typedb_client_python_requirement("typedb-protocol"),
+##        vaticle_typedb_client_python_requirement("protobuf"),
+##        vaticle_typedb_client_python_requirement("grpcio"),
+##        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+#    ],
+    data = [":python-lib"],
+    deps = ["@vaticle_typedb_driver_java//rust:typedb_client_python"],
     visibility = ["//visibility:public"]
 )
 
