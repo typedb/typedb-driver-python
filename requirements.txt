@@ -36,6 +36,6 @@
 ## Dependencies
 
 typedb-protocol==2.18.0
-grpcio>=1.43.0,<2
-protobuf>=3.15.6,<4
+# grpcio>=1.43.0,<2
+# protobuf>=3.15.6,<4
 parse==1.18.0

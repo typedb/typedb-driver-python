@@ -28,6 +28,13 @@ workspace(name = "vaticle_typedb_client_python")
 load("//dependencies/vaticle:repositories.bzl", "vaticle_dependencies")
 vaticle_dependencies()
 
+# Load //builder/python
+load("@vaticle_dependencies//builder/python:deps.bzl", python_deps = "deps")
+python_deps()
+load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
+py_repositories()
+python_register_toolchains(name = "python39", python_version = "3.9")
+
 # Load //builder/bazel for RBE
 load("@vaticle_dependencies//builder/bazel:deps.bzl", "bazel_toolchain")
 bazel_toolchain()
@@ -44,16 +51,30 @@ kotlin_repositories()
 load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_register_toolchains")
 kt_register_toolchains()
 
-# Load //builder/python
-load("@vaticle_dependencies//builder/python:deps.bzl", python_deps = "deps")
-python_deps()
+# Load //builder/rust
+load("@vaticle_dependencies//builder/rust:deps.bzl", rust_deps = "deps")
+rust_deps()
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+rules_rust_dependencies()
+rust_register_toolchains(edition = "2021", include_rustc_srcs = True)
+
+load("@vaticle_dependencies//library/crates:crates.bzl", "fetch_crates")
+fetch_crates()
+load("@crates//:defs.bzl", "crate_repositories")
+crate_repositories()
+
+load("@vaticle_dependencies//tool/swig:deps.bzl", swig_deps = "deps")
+swig_deps()
 
 # Load //builder/grpc
 load("@vaticle_dependencies//builder/grpc:deps.bzl", grpc_deps = "deps")
 grpc_deps()
-load("@com_github_grpc_grpc//bazel:grpc_deps.bzl",
-com_github_grpc_grpc_deps = "grpc_deps")
+
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", com_github_grpc_grpc_deps = "grpc_deps")
 com_github_grpc_grpc_deps()
+load("@stackb_rules_proto//java:deps.bzl", "java_grpc_compile")
+java_grpc_compile()
 
 # Load //tool/common
 load("@vaticle_dependencies//tool/common:deps.bzl", "vaticle_dependencies_ci_pip",
@@ -85,22 +106,25 @@ pip_deps()
 load("@vaticle_bazel_distribution//github:deps.bzl", github_deps = "deps")
 github_deps()
 
-################################
+##############################
 # Load @vaticle dependencies #
-################################
+##############################
 
-load("//dependencies/vaticle:repositories.bzl", "vaticle_typedb_common", "vaticle_typedb_behaviour")
+load("//dependencies/vaticle:repositories.bzl", "vaticle_typedb_common", "vaticle_typeql", "vaticle_typedb_behaviour", "vaticle_typedb_driver_java", "vaticle_typedb_protocol")
 vaticle_typedb_common()
+vaticle_typeql()
 vaticle_typedb_behaviour()
+vaticle_typedb_driver_java()
+vaticle_typedb_protocol()
 
 # Load artifacts
 load("//dependencies/vaticle:artifacts.bzl", "vaticle_typedb_artifacts", "vaticle_typedb_cluster_artifacts")
 vaticle_typedb_artifacts()
 vaticle_typedb_cluster_artifacts()
 
-#################################
+######################################
 # Load @vaticle_typedb_client_python #
-#################################
+######################################
 
 load("@rules_python//python:pip.bzl", "pip_install")
 pip_install(
@@ -115,9 +139,9 @@ pip_install(
 load("@vaticle_dependencies//library/maven:rules.bzl", "maven")
 maven(vaticle_dependencies_tool_maven_artifacts)
 
-##################################################
+#######################################################
 # Create @vaticle_typedb_client_python_workspace_refs #
-##################################################
+#######################################################
 load("@vaticle_bazel_distribution//common:rules.bzl", "workspace_refs")
 workspace_refs(
     name = "vaticle_typedb_client_python_workspace_refs"
