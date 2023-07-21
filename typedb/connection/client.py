@@ -29,7 +29,7 @@ from typedb.api.connection.session import SessionType
 from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
 from typedb.common.exception import CLIENT_NOT_OPEN, TypeDBClientException
 from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
+from typedb.connection.database_manager import _DatabaseManagerImpl
 from typedb.connection.session import _TypeDBSessionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
 
@@ -61,7 +61,7 @@ class _TypeDBClientImpl(TypeDBClient):
         with self._sessions_lock:
             del self._sessions[session.session_id()]
 
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
+    def databases(self) -> _DatabaseManagerImpl:
         pass
 
     def is_open(self) -> bool:

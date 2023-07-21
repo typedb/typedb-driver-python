@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Iterator
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 from grpc import RpcError
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.transaction import _TypeDBTransactionExtended, TransactionType
+from typedb.api.connection.transaction import Transaction, TransactionType
 from typedb.api.query.future import QueryFuture
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, TRANSACTION_CLOSED_WITH_ERRORS
 from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
@@ -36,26 +36,20 @@ from typedb.stream.bidirectional_stream import BidirectionalStream
 if TYPE_CHECKING:
     from typedb.connection.session import _TypeDBSessionImpl
 
+from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
-class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
+
+class _TransactionImpl(Transaction):
 
     def __init__(self, session: "_TypeDBSessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions.core()
         self._transaction_type = transaction_type
         self._options = options
+        self._transaction = transaction_new(session, transaction_type, options)
         self._concept_manager = _ConceptManager(self)
         self._query_manager = _QueryManager(self)
         self._logic_manager = _LogicManager(self)
-
-        try:
-            self._channel, stub = session.client().new_channel_and_stub()
-            self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
-            req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(),
-                                       session.network_latency_millis())
-            self.execute(request=req, batch=False)
-        except RpcError as e:
-            raise TypeDBClientException.of_rpc(e)
 
     def transaction_type(self) -> TransactionType:
         return self._transaction_type
@@ -64,7 +58,9 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         return self._options
 
     def is_open(self) -> bool:
-        return self._bidirectional_stream.is_open()
+        if not self._transaction.thisown:
+            return False
+        return transaction_is_open(self._transaction)
 
     def concepts(self) -> _ConceptManager:
         return self._concept_manager
@@ -74,6 +70,12 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
 
     def query(self) -> _QueryManager:
         return self._query_manager
+
+    def on_close(self, function: callable):
+        transaction_on_close(self._transaction, _TransactionImpl.TransactionOnClose().callback(function))
+
+    class TransactionOnClose(TransactionCallbackDirector):
+        pass
 
     def execute(self, request: transaction_proto.Transaction.Req,
                 batch: bool = True) -> transaction_proto.Transaction.Res:

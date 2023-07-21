@@ -61,7 +61,7 @@ class TestClusterFailover(TestCase):
             "--server.encryption.enable", "true"
         ])
 
-    def get_primary_replica(self, database_manager: ClusterDatabaseManager):
+    def get_primary_replica(self, database_manager: DatabaseManager):
         retry_num = 0
         while retry_num < 10:
             print("Discovering replicas for database 'typedb'...")

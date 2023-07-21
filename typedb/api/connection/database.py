@@ -32,14 +32,32 @@ class Database(ABC):
     def schema(self) -> str:
         pass
 
+    def rule_schema(self) -> str:
+        pass
+
+    def type_schema(self) -> str:
+        pass
+
     @abstractmethod
     def delete(self) -> None:
+        pass
+
+    @abstractmethod
+    def replicas(self) -> Set["Database.Replica"]:
+        pass
+
+    @abstractmethod
+    def primary_replica(self) -> Optional["Database.Replica"]:
+        pass
+
+    @abstractmethod
+    def preferred_replica(self) -> Optional["Database.Replica"]:
         pass
 
     class Replica(ABC):
 
         @abstractmethod
-        def database(self) -> "ClusterDatabase":
+        def database(self) -> "Database":
             pass
 
         @abstractmethod
@@ -59,21 +77,6 @@ class Database(ABC):
             pass
 
 
-class ClusterDatabase(Database, ABC):
-
-    @abstractmethod
-    def replicas(self) -> Set[Database.Replica]:
-        pass
-
-    @abstractmethod
-    def primary_replica(self) -> Optional[Database.Replica]:
-        pass
-
-    @abstractmethod
-    def preferred_replica(self) -> Database.Replica:
-        pass
-
-
 class DatabaseManager(ABC):
 
     @abstractmethod
@@ -89,16 +92,5 @@ class DatabaseManager(ABC):
         pass
 
     @abstractmethod
-    def all(self) -> List[Database]:
-        pass
-
-
-class ClusterDatabaseManager(DatabaseManager, ABC):
-
-    @abstractmethod
-    def get(self, name: str) -> ClusterDatabase:
-        pass
-
-    @abstractmethod
-    def all(self) -> List[ClusterDatabase]:
+    def all(self) -> list[Database]:
         pass

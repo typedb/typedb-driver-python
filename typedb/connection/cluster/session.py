@@ -23,8 +23,8 @@ from typing import TYPE_CHECKING
 from typedb.api.connection.options import TypeDBClusterOptions, TypeDBOptions
 from typedb.api.connection.session import TypeDBSession, SessionType
 from typedb.api.connection.transaction import TransactionType
-from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
-from typedb.connection.database import _TypeDBDatabaseImpl
+from typedb.connection.cluster.database import _FailsafeTask
+from typedb.connection.database import _DatabaseImpl
 from typedb.connection.transaction import _TypeDBTransactionImpl
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class _ClusterSession(TypeDBSession):
     def close(self) -> None:
         self.core_session.close()
 
-    def database(self) -> _TypeDBDatabaseImpl:
+    def database(self) -> _DatabaseImpl:
         return self.core_session.database()
 
     def __enter__(self):
@@ -83,10 +83,10 @@ class _TransactionFailsafeTask(_FailsafeTask):
         self.transaction_type = transaction_type
         self.options = options
 
-    def run(self, replica: _ClusterDatabase.Replica):
+    def run(self, replica: _DatabaseImpl.Replica):
         return self.cluster_session.core_session.transaction(self.transaction_type, self.options)
 
-    def rerun(self, replica: _ClusterDatabase.Replica):
+    def rerun(self, replica: _DatabaseImpl.Replica):
         if self.cluster_session.core_session:
             self.cluster_session.core_session.close()
         self.cluster_session.server_client = self.cluster_session.cluster_client._cluster_server_client(replica.address())

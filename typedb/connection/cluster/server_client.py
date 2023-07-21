@@ -25,7 +25,7 @@ import grpc
 from typedb.api.connection.credential import TypeDBCredential
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.cluster.stub import _ClusterServerStub
-from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
+from typedb.connection.database_manager import _DatabaseManagerImpl
 
 
 class _ClusterServerClient(_TypeDBClientImpl):
@@ -39,10 +39,10 @@ class _ClusterServerClient(_TypeDBClientImpl):
         else:
             self._channel_credentials = grpc.ssl_channel_credentials()
         self._channel, self._stub = self.new_channel_and_stub()
-        self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+        self._databases = _DatabaseManagerImpl(self.stub())
         self._is_open = True
 
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
+    def databases(self) -> _DatabaseManagerImpl:
         return self._databases
 
     def channel(self) -> grpc.Channel:

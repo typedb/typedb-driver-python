@@ -24,11 +24,11 @@ from typing import Dict, Optional, Set, TYPE_CHECKING
 
 import typedb_protocol.cluster.cluster_database_pb2 as cluster_database_proto
 
-from typedb.api.connection.database import ClusterDatabase
+# from typedb.api.connection.database import Database
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_REPLICA_NOT_PRIMARY, \
     CLUSTER_UNABLE_TO_CONNECT
 from typedb.common.rpc.request_builder import cluster_database_manager_get_req
-from typedb.connection.database import _TypeDBDatabaseImpl
+from typedb.connection.database import _DatabaseImpl
 
 if TYPE_CHECKING:
     from typedb.connection.cluster.client import _ClusterClient

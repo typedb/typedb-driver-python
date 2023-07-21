@@ -22,17 +22,18 @@ from typing import Iterable, Dict, Set
 
 from typedb.api.connection.client import TypeDBClusterClient
 from typedb.api.connection.credential import TypeDBCredential
+from typedb.api.connection.database import DatabaseManager
 from typedb.api.connection.options import TypeDBOptions, TypeDBClusterOptions
 from typedb.api.connection.session import SessionType
 from typedb.api.connection.user import UserManager, User
-from typedb.connection.cluster.database import _ClusterDatabase, _FailsafeTask
-from typedb.connection.cluster.database_manager import _ClusterDatabaseManager
+# from typedb.connection.cluster.database import _FailsafeTask
 from typedb.connection.cluster.server_client import _ClusterServerClient
 from typedb.connection.cluster.session import _ClusterSession
 from typedb.connection.cluster.stub import _ClusterServerStub
 from typedb.connection.cluster.user_manager import _ClusterUserManager
 from typedb.common.rpc.request_builder import cluster_server_manager_all_req
 from typedb.common.exception import TypeDBClientException, UNABLE_TO_CONNECT, CLUSTER_UNABLE_TO_CONNECT, CLIENT_NOT_OPEN
+from typedb.connection.database import _DatabaseImpl
 
 
 class _ClusterClient(TypeDBClusterClient):
@@ -40,8 +41,8 @@ class _ClusterClient(TypeDBClusterClient):
     def __init__(self, addresses: Iterable[str], credential: TypeDBCredential, parallelisation: int = None):
         self._credential = credential
         self._server_clients: Dict[str, _ClusterServerClient] = {addr: _ClusterServerClient(addr, credential, parallelisation) for addr in self._fetch_server_addresses(addresses)}
-        self._database_managers = _ClusterDatabaseManager(self)
-        self._cluster_databases: Dict[str, _ClusterDatabase] = {}
+        self._database_managers = DatabaseManager(self)
+        self._cluster_databases: Dict[str, _DatabaseImpl] = {}
         self._user_manager = _ClusterUserManager(self)
         self._is_open = True
 
@@ -84,10 +85,10 @@ class _ClusterClient(TypeDBClusterClient):
     def user(self) -> User:
         return self.users().get(self._credential.username())
 
-    def databases(self) -> _ClusterDatabaseManager:
+    def databases(self) -> _DatabaseManager:
         return self._database_managers
 
-    def database_by_name(self) -> Dict[str, _ClusterDatabase]:
+    def database_by_name(self) -> Dict[str, _DatabaseImpl]:
         return self._cluster_databases
 
     def server_addresses(self) -> Set[str]:
@@ -126,5 +127,5 @@ class _OpenSessionFailsafeTask(_FailsafeTask):
         self.session_type = session_type
         self.options = options
 
-    def run(self, replica: _ClusterDatabase.Replica):
+    def run(self, replica: _DatabaseImpl.Replica):
         return _ClusterSession(self.client, replica.address(), self.database, self.session_type, self.options)

@@ -46,7 +46,7 @@ class TransactionType(enum.Enum):
         return transaction_proto.Transaction.Type.Value(self.name)
 
 
-class TypeDBTransaction(ABC):
+class Transaction(ABC):
 
     @abstractmethod
     def is_open(self) -> bool:
@@ -90,19 +90,4 @@ class TypeDBTransaction(ABC):
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-
-class _TypeDBTransactionExtended(TypeDBTransaction, ABC):
-
-    @abstractmethod
-    def execute(self, request: transaction_proto.Transaction.Req) -> transaction_proto.Transaction.Res:
-        pass
-
-    @abstractmethod
-    def run_query(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
-        pass
-
-    @abstractmethod
-    def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         pass

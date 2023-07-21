@@ -42,7 +42,7 @@ class SessionType(enum.Enum):
         return session_proto.Session.Type.Value(self.name)
 
 
-class TypeDBSession(ABC):
+class Session(ABC):
 
     @abstractmethod
     def is_open(self) -> bool:
