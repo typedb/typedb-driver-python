@@ -22,10 +22,11 @@
 from grpc import Channel, insecure_channel
 
 from typedb.common.exception import TypeDBClientException, CLIENT_NOT_OPEN
-from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.client import _TypeDBClientImpl
 from typedb.connection.core.stub import _CoreStub
 from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
+
+from typedb.typedb_client_python import connection_open_plaintext
 
 
 class _CoreClient(_TypeDBClientImpl):
@@ -33,7 +34,8 @@ class _CoreClient(_TypeDBClientImpl):
     def __init__(self, address: str, parallelisation: int = 2):
         super(_CoreClient, self).__init__(address, parallelisation)
         self._channel, self._stub = self.new_channel_and_stub()
-        self._databases = _TypeDBDatabaseManagerImpl(self.stub())
+        self._connection = connection_open_plaintext(address)
+        self._databases = _TypeDBDatabaseManagerImpl(self._connection)
         self._is_open = True
 
     def databases(self) -> _TypeDBDatabaseManagerImpl:

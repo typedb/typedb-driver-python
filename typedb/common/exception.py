@@ -85,7 +85,7 @@ SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no furth
 TRANSACTION_CLOSED = ClientErrorMessage(4, "The transaction has been closed and no further operation is allowed.")
 TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
 UNABLE_TO_CONNECT = ClientErrorMessage(6, "Unable to connect to TypeDB server.")
-NEGATIVE_VALUE_NOT_ALLOWED = ClientErrorMessage(7, "Value cannot be less than 1, was: '%d'.")
+POSITIVE_VALUE_REQUIRED = ClientErrorMessage(7, "Value cannot be less than 1, was: '%d'.")
 MISSING_DB_NAME = ClientErrorMessage(8, "Database name cannot be empty.")
 DB_DOES_NOT_EXIST = ClientErrorMessage(9, "The database '%s' does not exist.")
 MISSING_RESPONSE = ClientErrorMessage(10, "Unexpected empty response for request ID '%s'.")
@@ -98,6 +98,7 @@ CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(16, "The user '%s' does not exi
 CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(17, "Invalid token credential.")
 CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(18, "The provided Root CA path '%s' does not exist.")
 CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(19, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
+DATABASE_DELETED = ClientErrorMessage(20, "The database '%s' has been deleted and no further operation is allowed.")
 
 
 class ConceptErrorMessage(ErrorMessage):

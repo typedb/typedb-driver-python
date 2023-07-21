@@ -22,11 +22,11 @@
 from typing import List
 
 from typedb.api.connection.database import DatabaseManager
-from typedb.common.exception import TypeDBClientException, DB_DOES_NOT_EXIST, MISSING_DB_NAME
-from typedb.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
-    core_database_manager_all_req
-from typedb.common.rpc.stub import TypeDBStub
+from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MISSING_DB_NAME
 from typedb.connection.database import _TypeDBDatabaseImpl
+
+from typedb.typedb_client_python import Connection, Database as DatabaseFfi, databases_contains, databases_create, \
+    database_manager_new, databases_get, databases_all, database_iterator_next
 
 
 def _not_blank(name: str) -> str:
@@ -37,24 +37,24 @@ def _not_blank(name: str) -> str:
 
 class _TypeDBDatabaseManagerImpl(DatabaseManager):
 
-    def __init__(self, stub: TypeDBStub):
-        self._stub = stub
+    def __init__(self, connection: Connection):
+        self.database_manager = database_manager_new(connection)
 
     def get(self, name: str) -> _TypeDBDatabaseImpl:
         if self.contains(name):
-            return _TypeDBDatabaseImpl(self._stub, name)
+            return _TypeDBDatabaseImpl(databases_get(self.database_manager, name))
         else:
-            raise TypeDBClientException.of(DB_DOES_NOT_EXIST, name)
+            raise TypeDBClientException.of(DATABASE_DELETED, name)
 
     def contains(self, name: str) -> bool:
-        return self._stub.databases_contains(core_database_manager_contains_req(_not_blank(name))).contains
+        return databases_contains(self.database_manager, _not_blank(name))
 
     def create(self, name: str) -> None:
-        self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))
+        databases_create(self.database_manager, _not_blank(name))
 
     def all(self) -> List[_TypeDBDatabaseImpl]:
-        databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).names
-        return [_TypeDBDatabaseImpl(self._stub, name) for name in databases]
-
-    def stub(self) -> TypeDBStub:
-        return self._stub
+        databases: List[DatabaseFfi] = []
+        db_iter = databases_all(self.database_manager)
+        while db := database_iterator_next(db_iter):
+            databases.append(db)
+        return [_TypeDBDatabaseImpl(database) for database in databases]

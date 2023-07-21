@@ -20,24 +20,41 @@
 #
 
 from typedb.api.connection.database import Database
-from typedb.common.rpc.request_builder import core_database_schema_req, core_database_delete_req
-from typedb.common.rpc.stub import TypeDBStub
+from typedb.common.exception import TypeDBClientException, DATABASE_DELETED
+
+from typedb.typedb_client_python import Database as DatabaseFfi, database_get_name, database_schema, database_delete, database_rule_schema, database_type_schema
 
 
 class _TypeDBDatabaseImpl(Database):
 
-    def __init__(self, stub: TypeDBStub, name: str):
-        self._name = name
-        self._stub = stub
+    def __init__(self, database: DatabaseFfi):
+        self._database = database
+        self._name = database_get_name(database)
 
     def name(self) -> str:
+        if not self._database.thisown:
+            raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         return self._name
 
     def schema(self) -> str:
-        return self._stub.database_schema(core_database_schema_req(self._name)).schema
+        if not self._database.thisown:
+            raise TypeDBClientException.of(DATABASE_DELETED, self._name)
+        return database_schema(self._database)
+
+    def rule_schema(self) -> str:
+        if not self._database.thisown:
+            raise TypeDBClientException.of(DATABASE_DELETED, self._name)
+        return database_rule_schema(self._database)
+
+    def type_schema(self) -> str:
+        if not self._database.thisown:
+            raise TypeDBClientException.of(DATABASE_DELETED, self._name)
+        return database_type_schema(self._database)
 
     def delete(self) -> None:
-        self._stub.database_delete(core_database_delete_req(self._name))
+        if not self._database.thisown:
+            raise TypeDBClientException.of(DATABASE_DELETED, self._name)
+        database_delete(self._database)
 
     def __str__(self):
-        return self._name
+        return self.name()
