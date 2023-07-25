@@ -22,7 +22,7 @@ from abc import ABC, abstractmethod
 
 from typedb.api.connection.database import DatabaseManager
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.session import TypeDBSession, SessionType
+from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.user import UserManager, User
 
 from typedb.typedb_client_python import Error
@@ -39,7 +39,7 @@ class TypeDBClient(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> TypeDBSession:
+    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> Session:
         pass
 
     @abstractmethod

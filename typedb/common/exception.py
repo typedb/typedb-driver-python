@@ -136,9 +136,11 @@ MISSING_ANSWER = QueryErrorMessage(4, "The required field 'answer' of type '%s' 
 class InternalErrorMessage(ErrorMessage):
 
     def __init__(self, code: int, message: str):
-        super(InternalErrorMessage, self).__init__(code_prefix="INT", code_number=code, message_prefix="Internal Error", message_body=message)
+        super(InternalErrorMessage, self).__init__(code_prefix="PIN", code_number=code, message_prefix="Python Internal Error", message_body=message)
 
 
+UNEXPECTED_NATIVE_VALUE = InternalErrorMessage(1, "Unexpected native value encountered!")
 ILLEGAL_STATE = InternalErrorMessage(2, "Illegal state has been reached!")
-ILLEGAL_ARGUMENT = InternalErrorMessage(3, "Illegal argument provided: '%s'")
-ILLEGAL_CAST = InternalErrorMessage(4, "Illegal casting operation to '%s'.")
+# ILLEGAL_ARGUMENT = InternalErrorMessage(3, "Illegal argument provided: '%s'")
+ILLEGAL_CAST = InternalErrorMessage(3, "Illegal casting operation to '%s'.")
+NULL_NATIVE_VALUE = InternalErrorMessage(4, "Unhandled null pointer to a native object encountered!")

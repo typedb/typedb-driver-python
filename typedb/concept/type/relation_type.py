@@ -19,63 +19,95 @@
 # under the License.
 #
 
+from __future__ import annotations
+
+from typing import Iterator, Optional, Union
+
 import typedb_protocol.common.concept_pb2 as concept_proto
 
-from typedb.api.concept.type.relation_type import RelationType, RemoteRelationType
+from typedb.api.concept.type.relation_type import RelationType
+from typedb.api.connection.transaction import Transaction
 from typedb.common.label import Label
 from typedb.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
     relation_type_set_relates_req, relation_type_unset_relates_req, relation_type_get_relates_explicit_req, \
     relation_type_get_relates_overridden_req
+from typedb.concept.concept import Transitivity
 from typedb.concept.thing.relation import _Relation
 from typedb.concept.type.role_type import _RoleType
-from typedb.concept.type.thing_type import _ThingType, _RemoteThingType
+from typedb.concept.type.thing_type import _ThingType
+
+from typedb.typedb_client_python import relation_type_create, relation_type_set_supertype, \
+    relation_type_get_relates_for_role_label, relation_type_get_relates, relation_type_get_relates_overridden, \
+    relation_type_set_relates, relation_type_unset_relates, relation_type_get_supertype, relation_type_get_supertypes, \
+    relation_type_get_subtypes, relation_type_get_instances
 
 
 class _RelationType(RelationType, _ThingType):
 
-    @staticmethod
-    def of(type_proto: concept_proto.Type):
-        return _RelationType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
+    # @staticmethod
+    # def of(type_proto: concept_proto.Type):
+    #     return _RelationType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
-    def as_remote(self, transaction):
-        return _RemoteRelationType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    # def as_relation_type(self) -> "RelationType":
+    #     return self
 
-    def as_relation_type(self) -> "RelationType":
-        return self
+    # def as_relation_type(self) -> "RemoteRelationType":
+    #     return self
 
+    def create(self, transaction: Transaction) -> _Relation:
+        return _Relation(relation_type_create(self.native_transaction(transaction), self._concept))
 
-class _RemoteRelationType(_RemoteThingType, RemoteRelationType):
+    def get_instances(self, transaction: Transaction) -> Iterator[_Relation]:
+        return (_Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
+                                                                        self._concept, Transitivity.Transitive))
 
-    def as_remote(self, transaction):
-        return _RemoteRelationType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[_Relation]:
+        return (_Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
+                                                                        self._concept, Transitivity.Explicit))
 
-    def as_relation_type(self) -> "RemoteRelationType":
-        return self
-
-    def create(self):
-        return _Relation.of(self.execute(relation_type_create_req(self.get_label())).relation_type_create_res.relation)
-
-    def get_relates(self, role_label: str = None):
+    def get_relates(self, transaction: Transaction, role_label: Optional[str] = None) \
+            -> Union[Optional[_RoleType], Iterator[_RoleType]]:
         if role_label:
-            res = self.execute(relation_type_get_relates_req(self.get_label(),
-                                                             role_label)).relation_type_get_relates_for_role_label_res
-            return _RoleType.of(res.role_type) if res.HasField("role_type") else None
-        else:
-            return (_RoleType.of(rt) for rp in self.stream(relation_type_get_relates_req(self.get_label()))
-                    for rt in rp.relation_type_get_relates_res_part.role_types)
+            if res := relation_type_get_relates_for_role_label(self.native_transaction(transaction), self._concept, role_label):
+                return _RoleType(res)
+            return None
+        return (_RoleType(item) for item in relation_type_get_relates(self.native_transaction(transaction),
+                                                                      self._concept, Transitivity.Transitive))
 
-    def get_relates_explicit(self):
-        return (_RoleType.of(rt) for rp in self.stream(relation_type_get_relates_explicit_req(self.get_label()))
-                for rt in rp.relation_type_get_relates_explicit_res_part.role_types)
+    def get_relates_explicit(self, transaction: Transaction) -> Iterator[_RoleType]:
+        return (_RoleType(item) for item in relation_type_get_relates(self.native_transaction(transaction),
+                                                                      self._concept, Transitivity.Explicit))
 
-    def get_relates_overridden(self, role_label: str):
-        res = self.execute(relation_type_get_relates_overridden_req(
-            self.get_label(), role_label
-        )).relation_type_get_relates_overridden_res
-        return _RoleType.of(res.role_type) if res.HasField("role_type") else None
+    def get_relates_overridden(self, transaction: Transaction, role_label: str) -> Optional[_RoleType]:
+        if res := relation_type_get_relates_overridden(self.native_transaction(transaction), self._concept, role_label):
+            return _RoleType(res)
+        return None
 
-    def set_relates(self, role_label: str, overridden_label: str = None):
-        self.execute(relation_type_set_relates_req(self.get_label(), role_label, overridden_label))
+    def set_relates(self, transaction: Transaction, role_label: str, overridden_label: Optional[str] = None) -> None:
+        relation_type_set_relates(self.native_transaction(transaction), self._concept, role_label, overridden_label)
 
-    def unset_relates(self, role_label: str):
-        self.execute(relation_type_unset_relates_req(self.get_label(), role_label))
+    def unset_relates(self, transaction: Transaction, role_label: str) -> None:
+        relation_type_unset_relates(self.native_transaction(transaction), self._concept, role_label)
+
+    def get_subtype(self, transaction: Transaction) -> Iterator[_RelationType]:
+        pass
+
+    def get_subtypes(self, transaction: Transaction) -> Iterator[_RelationType]:
+        return (_RelationType(item) for item in relation_type_get_subtypes(self.native_transaction(transaction),
+                                                                           self._concept, Transitivity.Transitive))
+
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_RelationType]:
+        return (_RelationType(item) for item in relation_type_get_subtypes(self.native_transaction(transaction),
+                                                                           self._concept, Transitivity.Explicit))
+
+    def get_supertype(self, transaction: Transaction) -> Optional[_RelationType]:
+        if res := relation_type_get_supertype(self.native_transaction(transaction), self._concept):
+            return _RelationType(res)
+        return None
+
+    def get_supertypes(self, transaction: Transaction) -> Iterator[_RelationType]:
+        return (_RelationType(item) for item in relation_type_get_supertypes(self.native_transaction(transaction),
+                                                                             self._concept))
+
+    def set_supertype(self, transaction: Transaction, super_relation_type: RelationType) -> None:
+        relation_type_set_supertype(self.native_transaction(transaction), self._concept, super_relation_type.native_object())

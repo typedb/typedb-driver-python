@@ -34,20 +34,20 @@ from typedb.query.query_manager import _QueryManager
 from typedb.stream.bidirectional_stream import BidirectionalStream
 
 if TYPE_CHECKING:
-    from typedb.connection.session import _TypeDBSessionImpl
+    from typedb.connection.session import _SessionImpl
 
 from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 
 class _TransactionImpl(Transaction):
 
-    def __init__(self, session: "_TypeDBSessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
+    def __init__(self, session: "_SessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions.core()
         self._transaction_type = transaction_type
         self._options = options
         self._transaction = transaction_new(session, transaction_type, options)
-        self._concept_manager = _ConceptManager(self)
+        self._concept_manager = _ConceptManager(self._transaction)
         self._query_manager = _QueryManager(self)
         self._logic_manager = _LogicManager(self)
 
@@ -77,32 +77,19 @@ class _TransactionImpl(Transaction):
     class TransactionOnClose(TransactionCallbackDirector):
         pass
 
-    def execute(self, request: transaction_proto.Transaction.Req,
-                batch: bool = True) -> transaction_proto.Transaction.Res:
-        return self.run_query(request, batch).get()
-
-    def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[
-        transaction_proto.Transaction.Res]:
-        if not self.is_open():
-            self._raise_transaction_closed()
-        return self._bidirectional_stream.single(request, batch)
-
-    def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
-        if not self.is_open():
-            self._raise_transaction_closed()
-        return self._bidirectional_stream.stream(request)
-
     def commit(self):
-        try:
-            self.execute(transaction_commit_req())
-        finally:
-            self.close()
+        if not self._transaction.thisown:
+            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+        transaction_commit(self._transaction)
 
     def rollback(self):
-        self.execute(transaction_rollback_req())
+        if not self._transaction.thisown:
+            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+        transaction_rollback(self._transaction)
 
     def close(self):
-        self._bidirectional_stream.close()
+        if self._transaction.thisown:
+            transaction_force_close(self._transaction)
 
     def __enter__(self):
         return self
@@ -111,10 +98,3 @@ class _TransactionImpl(Transaction):
         self.close()
         if exc_tb is not None:
             return False
-
-    def _raise_transaction_closed(self):
-        error = self._bidirectional_stream.get_error()
-        if error is None:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        else:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, error)

@@ -18,18 +18,38 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from enum import Enum
 from abc import ABC
 
-from typedb.api.concept.concept import Concept, RemoteConcept
+from typedb.api.concept.concept import Concept
+from typedb.concept.concept_manager import _ConceptManager
+from typedb.connection.transaction import _TransactionImpl
+
+from typedb.typedb_client_python import Concept as NativeConcept, Transaction as NativeTransaction, Transitive, Explicit
+
+
+class Transitivity(Enum):
+    Transitive = Transitive
+    Explicit = Explicit
 
 
 class _Concept(Concept, ABC):
 
-    def is_remote(self):
-        return False
+    def __init__(self, concept: NativeConcept):
+        self._concept = concept
+
+    @staticmethod
+    def native_transaction(transaction: _TransactionImpl) -> NativeTransaction:
+        return transaction.concepts().native_transaction()
+
+    def native_object(self):
+        return self._concept
+
+    # def is_remote(self):
+    #     return False
 
 
-class _RemoteConcept(RemoteConcept, ABC):
-
-    def is_remote(self):
-        return True
+# class _RemoteConcept(RemoteConcept, ABC):
+#
+#     def is_remote(self):
+#         return True

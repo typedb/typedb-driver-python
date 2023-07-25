@@ -21,11 +21,11 @@
 from abc import ABC, abstractmethod
 from typing import Iterator, Mapping, TYPE_CHECKING
 
-from typedb.api.concept.concept import Concept, RemoteConcept
+from typedb.api.concept.concept import Concept
 from typedb.common.label import Label
 
 if TYPE_CHECKING:
-    from typedb.api.connection.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import TypeDBTransaction, Transaction
 
 
 class Type(Concept, ABC):
@@ -45,32 +45,47 @@ class Type(Concept, ABC):
     def is_type(self) -> bool:
         return True
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteType":
-        pass
+    # @abstractmethod
+    # def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteType":
+    #     pass
 
     def to_json(self) -> Mapping[str, str]:
         return {"label": self.get_label().scoped_name()}
 
-
-class RemoteType(RemoteConcept, Type, ABC):
-
     @abstractmethod
-    def set_label(self, new_label: str) -> None:
+    def get_supertype(self, transaction: Transaction) -> "Type":
         pass
 
     @abstractmethod
-    def is_abstract(self) -> bool:
+    def get_supertypes(self, transaction: Transaction) -> Iterator["Type"]:
         pass
 
     @abstractmethod
-    def get_supertype(self) -> Type:
+    def get_subtypes(self, transaction: Transaction) -> Iterator["Type"]:
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Iterator[Type]:
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator["Type"]:
         pass
 
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[Type]:
-        pass
+# class RemoteType(RemoteConcept, Type, ABC):
+#
+#     @abstractmethod
+#     def set_label(self, new_label: str) -> None:
+#         pass
+#
+#     @abstractmethod
+#     def is_abstract(self) -> bool:
+#         pass
+#
+#     @abstractmethod
+#     def get_supertype(self) -> Type:
+#         pass
+#
+#     @abstractmethod
+#     def get_supertypes(self) -> Iterator[Type]:
+#         pass
+#
+#     @abstractmethod
+#     def get_subtypes(self) -> Iterator[Type]:
+#         pass

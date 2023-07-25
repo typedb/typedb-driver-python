@@ -25,7 +25,7 @@ import typedb_protocol.common.session_pb2 as session_proto
 
 from typedb.api.connection.database import Database
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
+from typedb.api.connection.transaction import Transaction, TransactionType
 
 
 class SessionType(enum.Enum):
@@ -61,7 +61,7 @@ class Session(ABC):
         pass
 
     @abstractmethod
-    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> TypeDBTransaction:
+    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> Transaction:
         pass
 
     @abstractmethod

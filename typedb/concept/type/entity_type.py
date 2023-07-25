@@ -18,36 +18,76 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Iterator, Optional
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
-from typedb.api.concept.type.entity_type import EntityType, RemoteEntityType
+from typedb.api.concept.type.entity_type import EntityType
+from typedb.api.connection.transaction import Transaction
 from typedb.common.label import Label
 from typedb.common.rpc.request_builder import entity_type_create_req
+from typedb.concept.concept import Transitivity
 from typedb.concept.thing.entity import _Entity
-from typedb.concept.type.thing_type import _ThingType, _RemoteThingType
+from typedb.concept.type.thing_type import _ThingType
+
+from typedb.typedb_client_python import Concept, entity_type_create, entity_type_get_subtypes, \
+    entity_type_get_instances, entity_type_get_supertypes, entity_type_get_supertype, entity_type_set_supertype
 
 
 class _EntityType(EntityType, _ThingType):
 
-    @staticmethod
-    def of(type_proto: concept_proto.Type):
-        return _EntityType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
+    # def __init__(self, concept: Concept):
+    #     super(_ThingType).__init__(concept)
 
-    def as_remote(self, transaction):
-        return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    # @staticmethod
+    # def of(type_proto: concept_proto.Type):
+    #     return _EntityType(Label.of(type_proto.label), type_proto.is_root, type_proto.is_abstract)
 
-    def as_entity_type(self) -> "EntityType":
-        return self
+    # def as_remote(self, transaction):
+    #     return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
+    # def as_entity_type(self) -> "EntityType":
+    #     return self
 
-class _RemoteEntityType(_RemoteThingType, RemoteEntityType):
+    def create(self, transaction: Transaction) -> _Entity:
+        return _Entity(entity_type_create(self.native_transaction(transaction), self._concept))
 
-    def as_remote(self, transaction):
-        return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    def set_super_type(self, transaction: Transaction, super_entity_type: EntityType) -> None:
+        entity_type_set_supertype(self.native_transaction(transaction), self._concept,
+                                  super_entity_type.native_object())
 
-    def as_entity_type(self) -> "RemoteEntityType":
-        return self
+    def get_supertype(self, transaction: Transaction) -> Optional["_EntityType"]:
+        if res := entity_type_get_supertype(self.native_transaction(transaction), self._concept):
+            return _EntityType(res)
+        return None
 
-    def create(self):
-        return _Entity.of(self.execute(entity_type_create_req(self.get_label())).entity_type_create_res.entity)
+    def get_supertypes(self, transaction: Transaction) -> Iterator["_EntityType"]:
+        return (_EntityType(item) for item in
+                entity_type_get_supertypes(self.native_transaction(transaction), self._concept))
+
+    def get_subtypes(self, transaction: Transaction) -> Iterator["_EntityType"]:
+        return (_EntityType(item) for item in
+                entity_type_get_subtypes(self.native_transaction(transaction), self._concept, Transitivity.Transitive))
+
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator["_EntityType"]:
+        return (_EntityType(item) for item in
+                entity_type_get_subtypes(self.native_transaction(transaction), self._concept, Transitivity.Explicit))
+
+    def get_instances(self, transaction: Transaction) -> Iterator["_Entity"]:
+        return (_Entity(item) for item in
+                entity_type_get_instances(self.native_transaction(transaction), self._concept, Transitivity.Transitive))
+
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator["_Entity"]:
+        return (_Entity(item) for item in
+                entity_type_get_instances(self.native_transaction(transaction), self._concept, Transitivity.Explicit))
+
+# class _RemoteEntityType(_RemoteThingType, RemoteEntityType):
+#
+#     def as_remote(self, transaction):
+#         return _RemoteEntityType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+#
+#     def as_entity_type(self) -> "RemoteEntityType":
+#         return self
+#
+#     def create(self):
+#         return _Entity.of(self.execute(entity_type_create_req(self.get_label())).entity_type_create_res.entity)

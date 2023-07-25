@@ -26,8 +26,6 @@ import typedb_protocol.common.concept_pb2 as concept_proto
 from typedb.api.concept.thing.attribute import Attribute, RemoteAttribute, BooleanAttribute, RemoteBooleanAttribute, \
     LongAttribute, RemoteLongAttribute, DoubleAttribute, RemoteDoubleAttribute, StringAttribute, RemoteStringAttribute, \
     DateTimeAttribute, RemoteDateTimeAttribute
-from typedb.api.concept.type.attribute_type import BooleanAttributeType, LongAttributeType, DoubleAttributeType, \
-    StringAttributeType, DateTimeAttributeType
 from typedb.api.concept.type.thing_type import ThingType
 from typedb.common.rpc.request_builder import attribute_get_owners_req
 from typedb.concept.proto import concept_proto_builder, concept_proto_reader

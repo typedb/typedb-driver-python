@@ -25,13 +25,13 @@ import typedb_protocol.common.session_pb2 as session_proto
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import Session, SessionType
-from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
+from typedb.api.connection.transaction import Transaction, TransactionType
 from typedb.common.concurrent.atomic import AtomicBoolean
 from typedb.common.concurrent.lock import ReadWriteLock
 from typedb.common.rpc.request_builder import session_open_req
 from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database import _DatabaseImpl
-from typedb.connection.transaction import _TypeDBTransactionImpl
+from typedb.connection.transaction import _TransactionImpl
 from typedb.stream.request_transmitter import RequestTransmitter
 
 from typedb.common.exception import TypeDBClientException
@@ -62,8 +62,8 @@ class _SessionImpl(Session):
     def options(self) -> TypeDBOptions:
         return self._options
 
-    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> TypeDBTransaction:
-        return _TypeDBTransactionImpl(self, transaction_type, options)
+    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> Transaction:
+        return _TransactionImpl(self, transaction_type, options)
 
     def close(self) -> None:
         session_force_close(self._session)

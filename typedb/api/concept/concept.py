@@ -108,13 +108,9 @@ class Concept(ABC):
     def as_value(self) -> "Value":
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Value"))
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteConcept":
-        pass
-
-    @abstractmethod
-    def is_remote(self) -> bool:
-        pass
+    # @abstractmethod
+    # def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteConcept":
+    #     pass
 
     @abstractmethod
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
@@ -136,42 +132,42 @@ class ValueType(enum.Enum):
         return self.name.lower()
 
 
-class RemoteConcept(Concept, ABC):
-
-    @abstractmethod
-    def delete(self) -> None:
-        pass
-
-    @abstractmethod
-    def is_deleted(self) -> bool:
-        pass
-
-    def as_type(self) -> "RemoteType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Type"))
-
-    def as_thing_type(self) -> "RemoteThingType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "ThingType"))
-
-    def as_entity_type(self) -> "RemoteEntityType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "EntityType"))
-
-    def as_attribute_type(self) -> "RemoteAttributeType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "AttributeType"))
-
-    def as_relation_type(self) -> "RemoteRelationType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RelationType"))
-
-    def as_role_type(self) -> "RemoteRoleType":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RoleType"))
-
-    def as_thing(self) -> "RemoteThing":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Thing"))
-
-    def as_entity(self) -> "RemoteEntity":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Entity"))
-
-    def as_attribute(self) -> "RemoteAttribute":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Attribute"))
-
-    def as_relation(self) -> "RemoteRelation":
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Relation"))
+# class RemoteConcept(Concept, ABC):
+#
+#     @abstractmethod
+#     def delete(self) -> None:
+#         pass
+#
+#     @abstractmethod
+#     def is_deleted(self) -> bool:
+#         pass
+#
+#     def as_type(self) -> "RemoteType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Type"))
+#
+#     def as_thing_type(self) -> "RemoteThingType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "ThingType"))
+#
+#     def as_entity_type(self) -> "RemoteEntityType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "EntityType"))
+#
+#     def as_attribute_type(self) -> "RemoteAttributeType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "AttributeType"))
+#
+#     def as_relation_type(self) -> "RemoteRelationType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RelationType"))
+#
+#     def as_role_type(self) -> "RemoteRoleType":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RoleType"))
+#
+#     def as_thing(self) -> "RemoteThing":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Thing"))
+#
+#     def as_entity(self) -> "RemoteEntity":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Entity"))
+#
+#     def as_attribute(self) -> "RemoteAttribute":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Attribute"))
+#
+#     def as_relation(self) -> "RemoteRelation":
+#         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "Relation"))
