@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -33,30 +35,45 @@ from typedb.typedb_client_python import Object, Boolean, Long, Double, String, D
 class Value(Concept, ABC):
 
     @abstractmethod
-    def get_value_type(self) -> "Value.Type":
+    def get_value_type(self) -> Value.Type:
         pass
 
     @abstractmethod
     def get_value(self) -> Union[bool, int, float, str, datetime]:
         pass
 
-    def is_value(self):
-        return True
+    def is_value(self) -> bool:
+        pass
 
-    def is_boolean(self):
-        return False
+    def is_boolean(self) -> bool:
+        pass
 
-    def is_long(self):
-        return False
+    def is_long(self) -> bool:
+        pass
 
-    def is_double(self):
-        return False
+    def is_double(self) -> bool:
+        pass
 
-    def is_string(self):
-        return False
+    def is_string(self) -> bool:
+        pass
 
-    def is_datetime(self):
-        return False
+    def is_datetime(self) -> bool:
+        pass
+
+    def as_boolean(self) -> bool:
+        pass
+
+    def as_long(self) -> int:
+        pass
+
+    def as_double(self) -> float:
+        pass
+
+    def as_string(self) -> str:
+        pass
+
+    def as_datetime(self) -> datetime:
+        pass
 
     # def as_remote(self, transaction: "Transaction"):
     #     raise TypeDBClientException.of(VALUE_HAS_NO_REMOTE)
@@ -77,7 +94,6 @@ class Value(Concept, ABC):
 
         def native_object(self):
             return self.value.native_object()
-
 
     class _Type:
 
@@ -100,58 +116,57 @@ class Value(Concept, ABC):
             pass
 
 
-
-class BooleanValue(Value, ABC):
-
-    def is_boolean(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> bool:
-        pass
-
-
-class LongValue(Value, ABC):
-
-    def is_long(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> int:
-        pass
-
-
-class DoubleValue(Value, ABC):
-
-    def is_double(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> float:
-        pass
-
-
-class StringValue(Value, ABC):
-
-    def is_string(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> str:
-        pass
-
-
-class DateTimeValue(Value, ABC):
-
-    def is_datetime(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> datetime:
-        pass
-
-    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-        return {
-            "value_type": str(self.get_value_type()),
-            "value": self.get_value().isoformat(timespec='milliseconds')
-        }
+# class BooleanValue(Value, ABC):
+#
+#     def is_boolean(self) -> bool:
+#         return True
+#
+#     @abstractmethod
+#     def get_value(self) -> bool:
+#         pass
+#
+#
+# class LongValue(Value, ABC):
+#
+#     def is_long(self) -> bool:
+#         return True
+#
+#     @abstractmethod
+#     def get_value(self) -> int:
+#         pass
+#
+#
+# class DoubleValue(Value, ABC):
+#
+#     def is_double(self) -> bool:
+#         return True
+#
+#     @abstractmethod
+#     def get_value(self) -> float:
+#         pass
+#
+#
+# class StringValue(Value, ABC):
+#
+#     def is_string(self) -> bool:
+#         return True
+#
+#     @abstractmethod
+#     def get_value(self) -> str:
+#         pass
+#
+#
+# class DateTimeValue(Value, ABC):
+#
+#     def is_datetime(self) -> bool:
+#         return True
+#
+#     @abstractmethod
+#     def get_value(self) -> datetime:
+#         pass
+#
+#     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
+#         return {
+#             "value_type": str(self.get_value_type()),
+#             "value": self.get_value().isoformat(timespec='milliseconds')
+#         }
