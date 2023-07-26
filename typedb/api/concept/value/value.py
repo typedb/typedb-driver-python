@@ -78,7 +78,7 @@ class Value(Concept, ABC):
     # def as_remote(self, transaction: "Transaction"):
     #     raise TypeDBClientException.of(VALUE_HAS_NO_REMOTE)
 
-    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool, datetime]]:
         return {
             "value_type": str(self.get_value_type()),
             "value": self.get_value(),

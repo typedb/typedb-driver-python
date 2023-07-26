@@ -18,11 +18,12 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import abstractmethod, ABC
 from itertools import chain
 from typing import Set, Optional, Iterator
 
-from typedb.api.concept.concept import ValueType
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType, Annotation
@@ -30,11 +31,6 @@ from typedb.api.concept.value.value import Value
 from typedb.api.connection.transaction import Transaction
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import thing_type_set_supertype_req, thing_type_get_instances_req, \
-    thing_type_set_abstract_req, thing_type_unset_abstract_req, thing_type_set_plays_req, thing_type_set_owns_req, \
-    thing_type_get_plays_req, thing_type_get_owns_req, thing_type_unset_plays_req, thing_type_unset_owns_req, \
-    thing_type_get_owns_explicit_req, thing_type_get_owns_overridden_req, thing_type_get_plays_explicit_req, \
-    thing_type_get_plays_overridden, thing_type_get_syntax_req
 from typedb.concept.concept import Transitivity
 from typedb.concept.proto import concept_proto_builder, concept_proto_reader
 from typedb.concept.thing.thing import _Thing
@@ -48,7 +44,8 @@ from typedb.typedb_client_python import Concept, concept_is_entity_type, concept
     concept_is_attribute_type, concept_is_root_thing_type, thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
-    thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax
+    thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax, \
+    thing_type_get_plays_overridden
 
 from typedb.connection.transaction import _TransactionImpl
 
@@ -58,7 +55,8 @@ class _ThingType(ThingType, _Type, ABC):
     # def __init__(self, concept: Concept):
     #     super(_Type).__init__(concept)
 
-    def of(self, concept: Concept):
+    @staticmethod
+    def of(concept: Concept):
         if concept_is_entity_type(concept):
             return _EntityType(concept)
         elif concept_is_relation_type(concept):
@@ -72,7 +70,7 @@ class _ThingType(ThingType, _Type, ABC):
     # def as_remote(self, transaction):
     #     return _RemoteThingType(transaction, self.get_label(), self.is_root(), self.is_abstract())
 
-    def as_thing_type(self) -> "ThingType":
+    def as_thing_type(self) -> ThingType:
         return self
 
     def is_root(self) -> bool:

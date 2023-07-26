@@ -18,8 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from __future__ import annotations
 
+from __future__ import annotations
 from abc import ABC
 from datetime import datetime, UTC
 from functools import singledispatchmethod
@@ -27,7 +27,6 @@ from typing import Union
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
-from typedb.api.concept.concept import ValueType
 from typedb.api.concept.value.value import Value
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE
 from typedb.concept.concept import _Concept
@@ -77,30 +76,28 @@ class _Value(Value, _Concept, ABC):
     def get_value_type(self) -> Value.Type:
         if self.is_boolean():
             return Value.Type.BOOLEAN
-        elif self.is_long():
+        if self.is_long():
             return Value.Type.LONG
-        elif self.is_double():
+        if self.is_double():
             return Value.Type.DOUBLE
-        elif self.is_string():
+        if self.is_string():
             return Value.Type.STRING
-        elif self.is_datetime():
+        if self.is_datetime():
             return Value.Type.DATETIME
-        else:
-            raise TypeDBClientException(ILLEGAL_STATE)
+        raise TypeDBClientException(ILLEGAL_STATE)
 
     def get_value(self) -> Union[bool, int, float, str, datetime]:
         if self.is_boolean():
             return self.as_boolean()
-        elif self.is_long():
+        if self.is_long():
             return self.as_long()
-        elif self.is_double():
+        if self.is_double():
             return self.as_double()
-        elif self.is_string():
+        if self.is_string():
             return self.as_string()
-        elif self.is_datetime():
+        if self.is_datetime():
             return self.as_datetime()
-        else:
-            raise TypeDBClientException(ILLEGAL_STATE)
+        raise TypeDBClientException(ILLEGAL_STATE)
 
     def is_boolean(self) -> bool:
         return value_is_boolean(self._concept)

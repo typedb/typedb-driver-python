@@ -18,29 +18,22 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from typedb.api.concept.thing.thing import Thing, RemoteThing
+from typedb.api.concept.thing.thing import Thing
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.entity_type import EntityType
-    from typedb.api.connection.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import Transaction
 
 
 class Entity(Thing, ABC):
 
-    def is_entity(self):
+    def is_entity(self) -> bool:
         return True
 
     @abstractmethod
-    def get_type(self) -> "EntityType":
+    def get_type(self) -> EntityType:
         pass
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteEntity":
-        pass
-
-
-class RemoteEntity(RemoteThing, Entity, ABC):
-    pass

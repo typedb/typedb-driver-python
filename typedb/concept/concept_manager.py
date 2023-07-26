@@ -22,9 +22,9 @@ from typing import Optional
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
-from typedb.api.concept.concept import ValueType
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID
+from typedb.api.concept.value.value import Value
+from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID, TypeDBException
 # from typedb.api.connection.transaction import Transaction
 from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, \
     concept_manager_put_relation_type_req, \
@@ -37,8 +37,11 @@ from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
 
-from typedb.typedb_client_python import Transaction, concepts_get_entity_type, concepts_get_relation_type, concepts_get_attribute_type, \
-    concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, concepts_get_entity, concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions
+from typedb.typedb_client_python import Transaction, concepts_get_entity_type, concepts_get_relation_type, \
+    concepts_get_attribute_type, \
+    concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, concepts_get_entity, \
+    concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, schema_exception_message, \
+    schema_exception_code
 
 
 class _ConceptManager(ConceptManager):
@@ -93,7 +96,7 @@ class _ConceptManager(ConceptManager):
             raise TypeDBClientException.of(MISSING_LABEL)
         return _RelationType.of(concepts_put_relation_type(self._transaction, label))
 
-    def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
+    def put_attribute_type(self, label: str, value_type: Value.Type) -> _AttributeType:
         if not label:
             raise TypeDBClientException.of(MISSING_LABEL)
         return _AttributeType.of(concepts_put_attribute_type(self._transaction, label, value_type))
@@ -118,6 +121,11 @@ class _ConceptManager(ConceptManager):
         if concept := concepts_get_attribute(self._transaction, iid):
             return _Attribute.of(concept)
         return None
+
+    def get_schema_exception(self) -> list[TypeDBException]:
+        return [TypeDBException(schema_exception_code(e), schema_exception_message(e))
+                for e in concepts_get_schema_exceptions(self._transaction)]
+
 
     # def get_thing_type(self, label: str):
     #     res = self.execute(concept_manager_get_thing_type_req(label))

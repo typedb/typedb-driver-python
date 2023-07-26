@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Iterator, Optional, Set
@@ -44,27 +46,27 @@ class ThingType(Type, ABC):
         return True
 
     @abstractmethod
-    def get_supertype(self, transaction: Transaction) -> Optional["ThingType"]:
+    def get_supertype(self, transaction: Transaction) -> Optional[ThingType]:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: Transaction) -> Iterator["ThingType"]:
+    def get_supertypes(self, transaction: Transaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator["ThingType"]:
+    def get_subtypes(self, transaction: Transaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator["ThingType"]:
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator["Thing"]:
+    def get_instances(self, transaction: Transaction) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator["Thing"]:
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Thing]:
         pass
 
     @abstractmethod
@@ -87,18 +89,18 @@ class ThingType(Type, ABC):
     @abstractmethod
     def set_owns(self, transaction: Transaction, attribute_type: AttributeType,
                  overridden_type: Optional[AttributeType] = None,
-                 annotations: Optional[set["Annotation"]] = None) -> None:
+                 annotations: Optional[set[Annotation]] = None) -> None:
         pass
 
     @abstractmethod
     def get_owns(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
-                 transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set["Annotation"]] = None
+                 transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
     def get_owns_explicit(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
-                          annotations: Optional[set["Annotation"]] = None):
+                          annotations: Optional[set[Annotation]] = None):
         pass
 
     @abstractmethod
@@ -128,11 +130,11 @@ class Annotation(object):
         self._object = native_object
 
     @staticmethod
-    def key() -> "Annotation":
+    def key() -> Annotation:
         return Annotation(annotation_new_key())
 
     @staticmethod
-    def unique() -> "Annotation":
+    def unique() -> Annotation:
         return Annotation(annotation_new_unique())
 
     def is_key(self) -> bool:

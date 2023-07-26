@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from typing import Union, Any
 
 from grpc import RpcError, Call, StatusCode
@@ -25,7 +27,7 @@ from grpc import RpcError, Call, StatusCode
 
 class TypeDBClientException(Exception):
 
-    def __init__(self, msg: Union["ErrorMessage", str], cause: BaseException = None, params: Any = None):
+    def __init__(self, msg: Union[ErrorMessage, str], cause: BaseException = None, params: Any = None):
         if isinstance(msg, str):
             self.message = msg
             self.error_message = None
@@ -37,7 +39,7 @@ class TypeDBClientException(Exception):
         super(TypeDBClientException, self).__init__(self.message)
 
     @staticmethod
-    def of_rpc(rpc_error: Union[RpcError, Call]) -> "TypeDBClientException":
+    def of_rpc(rpc_error: Union[RpcError, Call]) -> TypeDBClientException:
         if rpc_error.code() is StatusCode.UNIMPLEMENTED:
             return TypeDBClientException(msg=RPC_METHOD_UNAVAILABLE, cause=rpc_error.details())
         elif rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
@@ -52,7 +54,7 @@ class TypeDBClientException(Exception):
             return TypeDBClientException(msg=rpc_error.details(), cause=rpc_error)
 
     @staticmethod
-    def of(error_message: "ErrorMessage", params: Any = None):
+    def of(error_message: ErrorMessage, params: Any = None):
         return TypeDBClientException(msg=error_message, cause=None, params=params)
 
 
@@ -121,6 +123,7 @@ NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(11, "The ownership by ow
 GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(12, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, annotations]")
 UNSUPPORTED_TIMEZONE_INFORMATION = ConceptErrorMessage(13, "A date-time attribute cannot accept timezone aware datetime objects.")
 
+
 class QueryErrorMessage(ErrorMessage):
 
     def __init__(self, code: int, message: str):
@@ -144,3 +147,11 @@ ILLEGAL_STATE = InternalErrorMessage(2, "Illegal state has been reached!")
 # ILLEGAL_ARGUMENT = InternalErrorMessage(3, "Illegal argument provided: '%s'")
 ILLEGAL_CAST = InternalErrorMessage(3, "Illegal casting operation to '%s'.")
 NULL_NATIVE_VALUE = InternalErrorMessage(4, "Unhandled null pointer to a native object encountered!")
+
+
+class TypeDBException(Exception):
+
+    def __init__(self, code: str, message: str):
+        super().__init__(code, message)
+        self.code = code
+        self.message = message

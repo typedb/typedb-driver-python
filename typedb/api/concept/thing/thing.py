@@ -18,17 +18,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING, Iterator, Mapping, Set
 
-from typedb.api.concept.concept import Concept, RemoteConcept
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Iterator, Mapping
+
+from typedb.api.concept.concept import Concept
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.attribute import Attribute
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.type.thing_type import ThingType, Annotation
-    from typedb.api.connection.transaction import TypeDBTransaction
+    from typedb.api.connection.transaction import Transaction
 
 
 class Thing(Concept, ABC):
@@ -38,7 +40,7 @@ class Thing(Concept, ABC):
         pass
 
     @abstractmethod
-    def get_type(self) -> "ThingType":
+    def get_type(self) -> ThingType:
         pass
 
     @abstractmethod
@@ -48,32 +50,33 @@ class Thing(Concept, ABC):
     def is_thing(self) -> bool:
         return True
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteThing":
-        pass
-
     def to_json(self) -> Mapping[str, str]:
         return {"type": self.get_type().get_label().name()}
 
-
-class RemoteThing(RemoteConcept, Thing, ABC):
-
     @abstractmethod
-    def set_has(self, attribute: "Attribute") -> None:
+    def set_has(self, transaction: Transaction, attribute: Attribute) -> None:
         pass
 
     @abstractmethod
-    def unset_has(self, attribute: "Attribute") -> None:
+    def unset_has(self, transaction: Transaction, attribute: Attribute) -> None:
         pass
 
     @abstractmethod
-    def get_has(self, attribute_type: "AttributeType" = None, attribute_types: List["AttributeType"] = None, annotations: Set["Annotation"] = frozenset()) -> Iterator["Attribute"]:
+    def get_has(self, transaction: Transaction, attribute_type: AttributeType = None, attribute_types: list[AttributeType] = None, annotations: set[Annotation] = frozenset()) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_relations(self, role_types: List["RoleType"] = None):
+    def get_relations(self, transaction: Transaction, role_types: list[RoleType] = None):
         pass
 
     @abstractmethod
-    def get_playing(self) -> Iterator["RoleType"]:
+    def get_playing(self, transaction: Transaction) -> Iterator[RoleType]:
+        pass
+
+    @abstractmethod
+    def delete(self, transaction: Transaction) -> None:
+        pass
+
+    @abstractmethod
+    def is_deleted(self, transaction: Transaction) -> bool:
         pass

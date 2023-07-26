@@ -18,78 +18,65 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from typing import Iterator
 
 import typedb_protocol.common.concept_pb2 as concept_proto
 
-from typedb.api.concept.thing.relation import Relation, RemoteRelation
+from typedb.api.concept.thing.relation import Relation
+from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.role_type import RoleType
+from typedb.api.connection.transaction import Transaction
 from typedb.common.rpc.request_builder import relation_add_player_req, relation_remove_player_req, \
     relation_get_players_req, relation_get_players_by_role_type_req, relation_get_relating_req
 from typedb.concept.proto import concept_proto_builder, concept_proto_reader
-from typedb.concept.thing.thing import _Thing, _RemoteThing
+from typedb.concept.thing.thing import _Thing
+from typedb.concept.type.relation_type import _RelationType
 from typedb.concept.type.role_type import _RoleType
+
+from typedb.typedb_client_python import relation_get_type, relation_add_role_player, relation_remove_role_player, \
+    relation_get_players_by_role_type, Concept, relation_get_role_players, role_player_get_role_type, \
+    role_player_get_player, relation_get_relating
 
 
 class _Relation(Relation, _Thing):
 
-    def __init__(self, iid: str, is_inferred: bool, relation_type: RelationType):
-        super(_Relation, self).__init__(iid, is_inferred)
-        self._type = relation_type
+    # def __init__(self, iid: str, is_inferred: bool, relation_type: RelationType):
+    #     super(_Relation, self).__init__(iid, is_inferred)
+    #     self._type = relation_type
 
-    @staticmethod
-    def of(thing_proto: concept_proto.Thing):
-        return _Relation(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
+    # @staticmethod
+    # def of(thing_proto: concept_proto.Thing):
+    #     return _Relation(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
 
-    def as_remote(self, transaction):
-        return _RemoteRelation(transaction, self.get_iid(), self.is_inferred(), self.get_type())
+    def get_type(self) -> _RelationType:
+        return _RelationType(relation_get_type(self._concept))
 
-    def get_type(self) -> "RelationType":
-        return self._type
+    # def as_relation(self) -> Relation:
+    #     return self
 
-    def as_relation(self) -> "Relation":
-        return self
+    def add_player(self, transaction: Transaction, role_type: RoleType, player: Thing) -> None:
+        relation_add_role_player(self.native_transaction(transaction), self._concept,
+                                 role_type.native_object(), player.native_object())
 
+    def remove_player(self, transaction: Transaction, role_type: RoleType, player: Thing) -> None:
+        relation_remove_role_player(self.native_transaction(transaction), self._concept,
+                                    role_type.native_object(), player.native_object())
 
-class _RemoteRelation(_RemoteThing, RemoteRelation):
+    def get_players(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Thing]:
+        native_role_types = [Concept(rt.native_object()) for rt in role_types]
+        return (_Thing(item) for item in relation_get_players_by_role_type(self.native_transaction(transaction),
+                                                                           self._concept, native_role_types))
 
-    def __init__(self, transaction, iid: str, is_inferred: bool, relation_type: RelationType):
-        super(_RemoteRelation, self).__init__(transaction, iid, is_inferred)
-        self._type = relation_type
+    def get_players_by_role_type(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
+        role_players = {}
+        for role_player in relation_get_role_players(self.native_transaction(transaction), self._concept):
+            role = _RoleType(role_player_get_role_type(role_player))
+            player = _Thing(role_player_get_player(role_player))
+            role_players.get(role, []).append(player)
+        return role_players
 
-    def as_remote(self, transaction):
-        return _RemoteRelation(transaction, self.get_iid(), self.is_inferred(), self.get_type())
-
-    def get_type(self) -> "RelationType":
-        return self._type
-
-    def as_relation(self) -> "RemoteRelation":
-        return self
-
-    def add_player(self, role_type, player):
-        self.execute(relation_add_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))
-
-    def remove_player(self, role_type, player):
-        self.execute(relation_remove_player_req(self.get_iid(), concept_proto_builder.role_type(role_type), concept_proto_builder.thing(player)))
-
-    def get_players(self, role_types=None):
-        return (concept_proto_reader.thing(t) for rp in self.stream(relation_get_players_req(self.get_iid(), concept_proto_builder.types(role_types)))
-                for t in rp.relation_get_players_res_part.things)
-
-    def get_players_by_role_type(self):
-        stream = (role_player for res_part in self.stream(relation_get_players_by_role_type_req(self.get_iid()))
-                  for role_player in res_part.relation_get_players_by_role_type_res_part.role_types_with_players)
-
-        role_player_dict = {}
-        for role_player in stream:
-            role = concept_proto_reader.type_(role_player.role_type)
-            player = concept_proto_reader.thing(role_player.player)
-            if role not in role_player_dict:
-                role_player_dict[role] = []
-            role_player_dict[role].append(player)
-        return role_player_dict
-
-    def get_relating(self) -> Iterator[RoleType]:
-        return (_RoleType.of(rt) for rp in self.stream(relation_get_relating_req(self.get_iid()))
-                for rt in rp.relation_get_relating_res_part.role_types)
+    def get_relating(self, transaction: Transaction) -> Iterator[_RoleType]:
+        return (_RoleType(item) for item in relation_get_relating(self.native_transaction(transaction), self._concept))
