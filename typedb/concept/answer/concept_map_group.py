@@ -18,38 +18,49 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Iterator
 
 import typedb_protocol.common.answer_pb2 as answer_proto
 
+from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.answer.concept_map_group import ConceptMapGroup
+from typedb.api.concept.concept import Concept
+from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
+from typedb.concept.concept import _Concept
 from typedb.concept.proto import concept_proto_reader
+
+from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup, concept_map_group_get_owner, \
+    concept_map_group_get_concept_maps, concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
 
 
 class _ConceptMapGroup(ConceptMapGroup):
 
-    def __init__(self, owner, concept_maps):
-        self._owner = owner
-        self._concept_maps = concept_maps
+    def __init__(self, concept_map_group: NativeConceptMapGroup):
+        self._concept_map_group = concept_map_group
 
-    @staticmethod
-    def of(cm_group: answer_proto.ConceptMapGroup) -> "_ConceptMapGroup":
-        owner = concept_proto_reader.concept(cm_group.owner)
-        concept_maps = list(map(lambda cm: _ConceptMap.of(cm), cm_group.concept_maps))
-        return _ConceptMapGroup(owner, concept_maps)
+    # @staticmethod
+    # def of(cm_group: answer_proto.ConceptMapGroup) -> "_ConceptMapGroup":
+    #     owner = concept_proto_reader.concept(cm_group.owner)
+    #     concept_maps = list(map(lambda cm: _ConceptMap.of(cm), cm_group.concept_maps))
+    #     return _ConceptMapGroup(owner, concept_maps)
 
-    def owner(self):
-        return self._owner
+    def owner(self) -> Concept:
+        return _Concept(concept_map_group_get_owner(self._concept_map_group))
 
-    def concept_maps(self):
-        return self._concept_maps
+    def concept_maps(self) -> Iterator[ConceptMap]:
+        return map(_ConceptMap, Streamer(concept_map_group_get_concept_maps(self._concept_map_group),
+                                         concept_map_iterator_next))
+
+    def __str__(self):
+        return concept_map_group_to_string(self._concept_map_group)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(other) != type(self):
             return False
-        return other._owner == self._owner and other._concept_maps == self._concept_maps
+        return concept_map_group_equals(self._concept_map_group, other._concept_map_group)
 
     def __hash__(self):
-        return hash((self._owner, self._concept_maps))
+        return hash((self.owner(), tuple(self.concept_maps())))

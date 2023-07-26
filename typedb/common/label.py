@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from typing import Optional
 
 
@@ -28,7 +30,7 @@ class Label:
         self._name = name
 
     @staticmethod
-    def of(*args: str) -> "Label":
+    def of(*args: str) -> Label:
         """
         Create a Label from a specified name, or scoped name.
 

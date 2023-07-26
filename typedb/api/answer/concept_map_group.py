@@ -19,7 +19,7 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Iterator
 
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.concept.concept import Concept
@@ -32,5 +32,5 @@ class ConceptMapGroup(ABC):
         pass
 
     @abstractmethod
-    def concept_maps(self) -> List[ConceptMap]:
+    def concept_maps(self) -> Iterator[ConceptMap]:
         pass

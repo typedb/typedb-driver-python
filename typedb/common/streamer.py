@@ -19,18 +19,19 @@
 # under the License.
 #
 
-from abc import ABC, abstractmethod
-
-from typedb.api.answer.numeric import Numeric
-from typedb.api.concept.concept import Concept
+from typing import Callable
 
 
-class NumericGroup(ABC):
+class Streamer:
 
-    @abstractmethod
-    def owner(self) -> Concept:
-        pass
+    def __init__(self, native_iterator: object, native_next: Callable):
+        self._iterator = native_iterator
+        self._next = native_next
 
-    @abstractmethod
-    def numeric(self) -> Numeric:
-        pass
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if next_item := self._next(self._iterator):
+            return next_item
+        raise StopIteration

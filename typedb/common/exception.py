@@ -113,6 +113,7 @@ INVALID_CONCEPT_CASTING = ConceptErrorMessage(1, "Invalid concept conversion fro
 MISSING_TRANSACTION = ConceptErrorMessage(2, "Transaction cannot be null.")
 MISSING_IID = ConceptErrorMessage(3, "IID cannot be null or empty.")
 MISSING_LABEL = ConceptErrorMessage(4, "Label cannot be null or empty.")
+MISSING_VARIABLE = ConceptErrorMessage(14, "Variable name cannot be null or empty.")
 BAD_ANNOTATION = ConceptErrorMessage(5, "The annotation '%s' was not recognised.")
 BAD_ENCODING = ConceptErrorMessage(6, "The encoding '%s' was not recognised.")
 BAD_VALUE_TYPE = ConceptErrorMessage(7, "The value type '%s' was not recognised.")

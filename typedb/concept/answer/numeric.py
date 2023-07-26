@@ -24,42 +24,59 @@ import typedb_protocol.common.answer_pb2 as answer_proto
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientException, BAD_ANSWER_TYPE, ILLEGAL_CAST
 
+from typedb.typedb_client_python import Numeric as NativeNumeric, numeric_is_long, numeric_is_double, numeric_is_nan, \
+    numeric_get_long, numeric_get_double, numeric_to_string
+
 
 class _Numeric(Numeric):
 
-    def __init__(self, int_value, float_value):
-        self._int_value = int_value
-        self._float_value = float_value
+    def __init__(self, numeric: NativeNumeric):
+        self._numeric = numeric
 
-    @staticmethod
-    def of(numeric_proto: answer_proto.Numeric):
-        numeric_case = numeric_proto.WhichOneof("value")
-        if numeric_case == "long_value":
-            return _Numeric(numeric_proto.long_value, None)
-        elif numeric_case == "double_value":
-            return _Numeric(None, numeric_proto.double_value)
-        elif numeric_case == "nan":
-            return _Numeric(None, None)
-        else:
-            raise TypeDBClientException.of(BAD_ANSWER_TYPE, numeric_case)
+    # @staticmethod
+    # def of(numeric_proto: answer_proto.Numeric):
+    #     numeric_case = numeric_proto.WhichOneof("value")
+    #     if numeric_case == "long_value":
+    #         return _Numeric(numeric_proto.long_value, None)
+    #     elif numeric_case == "double_value":
+    #         return _Numeric(None, numeric_proto.double_value)
+    #     elif numeric_case == "nan":
+    #         return _Numeric(None, None)
+    #     else:
+    #         raise TypeDBClientException.of(BAD_ANSWER_TYPE, numeric_case)
 
-    def is_int(self):
-        return self._int_value is not None
+    def is_int(self) -> bool:
+        return numeric_is_long(self._numeric)
 
-    def is_float(self):
-        return self._float_value is not None
+    def is_float(self) -> bool:
+        return numeric_is_double(self._numeric)
 
-    def is_nan(self):
-        return not self.is_int() and not self.is_float()
-
-    def as_float(self):
-        if self.is_float():
-            return self._float_value
-        else:
-            raise TypeDBClientException.of(ILLEGAL_CAST, "float")
+    def is_nan(self) -> bool:
+        return numeric_is_nan(self._numeric)
 
     def as_int(self):
         if self.is_int():
-            return self._int_value
-        else:
-            raise TypeDBClientException.of(ILLEGAL_CAST, "int")
+            return numeric_get_long(self._numeric)
+        raise TypeDBClientException.of(ILLEGAL_CAST, "int")
+
+    def as_float(self):
+        if self.is_float():
+            return numeric_get_double(self._numeric)
+        raise TypeDBClientException.of(ILLEGAL_CAST, "float")
+
+    def __str__(self):
+        return numeric_to_string(self._numeric)
+
+    def __eq__(self, other):
+        if not (other and isinstance(other, Numeric)):
+            return False
+        if self.is_nan() and other.is_nan():
+            return True
+        if self.is_int() and other.is_int() and self.as_int() == other.as_int():
+            return True
+        if self.is_float() and other.is_float() and self.as_float() == other.as_float():
+            return True
+        return False
+
+    def __hash__(self):
+        return 0 if self.is_nan() else hash(self.as_int()) if self.is_int() else hash(self.as_float())

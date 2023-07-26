@@ -21,23 +21,38 @@
 
 import typedb_protocol.common.answer_pb2 as answer_proto
 
+from typedb.api.answer.numeric import Numeric
 from typedb.api.answer.numeric_group import NumericGroup
+from typedb.api.concept.concept import Concept
 from typedb.concept.answer.numeric import _Numeric
+from typedb.concept.concept import _Concept
 from typedb.concept.proto import concept_proto_reader
+
+from typedb.typedb_client_python import NumericGroup as NativeNumericGroup, numeric_group_get_owner, \
+    numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals
 
 
 class _NumericGroup(NumericGroup):
 
-    def __init__(self, owner, numeric):
-        self._owner = owner
-        self._numeric = numeric
+    def __init__(self, numeric_group: NativeNumericGroup):
+        self._numeric_group = numeric_group
 
-    @staticmethod
-    def of(numeric_group_proto: answer_proto.NumericGroup):
-        return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
+    # @staticmethod
+    # def of(numeric_group_proto: answer_proto.NumericGroup):
+    #     return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
 
-    def owner(self):
-        return self._owner
+    def owner(self) -> Concept:
+        return _Concept(numeric_group_get_owner(self._numeric_group))
 
-    def numeric(self):
-        return self._numeric
+    def numeric(self) -> Numeric:
+        return _Numeric(numeric_group_get_numeric(self._numeric_group))
+
+    def __str__(self):
+        return numeric_group_to_string(self._numeric_group)
+
+    def __eq__(self, other):
+        return other and isinstance(other, NumericGroup) and \
+            numeric_group_equals(self._numeric_group, self._numeric_group)
+
+    def __hash__(self):
+        return hash((self.owner(), self.numeric()))

@@ -18,20 +18,27 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Iterable, Mapping, Tuple, Union
+from datetime import datetime
+from typing import Mapping, Union, Iterator
 
 from typedb.api.concept.concept import Concept
 
 
 class ConceptMap(ABC):
 
+    # @abstractmethod
+    # def map(self) -> Mapping[str, Concept]:
+    #     pass
+
     @abstractmethod
-    def map(self) -> Mapping[str, Concept]:
+    def variables(self) -> Iterator[str]:
         pass
 
     @abstractmethod
-    def concepts(self) -> Iterable[Concept]:
+    def concepts(self) -> Iterator[Concept]:
         pass
 
     @abstractmethod
@@ -39,39 +46,39 @@ class ConceptMap(ABC):
         pass
 
     @abstractmethod
-    def explainables(self) -> "ConceptMap.Explainables":
+    def explainables(self) -> Explainables:
         pass
 
-    def to_json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool]]]:
+    def to_json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool, datetime]]]:
         return {
-            var: concept.to_json()
-            for var, concept in self._map.items()
+            var: self.get(var).to_json()
+            for var in self.variables()
         }
 
     class Explainables(ABC):
 
         @abstractmethod
-        def relation(self, variable: str) -> "ConceptMap.Explainable":
+        def relation(self, variable: str) -> ConceptMap.Explainable:
             pass
 
         @abstractmethod
-        def attribute(self, variable: str) -> "ConceptMap.Explainable":
+        def attribute(self, variable: str) -> ConceptMap.Explainable:
             pass
 
         @abstractmethod
-        def ownership(self, owner: str, attribute: str) -> "ConceptMap.Explainable":
+        def ownership(self, owner: str, attribute: str) -> ConceptMap.Explainable:
             pass
 
         @abstractmethod
-        def relations(self) -> Mapping[str, "ConceptMap.Explainable"]:
+        def relations(self) -> Mapping[str, ConceptMap.Explainable]:
             pass
 
         @abstractmethod
-        def attributes(self) -> Mapping[str, "ConceptMap.Explainable"]:
+        def attributes(self) -> Mapping[str, ConceptMap.Explainable]:
             pass
 
         @abstractmethod
-        def ownerships(self) -> Mapping[Tuple[str, str], "ConceptMap.Explainable"]:
+        def ownerships(self) -> Mapping[tuple[str, str], ConceptMap.Explainable]:
             pass
 
     class Explainable(ABC):
@@ -81,5 +88,5 @@ class ConceptMap(ABC):
             pass
 
         @abstractmethod
-        def explainable_id(self) -> int:
+        def id(self) -> int:
             pass

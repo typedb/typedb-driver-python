@@ -27,6 +27,8 @@ from typedb.typedb_client_python import Database as DatabaseFfi, database_get_na
     ReplicaInfo, ReplicaInfoIterator, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, replica_info_get_term, \
     database_get_replicas_info, database_get_primary_replica_info, database_get_preferred_replica_info, replica_info_iterator_next
 
+from typedb.common.streamer import Streamer
+
 
 class _DatabaseImpl(Database):
 
@@ -63,9 +65,10 @@ class _DatabaseImpl(Database):
         if not self._database.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         replica_infos: list[ReplicaInfo] = []
-        repl_iter = database_get_replicas_info(self._database)
-        while replica := replica_info_iterator_next(repl_iter):
-            replica_infos.append(replica)
+        repl_iter = Streamer(database_get_replicas_info(self._database), replica_info_iterator_next)
+        # repl_iter = database_get_replicas_info(self._database)
+        # while replica := replica_info_iterator_next(repl_iter):
+        #     replica_infos.append(replica)
         return set(_DatabaseImpl.Replica(replica_info) for replica_info in replica_infos)
 
     def primary_replica(self) -> Optional["_DatabaseImpl.Replica"]:
