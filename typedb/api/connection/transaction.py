@@ -22,8 +22,6 @@
 import enum
 from abc import ABC, abstractmethod
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
-
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.logic.logic_manager import LogicManager
 from typedb.api.connection.options import Options
@@ -40,8 +38,8 @@ class TransactionType(enum.Enum):
     def is_write(self):
         return self is TransactionType.WRITE
 
-    def proto(self):
-        return transaction_proto.Transaction.Type.Value(self.name)
+    # def proto(self):
+    #     return transaction_proto.Transaction.Type.Value(self.name)
 
 
 class Transaction(ABC):

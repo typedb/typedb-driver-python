@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 import re
 
 import parse
@@ -116,7 +118,7 @@ register_type(Label=parse_label)
 
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
-def parse_annotations(text: str) -> Set["Annotation"]:
+def parse_annotations(text: str) -> Set[Annotation]:
     split = text.split(",")
     annotations = set()
     for annotation in split:
@@ -158,18 +160,18 @@ def parse_transaction_type(value: str) -> TransactionType:
 register_type(TransactionType=parse_transaction_type)
 
 
-def parse_list(table: Table) -> List[str]:
+def parse_list(table: Table) -> list[str]:
     return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
 
 
-def parse_dict(table: Table) -> Dict[str, str]:
+def parse_dict(table: Table) -> dict[str, str]:
     result = {table.headings[0]: table.headings[1]}
     for row in table.rows:
         result[row[0]] = row[1]
     return result
 
 
-def parse_table(table: Table) -> List[List[Tuple[str, str]]]:
+def parse_table(table: Table) -> list[list[tuple[str, str]]]:
     """
     Extracts the rows of a Table as lists of Tuples, where each Tuple contains the column header and the cell value.
 

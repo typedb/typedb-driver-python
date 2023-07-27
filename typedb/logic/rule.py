@@ -28,8 +28,6 @@ from typedb.common.exception import TypeDBClientException, MISSING_LABEL
 from typedb.typedb_client_python import Rule as NativeRule, rule_get_when, rule_get_then, rule_get_label, \
     rule_set_label, rule_delete, rule_is_deleted, rule_to_string
 
-from typedb.logic.logic_manager import _LogicManager
-
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import Transaction
 
@@ -51,7 +49,7 @@ class _Rule(Rule):
     def set_label(self, transaction: Transaction, new_label: str) -> None:
         if not new_label:
             raise TypeDBClientException(MISSING_LABEL)
-        rule_set_label(_LogicManager(transaction).native_transaction(), self._rule, new_label)
+        rule_set_label(transaction.logic(), self._rule, new_label)
 
     def get_when(self) -> str:
         return self._when
@@ -60,10 +58,10 @@ class _Rule(Rule):
         return self._then
 
     def delete(self, transaction: Transaction) -> None:
-        rule_delete(_LogicManager(transaction).native_transaction(), self._rule)
+        rule_delete(transaction.logic(), self._rule)
 
     def is_deleted(self, transaction: Transaction) -> bool:
-        return rule_is_deleted(_LogicManager(transaction).native_transaction(), self._rule)
+        return rule_is_deleted(transaction.logic(), self._rule)
 
     def __str__(self):
         return rule_to_string(self._rule)

@@ -18,9 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Optional
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
+from typing import Optional
 
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.concept.value.value import ValueType

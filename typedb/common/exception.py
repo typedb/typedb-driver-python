@@ -22,8 +22,6 @@
 from __future__ import annotations
 from typing import Union, Any
 
-from grpc import RpcError, Call, StatusCode
-
 
 class TypeDBClientException(Exception):
 
@@ -37,21 +35,6 @@ class TypeDBClientException(Exception):
 
         self.__cause__ = cause
         super(TypeDBClientException, self).__init__(self.message)
-
-    @staticmethod
-    def of_rpc(rpc_error: Union[RpcError, Call]) -> TypeDBClientException:
-        if rpc_error.code() is StatusCode.UNIMPLEMENTED:
-            return TypeDBClientException(msg=RPC_METHOD_UNAVAILABLE, cause=rpc_error.details())
-        elif rpc_error.code() in [StatusCode.UNAVAILABLE, StatusCode.UNKNOWN] or "Received RST_STREAM" in str(rpc_error):
-            return TypeDBClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)
-        elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
-            return TypeDBClientException(msg=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
-        elif rpc_error.code() is StatusCode.UNAUTHENTICATED and "[CLS08]" in str(rpc_error):
-            return TypeDBClientException(msg=CLUSTER_TOKEN_CREDENTIAL_INVALID, cause=None)
-        elif rpc_error.code() is StatusCode.INTERNAL:
-            return TypeDBClientException(msg=rpc_error.details(), cause=None)
-        else:
-            return TypeDBClientException(msg=rpc_error.details(), cause=rpc_error)
 
     @staticmethod
     def of(error_message: ErrorMessage, params: Any = None):

@@ -23,14 +23,9 @@ from __future__ import annotations
 
 from typing import Iterator, Optional, Union
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.connection.transaction import Transaction
-from typedb.common.label import Label
-from typedb.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
-    relation_type_set_relates_req, relation_type_unset_relates_req, relation_type_get_relates_explicit_req, \
-    relation_type_get_relates_overridden_req
+# from typedb.common.label import Label
 from typedb.common.transitivity import Transitivity
 from typedb.concept.thing import relation
 from typedb.concept.type.role_type import _RoleType
