@@ -19,38 +19,38 @@
 # under the License.
 #
 
-from typing import TYPE_CHECKING, Iterator
+from __future__ import annotations
+from typing import TYPE_CHECKING
 
-from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.options import Options
 from typedb.api.connection.transaction import Transaction, TransactionType
-# from typedb.api.query.future import QueryFuture
-from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, TRANSACTION_CLOSED_WITH_ERRORS
+from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
 
 if TYPE_CHECKING:
-    from typedb.connection.session import _SessionImpl
+    from typedb.connection.session import _Session
 
 from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 
-class _TransactionImpl(Transaction):
+class _Transaction(Transaction):
 
-    def __init__(self, session: "_SessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
+    def __init__(self, session: _Session, transaction_type: TransactionType, options: Options = None):
         if not options:
-            options = TypeDBOptions.core()
+            options = Options()
         self._transaction_type = transaction_type
         self._options = options
         self._transaction = transaction_new(session, transaction_type, options)
         self._concept_manager = _ConceptManager(self._transaction)
-        self._query_manager = _QueryManager(self)
-        self._logic_manager = _LogicManager(self)
+        self._query_manager = _QueryManager(self._transaction)
+        self._logic_manager = _LogicManager(self._transaction)
 
     def transaction_type(self) -> TransactionType:
         return self._transaction_type
 
-    def options(self) -> TypeDBOptions:
+    def options(self) -> Options:
         return self._options
 
     def is_open(self) -> bool:
@@ -68,7 +68,7 @@ class _TransactionImpl(Transaction):
         return self._query_manager
 
     def on_close(self, function: callable):
-        transaction_on_close(self._transaction, _TransactionImpl.TransactionOnClose().callback(function))
+        transaction_on_close(self._transaction, _Transaction.TransactionOnClose().callback(function))
 
     class TransactionOnClose(TransactionCallbackDirector):
         pass

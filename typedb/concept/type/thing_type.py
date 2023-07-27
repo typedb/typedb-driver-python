@@ -47,7 +47,7 @@ from typedb.typedb_client_python import Concept, concept_is_entity_type, concept
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import Transaction
-    from typedb.connection.transaction import _TransactionImpl
+    # from typedb.connection.transaction import _Transaction
 
 
 class _ThingType(ThingType, _Type, ABC):
@@ -57,7 +57,7 @@ class _ThingType(ThingType, _Type, ABC):
 
     @staticmethod
     def of(concept: Concept):
-        from typedb.concept.type import attribute_type, entity_type, relation_type, role_type
+        from typedb.concept.type import attribute_type, entity_type, relation_type
 
         if concept_is_entity_type(concept):
             return entity_type._EntityType(concept)

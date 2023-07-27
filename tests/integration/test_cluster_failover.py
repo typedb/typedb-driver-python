@@ -35,7 +35,7 @@ class TestClusterFailover(TestCase):
 
     def setUp(self):
         root_ca_path = os.environ["ROOT_CA"]
-        credential = TypeDBCredential("admin", "password", root_ca_path)
+        credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
         with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             if client.databases().contains("typedb"):
                 client.databases().get("typedb").delete()
@@ -78,7 +78,7 @@ class TestClusterFailover(TestCase):
 
     def test_put_entity_type_to_crashed_primary_replica(self):
         root_ca_path = os.environ["ROOT_CA"]
-        credential = TypeDBCredential("admin", "password", root_ca_path)
+        credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
         with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
             assert client.databases().contains("typedb")
             primary_replica = self.get_primary_replica(client.databases())

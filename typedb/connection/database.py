@@ -18,21 +18,23 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from typing import Optional
 
-from typedb.api.connection.database import Database
+from typedb.api.connection import database
 from typedb.common.exception import TypeDBClientException, DATABASE_DELETED
 
-from typedb.typedb_client_python import Database as DatabaseFfi, database_get_name, database_schema, database_delete, database_rule_schema, database_type_schema, \
+from typedb.typedb_client_python import Database as NativeDatabase, database_get_name, database_schema, database_delete, database_rule_schema, database_type_schema, \
     ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, replica_info_get_term, \
     database_get_replicas_info, database_get_primary_replica_info, database_get_preferred_replica_info, replica_info_iterator_next
 
 from typedb.common.streamer import Streamer
 
 
-class _DatabaseImpl(Database):
+class _Database(database.Database):
 
-    def __init__(self, database: DatabaseFfi):
+    def __init__(self, database: NativeDatabase):
         self._database = database
         self._name = database_get_name(database)
 
@@ -61,39 +63,35 @@ class _DatabaseImpl(Database):
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         database_delete(self._database)
 
-    def replicas(self) -> set["_DatabaseImpl.Replica"]:
+    def replicas(self) -> set[Replica]:
         if not self._database.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        replica_infos: list[ReplicaInfo] = []
         repl_iter = Streamer(database_get_replicas_info(self._database), replica_info_iterator_next)
-        # repl_iter = database_get_replicas_info(self._database)
-        # while replica := replica_info_iterator_next(repl_iter):
-        #     replica_infos.append(replica)
-        return set(_DatabaseImpl.Replica(replica_info) for replica_info in replica_infos)
+        return set(_Database.Replica(replica_info) for replica_info in repl_iter)
 
-    def primary_replica(self) -> Optional["_DatabaseImpl.Replica"]:
+    def primary_replica(self) -> Optional[Replica]:
         if not self._database.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         if res := database_get_primary_replica_info(self._database):
-            return _DatabaseImpl.Replica(res)
+            return _Database.Replica(res)
         return None
 
-    def preferred_replica(self) -> Optional["_DatabaseImpl.Replica"]:
+    def preferred_replica(self) -> Optional[Replica]:
         if not self._database.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         if res := database_get_preferred_replica_info(self._database):
-            return _DatabaseImpl.Replica(res)
+            return _Database.Replica(res)
         return None
 
     def __str__(self):
         return self.name()
 
-    class Replica(Database.Replica):
+    class Replica(database.Replica):
 
         def __init__(self, replica_info: ReplicaInfo):
             self._info = replica_info
 
-        def database(self) -> "Database":
+        def database(self) -> database.Database:
             pass
 
         def address(self) -> str:

@@ -18,36 +18,40 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import TYPE_CHECKING
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 
 from typedb.api.logic.logic_manager import LogicManager
-from typedb.common.rpc.request_builder import logic_manager_get_rule_req, logic_manager_get_rules_req, \
-    logic_manager_put_rule_req
+from typedb.api.logic.rule import Rule
+from typedb.common.exception import TypeDBClientException, MISSING_LABEL
+from typedb.common.streamer import Streamer
 from typedb.logic.rule import _Rule
 
 if TYPE_CHECKING:
-    from typedb.api.connection.transaction import _TypeDBTransactionExtended
+    from typedb.typedb_client_python import Transaction, logic_manager_get_rule, logic_manager_get_rules, \
+    rule_iterator_next, logic_manager_put_rule
 
 
 class _LogicManager(LogicManager):
 
-    def __init__(self, transaction_ext: "_TypeDBTransactionExtended"):
-        self._transaction_ext = transaction_ext
+    def __init__(self, transaction: Transaction):
+        self._transaction = transaction
 
-    def get_rule(self, label: str):
-        res = self.execute(logic_manager_get_rule_req(label))
-        return _Rule.of(res.get_rule_res.rule) if res.get_rule_res.WhichOneof("res") == "rule" else None
+    def native_transaction(self):
+        return self._transaction
+
+    def get_rule(self, label: str) -> Optional[Rule]:
+        if not label:
+            raise TypeDBClientException(MISSING_LABEL)
+        if rule := logic_manager_get_rule(self._transaction, label):
+            return _Rule(rule)
+        return None
 
     def get_rules(self):
-        return (_Rule.of(r) for rp in self.stream(logic_manager_get_rules_req()) for r in rp.get_rules_res_part.rules)
+        return map(_Rule, Streamer(logic_manager_get_rules(self._transaction), rule_iterator_next))
 
     def put_rule(self, label: str, when: str, then: str):
-        return _Rule.of(self.execute(logic_manager_put_rule_req(label, when, then)).put_rule_res.rule)
-
-    def execute(self, req: transaction_proto.Transaction.Req):
-        return self._transaction_ext.execute(req).logic_manager_res
-
-    def stream(self, req: transaction_proto.Transaction.Req):
-        return map(lambda rp: rp.logic_manager_res_part, self._transaction_ext.stream(req))
+        if not label:
+            raise TypeDBClientException(MISSING_LABEL)
+        return _Rule(logic_manager_put_rule(self._transaction, label, when, then))

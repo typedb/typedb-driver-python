@@ -18,8 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from concurrent.futures import Future
 
+from __future__ import annotations
 import behave.runner
 from behave.model import Table
 from typedb.client import *
@@ -46,22 +46,22 @@ class Context(behave.runner.Context):
     def __init__(self):
         self.table: Optional[Table] = None
         self.THREAD_POOL_SIZE = 0
-        self.client: Optional[TypeDBClient] = None
-        self.sessions: List[TypeDBSession] = []
-        self.sessions_to_transactions: Dict[TypeDBSession, List[TypeDBTransaction]] = {}
-        self.sessions_parallel: List[Future[TypeDBSession]] = []
-        self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
-        self.session_options: Optional[TypeDBOptions] = None
-        self.transaction_options: Optional[TypeDBOptions] = None
-        self.things: Dict[str, Thing] = {}
-        self.answers: Optional[List[ConceptMap]] = None
+        self.client: Optional[Client] = None
+        self.sessions: list[Session] = []
+        self.sessions_to_transactions: dict[Session, list[Transaction]] = {}
+        # self.sessions_parallel: list[Future[TypeDBSession]] = []
+        # self.sessions_parallel_to_transactions_parallel: Dict[Future[TypeDBSession], List[TypeDBTransaction]] = {}
+        self.session_options: Optional[Options] = None
+        self.transaction_options: Optional[Options] = None
+        self.things: dict[str, Thing] = {}
+        self.answers: Optional[list[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
-        self.answer_groups: Optional[List[ConceptMapGroup]] = None
-        self.numeric_answer_groups: Optional[List[NumericGroup]] = None
+        self.answer_groups: Optional[list[ConceptMapGroup]] = None
+        self.numeric_answer_groups: Optional[list[NumericGroup]] = None
         self.config = Config()
         self.option_setters = {}
 
-    def tx(self) -> TypeDBTransaction:
+    def tx(self) -> Transaction:
         return self.sessions_to_transactions[self.sessions[0]][0]
 
     def put(self, var: str, thing: Thing) -> None:

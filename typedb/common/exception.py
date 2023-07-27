@@ -99,6 +99,7 @@ CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(15, "Attempted connecting to all c
 CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(16, "The user '%s' does not exist.")
 CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(17, "Invalid token credential.")
 CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(18, "The provided Root CA path '%s' does not exist.")
+CLUSTER_INCONSISTENT_CREDENTIAL = ClientErrorMessage(21, "TLS disabled but the Root CA path provided.")
 CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(19, "The first argument of TypeDBClient.cluster() must be a List of server addresses to connect to. It was called with a string, not a List, which is not allowed.")
 DATABASE_DELETED = ClientErrorMessage(20, "The database '%s' has been deleted and no further operation is allowed.")
 
@@ -135,6 +136,7 @@ VARIABLE_DOES_NOT_EXIST = QueryErrorMessage(1, "The variable '%s' does not exist
 NO_EXPLANATION = QueryErrorMessage(2, "No explanation was found.")
 BAD_ANSWER_TYPE = QueryErrorMessage(3, "The answer type '%s' was not recognised.")
 MISSING_ANSWER = QueryErrorMessage(4, "The required field 'answer' of type '%s' was not set.")
+MISSING_QUERY = QueryErrorMessage(5, "Query cannot be null or empty.")
 
 
 class InternalErrorMessage(ErrorMessage):

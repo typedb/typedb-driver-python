@@ -33,7 +33,7 @@ from typedb.typedb_client_python import Concept as NativeConcept, Transaction as
     concept_to_string, concept_equals
 
 if TYPE_CHECKING:
-    from typedb.connection.transaction import _TransactionImpl
+    from typedb.connection.transaction import _Transaction
 
 
 
@@ -43,7 +43,7 @@ class _Concept(Concept, ABC):
         self._concept = concept
 
     @staticmethod
-    def native_transaction(transaction: _TransactionImpl) -> NativeTransaction:
+    def native_transaction(transaction: _Transaction) -> NativeTransaction:
         return transaction.concepts().native_transaction()
 
     def native_object(self):

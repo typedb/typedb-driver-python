@@ -18,8 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Set, Optional, List
+from typing import Optional
 
 
 class Database(ABC):
@@ -43,38 +45,39 @@ class Database(ABC):
         pass
 
     @abstractmethod
-    def replicas(self) -> Set["Database.Replica"]:
+    def replicas(self) -> set[Replica]:
         pass
 
     @abstractmethod
-    def primary_replica(self) -> Optional["Database.Replica"]:
+    def primary_replica(self) -> Optional[Replica]:
         pass
 
     @abstractmethod
-    def preferred_replica(self) -> Optional["Database.Replica"]:
+    def preferred_replica(self) -> Optional[Replica]:
         pass
 
-    class Replica(ABC):
 
-        @abstractmethod
-        def database(self) -> "Database":
-            pass
+class Replica(ABC):
 
-        @abstractmethod
-        def address(self) -> str:
-            pass
+    @abstractmethod
+    def database(self) -> Database:
+        pass
 
-        @abstractmethod
-        def is_primary(self) -> bool:
-            pass
+    @abstractmethod
+    def address(self) -> str:
+        pass
 
-        @abstractmethod
-        def is_preferred(self) -> bool:
-            pass
+    @abstractmethod
+    def is_primary(self) -> bool:
+        pass
 
-        @abstractmethod
-        def term(self) -> int:
-            pass
+    @abstractmethod
+    def is_preferred(self) -> bool:
+        pass
+
+    @abstractmethod
+    def term(self) -> int:
+        pass
 
 
 class DatabaseManager(ABC):

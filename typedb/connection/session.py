@@ -19,49 +19,49 @@
 # under the License.
 #
 
-import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.database import Database
+from typedb.api.connection.options import Options
 from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.transaction import Transaction, TransactionType
-from typedb.connection.transaction import _TransactionImpl
-from typedb.common.exception import TypeDBClientException
+from typedb.connection.transaction import _Transaction
 
 from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, session_get_database_name, SessionCallbackDirector
 
-if TYPE_CHECKING:
-    from typedb.connection.client import _TypeDBClientImpl
+# if TYPE_CHECKING:
+#     from typedb.connection.client import _Client
 
 
-class _SessionImpl(Session):
-    def __init__(self, database: str, session_type: SessionType, options: TypeDBOptions = None):
+class _Session(Session):
+
+    def __init__(self, database: Database, session_type: SessionType, options: Optional[Options] = None):
         if not options:
-            options = TypeDBOptions.core()
-        self._session_type = session_type
+            options = Options()
+        self._type = session_type
         self._options = options
         self._session = session_new(database, session_type, options)
 
     def is_open(self) -> bool:
         return session_is_open(self._session)
 
-    def session_type(self) -> SessionType:
-        return self._session_type
+    def type(self) -> SessionType:
+        return self._type
 
     def database_name(self) -> str:
         return session_get_database_name(self._session)
 
-    def options(self) -> TypeDBOptions:
+    def options(self) -> Options:
         return self._options
 
-    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> Transaction:
-        return _TransactionImpl(self, transaction_type, options)
+    def transaction(self, transaction_type: TransactionType, options: Options = None) -> Transaction:
+        return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:
         session_force_close(self._session)
 
     def on_close(self, function: callable):
-        session_on_close(self._session, _SessionImpl.Callback(function))
+        session_on_close(self._session, _Session.Callback(function))
 
     class Callback(SessionCallbackDirector):
 

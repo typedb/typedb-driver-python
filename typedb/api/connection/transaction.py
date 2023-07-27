@@ -21,14 +21,12 @@
 
 import enum
 from abc import ABC, abstractmethod
-from typing import Iterator
 
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.logic.logic_manager import LogicManager
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.query.future import QueryFuture
+from typedb.api.connection.options import Options
 from typedb.api.query.query_manager import QueryManager
 
 
@@ -57,7 +55,7 @@ class Transaction(ABC):
         pass
 
     @abstractmethod
-    def options(self) -> TypeDBOptions:
+    def options(self) -> Options:
         pass
 
     @abstractmethod

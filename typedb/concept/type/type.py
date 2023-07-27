@@ -21,18 +21,18 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Union, Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from typedb.api.concept.type.type import Type
-from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
-from typedb.common.label import Label
+# from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
+# from typedb.common.label import Label
 from typedb.concept.concept import _Concept
 
 if TYPE_CHECKING:
-    from typedb.connection.transaction import _TransactionImpl
-    from typedb.api.connection.transaction import Transaction
+    from typedb.connection.transaction import _Transaction
+    # from typedb.api.connection.transaction import Transaction
 
-from typedb.typedb_client_python import Concept, thing_type_get_label
+# from typedb.typedb_client_python import Concept, thing_type_get_label
 
 
 class _Type(Type, _Concept, ABC):
@@ -56,19 +56,19 @@ class _Type(Type, _Concept, ABC):
         return self
 
     @abstractmethod
-    def get_supertype(self, transaction: _TransactionImpl) -> _Type:
+    def get_supertype(self, transaction: _Transaction) -> _Type:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: _TransactionImpl) -> Iterator[_Type]:
+    def get_supertypes(self, transaction: _Transaction) -> Iterator[_Type]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: _TransactionImpl) -> Iterator[_Type]:
+    def get_subtypes(self, transaction: _Transaction) -> Iterator[_Type]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: _TransactionImpl) -> Iterator[_Type]:
+    def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_Type]:
         pass
 
     def __str__(self):

@@ -19,94 +19,137 @@
 # under the License.
 #
 
-from typing import TYPE_CHECKING, Union, Iterator
-
-import typedb_protocol.common.transaction_pb2 as transaction_proto
+from __future__ import annotations
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.api.answer.numeric import Numeric
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.api.logic.explanation import Explanation
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.query.future import QueryFuture
+from typedb.api.connection.options import Options
 from typedb.api.query.query_manager import QueryManager
-from typedb.common.rpc.request_builder import query_manager_match_req, query_manager_match_aggregate_req, \
-    query_manager_match_group_req, query_manager_match_group_aggregate_req, query_manager_insert_req, \
-    query_manager_delete_req, query_manager_update_req, query_manager_define_req, query_manager_undefine_req, \
-    query_manager_explain_req
+from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, MISSING_QUERY
+from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.answer.concept_map_group import _ConceptMapGroup
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.answer.numeric_group import _NumericGroup
 from typedb.logic.explanation import _Explanation
 
-if TYPE_CHECKING:
-    from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
+from typedb.typedb_client_python import Transaction as NativeTransaction, query_match, concept_map_iterator_next, \
+    query_match_group, concept_map_group_iterator_next, query_insert, query_update, query_explain, \
+    explanation_iterator_next, query_match_aggregate, numeric_group_iterator_next, query_match_group_aggregate, \
+    query_delete, query_define, query_undefine
+
+# if TYPE_CHECKING:
+#     from typedb.api.connection.transaction import Transaction
 
 
 class _QueryManager(QueryManager):
 
-    def __init__(self, transaction_ext: Union["_TypeDBTransactionExtended", "TypeDBTransaction"]):
-        self._transaction_ext = transaction_ext
+    def __init__(self, transaction: NativeTransaction):
+        self._transaction = transaction
 
-    def match(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def match(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMap]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_match_req(query, options.proto())) for cm in rp.match_res_part.answers)
+            options = Options()
+        return map(_ConceptMap, Streamer(query_match(self._transaction, query, options.native_object()),
+                                         concept_map_iterator_next))
 
-    def match_aggregate(self, query: str, options: TypeDBOptions = None) -> QueryFuture[Numeric]:
+    def match_aggregate(self, query: str, options: Optional[Options] = None) -> Numeric:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return self.query(query_manager_match_aggregate_req(query, options.proto())).map(lambda res: _Numeric.of(res.match_aggregate_res.answer))
+            options = Options()
+        return _Numeric(query_match_aggregate(self._transaction, query, options.native_object()))
 
-    def match_group(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMapGroup]:
+    def match_group(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMapGroup]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_ConceptMapGroup.of(cmg) for rp in self.stream(query_manager_match_group_req(query, options.proto()))
-                for cmg in rp.match_group_res_part.answers)
+            options = Options()
+        return map(_ConceptMapGroup, Streamer(query_match_group(self._transaction, query, options.native_object()),
+                                              concept_map_group_iterator_next))
 
-    def match_group_aggregate(self, query: str, options: TypeDBOptions = None) -> Iterator[NumericGroup]:
+    def match_group_aggregate(self, query: str, options: Optional[Options] = None) -> Iterator[NumericGroup]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_NumericGroup.of(ng) for rp in self.stream(query_manager_match_group_aggregate_req(query, options.proto()))
-                for ng in rp.match_group_aggregate_res_part.answers)
+            options = Options()
+        return map(_NumericGroup, Streamer(query_match_group_aggregate(self._transaction, query, options.native_object()),
+                                           numeric_group_iterator_next))
 
-    def insert(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def insert(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMap]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_insert_req(query, options.proto())) for cm in rp.insert_res_part.answers)
+            options = Options()
+        return map(_ConceptMap, Streamer(query_insert(self._transaction, query, options.native_object()),
+                                         concept_map_iterator_next))
 
-    def delete(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def delete(self, query: str, options: Optional[Options] = None) -> None:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return self.query_void(query_manager_delete_req(query, options.proto()))
+            options = Options()
+        return query_delete(self._transaction, query, options.native_object())
 
-    def update(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def update(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMap]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_ConceptMap.of(cm) for rp in self.stream(query_manager_update_req(query, options.proto())) for cm in rp.update_res_part.answers)
+            options = Options()
+        return map(_ConceptMap, Streamer(query_update(self._transaction, query, options.native_object()),
+                                         concept_map_iterator_next))
 
-    def explain(self, explainable: ConceptMap.Explainable, options: TypeDBOptions = None) -> Iterator[Explanation]:
+    def define(self, query: str, options: Options = None) -> None:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return (_Explanation.of(ex) for rp in self.stream(query_manager_explain_req(explainable.explainable_id(), options.proto())) for ex in rp.explain_res_part.explanations)
+            options = Options()
+        return query_define(self._transaction, query, options.native_object())
 
-    def define(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def undefine(self, query: str, options: Options = None) -> None:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
+        if not query:
+            raise TypeDBClientException(MISSING_QUERY)
         if not options:
-            options = TypeDBOptions.core()
-        return self.query_void(query_manager_define_req(query, options.proto()))
+            options = Options()
+        return query_undefine(self._transaction, query, options.native_object())
 
-    def undefine(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def explain(self, explainable: ConceptMap.Explainable, options: Optional[Options] = None) -> Iterator[Explanation]:
+        if not self._transaction.thisown:
+            raise TypeDBClientException(TRANSACTION_CLOSED)
         if not options:
-            options = TypeDBOptions.core()
-        return self.query_void(query_manager_undefine_req(query, options.proto()))
+            options = Options()
+        return map(_Explanation, Streamer(query_explain(self._transaction, explainable.id(), options.native_object()),
+                                          explanation_iterator_next))
 
-    def query_void(self, req: transaction_proto.Transaction.Req):
-        return self._transaction_ext.run_query(req)
-
-    def query(self, req: transaction_proto.Transaction.Req):
-        return self._transaction_ext.run_query(req).map(lambda res: res.query_manager_res)
-
-    def stream(self, req: transaction_proto.Transaction.Req):
-        return (rp.query_manager_res_part for rp in self._transaction_ext.stream(req))
+    # def query_void(self, req: transaction_proto.Transaction.Req):
+    #     return self._transaction_ext.run_query(req)
+    #
+    # def query(self, req: transaction_proto.Transaction.Req):
+    #     return self._transaction_ext.run_query(req).map(lambda res: res.query_manager_res)
+    #
+    # def stream(self, req: transaction_proto.Transaction.Req):
+    #     return (rp.query_manager_res_part for rp in self._transaction_ext.stream(req))

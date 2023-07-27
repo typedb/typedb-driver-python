@@ -18,8 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 from abc import ABC, abstractmethod
-from typing import Mapping, Set
 
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.logic.rule import Rule
@@ -40,5 +40,9 @@ class Explanation(ABC):
         pass
 
     @abstractmethod
-    def variable_mapping(self) -> Mapping[str, Set[str]]:
+    def query_variables(self) -> set[str]:
+        pass
+
+    @abstractmethod
+    def query_variable_mapping(self, var: str) -> set[str]:
         pass

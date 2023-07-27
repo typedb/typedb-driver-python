@@ -18,13 +18,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 import enum
 from abc import ABC, abstractmethod
 
 import typedb_protocol.common.session_pb2 as session_proto
 
 from typedb.api.connection.database import Database
-from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.options import Options
 from typedb.api.connection.transaction import Transaction, TransactionType
 
 
@@ -49,7 +51,7 @@ class Session(ABC):
         pass
 
     @abstractmethod
-    def session_type(self) -> "SessionType":
+    def type(self) -> SessionType:
         pass
 
     @abstractmethod
@@ -57,11 +59,11 @@ class Session(ABC):
         pass
 
     @abstractmethod
-    def options(self) -> TypeDBOptions:
+    def options(self) -> Options:
         pass
 
     @abstractmethod
-    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> Transaction:
+    def transaction(self, transaction_type: TransactionType, options: Options = None) -> Transaction:
         pass
 
     @abstractmethod

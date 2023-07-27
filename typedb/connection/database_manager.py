@@ -19,11 +19,9 @@
 #   under the License.
 #
 
-from typing import List
-
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MISSING_DB_NAME
-from typedb.connection.database import _DatabaseImpl
+from typedb.connection.database import _Database
 
 from typedb.typedb_client_python import Connection, Database as DatabaseFfi, databases_contains, databases_create, \
     database_manager_new, databases_get, databases_all, database_iterator_next
@@ -38,23 +36,23 @@ def _not_blank(name: str) -> str:
 class _DatabaseManagerImpl(DatabaseManager):
 
     def __init__(self, connection: Connection):
-        self.database_manager = database_manager_new(connection)
+        self._database_manager = database_manager_new(connection)
 
-    def get(self, name: str) -> _DatabaseImpl:
+    def get(self, name: str) -> _Database:
         if self.contains(name):
-            return _DatabaseImpl(databases_get(self.database_manager, name))
+            return _Database(databases_get(self._database_manager, name))
         else:
             raise TypeDBClientException.of(DATABASE_DELETED, name)
 
     def contains(self, name: str) -> bool:
-        return databases_contains(self.database_manager, _not_blank(name))
+        return databases_contains(self._database_manager, _not_blank(name))
 
     def create(self, name: str) -> None:
-        databases_create(self.database_manager, _not_blank(name))
+        databases_create(self._database_manager, _not_blank(name))
 
-    def all(self) -> list[_DatabaseImpl]:
+    def all(self) -> list[_Database]:
         databases: list[DatabaseFfi] = []
-        db_iter = databases_all(self.database_manager)
+        db_iter = databases_all(self._database_manager)
         while db := database_iterator_next(db_iter):
             databases.append(db)
-        return [_DatabaseImpl(database) for database in databases]
+        return [_Database(database) for database in databases]

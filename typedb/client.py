@@ -18,9 +18,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from typing import Iterable
 
-from typedb.connection.cluster.client import _ClusterClient
-from typedb.connection.core.client import _CoreClient
+from typedb.connection.client import _Client
 
 # Repackaging these symbols allows them to be imported from "typedb.client"
 
@@ -66,13 +66,12 @@ class TypeDB:
     DEFAULT_ADDRESS = "localhost:1729"
 
     @staticmethod
-    def core_client(address: str, parallelisation: int = 2) -> TypeDBClient:
-        return _CoreClient(address, parallelisation)
+    def core_client(address: str) -> Client:
+        return _Client([address])
 
     @staticmethod
-    def cluster_client(addresses: Union[Iterable[str], str], credential: TypeDBCredential,
-                       parallelisation: int = 2) -> TypeDBClusterClient:
+    def cluster_client(addresses: Union[Iterable[str], str], credential: Credential) -> Client:
         if isinstance(addresses, str):
-            return _ClusterClient([addresses], credential, parallelisation)
+            return _Client([addresses], credential)
         else:
-            return _ClusterClient(addresses, credential, parallelisation)
+            return _Client(addresses, credential)

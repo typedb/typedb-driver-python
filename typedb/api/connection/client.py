@@ -19,16 +19,15 @@
 # under the License.
 #
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from typedb.api.connection.database import DatabaseManager
-from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.options import Options
 from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.user import UserManager, User
 
-from typedb.typedb_client_python import Error
 
-
-class TypeDBClient(ABC):
+class Client(ABC):
 
     @abstractmethod
     def is_open(self) -> bool:
@@ -39,30 +38,15 @@ class TypeDBClient(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> Session:
+    def session(self, database: str, session_type: SessionType, options: Optional[Options] = None) -> Session:
         pass
 
-    @abstractmethod
-    def is_cluster(self) -> bool:
-        pass
+    # @abstractmethod
+    # def is_cluster(self) -> bool:
+    #     pass
 
     @abstractmethod
     def close(self) -> None:
-        pass
-
-    @abstractmethod
-    def __enter__(self):
-        pass
-
-    @abstractmethod
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-
-class TypeDBClusterClient(TypeDBClient):
-
-    @abstractmethod
-    def databases(self) -> DatabaseManager:
         pass
 
     @abstractmethod
@@ -71,4 +55,12 @@ class TypeDBClusterClient(TypeDBClient):
 
     @abstractmethod
     def user(self) -> User:
+        pass
+
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb):
         pass
