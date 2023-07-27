@@ -18,22 +18,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 import time
 from typing import TYPE_CHECKING
-
-import typedb_protocol.common.session_pb2 as session_proto
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.transaction import Transaction, TransactionType
-from typedb.common.concurrent.atomic import AtomicBoolean
-from typedb.common.concurrent.lock import ReadWriteLock
-from typedb.common.rpc.request_builder import session_open_req
-from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.database import _DatabaseImpl
 from typedb.connection.transaction import _TransactionImpl
-from typedb.stream.request_transmitter import RequestTransmitter
-
 from typedb.common.exception import TypeDBClientException
 
 from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, session_get_database_name, SessionCallbackDirector

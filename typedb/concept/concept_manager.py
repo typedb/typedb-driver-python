@@ -23,13 +23,9 @@ from typing import Optional
 import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID, TypeDBException
 # from typedb.api.connection.transaction import Transaction
-from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, \
-    concept_manager_put_relation_type_req, \
-    concept_manager_put_attribute_type_req, concept_manager_get_thing_type_req, concept_manager_get_thing_req
-from typedb.concept.proto import concept_proto_reader
 from typedb.concept.thing.attribute import _Attribute
 from typedb.concept.thing.entity import _Entity
 from typedb.concept.thing.relation import _Relation
@@ -96,7 +92,7 @@ class _ConceptManager(ConceptManager):
             raise TypeDBClientException.of(MISSING_LABEL)
         return _RelationType.of(concepts_put_relation_type(self._transaction, label))
 
-    def put_attribute_type(self, label: str, value_type: Value.Type) -> _AttributeType:
+    def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
         if not label:
             raise TypeDBClientException.of(MISSING_LABEL)
         return _AttributeType.of(concepts_put_attribute_type(self._transaction, label, value_type))

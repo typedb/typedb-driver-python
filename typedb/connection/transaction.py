@@ -21,17 +21,13 @@
 
 from typing import TYPE_CHECKING, Iterator
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
-from grpc import RpcError
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import Transaction, TransactionType
-from typedb.api.query.future import QueryFuture
+# from typedb.api.query.future import QueryFuture
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, TRANSACTION_CLOSED_WITH_ERRORS
-from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
-from typedb.stream.bidirectional_stream import BidirectionalStream
 
 if TYPE_CHECKING:
     from typedb.connection.session import _SessionImpl

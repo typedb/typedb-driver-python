@@ -18,23 +18,25 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterator, Optional
 
-import typedb_protocol.common.concept_pb2 as concept_proto
+from __future__ import annotations
+from typing import Iterator, Optional, TYPE_CHECKING
 
 from typedb.api.concept.type.entity_type import EntityType
 from typedb.api.connection.transaction import Transaction
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import entity_type_create_req
-from typedb.concept.concept import Transitivity
-from typedb.concept.thing.entity import _Entity
-from typedb.concept.type.thing_type import _ThingType
+from typedb.common.transitivity import Transitivity
+from typedb.concept.thing import entity
+from typedb.concept.type import thing_type
 
 from typedb.typedb_client_python import Concept, entity_type_create, entity_type_get_subtypes, \
     entity_type_get_instances, entity_type_get_supertypes, entity_type_get_supertype, entity_type_set_supertype
 
+if TYPE_CHECKING:
+    pass
 
-class _EntityType(EntityType, _ThingType):
+
+class _EntityType(EntityType, thing_type._ThingType):
 
     # def __init__(self, concept: Concept):
     #     super(_ThingType).__init__(concept)
@@ -49,36 +51,36 @@ class _EntityType(EntityType, _ThingType):
     # def as_entity_type(self) -> "EntityType":
     #     return self
 
-    def create(self, transaction: Transaction) -> _Entity:
-        return _Entity(entity_type_create(self.native_transaction(transaction), self._concept))
+    def create(self, transaction: Transaction) -> entity._Entity:
+        return entity._Entity(entity_type_create(self.native_transaction(transaction), self._concept))
 
     def set_super_type(self, transaction: Transaction, super_entity_type: EntityType) -> None:
         entity_type_set_supertype(self.native_transaction(transaction), self._concept,
                                   super_entity_type.native_object())
 
-    def get_supertype(self, transaction: Transaction) -> Optional["_EntityType"]:
+    def get_supertype(self, transaction: Transaction) -> Optional[_EntityType]:
         if res := entity_type_get_supertype(self.native_transaction(transaction), self._concept):
             return _EntityType(res)
         return None
 
-    def get_supertypes(self, transaction: Transaction) -> Iterator["_EntityType"]:
+    def get_supertypes(self, transaction: Transaction) -> Iterator[_EntityType]:
         return (_EntityType(item) for item in
                 entity_type_get_supertypes(self.native_transaction(transaction), self._concept))
 
-    def get_subtypes(self, transaction: Transaction) -> Iterator["_EntityType"]:
+    def get_subtypes(self, transaction: Transaction) -> Iterator[_EntityType]:
         return (_EntityType(item) for item in
                 entity_type_get_subtypes(self.native_transaction(transaction), self._concept, Transitivity.Transitive))
 
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator["_EntityType"]:
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_EntityType]:
         return (_EntityType(item) for item in
                 entity_type_get_subtypes(self.native_transaction(transaction), self._concept, Transitivity.Explicit))
 
-    def get_instances(self, transaction: Transaction) -> Iterator["_Entity"]:
-        return (_Entity(item) for item in
+    def get_instances(self, transaction: Transaction) -> Iterator[entity._Entity]:
+        return (entity._Entity(item) for item in
                 entity_type_get_instances(self.native_transaction(transaction), self._concept, Transitivity.Transitive))
 
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator["_Entity"]:
-        return (_Entity(item) for item in
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[entity._Entity]:
+        return (entity._Entity(item) for item in
                 entity_type_get_instances(self.native_transaction(transaction), self._concept, Transitivity.Explicit))
 
 # class _RemoteEntityType(_RemoteThingType, RemoteEntityType):

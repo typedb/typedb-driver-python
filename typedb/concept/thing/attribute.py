@@ -24,17 +24,13 @@ from abc import ABC
 from datetime import datetime
 from typing import Optional, Iterator
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.type.thing_type import ThingType
 from typedb.api.concept.value.value import Value
 from typedb.api.connection.transaction import Transaction
-from typedb.common.rpc.request_builder import attribute_get_owners_req
-from typedb.concept.proto import concept_proto_builder, concept_proto_reader
 from typedb.concept.thing.thing import _Thing
 
-from typedb.typedb_client_python import Concept, attribute_get_type, attribute_get_value, attribute_get_owners
+from typedb.typedb_client_python import attribute_get_type, attribute_get_value, attribute_get_owners
 
 from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.value.value import _Value

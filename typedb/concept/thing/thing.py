@@ -23,25 +23,25 @@ from __future__ import annotations
 from abc import ABC
 from typing import Union, TYPE_CHECKING, Iterator
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.common.exception import TypeDBClientException, MISSING_IID, MISSING_TRANSACTION, \
     GET_HAS_WITH_MULTIPLE_FILTERS
-from typedb.common.rpc.request_builder import thing_get_has_req, thing_get_relations_req, \
-    thing_get_playing_req, thing_set_has_req, thing_unset_has_req, thing_delete_req
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader, concept_proto_builder
-from typedb.concept.thing.attribute import _Attribute
-from typedb.concept.thing.relation import _Relation
-from typedb.concept.type.role_type import _RoleType
+import typedb.concept.thing as thing
+# from typedb.concept.thing.attribute import _Attribute
+# from typedb.concept.thing.relation import _Relation
+# from typedb.concept.type.role_type import _RoleType
 
 from typedb.api.concept.type.thing_type import Annotation
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import Transaction
+    from typedb.concept.thing.attribute import _Attribute
+    from typedb.concept.thing.relation import _Relation
+    from typedb.concept.type.role_type import _RoleType
 
 from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, \
     Annotation as NativeAnnotation, Concept, thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
@@ -65,16 +65,16 @@ class _Thing(Thing, _Concept, ABC):
         if attribute_type:
             attribute_types = [attribute_type]
         native_annotations = [NativeAnnotation(anno.native_object()) for anno in annotations]
-        return (_Attribute(item) for item in thing_get_has(self.native_transaction(transaction), self._concept,
+        return (thing.attribute._Attribute(item) for item in thing_get_has(self.native_transaction(transaction), self._concept,
                                                            attribute_types, native_annotations))
 
     def get_relations(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Relation]:
         native_role_types = [Concept(rt.native_object()) for rt in role_types]
-        return (_Relation(item) for item in thing_get_relations(self.native_transaction(transaction), self._concept,
+        return (thing.relation._Relation(item) for item in thing_get_relations(self.native_transaction(transaction), self._concept,
                                                                  native_role_types))
 
     def get_playing(self, transaction: Transaction) -> Iterator[_RoleType]:
-        return (_RoleType(rt) for rt in thing_get_playing(self.native_transaction(transaction), self._concept))
+        return (thing.role_type._RoleType(rt) for rt in thing_get_playing(self.native_transaction(transaction), self._concept))
 
     def set_has(self, transaction: Transaction, attribute: Attribute) -> None:
         thing_set_has(self.native_transaction(transaction), self._concept, attribute.native_object())

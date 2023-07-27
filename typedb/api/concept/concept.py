@@ -25,9 +25,6 @@ import enum
 from abc import ABC, abstractmethod
 from typing import Mapping, Union, TYPE_CHECKING
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
-from typedb.api.concept.value.value import Value
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 
 if TYPE_CHECKING:
@@ -41,8 +38,8 @@ if TYPE_CHECKING:
     from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.type.thing_type import ThingType
     from typedb.api.concept.type.type import Type
+    from typedb.api.concept.value.value import Value
     from typedb.api.connection.transaction import Transaction
-
 
 class Concept(ABC):
 

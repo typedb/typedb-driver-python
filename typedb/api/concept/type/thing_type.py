@@ -24,13 +24,13 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Iterator, Optional, Set
 
-from typedb.api.concept.concept import ValueType
+# from typedb.api.concept.concept import ValueType
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.type import Type
-from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, BAD_ANNOTATION
-from typedb.concept.concept import Transitivity
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType
@@ -93,13 +93,13 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_owns(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
+    def get_owns(self, transaction: Transaction, value_type: Optional[ValueType] = None,
                  transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
+    def get_owns_explicit(self, transaction: Transaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
         pass
 

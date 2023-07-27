@@ -18,6 +18,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator, Optional
 

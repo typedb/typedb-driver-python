@@ -19,22 +19,11 @@
 # under the License.
 #
 
-from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from enum import Enum
 
-from typedb.api.concept.thing.thing import Thing
-
-if TYPE_CHECKING:
-    from typedb.api.concept.type.entity_type import EntityType
-    # from typedb.api.connection.transaction import Transaction
+from typedb.typedb_client_python import Transitive, Explicit
 
 
-class Entity(Thing, ABC):
-
-    def is_entity(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_type(self) -> EntityType:
-        pass
+class Transitivity(Enum):
+    Transitive = Transitive
+    Explicit = Explicit

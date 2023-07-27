@@ -18,20 +18,19 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-from threading import Lock
-from typing import Dict
 
-from grpc import Channel
+# from threading import Lock
+from typing import Dict
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import SessionType
-from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
+# from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
 from typedb.common.exception import CLIENT_NOT_OPEN, TypeDBClientException
-from typedb.common.rpc.stub import TypeDBStub
+# from typedb.common.rpc.stub import TypeDBStub
 from typedb.connection.database_manager import _DatabaseManagerImpl
-from typedb.connection.session import _TypeDBSessionImpl
-from typedb.stream.request_transmitter import RequestTransmitter
+from typedb.connection.session import _SessionImpl
+# from typedb.stream.request_transmitter import RequestTransmitter
 
 
 class _TypeDBClientImpl(TypeDBClient):
@@ -41,23 +40,23 @@ class _TypeDBClientImpl(TypeDBClient):
     def __init__(self, address: str, parallelisation: int = 2):
         self._address = address
         self._transmitter = RequestTransmitter(parallelisation)
-        self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
+        self._sessions: Dict[bytes, _SessionImpl] = {}
         self._sessions_lock = Lock()
         self._pulse_executor = ScheduledExecutor()
         self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
 
-    def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
+    def session(self, database: str, session_type: SessionType, options=None) -> _SessionImpl:
         if not self.is_open():
             raise TypeDBClientException.of(CLIENT_NOT_OPEN)
 
         if not options:
             options = TypeDBOptions.core()
-        session = _TypeDBSessionImpl(self, database, session_type, options)
+        session = _SessionImpl(self, database, session_type, options)
         with self._sessions_lock:
             self._sessions[session.session_id()] = session
         return session
 
-    def remove_session(self, session: _TypeDBSessionImpl) -> None:
+    def remove_session(self, session: _SessionImpl) -> None:
         with self._sessions_lock:
             del self._sessions[session.session_id()]
 

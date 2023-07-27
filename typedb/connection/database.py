@@ -24,7 +24,7 @@ from typedb.api.connection.database import Database
 from typedb.common.exception import TypeDBClientException, DATABASE_DELETED
 
 from typedb.typedb_client_python import Database as DatabaseFfi, database_get_name, database_schema, database_delete, database_rule_schema, database_type_schema, \
-    ReplicaInfo, ReplicaInfoIterator, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, replica_info_get_term, \
+    ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, replica_info_get_term, \
     database_get_replicas_info, database_get_primary_replica_info, database_get_preferred_replica_info, replica_info_iterator_next
 
 from typedb.common.streamer import Streamer

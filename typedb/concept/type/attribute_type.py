@@ -19,31 +19,28 @@
 # under the License.
 #
 
+from __future__ import annotations
 from datetime import datetime
-from typing import Optional, Iterator, Set
+from typing import Optional, Iterator, TYPE_CHECKING
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
-from typedb.api.concept.concept import ValueType
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.thing_type import Annotation
-from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import ValueType
 from typedb.api.connection.transaction import Transaction
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import attribute_type_get_owners_req, attribute_type_put_req, \
-    attribute_type_get_req, attribute_type_get_regex_req, attribute_type_set_regex_req, \
-    attribute_type_get_owners_explicit_req
-from typedb.concept.concept import Transitivity
-from typedb.concept.proto import concept_proto_builder, concept_proto_reader
-from typedb.concept.thing.attribute import _Attribute
+from typedb.common.transitivity import Transitivity
+from typedb.concept.thing import attribute
 from typedb.concept.type.thing_type import _ThingType
 
 from typedb.typedb_client_python import attribute_type_set_supertype, attribute_type_get_supertype, \
     attribute_type_get_supertypes, attribute_type_get_subtypes, attribute_type_get_subtypes_with_value_type, \
     attribute_type_get_instances, attribute_type_get_owners, Annotation as NativeAnnotation, attribute_type_put, \
     attribute_type_get, attribute_type_get_regex, attribute_type_set_regex, attribute_type_unset_regex
+
+if TYPE_CHECKING:
+    from typedb.api.concept.value.value import Value
 
 
 class _AttributeType(AttributeType, _ThingType):
@@ -92,28 +89,28 @@ class _AttributeType(AttributeType, _ThingType):
     def __hash__(self):
         return super(_AttributeType, self).__hash__()
 
-    def as_attribute_type(self) -> "_AttributeType":    # Isn't it inherited?
+    def as_attribute_type(self) -> _AttributeType:    # Isn't it inherited?
         return self
 
-    def set_super_type(self, transaction: Transaction, attribute_type: "AttributeType") -> None:
+    def set_super_type(self, transaction: Transaction, attribute_type: AttributeType) -> None:
         attribute_type_set_supertype(self.native_transaction(transaction), self._concept,
                                      attribute_type.native_object())
 
-    def get_super_type(self, transaction: Transaction) -> Optional["_AttributeType"]:
+    def get_super_type(self, transaction: Transaction) -> Optional[_AttributeType]:
         if res := attribute_type_get_supertype(self.native_transaction(transaction), self._concept):
             return _AttributeType(res)
         return None
 
-    def get_super_types(self, transaction: Transaction) -> Iterator["_AttributeType"]:
+    def get_super_types(self, transaction: Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_supertypes(self.native_transaction(transaction), self._concept))
 
-    def get_subtypes(self, transaction: Transaction) -> Iterator["_AttributeType"]:
+    def get_subtypes(self, transaction: Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_subtypes(self.native_transaction(transaction), self._concept,
                                             Transitivity.Transitive))
 
-    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: Value.Type) -> Iterator["_AttributeType"]:
+    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: ValueType) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_subtypes_with_value_type(self.native_transaction(transaction), self._concept,
                                             Transitivity.Transitive))
@@ -123,12 +120,12 @@ class _AttributeType(AttributeType, _ThingType):
                 attribute_type_get_subtypes(self.native_transaction(transaction), self._concept,
                                             Transitivity.Explicit))
 
-    def get_instances(self, transaction: Transaction) -> Iterator["_AttributeType"]:
+    def get_instances(self, transaction: Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_instances(self.native_transaction(transaction), self._concept,
                                              Transitivity.Transitive))
 
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator["_AttributeType"]:
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_instances(self.native_transaction(transaction), self._concept,
                                              Transitivity.Explicit))
@@ -154,12 +151,12 @@ class _AttributeType(AttributeType, _ThingType):
         ))
 
     def put(self, transaction: Transaction, value: Value) -> Attribute:
-        return _Attribute(attribute_type_put(self.native_transaction(transaction), self._concept,
+        return attribute._Attribute(attribute_type_put(self.native_transaction(transaction), self._concept,
                                                  value.native_object()))
 
     def get(self, transaction: Transaction, value: Value) -> Optional[Attribute]:
         if res := attribute_type_get(self.native_transaction(transaction), self._concept, value.native_object()):
-            return _Attribute(res)
+            return attribute._Attribute(res)
         return None
 
     def get_regex(self, transaction: Transaction) -> str:

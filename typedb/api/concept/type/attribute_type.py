@@ -18,14 +18,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import enum
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, Iterator, Set
 
-from typedb.api.concept.value.value import Value
-from typedb.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
-    DateTimeAttribute, Attribute
+from typedb.api.concept.value.value import Value, ValueType
+from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.type.thing_type import ThingType, Annotation
 
 if TYPE_CHECKING:
@@ -34,8 +34,8 @@ if TYPE_CHECKING:
 
 class AttributeType(ThingType, ABC):
 
-    def get_value_type(self) -> "Value.Type":
-        return Value.Type.OBJECT
+    def get_value_type(self) -> "ValueType":
+        return ValueType.OBJECT
 
     def as_attribute_type(self) -> "AttributeType":
         return self
@@ -44,19 +44,19 @@ class AttributeType(ThingType, ABC):
         return True
 
     def is_boolean(self) -> bool:
-        return self.get_value_type() == Value.Type.BOOLEAN
+        return self.get_value_type() == ValueType.BOOLEAN
 
     def is_long(self) -> bool:
-        return self.get_value_type() == Value.Type.LONG
+        return self.get_value_type() == ValueType.LONG
 
     def is_double(self) -> bool:
-        return self.get_value_type() == Value.Type.DOUBLE
+        return self.get_value_type() == ValueType.DOUBLE
 
     def is_string(self) -> bool:
-        return self.get_value_type() == Value.Type.STRING
+        return self.get_value_type() == ValueType.STRING
 
     def is_datetime(self) -> bool:
-        return self.get_value_type() == Value.Type.DATETIME
+        return self.get_value_type() == ValueType.DATETIME
 
     @abstractmethod
     def put(self, transaction: Transaction, value: Value) -> Attribute:
@@ -83,7 +83,7 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: Value.Type) -> Iterator["AttributeType"]:
+    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: ValueType) -> Iterator["AttributeType"]:
         pass
 
     @abstractmethod

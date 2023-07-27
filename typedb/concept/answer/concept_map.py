@@ -22,15 +22,12 @@
 from __future__ import annotations
 from typing import Mapping, Dict, Tuple, Iterator
 
-import typedb_protocol.common.answer_pb2 as answer_proto
-
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientException, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
     NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE
 from typedb.common.streamer import Streamer
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader
 
 from typedb.typedb_client_python import ConceptMap as NativeConceptMap, concept_map_get_variables, string_iterator_next, \
     concept_map_get_values, concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, \

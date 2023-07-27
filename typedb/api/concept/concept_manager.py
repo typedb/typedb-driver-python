@@ -28,7 +28,7 @@ from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.entity_type import EntityType
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.thing_type import ThingType
-from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBException
 
 
@@ -79,7 +79,7 @@ class ConceptManager(ABC):
         pass
 
     @abstractmethod
-    def put_attribute_type(self, label: str, value_type: Value.Type) -> AttributeType:
+    def put_attribute_type(self, label: str, value_type: ValueType) -> AttributeType:
         pass
 
     @abstractmethod

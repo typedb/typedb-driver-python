@@ -22,16 +22,11 @@
 from __future__ import annotations
 from typing import Iterator
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
 from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.connection.transaction import Transaction
-from typedb.common.rpc.request_builder import relation_add_player_req, relation_remove_player_req, \
-    relation_get_players_req, relation_get_players_by_role_type_req, relation_get_relating_req
-from typedb.concept.proto import concept_proto_builder, concept_proto_reader
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.relation_type import _RelationType
 from typedb.concept.type.role_type import _RoleType

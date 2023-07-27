@@ -31,8 +31,8 @@ from typedb.common.label import Label
 from typedb.common.rpc.request_builder import relation_type_create_req, relation_type_get_relates_req, \
     relation_type_set_relates_req, relation_type_unset_relates_req, relation_type_get_relates_explicit_req, \
     relation_type_get_relates_overridden_req
-from typedb.concept.concept import Transitivity
-from typedb.concept.thing.relation import _Relation
+from typedb.common.transitivity import Transitivity
+from typedb.concept.thing import relation
 from typedb.concept.type.role_type import _RoleType
 from typedb.concept.type.thing_type import _ThingType
 
@@ -54,15 +54,15 @@ class _RelationType(RelationType, _ThingType):
     # def as_relation_type(self) -> "RemoteRelationType":
     #     return self
 
-    def create(self, transaction: Transaction) -> _Relation:
-        return _Relation(relation_type_create(self.native_transaction(transaction), self._concept))
+    def create(self, transaction: Transaction) -> relation._Relation:
+        return relation._Relation(relation_type_create(self.native_transaction(transaction), self._concept))
 
-    def get_instances(self, transaction: Transaction) -> Iterator[_Relation]:
-        return (_Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
+    def get_instances(self, transaction: Transaction) -> Iterator[relation._Relation]:
+        return (relation._Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
                                                                         self._concept, Transitivity.Transitive))
 
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator[_Relation]:
-        return (_Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[relation._Relation]:
+        return (relation._Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
                                                                         self._concept, Transitivity.Explicit))
 
     def get_relates(self, transaction: Transaction, role_label: Optional[str] = None) \

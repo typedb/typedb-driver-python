@@ -22,22 +22,20 @@
 from __future__ import annotations
 from abc import abstractmethod, ABC
 from itertools import chain
-from typing import Set, Optional, Iterator
+from typing import Optional, Iterator, TYPE_CHECKING
 
 from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType, Annotation
-from typedb.api.concept.value.value import Value
-from typedb.api.connection.transaction import Transaction
+from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 from typedb.common.label import Label
-from typedb.concept.concept import Transitivity
-from typedb.concept.proto import concept_proto_builder, concept_proto_reader
+from typedb.common.transitivity import Transitivity
 from typedb.concept.thing.thing import _Thing
-from typedb.concept.type.attribute_type import _AttributeType
-from typedb.concept.type.entity_type import _EntityType
-from typedb.concept.type.relation_type import _RelationType
-from typedb.concept.type.role_type import _RoleType
+# from typedb.concept.type.attribute_type import _AttributeType
+# from typedb.concept.type.entity_type import _EntityType
+# from typedb.concept.type.relation_type import _RelationType
+# from typedb.concept.type.role_type import _RoleType
 from typedb.concept.type.type import _Type
 
 from typedb.typedb_client_python import Concept, concept_is_entity_type, concept_is_relation_type, \
@@ -47,7 +45,9 @@ from typedb.typedb_client_python import Concept, concept_is_entity_type, concept
     thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax, \
     thing_type_get_plays_overridden
 
-from typedb.connection.transaction import _TransactionImpl
+if TYPE_CHECKING:
+    from typedb.api.connection.transaction import Transaction
+    from typedb.connection.transaction import _TransactionImpl
 
 
 class _ThingType(ThingType, _Type, ABC):
@@ -57,12 +57,14 @@ class _ThingType(ThingType, _Type, ABC):
 
     @staticmethod
     def of(concept: Concept):
+        from typedb.concept.type import attribute_type, entity_type, relation_type, role_type
+
         if concept_is_entity_type(concept):
-            return _EntityType(concept)
+            return entity_type._EntityType(concept)
         elif concept_is_relation_type(concept):
-            return _RelationType(concept)
+            return relation_type._RelationType(concept)
         elif concept_is_attribute_type(concept):
-            return _AttributeType(concept)
+            return attribute_type._AttributeType(concept)
         elif concept_is_root_thing_type(concept):
             return _Root(concept)
         raise TypeDBClientException.of(UNEXPECTED_NATIVE_VALUE)
@@ -125,10 +127,12 @@ class _ThingType(ThingType, _Type, ABC):
             annotations_array,
         )
 
-    def get_owns(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
+    def get_owns(self, transaction: Transaction, value_type: Optional[ValueType] = None,
                  transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
-        return (_AttributeType(item) for item in thing_type_get_owns(
+        from typedb.concept.type import attribute_type
+
+        return (attribute_type._AttributeType(item) for item in thing_type_get_owns(
                     self.native_transaction(transaction),
                     self._concept,
                     value_type.native_object() if value_type else None,
@@ -136,12 +140,14 @@ class _ThingType(ThingType, _Type, ABC):
                     [anno.native_object() for anno in annotations] if annotations else []
                 ))
 
-    def get_owns_explicit(self, transaction: Transaction, value_type: Optional[Value.Type] = None,
+    def get_owns_explicit(self, transaction: Transaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
         return self.get_owns(transaction, value_type, Transitivity.Explicit, annotations)
 
     def get_plays(self, transaction: Transaction, transitivity: Transitivity) -> Iterator[RoleType]:
-        return (_RoleType(item) for item in thing_type_get_plays(
+        from typedb.concept.type import role_type
+
+        return (role_type._RoleType(item) for item in thing_type_get_plays(
             self.native_transaction(transaction),
             self._concept,
             transitivity
@@ -153,13 +159,13 @@ class _ThingType(ThingType, _Type, ABC):
     def get_plays_overridden(self, transaction: Transaction, role_type: RoleType) -> Optional[RoleType]:
         if res := thing_type_get_plays_overridden(self.native_transaction(transaction),
                 self._concept, role_type.native_object()):
-            return _RoleType(res)
+            return role_type._RoleType(res)
         return None
 
     def get_owns_overridden(self, transaction: Transaction, attribute_type: AttributeType) -> Optional[AttributeType]:
         if res := thing_type_get_owns_overridden(self.native_transaction(transaction),
                                                  self._concept, attribute_type.native_object()):
-            return _AttributeType(res)
+            return attribute_type._AttributeType(res)
         return None
 
     def unset_owns(self, transaction: Transaction, attribute_type: AttributeType) -> None:

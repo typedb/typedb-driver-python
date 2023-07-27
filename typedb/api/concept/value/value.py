@@ -25,17 +25,18 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Mapping, Union
 
-from typedb.api.concept.concept import Concept, ValueType
-from typedb.api.connection.transaction import Transaction
-from typedb.common.exception import TypeDBClientException, VALUE_HAS_NO_REMOTE
+from typedb.api.concept.concept import Concept
 
 from typedb.typedb_client_python import Object, Boolean, Long, Double, String, DateTime
+
+if TYPE_CHECKING:
+    pass
 
 
 class Value(Concept, ABC):
 
     @abstractmethod
-    def get_value_type(self) -> Value.Type:
+    def get_value_type(self) -> ValueType:
         pass
 
     @abstractmethod
@@ -84,36 +85,38 @@ class Value(Concept, ABC):
             "value": self.get_value(),
         }
 
-    class Type(Enum):
-        OBJECT = Value._Type(False, False, Object)
-        BOOLEAN = Value._Type(True, False, Boolean)
-        LONG = Value._Type(True, True, Long)
-        DOUBLE = Value._Type(True, False, Double)
-        STRING = Value._Type(True, True, String)
-        DATETIME = Value._Type(True, True, DateTime)
 
-        def native_object(self):
-            return self.value.native_object()
+class _ValueType:
 
-    class _Type:
+    def __init__(self, is_writable: bool, is_keyable: bool, native_object):
+        self._is_writable = is_writable
+        self._is_keyable = is_keyable
+        self._native_object = native_object
 
-        def __init__(self, is_writable: bool, is_keyable: bool, native_object):
-            self._is_writable = is_writable
-            self._is_keyable = is_keyable
-            self._native_object = native_object
+    def is_writable(self) -> bool:
+        return self._is_writable
 
-        def is_writable(self) -> bool:
-            return self._is_writable
+    def is_keyable(self) -> bool:
+        return self._is_keyable
 
-        def is_keyable(self) -> bool:
-            return self._is_keyable
+    def native_object(self):
+        return self._native_object
 
-        def native_object(self):
-            return self._native_object
+    @staticmethod
+    def of(value_type):
+        pass
 
-        @staticmethod
-        def of(value_type):
-            pass
+
+class ValueType(Enum):
+    OBJECT = _ValueType(False, False, Object)
+    BOOLEAN = _ValueType(True, False, Boolean)
+    LONG = _ValueType(True, True, Long)
+    DOUBLE = _ValueType(True, False, Double)
+    STRING = _ValueType(True, True, String)
+    DATETIME = _ValueType(True, True, DateTime)
+
+    def native_object(self):
+        return self.value.native_object()
 
 
 # class BooleanValue(Value, ABC):

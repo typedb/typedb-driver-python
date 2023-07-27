@@ -20,15 +20,12 @@
 #
 from typing import Iterator
 
-import typedb_protocol.common.answer_pb2 as answer_proto
-
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.api.concept.concept import Concept
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader
 
 from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup, concept_map_group_get_owner, \
     concept_map_group_get_concept_maps, concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals

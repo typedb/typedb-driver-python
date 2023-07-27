@@ -19,14 +19,11 @@
 # under the License.
 #
 
-import typedb_protocol.common.answer_pb2 as answer_proto
-
 from typedb.api.answer.numeric import Numeric
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.api.concept.concept import Concept
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader
 
 from typedb.typedb_client_python import NumericGroup as NativeNumericGroup, numeric_group_get_owner, \
     numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals

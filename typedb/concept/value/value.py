@@ -21,16 +21,13 @@
 
 from __future__ import annotations
 from abc import ABC
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from functools import singledispatchmethod
 from typing import Union
 
-import typedb_protocol.common.concept_pb2 as concept_proto
-
-from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import Value, ValueType
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader
 
 from typedb.typedb_client_python import Concept, value_new_boolean, value_new_long, value_new_double, value_new_string, \
     value_new_date_time_from_millis, value_is_boolean, value_is_long, value_is_double, value_is_string, \
@@ -43,47 +40,47 @@ class _Value(Value, _Concept, ABC):
     # def as_value(self) -> "Value":
     #     return self
 
-    @staticmethod
+    # @staticmethod
     @singledispatchmethod
     def of(value):
         raise TypeDBClientException.of(UNEXPECTED_NATIVE_VALUE)
 
-    @staticmethod
+    # @staticmethod
     @of.register
     def _(value: bool):
         return _Value(value_new_boolean(value))
 
-    @staticmethod
+    # @staticmethod
     @of.register
     def _(value: int):
         return _Value(value_new_long(value))
 
-    @staticmethod
+    # @staticmethod
     @of.register
     def _(value: float):
         return _Value(value_new_double(value))
 
-    @staticmethod
+    # @staticmethod
     @of.register
     def _(value: str):
         return _Value(value_new_string(value))
 
-    @staticmethod
+    # @staticmethod
     @of.register
     def _(value: datetime):
-        return _Value(value_new_date_time_from_millis(value.astimezone(UTC).timestamp()))
+        return _Value(value_new_date_time_from_millis(value.astimezone(timezone.utc).timestamp()))
 
-    def get_value_type(self) -> Value.Type:
+    def get_value_type(self) -> ValueType:
         if self.is_boolean():
-            return Value.Type.BOOLEAN
+            return ValueType.BOOLEAN
         if self.is_long():
-            return Value.Type.LONG
+            return ValueType.LONG
         if self.is_double():
-            return Value.Type.DOUBLE
+            return ValueType.DOUBLE
         if self.is_string():
-            return Value.Type.STRING
+            return ValueType.STRING
         if self.is_datetime():
-            return Value.Type.DATETIME
+            return ValueType.DATETIME
         raise TypeDBClientException(ILLEGAL_STATE)
 
     def get_value(self) -> Union[bool, int, float, str, datetime]:

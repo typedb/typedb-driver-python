@@ -18,21 +18,18 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Union, Iterator
-
-import typedb_protocol.common.transaction_pb2 as transaction_proto
 
 from typedb.api.concept.type.type import Type
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import type_set_label_req, type_get_supertype_req, \
-    type_get_supertypes_req, type_get_subtypes_req, type_delete_req
 from typedb.concept.concept import _Concept
-from typedb.concept.proto import concept_proto_reader
-from typedb.connection.transaction import _TransactionImpl
 
 if TYPE_CHECKING:
+    from typedb.connection.transaction import _TransactionImpl
     from typedb.api.connection.transaction import Transaction
 
 from typedb.typedb_client_python import Concept, thing_type_get_label
@@ -55,23 +52,23 @@ class _Type(Type, _Concept, ABC):
     # def get_label(self) -> Label:
     #     pass
 
-    def as_type(self) -> "Type":
+    def as_type(self) -> Type:
         return self
 
     @abstractmethod
-    def get_supertype(self, transaction: _TransactionImpl) -> "_Type":
+    def get_supertype(self, transaction: _TransactionImpl) -> _Type:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: _TransactionImpl) -> Iterator["_Type"]:
+    def get_supertypes(self, transaction: _TransactionImpl) -> Iterator[_Type]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: _TransactionImpl) -> Iterator["_Type"]:
+    def get_subtypes(self, transaction: _TransactionImpl) -> Iterator[_Type]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: _TransactionImpl) -> Iterator["_Type"]:
+    def get_subtypes_explicit(self, transaction: _TransactionImpl) -> Iterator[_Type]:
         pass
 
     def __str__(self):

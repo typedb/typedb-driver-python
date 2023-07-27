@@ -19,8 +19,6 @@
 # under the License.
 #
 
-import typedb_protocol.common.answer_pb2 as answer_proto
-
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientException, BAD_ANSWER_TYPE, ILLEGAL_CAST
 
