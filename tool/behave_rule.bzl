@@ -83,9 +83,9 @@ def _rule_implementation(ctx):
              ./typedb_distribution/"$DIRECTORY"/typedb server --server.address 0.0.0.0:$PORT --storage.data typedb_test &
             else
             ./typedb_distribution/"$DIRECTORY"/typedb cluster \
-                --server.address=127.0.0.1:$PORT \
-                --server.internal-address.zeromq=127.0.0.1:$(($PORT+1)) \
-                --server.internal-address.grpc=127.0.0.1:$(($PORT+2)) \
+                --server.address=localhost:$PORT \
+                --server.internal-address.zeromq=localhost:$(($PORT+1)) \
+                --server.internal-address.grpc=localhost:$(($PORT+2)) \
                 --storage.data=typedb_test \
                 --server.encryption.enable=true &
              ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/ext-root-ca.pem`

@@ -42,7 +42,7 @@ class _Client(Client):
         if credential:
             self._connection = connection_open_encrypted(addresses, credential.native_object())
         else:
-            self._connection = connection_open_plaintext(addresses)
+            self._connection = connection_open_plaintext(addresses[0])
         self._database_manager = _DatabaseManagerImpl(self._connection)
         self._user_manager = _UserManager(self._connection)
 

@@ -48,6 +48,8 @@ typedb_behaviour_py_test(
         "//tests/behaviour/config:parameters",
         "//tests/behaviour/background",
         "//tests/behaviour/util:util",
+        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+        "//:python-lib",
     ],
     native_typedb_artifact = "//tests:native-typedb-artifact",
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",

@@ -44,7 +44,7 @@ def before_scenario(context: Context, scenario):
 
 def setup_context_client(context, username, password):
     credential = Credential(username, password, tls_root_ca_path=context.credential_root_ca_path)
-    context.client = TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential)
+    context.client = TypeDB.cluster_client(addresses=["localhost:" + context.config.userdata["port"]], credential=credential)
     context.session_options = Options(infer=True)
     context.transaction_options = Options(infer=True)
 

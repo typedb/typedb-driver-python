@@ -118,7 +118,7 @@ def step_impl(context: Context, is_open):
         assert_that(future_session.result().is_open(), is_(is_open))
 
 
-def sessions_have_databases(context: Context, names: List[str]):
+def sessions_have_databases(context: Context, names: list[str]):
     assert_that(context.sessions, has_length(equal_to(len(names))))
     session_iter = iter(context.sessions)
     for name in names:

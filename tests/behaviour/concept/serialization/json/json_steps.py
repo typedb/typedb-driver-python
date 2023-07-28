@@ -22,7 +22,7 @@
 import json
 from collections import Counter
 from hamcrest.core.base_matcher import BaseMatcher
-from typing import TypeVar, List, Generic
+from typing import TypeVar, Generic
 
 from behave import *
 from hamcrest import *
@@ -33,10 +33,10 @@ T = TypeVar('T')
 
 
 class UnorderedEqualTo(BaseMatcher, Generic[T]):
-    def __init__(self, expected: List[T]):
+    def __init__(self, expected: list[T]):
         self.expected = Counter([json.dumps(item, sort_keys=True) for item in expected])
 
-    def _matches(self, actual: List[T]) -> bool:
+    def _matches(self, actual: list[T]) -> bool:
         actual = Counter([json.dumps(item, sort_keys=True) for item in actual])
         return actual == self.expected
 
@@ -44,7 +44,7 @@ class UnorderedEqualTo(BaseMatcher, Generic[T]):
         description.append_text('is equal, in any order, to ').append_text(repr(self.expected))
 
 
-def unordered_equal_to(expected: List[T]) -> UnorderedEqualTo[T]:
+def unordered_equal_to(expected: list[T]) -> UnorderedEqualTo[T]:
     return UnorderedEqualTo(expected)
 
 

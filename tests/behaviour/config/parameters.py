@@ -173,7 +173,7 @@ def parse_dict(table: Table) -> dict[str, str]:
 
 def parse_table(table: Table) -> list[list[tuple[str, str]]]:
     """
-    Extracts the rows of a Table as lists of Tuples, where each Tuple contains the column header and the cell value.
+    Extracts the rows of a Table as lists of Tuples, where each tuple contains the column header and the cell value.
 
     For example, the table::
 

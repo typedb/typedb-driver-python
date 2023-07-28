@@ -27,7 +27,7 @@ from hamcrest import *
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
     parse_label
 from tests.behaviour.context import Context
-from typedb.api.concept.value.value import Value
+# from typedb.api.concept.value.value import Value
 from typedb.client import *
 
 
@@ -334,7 +334,7 @@ def parse_concept_identifier(value: str):
 
 class AnswerMatchResult:
 
-    def __init__(self, concept_match_results: List[ConceptMatchResult]):
+    def __init__(self, concept_match_results: list[ConceptMatchResult]):
         self.concept_match_results = concept_match_results
 
     def matches(self):
@@ -348,7 +348,7 @@ class AnswerMatchResult:
             self.matches(), [str(x) for x in self.concept_match_results])
 
 
-def match_answer_concepts(context: Context, answer_identifier: List[Tuple[str, str]],
+def match_answer_concepts(context: Context, answer_identifier: list[tuple[str, str]],
                           answer: ConceptMap) -> AnswerMatchResult:
     results = []
     for var, concept_identifier in answer_identifier:
@@ -438,7 +438,7 @@ def step_impl(context: Context):
 class AnswerIdentifierGroup:
     GROUP_COLUMN_NAME = "owner"
 
-    def __init__(self, raw_answer_identifiers: List[List[Tuple[str, str]]]):
+    def __init__(self, raw_answer_identifiers: list[list[tuple[str, str]]]):
         self.owner_identifier = next(
             entry[1] for entry in raw_answer_identifiers[0] if entry[0] == self.GROUP_COLUMN_NAME)
         self.answer_identifiers = [[(var, concept_identifier) for (var, concept_identifier) in raw_answer_identifier if

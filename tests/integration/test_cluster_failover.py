@@ -36,7 +36,7 @@ class TestClusterFailover(TestCase):
     def setUp(self):
         root_ca_path = os.environ["ROOT_CA"]
         credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
-        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
+        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
             if client.databases().contains("typedb"):
                 client.databases().get("typedb").delete()
             client.databases().create("typedb")
@@ -46,18 +46,18 @@ class TestClusterFailover(TestCase):
         subprocess.Popen([
             "./%s/typedb" % index, "cluster",
             "--storage.data", "server/data",
-            "--server.address", "127.0.0.1:%s1729" % index,
-            "--server.internal-address.zeromq", "127.0.0.1:%s1730" % index,
-            "--server.internal-address.grpc", "127.0.0.1:%s1731" % index,
-            "--server.peers.peer-1.address", "127.0.0.1:11729",
-            "--server.peers.peer-1.internal-address.zeromq", "127.0.0.1:11730",
-            "--server.peers.peer-1.internal-address.grpc", "127.0.0.1:11731",
-            "--server.peers.peer-2.address", "127.0.0.1:21729",
-            "--server.peers.peer-2.internal-address.zeromq", "127.0.0.1:21730",
-            "--server.peers.peer-2.internal-address.grpc", "127.0.0.1:21731",
-            "--server.peers.peer-3.address", "127.0.0.1:31729",
-            "--server.peers.peer-3.internal-address.zeromq", "127.0.0.1:31730",
-            "--server.peers.peer-3.internal-address.grpc", "127.0.0.1:31731",
+            "--server.address", "localhost:%s1729" % index,
+            "--server.internal-address.zeromq", "localhost:%s1730" % index,
+            "--server.internal-address.grpc", "localhost:%s1731" % index,
+            "--server.peers.peer-1.address", "localhost:11729",
+            "--server.peers.peer-1.internal-address.zeromq", "localhost:11730",
+            "--server.peers.peer-1.internal-address.grpc", "localhost:11731",
+            "--server.peers.peer-2.address", "localhost:21729",
+            "--server.peers.peer-2.internal-address.zeromq", "localhost:21730",
+            "--server.peers.peer-2.internal-address.grpc", "localhost:21731",
+            "--server.peers.peer-3.address", "localhost:31729",
+            "--server.peers.peer-3.internal-address.zeromq", "localhost:31730",
+            "--server.peers.peer-3.internal-address.grpc", "localhost:31731",
             "--server.encryption.enable", "true"
         ])
 
@@ -79,7 +79,7 @@ class TestClusterFailover(TestCase):
     def test_put_entity_type_to_crashed_primary_replica(self):
         root_ca_path = os.environ["ROOT_CA"]
         credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
-        with TypeDB.cluster_client(["127.0.0.1:11729", "127.0.0.1:21729", "127.0.0.1:31729"], credential) as client:
+        with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
             assert client.databases().contains("typedb")
             primary_replica = self.get_primary_replica(client.databases())
             print("Performing operations against the primary replica " + str(primary_replica))

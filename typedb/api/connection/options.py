@@ -52,16 +52,26 @@ class Options:
                  read_any_replica: Optional[bool] = None,
                  ):
         self._options = options_new()
-        self.infer = infer
-        self.trace_inference = trace_inference
-        self.explain = explain
-        self.parallel = parallel
-        self.prefetch = prefetch
-        self.prefetch_size = prefetch_size
-        self.session_idle_timeout_millis = session_idle_timeout_millis
-        self.transaction_timeout_millis = transaction_timeout_millis
-        self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
-        self.read_any_replica = read_any_replica
+        if infer is not None:
+            self.infer = infer
+        if trace_inference is not None:
+            self.trace_inference = trace_inference
+        if explain is not None:
+            self.explain = explain
+        if parallel is not None:
+            self.parallel = parallel
+        if prefetch is not None:
+            self.prefetch = prefetch
+        if prefetch_size is not None:
+            self.prefetch_size = prefetch_size
+        if session_idle_timeout_millis is not None:
+            self.session_idle_timeout_millis = session_idle_timeout_millis
+        if transaction_timeout_millis is not None:
+            self.transaction_timeout_millis = transaction_timeout_millis
+        if schema_lock_acquire_timeout_millis is not None:
+            self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
+        if read_any_replica is not None:
+            self.read_any_replica = read_any_replica
 
     def native_object(self):
         return self._options

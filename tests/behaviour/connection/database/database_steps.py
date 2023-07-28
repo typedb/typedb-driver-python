@@ -18,6 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
 
@@ -30,7 +31,7 @@ from tests.behaviour.context import Context
 from tests.behaviour.util.util import assert_collections_equal
 
 
-def create_databases(context: Context, names: List[str]):
+def create_databases(context: Context, names: list[str]):
     for name in names:
         context.client.databases().create(name)
 
@@ -56,7 +57,7 @@ def step_impl(context: Context):
             executor.submit(partial(context.client.databases().create, name))
 
 
-def delete_databases(context: Context, names: List[str]):
+def delete_databases(context: Context, names: list[str]):
     for name in names:
         context.client.databases().get(name).delete()
 
@@ -71,7 +72,7 @@ def step_impl(context: Context):
     delete_databases(context, names=parse_list(context.table))
 
 
-def delete_databases_throws_exception(context: Context, names: List[str]):
+def delete_databases_throws_exception(context: Context, names: list[str]):
     for name in names:
         try:
             context.client.databases().get(name).delete()
@@ -99,7 +100,7 @@ def step_impl(context: Context):
             executor.submit(partial(context.client.databases().get(name).delete))
 
 
-def has_databases(context: Context, names: List[str]):
+def has_databases(context: Context, names: list[str]):
     assert_collections_equal([db.name() for db in context.client.databases().all()], names)
 
 
@@ -113,7 +114,7 @@ def step_impl(context: Context):
     has_databases(context, names=parse_list(context.table))
 
 
-def does_not_have_databases(context: Context, names: List[str]):
+def does_not_have_databases(context: Context, names: list[str]):
     databases = [db.name() for db in context.client.databases().all()]
     for name in names:
         assert_that(name, not_(is_in(databases)))

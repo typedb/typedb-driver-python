@@ -26,7 +26,11 @@ load("@rules_python//python:defs.bzl", "py_test")
 typedb_cluster_py_test(
     name = "test_cluster_failover",
     srcs = ["test_cluster_failover.py"],
-    deps = ["//:client_python"],
+    deps = [
+        "//:client_python",
+        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+        "//:python-lib",
+        ],
     size = "medium",
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
 )
@@ -34,14 +38,22 @@ typedb_cluster_py_test(
 py_test(
     name = "test_debug",
     srcs = ["test_debug.py"],
-    deps = ["//:client_python"],
+    deps = [
+        "//:client_python",
+        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+        "//:python-lib",
+        ],
     python_version = "PY3"
 )
 
 py_test(
     name = "test_stream",
     srcs = ["test_stream.py"],
-    deps = ["//:client_python"],
+    deps = [
+        "//:client_python",
+        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+        "//:python-lib",
+        ],
     python_version = "PY3"
 )
 
