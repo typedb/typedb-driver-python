@@ -41,6 +41,7 @@ from typedb.typedb_client_python import attribute_type_set_supertype, attribute_
 
 if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
+    from typedb.concept.type.type import _Type
 
 
 class _AttributeType(AttributeType, _ThingType):
@@ -96,12 +97,12 @@ class _AttributeType(AttributeType, _ThingType):
         attribute_type_set_supertype(self.native_transaction(transaction), self._concept,
                                      attribute_type.native_object())
 
-    def get_super_type(self, transaction: Transaction) -> Optional[_AttributeType]:
+    def get_super_type(self, transaction: Transaction) -> Optional[_Type]:
         if res := attribute_type_get_supertype(self.native_transaction(transaction), self._concept):
             return _AttributeType(res)
         return None
 
-    def get_super_types(self, transaction: Transaction) -> Iterator[_AttributeType]:
+    def get_super_types(self, transaction: Transaction) -> Iterator[_Type]:
         return (_AttributeType(item) for item in
                 attribute_type_get_supertypes(self.native_transaction(transaction), self._concept))
 

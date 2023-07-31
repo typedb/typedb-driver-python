@@ -62,7 +62,7 @@ class _ConceptMap(ConceptMap):
         concept = concept_map_get(self._concept_map, variable)
         if not concept:
             raise TypeDBClientException.of(VARIABLE_DOES_NOT_EXIST, variable)
-        return _Concept(concept)
+        return _Concept.of(concept)
 
     def explainables(self) -> ConceptMap.Explainables:
         return _ConceptMap.Explainables(concept_map_get_explainables(self._concept_map))

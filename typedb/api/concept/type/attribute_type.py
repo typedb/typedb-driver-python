@@ -34,10 +34,10 @@ if TYPE_CHECKING:
 
 class AttributeType(ThingType, ABC):
 
-    def get_value_type(self) -> "ValueType":
+    def get_value_type(self) -> ValueType:
         return ValueType.OBJECT
 
-    def as_attribute_type(self) -> "AttributeType":
+    def as_attribute_type(self) -> AttributeType:
         return self
 
     def is_attribute_type(self) -> bool:
@@ -79,11 +79,11 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def set_super_type(self, transaction: Transaction, attribute_type: "AttributeType") -> None:
+    def set_super_type(self, transaction: Transaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: ValueType) -> Iterator["AttributeType"]:
+    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: ValueType) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod

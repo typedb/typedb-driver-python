@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.concept.type.type import Type
 # from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
@@ -56,7 +56,7 @@ class _Type(Type, _Concept, ABC):
         return self
 
     @abstractmethod
-    def get_supertype(self, transaction: _Transaction) -> _Type:
+    def get_supertype(self, transaction: _Transaction) -> Optional[_Type]:
         pass
 
     @abstractmethod

@@ -50,6 +50,9 @@ class Thing(Concept, ABC):
     def is_thing(self) -> bool:
         return True
 
+    def as_thing(self) -> Thing:
+        return self
+
     def to_json(self) -> Mapping[str, str]:
         return {"type": self.get_type().get_label().name()}
 

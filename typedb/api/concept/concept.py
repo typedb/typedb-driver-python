@@ -26,20 +26,22 @@ from abc import ABC, abstractmethod
 from typing import Mapping, Union, TYPE_CHECKING
 
 from typedb.common.exception import TypeDBClientException, INVALID_CONCEPT_CASTING
+from typedb.api.concept import thing, type, value
 
-if TYPE_CHECKING:
-    from typedb.api.concept.thing.attribute import Attribute
-    from typedb.api.concept.thing.entity import Entity
-    from typedb.api.concept.thing.relation import Relation
-    from typedb.api.concept.thing.thing import Thing
-    from typedb.api.concept.type.attribute_type import AttributeType
-    from typedb.api.concept.type.entity_type import EntityType
-    from typedb.api.concept.type.relation_type import RelationType
-    from typedb.api.concept.type.role_type import RoleType
-    from typedb.api.concept.type.thing_type import ThingType
-    from typedb.api.concept.type.type import Type
-    from typedb.api.concept.value.value import Value
-    from typedb.api.connection.transaction import Transaction
+# if TYPE_CHECKING:
+#     from typedb.api.concept.thing.attribute import Attribute
+#     from typedb.api.concept.thing.entity import Entity
+#     from typedb.api.concept.thing.relation import Relation
+#     from typedb.api.concept.thing.thing import Thing
+#     from typedb.api.concept.type.attribute_type import AttributeType
+#     from typedb.api.concept.type.entity_type import EntityType
+#     from typedb.api.concept.type.relation_type import RelationType
+#     from typedb.api.concept.type.role_type import RoleType
+#     from typedb.api.concept.type.thing_type import ThingType
+#     from typedb.api.concept.type.type import Type
+#     from typedb.api.concept.value.value import Value
+#     from typedb.api.connection.transaction import Transaction
+
 
 class Concept(ABC):
 
@@ -76,38 +78,38 @@ class Concept(ABC):
     def is_value(self) -> bool:
         return False
 
-    def as_type(self) -> Type:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Type))
+    def as_type(self) -> type.type.Type:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.type.Type))
 
-    def as_thing_type(self) -> ThingType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, ThingType))
+    def as_thing_type(self) -> type.thing_type.ThingType:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.thing_type.ThingType))
 
-    def as_entity_type(self) -> EntityType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, EntityType))
+    def as_entity_type(self) -> type.entity_type.EntityType:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.entity_type.EntityType))
 
-    def as_attribute_type(self) -> AttributeType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, AttributeType))
+    def as_attribute_type(self) -> type.attribute_type.AttributeType:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.attribute_type.AttributeType))
 
-    def as_relation_type(self) -> RelationType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, RelationType))
+    def as_relation_type(self) -> type.relation_type.RelationType:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.relation_type.RelationType))
 
-    def as_role_type(self) -> RoleType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, RoleType))
+    def as_role_type(self) -> type.role_type.RoleType:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.role_type.RoleType))
 
-    def as_thing(self) -> Thing:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Thing))
+    def as_thing(self) -> thing.thing.Thing:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, thing.thing.Thing))
 
-    def as_entity(self) -> Entity:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Entity))
+    def as_entity(self) -> thing.entity.Entity:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, thing.entity.Entity))
 
-    def as_attribute(self) -> Attribute:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Attribute))
+    def as_attribute(self) -> thing.attribute.Attribute:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, thing.attribute.Attribute))
 
-    def as_relation(self) -> Relation:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Relation))
+    def as_relation(self) -> thing.relation.Relation:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, thing.relation.Relation))
 
-    def as_value(self) -> Value:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, Value))
+    def as_value(self) -> value.value.Value:
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, value.value.Value))
 
     @abstractmethod
     def to_json(self) -> Mapping[str, Union[str, int, float, bool, datetime]]:
