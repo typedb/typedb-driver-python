@@ -38,6 +38,9 @@ class _Database(database.Database):
         self._database = database
         self._name = database_get_name(database)
 
+    def native_object(self):
+        return self._database
+
     def name(self) -> str:
         if not self._database.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)

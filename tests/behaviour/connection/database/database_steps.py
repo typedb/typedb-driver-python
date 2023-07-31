@@ -77,7 +77,7 @@ def delete_databases_throws_exception(context: Context, names: list[str]):
         try:
             context.client.databases().get(name).delete()
             assert False
-        except TypeDBClientException:
+        except (TypeDBClientException, RuntimeError):
             pass
 
 

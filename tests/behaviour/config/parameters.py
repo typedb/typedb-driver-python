@@ -119,11 +119,10 @@ register_type(Label=parse_label)
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
 def parse_annotations(text: str) -> Set[Annotation]:
-    split = text.split(",")
-    annotations = set()
-    for annotation in split:
-        annotations.add(Annotations.parse_annotation(annotation.strip()))
-    return annotations
+    try:
+        return {{"key": Annotation.key(), "unique": Annotation.unique()}[anno.strip()] for anno in text.split(",")}
+    except KeyError:
+        raise TypeDBClientException.of(UNRECOGNISED_ANNOTATION)
 
 
 register_type(Annotations=parse_annotations)

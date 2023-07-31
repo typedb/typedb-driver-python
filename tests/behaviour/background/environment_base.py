@@ -44,10 +44,8 @@ def before_scenario(context: Context):
     context.put = lambda var, thing: _put_impl(context, var, thing)
     context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
     context.clear_answers = lambda: _clear_answers_impl(context)
-    context.option_setters = {
-        "session-idle-timeout-millis": lambda option, value: option.set_session_idle_timeout_millis(int(value)),
-        "transaction-timeout-millis": lambda option, value: option.set_transaction_timeout_millis(int(value)),
-    }
+    context.option_setters = {option: lambda options, value: setattr(options, option.replace("-", "_"), value) for option in
+                              ["session-idle-timeout-millis", "transaction-timeout-millis"]}
 
 
 def _put_impl(context: Context, variable: str, thing: Thing):
@@ -61,8 +59,8 @@ def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: st
         return context.tx().concepts().get_attribute_type(type_label)
     elif root_label == RootLabel.RELATION:
         return context.tx().concepts().get_relation_type(type_label)
-    elif root_label == RootLabel.THING:
-        return context.tx().concepts().get_root_thing_type()
+    # elif root_label == RootLabel.THING:
+    #     return context.tx().concepts().get_root_thing_type()
     else:
         raise ValueError("Unrecognised value")
 

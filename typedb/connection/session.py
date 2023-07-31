@@ -25,9 +25,12 @@ from typedb.api.connection.database import Database
 from typedb.api.connection.options import Options
 from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.transaction import Transaction, TransactionType
+from typedb.common.exception import TypeDBClientException
 from typedb.connection.transaction import _Transaction
 
-from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, session_get_database_name, SessionCallbackDirector
+from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, \
+    session_get_database_name, SessionCallbackDirector, check_error
+
 
 # if TYPE_CHECKING:
 #     from typedb.connection.client import _Client
@@ -40,7 +43,15 @@ class _Session(Session):
             options = Options()
         self._type = session_type
         self._options = options
-        self._session = session_new(database, session_type, options)
+        # self._database = database   # Do we need this?
+        # print(database.native_object(), session_type.value, options.native_object(), flush=True)
+        db = database.native_object()
+        db.thisown = 0
+        self._session = session_new(db, session_type.value, options.native_object())
+        # print(self._session, flush=True)
+
+    def native_object(self):
+        return self._session
 
     def is_open(self) -> bool:
         return session_is_open(self._session)
@@ -55,6 +66,7 @@ class _Session(Session):
         return self._options
 
     def transaction(self, transaction_type: TransactionType, options: Options = None) -> Transaction:
+        print("Trying to create transaction...", flush=True)
         return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:

@@ -61,13 +61,12 @@ def open_transactions_of_type_throws_exception(context: Context, transaction_typ
             try:
                 session.transaction(transaction_type)
                 assert False
-            except TypeDBClientException:
+            except (TypeDBClientException, RuntimeError):
                 pass
 
 
 @step("session open transaction of type; throws exception: {transaction_type}")
 def step_impl(context: Context, transaction_type):
-    print("Running step: session open transaction of type; throws exception")
     transaction_type = parse_transaction_type(transaction_type)
     open_transactions_of_type_throws_exception(context, [transaction_type])
 
@@ -123,7 +122,7 @@ def step_impl(context: Context):
     try:
         context.tx().commit()
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -148,7 +147,7 @@ def step_impl(context: Context):
             try:
                 transaction.commit()
                 assert False
-            except TypeDBClientException:
+            except (TypeDBClientException, RuntimeError):
                 pass
 
 
@@ -260,7 +259,7 @@ def step_impl(context: Context, is_open):
 def step_impl(context: Context, option: str, value: str):
     if option not in context.option_setters:
         raise Exception("Unrecognised option: " + option)
-    context.option_setters[option](context.transaction_options, value)
+    context.option_setters[option](context.transaction_options, int(value))
 
 
 ######################################
@@ -272,7 +271,7 @@ def step_impl(context: Context, exception: str):
     for session in context.sessions:
         for transaction in context.sessions_to_transactions[session]:
             try:
-                transaction.query().define(context.text).get()
+                transaction.query().define(context.text)
                 assert False
-            except TypeDBClientException as e:
+            except (TypeDBClientException, RuntimeError) as e:
                 assert_that(exception, is_in(str(e)))

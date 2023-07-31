@@ -30,6 +30,7 @@ from typedb.api.concept.type.thing_type import ThingType, Annotation
 from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 from typedb.common.label import Label
+from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
 from typedb.concept.thing.thing import _Thing
 # from typedb.concept.type.attribute_type import _AttributeType
@@ -43,7 +44,7 @@ from typedb.typedb_client_python import Concept, concept_is_entity_type, concept
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
     thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax, \
-    thing_type_get_plays_overridden
+    thing_type_get_plays_overridden, concept_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import Transaction
@@ -131,14 +132,14 @@ class _ThingType(ThingType, _Type, ABC):
                  transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         from typedb.concept.type import attribute_type
-
-        return (attribute_type._AttributeType(item) for item in thing_type_get_owns(
+        return (attribute_type._AttributeType(item) for item in
+                Streamer(thing_type_get_owns(
                     self.native_transaction(transaction),
                     self._concept,
                     value_type.native_object() if value_type else None,
-                    transitivity,
+                    transitivity.value,
                     [anno.native_object() for anno in annotations] if annotations else []
-                ))
+                ), concept_iterator_next))
 
     def get_owns_explicit(self, transaction: Transaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
@@ -147,11 +148,13 @@ class _ThingType(ThingType, _Type, ABC):
     def get_plays(self, transaction: Transaction, transitivity: Transitivity) -> Iterator[RoleType]:
         from typedb.concept.type import role_type
 
-        return (role_type._RoleType(item) for item in thing_type_get_plays(
-            self.native_transaction(transaction),
-            self._concept,
-            transitivity
-        ))
+        return (role_type._RoleType(item) for item in
+                Streamer(thing_type_get_plays(
+                    self.native_transaction(transaction),
+                    self._concept,
+                    transitivity
+                ), concept_iterator_next)
+        )
 
     def get_plays_explicit(self, transaction: Transaction) -> Iterator[RoleType]:
         return self.get_plays(transaction, Transitivity.Explicit)

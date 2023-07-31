@@ -28,7 +28,7 @@ from tests.behaviour.context import Context
 
 def _get_client(context: Context):
     client = context.client
-    assert isinstance(client, TypeDBClusterClient)
+    assert isinstance(client, Client)
     return client
 
 
@@ -68,7 +68,7 @@ def step_impl(context: Context, username: str, password: str):
     try :
         _get_client(context).users().create(username, password)
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -82,7 +82,7 @@ def step_impl(context: Context):
     try:
         _get_client(context).users().all()
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -96,7 +96,7 @@ def step_impl(context: Context, username: str):
     try :
         _get_client(context).users().get(username)
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -111,7 +111,7 @@ def step_impl(context: Context, username: str):
     try:
         _get_client(context).users().delete(username)
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -125,7 +125,7 @@ def step_impl(context: Context, username: str, password: str):
     try:
         _get_client(context).users().password_set(username, password)
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 

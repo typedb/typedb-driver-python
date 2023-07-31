@@ -129,6 +129,10 @@ class Annotation(object):
     def __init__(self, native_object: NativeAnnotation):
         self._object = native_object
 
+    @abstractmethod
+    def native_object(self):
+        return self._object
+
     @staticmethod
     def key() -> Annotation:
         return Annotation(annotation_new_key())
@@ -145,6 +149,10 @@ class Annotation(object):
 
     def name(self):
         return self._name
+
+    @staticmethod
+    def parse_annotation(annotation: str) -> Annotation:
+        pass
 
     def __str__(self):
         return annotation_to_string(self._object)

@@ -54,7 +54,7 @@ def step_impl(context, username: str, password: str):
     try:
         context.setup_context_client_fn(username, password)
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 

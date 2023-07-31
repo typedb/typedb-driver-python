@@ -21,9 +21,10 @@
 
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MISSING_DB_NAME
+from typedb.common.streamer import Streamer
 from typedb.connection.database import _Database
 
-from typedb.typedb_client_python import Connection, Database as DatabaseFfi, databases_contains, databases_create, \
+from typedb.typedb_client_python import Connection as NativeConnection, databases_contains, databases_create, \
     database_manager_new, databases_get, databases_all, database_iterator_next
 
 
@@ -35,7 +36,7 @@ def _not_blank(name: str) -> str:
 
 class _DatabaseManagerImpl(DatabaseManager):
 
-    def __init__(self, connection: Connection):
+    def __init__(self, connection: NativeConnection):
         self._database_manager = database_manager_new(connection)
 
     def get(self, name: str) -> _Database:
@@ -51,8 +52,4 @@ class _DatabaseManagerImpl(DatabaseManager):
         databases_create(self._database_manager, _not_blank(name))
 
     def all(self) -> list[_Database]:
-        databases: list[DatabaseFfi] = []
-        db_iter = databases_all(self._database_manager)
-        while db := database_iterator_next(db_iter):
-            databases.append(db)
-        return [_Database(database) for database in databases]
+        return list(map(_Database, Streamer(databases_all(self._database_manager), database_iterator_next)))

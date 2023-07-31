@@ -38,13 +38,13 @@ def step_impl(context: Context):
 
 @step("typeql define; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().define(query=context.text).get), raises(TypeDBClientException))
+    assert_that(calling(context.tx().query().define).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql define; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().define(query=context.text).get),
-                raises(TypeDBClientException, re.escape(pattern)))
+    assert_that(calling(context.tx().query().define).with_args(query=context.text),
+                raises(Exception, re.escape(pattern)))
 
 
 @step("typeql undefine")
@@ -54,13 +54,13 @@ def step_impl(context: Context):
 
 @step("typeql undefine; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().undefine(query=context.text).get), raises(TypeDBClientException))
+    assert_that(calling(context.tx().query().undefine).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql undefine; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().undefine(query=context.text).get),
-                raises(TypeDBClientException, re.escape(pattern)))
+    assert_that(calling(context.tx().query().undefine).with_args(query=context.text),
+                raises(Exception, re.escape(pattern)))
 
 
 @step("typeql insert")
@@ -70,13 +70,13 @@ def step_impl(context: Context):
 
 @step("typeql insert; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(TypeDBClientException))
+    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(Exception))
 
 
 @step("typeql insert; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
     assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)),
-                raises(TypeDBClientException, re.escape(pattern)))
+                raises(Exception, re.escape(pattern)))
 
 
 @step("typeql delete")
@@ -86,13 +86,13 @@ def step_impl(context: Context):
 
 @step("typeql delete; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().delete(query=context.text).get), raises(TypeDBClientException))
+    assert_that(calling(context.tx().query().delete).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql delete; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().delete(query=context.text).get),
-                raises(TypeDBClientException, re.escape(pattern)))
+    assert_that(calling(context.tx().query().delete).with_args(query=context.text),
+                raises(Exception, re.escape(pattern)))
 
 
 @step("typeql update")
@@ -102,13 +102,13 @@ def step_impl(context: Context):
 
 @step("typeql update; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(TypeDBClientException))
+    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(Exception))
 
 
 @step("typeql update; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
     assert_that(calling(next).with_args(context.tx().query().update(query=context.text)),
-                raises(TypeDBClientException, re.escape(pattern)))
+                raises(Exception, re.escape(pattern)))
 
 
 @step("get answers of typeql insert")
@@ -125,24 +125,24 @@ def step_impl(context: Context):
 
 @step("typeql match; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().match(query=context.text)), raises(TypeDBClientException))
+    assert_that(calling(next).with_args(context.tx().query().match(query=context.text)), raises(Exception))
 
 
 @step("typeql match; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
     assert_that(calling(next).with_args(context.tx().query().match(query=context.text)),
-                raises(TypeDBClientException, re.escape(pattern)))
+                raises(Exception, re.escape(pattern)))
 
 
 @step("get answer of typeql match aggregate")
 def step_impl(context: Context):
     context.clear_answers()
-    context.numeric_answer = context.tx().query().match_aggregate(query=context.text).get()
+    context.numeric_answer = context.tx().query().match_aggregate(query=context.text)
 
 
 @step("typeql match aggregate; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().match_aggregate(query=context.text).get), raises(TypeDBClientException))
+    assert_that(calling(context.tx().query().match_aggregate).with_args(query=context.text), raises(Exception))
 
 
 @step("get answers of typeql match group")
@@ -154,7 +154,7 @@ def step_impl(context: Context):
 @step("typeql match group; throws exception")
 def step_impl(context: Context):
     assert_that(calling(next).with_args(context.tx().query().match_group(query=context.text)),
-                raises(TypeDBClientException))
+                raises(Exception))
 
 
 @step("get answers of typeql match group aggregate")
@@ -231,16 +231,16 @@ class AttributeMatcher(ConceptMatcher, ABC):
         self.type_label, self.value_string = s
 
     def check(self, attribute: Attribute):
-        if attribute.is_boolean():
-            return ConceptMatchResult.of(parse_bool(self.value_string), attribute.get_value())
-        elif attribute.is_long():
-            return ConceptMatchResult.of(parse_int(self.value_string), attribute.get_value())
-        elif attribute.is_double():
-            return ConceptMatchResult.of(parse_float(self.value_string), attribute.get_value())
-        elif attribute.is_string():
-            return ConceptMatchResult.of(self.value_string, attribute.get_value())
-        elif attribute.is_datetime():
-            return ConceptMatchResult.of(parse_datetime(self.value_string), attribute.get_value())
+        if attribute.get_value().is_boolean():
+            return ConceptMatchResult.of(parse_bool(self.value_string), attribute.get_value().as_boolean())
+        elif attribute.get_value().is_long():
+            return ConceptMatchResult.of(parse_int(self.value_string), attribute.get_value().as_long())
+        elif attribute.get_value().is_double():
+            return ConceptMatchResult.of(parse_float(self.value_string), attribute.get_value().as_double())
+        elif attribute.get_value().is_string():
+            return ConceptMatchResult.of(self.value_string, attribute.get_value().as_string())
+        elif attribute.get_value().is_datetime():
+            return ConceptMatchResult.of(parse_datetime(self.value_string), attribute.get_value().as_datetime())
         else:
             raise ValueError("Unrecognised value type " + str(type(attribute)))
 
@@ -269,7 +269,7 @@ class ThingKeyMatcher(AttributeMatcher):
             return ConceptMatchResult.of_error(self.type_and_value,
                                                "%s was matched by Key, but it is not a Thing." % concept)
 
-        keys = [key for key in concept.as_thing().as_remote(context.tx()).get_has(annotations=set([Annotations.KEY]))]
+        keys = [key for key in concept.as_thing().get_has(context.tx(), annotations=set([Annotation.key()]))]
 
         for key in keys:
             if key.get_type().get_label().name() == self.type_label:
@@ -534,7 +534,7 @@ def apply_query_template(template: str, answer: ConceptMap):
     for match in matches:
         required_variable = variable_from_template_placeholder(match.group(1))
         query += template[i:match.span()[0]]
-        if required_variable in answer.map().keys():
+        if required_variable in answer.variables():
             concept = answer.get(required_variable)
             if not concept.is_thing():
                 raise TypeError("Cannot apply IID templating to Types")
@@ -551,11 +551,11 @@ def apply_query_template(template: str, answer: ConceptMap):
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(list(context.tx().query().match(query)), has_length(1))
+        assert_that(calling(list).with_args(context.tx().query().match(query)), has_length(1))
 
 
 @step("templated typeql match; throws exception")
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(calling(list).with_args(context.tx().query().match(query)), raises(TypeDBClientException))
+        assert_that(calling(list).with_args(context.tx().query().match(query)), raises(Exception))

@@ -27,10 +27,12 @@ from typedb.api.connection.database import Database
 from typedb.api.connection.options import Options
 from typedb.api.connection.transaction import Transaction, TransactionType
 
+from typedb.typedb_client_python import Data, Schema
+
 
 class SessionType(enum.Enum):
-    DATA = 0
-    SCHEMA = 1
+    DATA = Data
+    SCHEMA = Schema
 
     def is_data(self):
         return self is SessionType.DATA
@@ -53,7 +55,7 @@ class Session(ABC):
         pass
 
     @abstractmethod
-    def database(self) -> Database:
+    def database_name(self) -> str:
         pass
 
     @abstractmethod

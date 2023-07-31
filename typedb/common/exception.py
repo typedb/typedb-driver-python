@@ -107,6 +107,7 @@ NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(10, "The concept identifie
 NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(11, "The ownership by owner '%s' of attribute '%s' is not explainable.")
 GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(12, "Only one filter can be applied at a time to get_has. The possible filters are: [attribute_type, attribute_types, annotations]")
 UNSUPPORTED_TIMEZONE_INFORMATION = ConceptErrorMessage(13, "A date-time attribute cannot accept timezone aware datetime objects.")
+UNRECOGNISED_ANNOTATION = ConceptErrorMessage(14, "The annotation '%s' is not recognised.")
 
 
 class QueryErrorMessage(ErrorMessage):
