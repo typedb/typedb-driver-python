@@ -43,7 +43,7 @@ class _ConceptMapGroup(ConceptMapGroup):
     #     return _ConceptMapGroup(owner, concept_maps)
 
     def owner(self) -> Concept:
-        return _Concept(concept_map_group_get_owner(self._concept_map_group))
+        return _Concept.of(concept_map_group_get_owner(self._concept_map_group))
 
     def concept_maps(self) -> Iterator[ConceptMap]:
         return map(_ConceptMap, Streamer(concept_map_group_get_concept_maps(self._concept_map_group),

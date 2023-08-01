@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 class _ThingType(ThingType, _Type, ABC):
 
     # def __init__(self, concept: Concept):
-    #     super(_Type).__init__(concept)
+    #     super(_Type, self).__init__(concept)
 
     @staticmethod
     def of(concept: Concept):

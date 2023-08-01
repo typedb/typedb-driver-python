@@ -44,7 +44,10 @@ class Value(Concept, ABC):
         pass
 
     def is_value(self) -> bool:
-        pass
+        return True
+
+    def as_value(self) -> Value:
+        return self
 
     def is_boolean(self) -> bool:
         pass

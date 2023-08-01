@@ -28,9 +28,11 @@ from typedb.common.exception import TypeDBClientException, MISSING_LABEL
 from typedb.common.streamer import Streamer
 from typedb.logic.rule import _Rule
 
-if TYPE_CHECKING:
-    from typedb.typedb_client_python import Transaction, logic_manager_get_rule, logic_manager_get_rules, \
+from typedb.typedb_client_python import logic_manager_get_rule, logic_manager_get_rules, \
     rule_iterator_next, logic_manager_put_rule
+
+if TYPE_CHECKING:
+    from typedb.typedb_client_python import Transaction
 
 
 class _LogicManager(LogicManager):

@@ -37,7 +37,8 @@ from typedb.concept.type.thing_type import _ThingType
 from typedb.typedb_client_python import attribute_type_set_supertype, attribute_type_get_supertype, \
     attribute_type_get_supertypes, attribute_type_get_subtypes, attribute_type_get_subtypes_with_value_type, \
     attribute_type_get_instances, attribute_type_get_owners, Annotation as NativeAnnotation, attribute_type_put, \
-    attribute_type_get, attribute_type_get_regex, attribute_type_set_regex, attribute_type_unset_regex
+    attribute_type_get, attribute_type_get_regex, attribute_type_set_regex, attribute_type_unset_regex, \
+    Concept as NativeConcept
 
 if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
@@ -48,8 +49,11 @@ class _AttributeType(AttributeType, _ThingType):
 
     ROOT_LABEL = Label.of("attribute")
 
-    def get_label(self) -> Label:
-        return self.ROOT_LABEL
+    # def __init__(self, concept: NativeConcept):
+    #     super(_ThingType, self).__init__(concept)
+
+    # def get_label(self) -> Label:
+    #     return self.ROOT_LABEL
 
     # def as_attribute_type(self) -> "AttributeType":
     #     return self
@@ -93,16 +97,16 @@ class _AttributeType(AttributeType, _ThingType):
     def as_attribute_type(self) -> _AttributeType:    # Isn't it inherited?
         return self
 
-    def set_super_type(self, transaction: Transaction, attribute_type: AttributeType) -> None:
+    def set_supertype(self, transaction: Transaction, attribute_type: AttributeType) -> None:
         attribute_type_set_supertype(self.native_transaction(transaction), self._concept,
                                      attribute_type.native_object())
 
-    def get_super_type(self, transaction: Transaction) -> Optional[_Type]:
+    def get_supertype(self, transaction: Transaction) -> Optional[_AttributeType]:
         if res := attribute_type_get_supertype(self.native_transaction(transaction), self._concept):
             return _AttributeType(res)
         return None
 
-    def get_super_types(self, transaction: Transaction) -> Iterator[_Type]:
+    def get_supertypes(self, transaction: Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
                 attribute_type_get_supertypes(self.native_transaction(transaction), self._concept))
 

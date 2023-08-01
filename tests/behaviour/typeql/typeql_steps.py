@@ -25,7 +25,7 @@ from behave import *
 from hamcrest import *
 
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
-    parse_label
+    parse_label, parse_value_type
 from tests.behaviour.context import Context
 # from typedb.api.concept.value.value import Value
 from typedb.client import *
@@ -296,10 +296,11 @@ class ValueMatcher(ConceptMatcher):
 
         value = concept.as_value()
 
-        if self.value_type_name != str(value.get_value_type()):
+        value_type = parse_value_type(self.value_type_name)
+        if value_type != value.get_value_type():
             return ConceptMatchResult.of_error(self.value_type_and_value,
                                                "%s was matched by Value expecting value type [%s], but its actual value type is %s." % (
-                                                   value, self.value_type_name, value.get_value_type()))
+                                                   value, value_type, value.get_value_type()))
 
         return self.check(value)
 
@@ -551,7 +552,7 @@ def apply_query_template(template: str, answer: ConceptMap):
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(calling(list).with_args(context.tx().query().match(query)), has_length(1))
+        assert_that(list(context.tx().query().match(query)), has_length(1))
 
 
 @step("templated typeql match; throws exception")

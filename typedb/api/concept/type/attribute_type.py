@@ -79,7 +79,7 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def set_super_type(self, transaction: Transaction, attribute_type: AttributeType) -> None:
+    def set_supertype(self, transaction: Transaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod

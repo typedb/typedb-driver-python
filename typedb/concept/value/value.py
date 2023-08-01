@@ -68,7 +68,7 @@ class _Value(Value, _Concept, ABC):
     # @staticmethod
     @of.register
     def _(value: datetime):
-        return _Value(value_new_date_time_from_millis(value.astimezone(timezone.utc).timestamp()))
+        return _Value(value_new_date_time_from_millis(value.astimezone(timezone.utc).timestamp() * 1000))
 
     def get_value_type(self) -> ValueType:
         if self.is_boolean():
@@ -124,7 +124,7 @@ class _Value(Value, _Concept, ABC):
         return value_get_string(self._concept)
 
     def as_datetime(self) -> datetime:
-        return datetime.utcfromtimestamp(value_get_date_time_as_millis(self._concept))
+        return datetime.utcfromtimestamp(value_get_date_time_as_millis(self._concept) / 1000)
 
     def __repr__(self):
         return f"{self.get_value_type()}({self.get_value()})"

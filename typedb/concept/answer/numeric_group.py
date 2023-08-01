@@ -39,7 +39,7 @@ class _NumericGroup(NumericGroup):
     #     return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
 
     def owner(self) -> Concept:
-        return _Concept(numeric_group_get_owner(self._numeric_group))
+        return _Concept.of(numeric_group_get_owner(self._numeric_group))
 
     def numeric(self) -> Numeric:
         return _Numeric(numeric_group_get_numeric(self._numeric_group))

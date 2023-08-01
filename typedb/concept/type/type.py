@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction
     # from typedb.api.connection.transaction import Transaction
 
-# from typedb.typedb_client_python import Concept, thing_type_get_label
+from typedb.typedb_client_python import Concept as NativeConcept
 
 
 class _Type(Type, _Concept, ABC):
@@ -45,8 +45,8 @@ class _Type(Type, _Concept, ABC):
     #     self._is_abstract = is_abstract
     #     self._hash = hash(label)
 
-    # def __init__(self, concept: Concept):
-    #     self._concept = concept
+    # def __init__(self, concept: NativeConcept):
+    #     super(_Concept, self).__init__(concept)
 
     # @abstractmethod
     # def get_label(self) -> Label:

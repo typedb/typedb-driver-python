@@ -54,7 +54,7 @@ class _EntityType(EntityType, thing_type._ThingType):
     def create(self, transaction: Transaction) -> entity._Entity:
         return entity._Entity(entity_type_create(self.native_transaction(transaction), self._concept))
 
-    def set_super_type(self, transaction: Transaction, super_entity_type: EntityType) -> None:
+    def set_supertype(self, transaction: Transaction, super_entity_type: EntityType) -> None:
         entity_type_set_supertype(self.native_transaction(transaction), self._concept,
                                   super_entity_type.native_object())
 

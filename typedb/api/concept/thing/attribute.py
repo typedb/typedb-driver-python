@@ -43,9 +43,12 @@ class Attribute(Thing, ABC):
     def get_value(self) -> Value:
         pass
 
-    # def is_attribute(self):
-    #     return True
-    #
+    def is_attribute(self) -> bool:
+        return True
+
+    def as_attribute(self) -> Attribute:
+        return self
+
     # def is_boolean(self):
     #     return False
     #

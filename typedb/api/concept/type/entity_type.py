@@ -56,7 +56,7 @@ class EntityType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def set_super_type(self, transaction: Transaction, super_entity_type: "EntityType"):
+    def set_supertype(self, transaction: Transaction, super_entity_type: "EntityType"):
         pass
 
     # @abstractmethod
