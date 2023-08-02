@@ -36,6 +36,9 @@ class Relation(Thing, ABC):
     def is_relation(self) -> bool:
         return True
 
+    def as_relation(self) -> Relation:
+        return self
+
     @abstractmethod
     def get_type(self) -> RelationType:
         pass
@@ -49,11 +52,11 @@ class Relation(Thing, ABC):
         pass
 
     @abstractmethod
-    def get_players(self, transaction: Transaction, *role_types: RoleType) -> Iterator[Thing]:
+    def get_players_by_role_type(self, transaction: Transaction, *role_types: RoleType) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def get_players_by_role_type(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
+    def get_players(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
         pass
 
     @abstractmethod

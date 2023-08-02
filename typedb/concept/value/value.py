@@ -68,7 +68,12 @@ class _Value(Value, _Concept, ABC):
     # @staticmethod
     @of.register
     def _(value: datetime):
-        return _Value(value_new_date_time_from_millis(value.astimezone(timezone.utc).timestamp() * 1000))
+        return _Value(value_new_date_time_from_millis(int(value.astimezone(timezone.utc).timestamp() * 1000)))
+
+    # @staticmethod
+    @of.register
+    def _(value: Value):
+        return value
 
     def get_value_type(self) -> ValueType:
         if self.is_boolean():

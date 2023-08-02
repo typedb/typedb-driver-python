@@ -64,7 +64,8 @@ class Attribute(Thing, ABC):
     # def is_datetime(self):
     #     return False
 
-    def to_json(self) -> Mapping[str, Union[str, int, float, bool, datetime]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
+        # TODO: Check it
         return {"type": self.get_type().get_label().scoped_name()} | self.get_value().to_json()
 
     @abstractmethod

@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from typedb.concept.type.role_type import _RoleType
 
 from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, \
-    Annotation as NativeAnnotation, Concept, thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
-    thing_delete, thing_is_deleted, concept_iterator_next
+    Annotation as NativeAnnotation, Concept as NativeConcept, thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
+    thing_delete, thing_is_deleted, concept_iterator_next, concept_is_attribute_type
 
 
 class _Thing(Thing, _Concept, ABC):
@@ -65,13 +65,14 @@ class _Thing(Thing, _Concept, ABC):
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
+        native_attribute_types = [type.native_object() for type in attribute_types]
         native_annotations = [anno.native_object() for anno in annotations]
         return (thing.attribute._Attribute(item) for item in
-                Streamer(thing_get_has(self.native_transaction(transaction), self._concept, attribute_types, native_annotations),
+                Streamer(thing_get_has(self.native_transaction(transaction), self._concept, native_attribute_types, native_annotations),
                          concept_iterator_next))
 
     def get_relations(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Relation]:
-        native_role_types = [Concept(rt.native_object()) for rt in role_types]
+        native_role_types = [rt.native_object() for rt in role_types]
         return (thing.relation._Relation(item) for item in
                 Streamer(thing_get_relations(self.native_transaction(transaction), self._concept, native_role_types),
                          concept_iterator_next))
@@ -91,7 +92,7 @@ class _Thing(Thing, _Concept, ABC):
         thing_delete(self.native_transaction(transaction), self._concept)
 
     def is_deleted(self, transaction: Transaction) -> bool:
-        thing_is_deleted(self.native_transaction(transaction), self._concept)
+        return thing_is_deleted(self.native_transaction(transaction), self._concept)
 
     def __str__(self):
         return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())

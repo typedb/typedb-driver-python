@@ -40,7 +40,7 @@ def step_impl(context: Context, var: str, is_null):
 @step("relation {var:Var} is deleted: {is_deleted}")
 def step_impl(context: Context, var: str, is_deleted):
     is_deleted = parse_bool(is_deleted)
-    assert_that(context.get(var).as_remote(context.tx()).is_deleted(), is_(is_deleted))
+    assert_that(context.get(var).is_deleted(context.tx()), is_(is_deleted))
 
 
 @step("{root_label:RootLabel} {var:Var} has type: {type_label}")
@@ -53,7 +53,7 @@ def step_impl(context: Context, root_label: RootLabel, var: str, type_label: str
 @step("delete attribute: {var:Var}")
 @step("delete relation: {var:Var}")
 def step_impl(context: Context, var: str):
-    context.get(var).as_remote(context.tx()).delete()
+    context.get(var).delete(context.tx())
 
 
 @step("entity {var1:Var} set has: {var2:Var}; throws exception")
@@ -61,9 +61,9 @@ def step_impl(context: Context, var: str):
 @step("relation {var1:Var} set has: {var2:Var}; throws exception")
 def step_impl(context: Context, var1: str, var2: str):
     try:
-        context.get(var1).as_remote(context.tx()).set_has(context.get(var2).as_attribute())
+        context.get(var1).set_has(context.tx(), context.get(var2).as_attribute())
         assert False
-    except TypeDBClientException:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 
@@ -71,35 +71,35 @@ def step_impl(context: Context, var1: str, var2: str):
 @step("attribute {var1:Var} set has: {var2:Var}")
 @step("relation {var1:Var} set has: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    context.get(var1).as_remote(context.tx()).set_has(context.get(var2).as_attribute())
+    context.get(var1).set_has(context.tx(), context.get(var2).as_attribute())
 
 
 @step("entity {var1:Var} unset has: {var2:Var}")
 @step("attribute {var1:Var} unset has: {var2:Var}")
 @step("relation {var1:Var} unset has: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    context.get(var1).as_remote(context.tx()).unset_has(context.get(var2).as_attribute())
+    context.get(var1).unset_has(context.tx(), context.get(var2).as_attribute())
 
 
 @step("entity {var1:Var} get keys contain: {var2:Var}")
 @step("attribute {var1:Var} get keys contain: {var2:Var}")
 @step("relation {var1:Var} get keys contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(annotations={Annotations.KEY}), has_item(context.get(var2).as_attribute()))
+    assert_that(context.get(var1).get_has(context.tx(), annotations={Annotation.key()}), has_item(context.get(var2).as_attribute()))
 
 
 @step("entity {var1:Var} get keys do not contain: {var2:Var}")
 @step("attribute {var1:Var} get keys do not contain: {var2:Var}")
 @step("relation {var1:Var} get keys do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(annotations={Annotations.KEY}), not_(has_item(context.get(var2).as_attribute())))
+    assert_that(context.get(var1).get_has(context.tx(), annotations={Annotation.key()}), not_(has_item(context.get(var2).as_attribute())))
 
 
 @step("entity {var1:Var} get attributes contain: {var2:Var}")
 @step("attribute {var1:Var} get attributes contain: {var2:Var}")
 @step("relation {var1:Var} get attributes contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(), has_item(context.get(var2).as_attribute()))
+    assert_that(context.get(var1).get_has(context.tx()), has_item(context.get(var2).as_attribute()))
 
 
 @step("entity {var1:Var} get attributes({type_label}) contain: {var2:Var}")
@@ -121,14 +121,14 @@ def step_impl(context: Context, var1: str, var2: str):
 @step("attribute {var1:Var} get attributes({type_label}) as(datetime) contain: {var2:Var}")
 @step("relation {var1:Var} get attributes({type_label}) as(datetime) contain: {var2:Var}")
 def step_impl(context: Context, var1: str, type_label: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(attribute_type=context.tx().concepts().get_attribute_type(type_label)), has_item(context.get(var2).as_attribute()))
+    assert_that(context.get(var1).get_has(context.tx(), attribute_type=context.tx().concepts().get_attribute_type(type_label)), has_item(context.get(var2).as_attribute()))
 
 
 @step("entity {var1:Var} get attributes do not contain: {var2:Var}")
 @step("attribute {var1:Var} get attributes do not contain: {var2:Var}")
 @step("relation {var1:Var} get attributes do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(), not_(has_item(context.get(var2).as_attribute())))
+    assert_that(context.get(var1).get_has(context.tx()), not_(has_item(context.get(var2).as_attribute())))
 
 
 @step("entity {var1:Var} get attributes({type_label}) do not contain: {var2:Var}")
@@ -150,7 +150,7 @@ def step_impl(context: Context, var1: str, var2: str):
 @step("attribute {var1:Var} get attributes({type_label}) as(datetime) do not contain: {var2:Var}")
 @step("relation {var1:Var} get attributes({type_label}) as(datetime) do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, type_label: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_has(attribute_type=context.tx().concepts().get_attribute_type(type_label)),
+    assert_that(context.get(var1).get_has(context.tx(), attribute_type=context.tx().concepts().get_attribute_type(type_label)),
                 not_(has_item(context.get(var2).as_attribute())))
 
 
@@ -158,8 +158,9 @@ def step_impl(context: Context, var1: str, type_label: str, var2: str):
 @step("attribute {var1:Var} get relations({label:ScopedLabel}) contain: {var2:Var}")
 @step("relation {var1:Var} get relations({label:ScopedLabel}) contain: {var2:Var}")
 def step_impl(context: Context, var1: str, label: Label, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_relations(
-        role_types=[context.tx().concepts().get_relation_type(label.scope()).as_remote(context.tx()).get_relates(label.name())]),
+    assert_that(context.get(var1).get_relations(
+        context.tx(),
+        context.tx().concepts().get_relation_type(label.scope()).get_relates(context.tx(), label.name())),
         has_item(context.get(var2)))
 
 
@@ -167,15 +168,16 @@ def step_impl(context: Context, var1: str, label: Label, var2: str):
 @step("attribute {var1:Var} get relations contain: {var2:Var}")
 @step("relation {var1:Var} get relations contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_relations(), has_item(context.get(var2)))
+    assert_that(context.get(var1).get_relations(context.tx()), has_item(context.get(var2)))
 
 
 @step("entity {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
 @step("attribute {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
 @step("relation {var1:Var} get relations({label:ScopedLabel}) do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, label: Label, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_relations(
-        role_types=[context.tx().concepts().get_relation_type(label.scope()).as_remote(context.tx()).get_relates(label.name())]),
+    assert_that(context.get(var1).get_relations(
+        context.tx(),
+        context.tx().concepts().get_relation_type(label.scope()).get_relates(context.tx(), label.name())),
         not_(has_item(context.get(var2))))
 
 
@@ -183,19 +185,19 @@ def step_impl(context: Context, var1: str, label: Label, var2: str):
 @step("attribute {var1:Var} get relations do not contain: {var2:Var}")
 @step("relation {var1:Var} get relations do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var1).as_remote(context.tx()).get_relations(), not_(has_item(context.get(var2))))
+    assert_that(context.get(var1).get_relations(context.tx()), not_(has_item(context.get(var2))))
 
 
 @step("root(thing) get instances count: {count:Int}")
 def step_impl(context: Context, count: int):
-    assert_that(list(context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_instances()), has_length(count))
+    assert_that(list(context.tx().concepts().get_root_thing_type().get_instances(context.tx())), has_length(count))
 
 
 @step("root(thing) get instances contain: {var:Var}")
 def step_impl(context: Context, var: str):
-    assert_that(context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_instances(), has_item(context.get(var)))
+    assert_that(context.tx().concepts().get_root_thing_type().get_instances(context.tx()), has_item(context.get(var)))
 
 
 @step("root(thing) get instances is empty")
 def step_impl(context: Context):
-    assert_that(list(context.tx().concepts().get_root_thing_type().as_remote(context.tx()).get_instances()), has_length(0))
+    assert_that(list(context.tx().concepts().get_root_thing_type().get_instances(context.tx())), has_length(0))

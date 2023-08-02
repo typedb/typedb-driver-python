@@ -25,6 +25,7 @@ from typing import Iterator, Optional, Union
 
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.connection.transaction import Transaction
+from typedb.common.streamer import Streamer
 # from typedb.common.label import Label
 from typedb.common.transitivity import Transitivity
 from typedb.concept.thing import relation
@@ -34,7 +35,7 @@ from typedb.concept.type.thing_type import _ThingType
 from typedb.typedb_client_python import relation_type_create, relation_type_set_supertype, \
     relation_type_get_relates_for_role_label, relation_type_get_relates, relation_type_get_relates_overridden, \
     relation_type_set_relates, relation_type_unset_relates, relation_type_get_supertype, relation_type_get_supertypes, \
-    relation_type_get_subtypes, relation_type_get_instances
+    relation_type_get_subtypes, relation_type_get_instances, concept_iterator_next
 
 
 class _RelationType(RelationType, _ThingType):
@@ -53,12 +54,12 @@ class _RelationType(RelationType, _ThingType):
         return relation._Relation(relation_type_create(self.native_transaction(transaction), self._concept))
 
     def get_instances(self, transaction: Transaction) -> Iterator[relation._Relation]:
-        return (relation._Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
-                                                                        self._concept, Transitivity.Transitive))
+        return (relation._Relation(item) for item in Streamer(relation_type_get_instances(self.native_transaction(transaction),
+                                                                        self._concept, Transitivity.Transitive.value), concept_iterator_next))
 
     def get_instances_explicit(self, transaction: Transaction) -> Iterator[relation._Relation]:
-        return (relation._Relation(item) for item in relation_type_get_instances(self.native_transaction(transaction),
-                                                                        self._concept, Transitivity.Explicit))
+        return (relation._Relation(item) for item in Streamer(relation_type_get_instances(self.native_transaction(transaction),
+                                                                        self._concept, Transitivity.Explicit.value), concept_iterator_next))
 
     def get_relates(self, transaction: Transaction, role_label: Optional[str] = None) \
             -> Union[Optional[_RoleType], Iterator[_RoleType]]:
@@ -66,12 +67,12 @@ class _RelationType(RelationType, _ThingType):
             if res := relation_type_get_relates_for_role_label(self.native_transaction(transaction), self._concept, role_label):
                 return _RoleType(res)
             return None
-        return (_RoleType(item) for item in relation_type_get_relates(self.native_transaction(transaction),
-                                                                      self._concept, Transitivity.Transitive))
+        return (_RoleType(item) for item in Streamer(relation_type_get_relates(self.native_transaction(transaction),
+                                                                      self._concept, Transitivity.Transitive.value), concept_iterator_next))
 
     def get_relates_explicit(self, transaction: Transaction) -> Iterator[_RoleType]:
-        return (_RoleType(item) for item in relation_type_get_relates(self.native_transaction(transaction),
-                                                                      self._concept, Transitivity.Explicit))
+        return (_RoleType(item) for item in Streamer(relation_type_get_relates(self.native_transaction(transaction),
+                                                                      self._concept, Transitivity.Explicit.value), concept_iterator_next))
 
     def get_relates_overridden(self, transaction: Transaction, role_label: str) -> Optional[_RoleType]:
         if res := relation_type_get_relates_overridden(self.native_transaction(transaction), self._concept, role_label):
@@ -88,12 +89,12 @@ class _RelationType(RelationType, _ThingType):
         pass
 
     def get_subtypes(self, transaction: Transaction) -> Iterator[_RelationType]:
-        return (_RelationType(item) for item in relation_type_get_subtypes(self.native_transaction(transaction),
-                                                                           self._concept, Transitivity.Transitive))
+        return (_RelationType(item) for item in Streamer(relation_type_get_subtypes(self.native_transaction(transaction),
+                                                                           self._concept, Transitivity.Transitive.value), concept_iterator_next))
 
     def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_RelationType]:
-        return (_RelationType(item) for item in relation_type_get_subtypes(self.native_transaction(transaction),
-                                                                           self._concept, Transitivity.Explicit))
+        return (_RelationType(item) for item in Streamer(relation_type_get_subtypes(self.native_transaction(transaction),
+                                                                           self._concept, Transitivity.Explicit.value), concept_iterator_next))
 
     def get_supertype(self, transaction: Transaction) -> Optional[_RelationType]:
         if res := relation_type_get_supertype(self.native_transaction(transaction), self._concept):
@@ -101,8 +102,8 @@ class _RelationType(RelationType, _ThingType):
         return None
 
     def get_supertypes(self, transaction: Transaction) -> Iterator[_RelationType]:
-        return (_RelationType(item) for item in relation_type_get_supertypes(self.native_transaction(transaction),
-                                                                             self._concept))
+        return (_RelationType(item) for item in Streamer(relation_type_get_supertypes(self.native_transaction(transaction),
+                                                                             self._concept), concept_iterator_next))
 
     def set_supertype(self, transaction: Transaction, super_relation_type: RelationType) -> None:
         relation_type_set_supertype(self.native_transaction(transaction), self._concept, super_relation_type.native_object())

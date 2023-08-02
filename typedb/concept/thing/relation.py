@@ -27,13 +27,14 @@ from typedb.api.concept.thing.thing import Thing
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.role_type import RoleType
 from typedb.api.connection.transaction import Transaction
+from typedb.common.streamer import Streamer
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.relation_type import _RelationType
 from typedb.concept.type.role_type import _RoleType
 
 from typedb.typedb_client_python import relation_get_type, relation_add_role_player, relation_remove_role_player, \
     relation_get_players_by_role_type, Concept, relation_get_role_players, role_player_get_role_type, \
-    role_player_get_player, relation_get_relating
+    role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 
 
 class _Relation(Relation, _Thing):
@@ -60,18 +61,19 @@ class _Relation(Relation, _Thing):
         relation_remove_role_player(self.native_transaction(transaction), self._concept,
                                     role_type.native_object(), player.native_object())
 
-    def get_players(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Thing]:
-        native_role_types = [Concept(rt.native_object()) for rt in role_types]
-        return (_Thing(item) for item in relation_get_players_by_role_type(self.native_transaction(transaction),
-                                                                           self._concept, native_role_types))
+    def get_players_by_role_type(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Thing]:
+        native_role_types = [rt.native_object() for rt in role_types]
+        return (_Thing.of(item) for item in Streamer(relation_get_players_by_role_type(self.native_transaction(transaction),
+                                                                           self._concept, native_role_types), concept_iterator_next))
 
-    def get_players_by_role_type(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
+    def get_players(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
         role_players = {}
-        for role_player in relation_get_role_players(self.native_transaction(transaction), self._concept):
+        for role_player in Streamer(relation_get_role_players(self.native_transaction(transaction), self._concept), role_player_iterator_next):
             role = _RoleType(role_player_get_role_type(role_player))
-            player = _Thing(role_player_get_player(role_player))
-            role_players.get(role, []).append(player)
+            player = _Thing.of(role_player_get_player(role_player))
+            role_players.setdefault(role, [])
+            role_players[role].append(player)
         return role_players
 
     def get_relating(self, transaction: Transaction) -> Iterator[_RoleType]:
-        return (_RoleType(item) for item in relation_get_relating(self.native_transaction(transaction), self._concept))
+        return (_RoleType(item) for item in Streamer(relation_get_relating(self.native_transaction(transaction), self._concept), concept_iterator_next))

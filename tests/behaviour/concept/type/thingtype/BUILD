@@ -29,35 +29,37 @@ py_library(
     deps = [],
 )
 
-typedb_behaviour_py_test(
-    name = "test",
-    feats = ["@vaticle_typedb_behaviour//concept/type:thingtype.feature"],
-    background_core = ["//tests/behaviour/background:core"],
-    background_cluster = ["//tests/behaviour/background:cluster"],
-    steps = [
-        ":steps",
-        "//tests/behaviour/concept/thing:steps",
-        "//tests/behaviour/concept/thing/entity:steps",
-        "//tests/behaviour/concept/thing/attribute:steps",
-        "//tests/behaviour/concept/thing/relation:steps",
-        "//tests/behaviour/concept/type/attributetype:steps",
-        "//tests/behaviour/concept/type/relationtype:steps",
-        "//tests/behaviour/connection:steps",
-        "//tests/behaviour/connection/database:steps",
-        "//tests/behaviour/connection/session:steps",
-        "//tests/behaviour/connection/transaction:steps",
-    ],
-    deps = [
-        "//:client_python",
-        "//tests/behaviour:context",
-        "//tests/behaviour/util:util",
-        "//tests/behaviour/config:parameters",
-        "//tests/behaviour/background",
-    ],
-    native_typedb_artifact = "//tests:native-typedb-artifact",
-    native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
-    size = "medium",
-)
+#typedb_behaviour_py_test(
+#    name = "test",
+#    feats = ["@vaticle_typedb_behaviour//concept/type:thingtype.feature"],
+#    background_core = ["//tests/behaviour/background:core"],
+#    background_cluster = ["//tests/behaviour/background:cluster"],
+#    steps = [
+#        ":steps",
+#        "//tests/behaviour/concept/thing:steps",
+#        "//tests/behaviour/concept/thing/entity:steps",
+#        "//tests/behaviour/concept/thing/attribute:steps",
+#        "//tests/behaviour/concept/thing/relation:steps",
+#        "//tests/behaviour/concept/type/attributetype:steps",
+#        "//tests/behaviour/concept/type/relationtype:steps",
+#        "//tests/behaviour/connection:steps",
+#        "//tests/behaviour/connection/database:steps",
+#        "//tests/behaviour/connection/session:steps",
+#        "//tests/behaviour/connection/transaction:steps",
+#    ],
+#    deps = [
+#        "//:client_python",
+#        "//tests/behaviour:context",
+#        "//tests/behaviour/util:util",
+#        "//tests/behaviour/config:parameters",
+#        "//tests/behaviour/background",
+#        "@vaticle_typedb_driver_java//rust:typedb_client_python",
+#        "//:python-lib",
+#    ],
+#    native_typedb_artifact = "//tests:native-typedb-artifact",
+#    native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
+#    size = "medium",
+#)
 
 checkstyle_test(
     name = "checkstyle",

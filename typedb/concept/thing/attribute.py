@@ -28,9 +28,11 @@ from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.type.thing_type import ThingType
 from typedb.api.concept.value.value import Value
 from typedb.api.connection.transaction import Transaction
+from typedb.common.streamer import Streamer
 from typedb.concept.thing.thing import _Thing
 
-from typedb.typedb_client_python import attribute_get_type, attribute_get_value, attribute_get_owners
+from typedb.typedb_client_python import attribute_get_type, attribute_get_value, attribute_get_owners, \
+    concept_iterator_next
 
 from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.value.value import _Value
@@ -48,7 +50,10 @@ class _Attribute(Attribute, _Thing, ABC):
         return _Value(attribute_get_value(self._concept))
 
     def get_owners(self, transaction: Transaction, owner_type: Optional[ThingType] = None) -> Iterator[_Thing]:
-        return (_Thing(item) for item in attribute_get_owners(self.native_transaction(transaction), self._concept, owner_type.native_object()))
+        return (_Thing.of(item) for item in Streamer(attribute_get_owners(self.native_transaction(transaction),
+                                                                       self._concept,
+                                                                       owner_type.native_object() if owner_type else None
+                                                                       ), concept_iterator_next))
 
 
 # class _BooleanAttribute(BooleanAttribute, _Attribute):

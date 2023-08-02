@@ -28,22 +28,22 @@ from tests.behaviour.context import Context
 
 @step("attribute({type_label}) get instances contain: {var:Var}")
 def step_impl(context: Context, type_label: str, var: str):
-    assert_that(context.get(var), is_in(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_instances()))
+    assert_that(context.get(var), is_in(context.tx().concepts().get_attribute_type(type_label).get_instances(context.tx())))
 
 
 @step("attribute({type_label}) get instances is empty")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(next).with_args(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).get_instances()), raises(StopIteration))
+    assert_that(calling(next).with_args(context.tx().concepts().get_attribute_type(type_label).get_instances(context.tx())), raises(StopIteration))
 
 
 @step("attribute {var1:Var} get owners contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var2), is_in(context.get(var1).as_attribute().as_remote(context.tx()).get_owners()))
+    assert_that(context.get(var2), is_in(context.get(var1).as_attribute().get_owners(context.tx())))
 
 
 @step("attribute {var1:Var} get owners do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
-    assert_that(context.get(var2), not_(is_in(context.get(var1).as_attribute().as_remote(context.tx()).get_owners())))
+    assert_that(context.get(var2), not_(is_in(context.get(var1).as_attribute().get_owners(context.tx()))))
 
 
 @step("attribute {var:Var} has value type: {value_type:ValueType}")
@@ -53,100 +53,100 @@ def step_impl(context: Context, var: str, value_type: ValueType):
 
 @step("attribute({type_label}) as(boolean) put: {value:Bool}; throws exception")
 def step_impl(context: Context, type_label: str, value: bool):
-    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_boolean().put).with_args(value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
 
 
 @step("{var:Var} = attribute({type_label}) as(boolean) put: {value:Bool}")
 def step_impl(context: Context, var: str, type_label: str, value: bool):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_boolean().put(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).put(context.tx(), value))
 
 
 @step("attribute({type_label}) as(long) put: {value:Int}; throws exception")
 def step_impl(context: Context, type_label: str, value: int):
-    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_long().put).with_args(value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
 
 
 @step("{var:Var} = attribute({type_label}) as(long) put: {value:Int}")
 def step_impl(context: Context, var: str, type_label: str, value: int):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_long().put(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).put(context.tx(), value))
 
 
 @step("attribute({type_label}) as(double) put: {value:Float}; throws exception")
 def step_impl(context: Context, type_label: str, value: float):
-    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_double().put).with_args(value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
 
 
 @step("{var:Var} = attribute({type_label}) as(double) put: {value:Float}")
 def step_impl(context: Context, var: str, type_label: str, value: float):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_double().put(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).put(context.tx(), value))
 
 
 @step("attribute({type_label}) as(string) put: {value}; throws exception")
 def step_impl(context: Context, type_label: str, value: str):
-    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_string().put).with_args(value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
 
 
 @step("{var:Var} = attribute({type_label}) as(string) put: {value}")
 def step_impl(context: Context, var: str, type_label: str, value: str):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_string().put(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).put(context.tx(), value))
 
 
 @step("attribute({type_label}) as(datetime) put: {value:DateTime}; throws exception")
 def step_impl(context: Context, type_label: str, value: datetime):
-    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_datetime().put).with_args(value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts().get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
 
 
 @step("{var:Var} = attribute({type_label}) as(datetime) put: {value:DateTime}")
 def step_impl(context: Context, var: str, type_label: str, value: datetime):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_datetime().put(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).put(context.tx(), value))
 
 
 @step("{var:Var} = attribute({type_label}) as(boolean) get: {value:Bool}")
 def step_impl(context: Context, var: str, type_label: str, value: bool):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_boolean().get(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
 @step("{var:Var} = attribute({type_label}) as(long) get: {value:Int}")
 def step_impl(context: Context, var: str, type_label: str, value: int):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_long().get(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
 @step("{var:Var} = attribute({type_label}) as(double) get: {value:Float}")
 def step_impl(context: Context, var: str, type_label: str, value: float):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_double().get(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
 @step("{var:Var} = attribute({type_label}) as(string) get: {value}")
 def step_impl(context: Context, var: str, type_label: str, value: str):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_string().get(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
 @step("{var:Var} = attribute({type_label}) as(datetime) get: {value:DateTime}")
 def step_impl(context: Context, var: str, type_label: str, value: datetime):
-    context.put(var, context.tx().concepts().get_attribute_type(type_label).as_remote(context.tx()).as_datetime().get(value))
+    context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
 @step("attribute {var:Var} has boolean value: {value:Bool}")
 def step_impl(context: Context, var: str, value: bool):
-    assert_that(context.get(var).as_attribute().get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value().as_boolean(), is_(value))
 
 
 @step("attribute {var:Var} has long value: {value:Int}")
 def step_impl(context: Context, var: str, value: int):
-    assert_that(context.get(var).as_attribute().get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value().as_long(), is_(value))
 
 
 @step("attribute {var:Var} has double value: {value:Float}")
 def step_impl(context: Context, var: str, value: float):
-    assert_that(context.get(var).as_attribute().get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value().as_double(), is_(value))
 
 
 @step("attribute {var:Var} has string value: {value}")
 def step_impl(context: Context, var: str, value: str):
-    assert_that(context.get(var).as_attribute().get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value().as_string(), is_(value))
 
 
 @step("attribute {var:Var} has datetime value: {value:DateTime}")
 def step_impl(context: Context, var: str, value: datetime):
-    assert_that(context.get(var).as_attribute().get_value(), is_(value))
+    assert_that(context.get(var).as_attribute().get_value().as_datetime(), is_(value))
 

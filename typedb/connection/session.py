@@ -43,12 +43,9 @@ class _Session(Session):
             options = Options()
         self._type = session_type
         self._options = options
-        # self._database = database   # Do we need this?
-        # print(database.native_object(), session_type.value, options.native_object(), flush=True)
         db = database.native_object()
         db.thisown = 0
         self._session = session_new(db, session_type.value, options.native_object())
-        # print(self._session, flush=True)
 
     def native_object(self):
         return self._session
@@ -66,7 +63,6 @@ class _Session(Session):
         return self._options
 
     def transaction(self, transaction_type: TransactionType, options: Options = None) -> Transaction:
-        print("Trying to create transaction...", flush=True)
         return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:

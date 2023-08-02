@@ -104,7 +104,7 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_plays(self, transaction: Transaction, transitivity: Transitivity) -> Iterator[RoleType]:
+    def get_plays(self, transaction: Transaction, transitivity: Transitivity = Transitivity.Transitive) -> Iterator[RoleType]:
         pass
 
     @abstractmethod

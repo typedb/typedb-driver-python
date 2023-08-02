@@ -18,14 +18,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from __future__ import annotations
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Mapping, Union
 
 from typedb.api.concept.concept import Concept
+from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 
 from typedb.typedb_client_python import Object, Boolean, Long, Double, String, DateTime
 
@@ -79,13 +80,10 @@ class Value(Concept, ABC):
     def as_datetime(self) -> datetime:
         pass
 
-    # def as_remote(self, transaction: "Transaction"):
-    #     raise TypeDBClientException.of(VALUE_HAS_NO_REMOTE)
-
-    def to_json(self) -> Mapping[str, Union[str, int, float, bool, datetime]]:
+    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "value_type": str(self.get_value_type()),
-            "value": self.get_value(),
+            "value": self.get_value() if not self.is_datetime() else self.get_value().isoformat(timespec='milliseconds'),
         }
 
 
@@ -105,9 +103,9 @@ class _ValueType:
     def native_object(self):
         return self._native_object
 
-    @staticmethod
-    def of(value_type):
-        pass
+    # @staticmethod
+    # def of(value_type):
+    #     pass
 
 
 class ValueType(Enum):
@@ -121,8 +119,24 @@ class ValueType(Enum):
     def native_object(self):
         return self.value.native_object()
 
+    def __str__(self):
+        mapping = {ValueType.OBJECT: "object",
+                   ValueType.BOOLEAN: "boolean",
+                   ValueType.LONG: "long",
+                   ValueType.DOUBLE: "double",
+                   ValueType.STRING: "string",
+                   ValueType.DATETIME: "datetime",
+                   }
+        return mapping[self]
 
-# class BooleanValue(Value, ABC):
+    @staticmethod
+    def of(value_type: Union[Object, Boolean, Long, Double, String, DateTime]) -> ValueType:
+        for type_ in ValueType:
+            if type_.native_object() == value_type:
+                return type_
+        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+
+    # class BooleanValue(Value, ABC):
 #
 #     def is_boolean(self) -> bool:
 #         return True

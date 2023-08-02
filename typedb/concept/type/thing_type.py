@@ -39,7 +39,7 @@ from typedb.concept.thing.thing import _Thing
 # from typedb.concept.type.role_type import _RoleType
 from typedb.concept.type.type import _Type
 
-from typedb.typedb_client_python import Concept, concept_is_entity_type, concept_is_relation_type, \
+from typedb.typedb_client_python import Concept as NativeConcept, concept_is_entity_type, concept_is_relation_type, \
     concept_is_attribute_type, concept_is_root_thing_type, thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
@@ -53,11 +53,11 @@ if TYPE_CHECKING:
 
 class _ThingType(ThingType, _Type, ABC):
 
-    # def __init__(self, concept: Concept):
+    # def __init__(self, concept: NativeConcept):
     #     super(_Type, self).__init__(concept)
 
     @staticmethod
-    def of(concept: Concept):
+    def of(concept: NativeConcept):
         from typedb.concept.type import attribute_type, entity_type, relation_type
 
         if concept_is_entity_type(concept):
@@ -111,10 +111,11 @@ class _ThingType(ThingType, _Type, ABC):
     def set_plays(self, transaction: Transaction,
                   role_type: RoleType, overridden_role_type: Optional[RoleType] = None) -> None:
         thing_type_set_plays(transaction.concepts().native_transaction(),
-                             self._concept, role_type, overridden_role_type)
+                             self._concept, role_type.native_object(),
+                             overridden_role_type.native_object() if overridden_role_type else None)
 
     def unset_plays(self, transaction: Transaction, role_type: RoleType) -> None:
-        thing_type_unset_plays(transaction.concepts().native_transaction(), self._concept, role_type)
+        thing_type_unset_plays(transaction.concepts().native_transaction(), self._concept, role_type.native_object())
 
     def set_owns(self, transaction: Transaction, attribute_type: AttributeType,
                  overridden_type: Optional[AttributeType] = None, annotations: Optional[set[Annotation]] = None) -> None:
@@ -132,6 +133,7 @@ class _ThingType(ThingType, _Type, ABC):
                  transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         from typedb.concept.type import attribute_type
+
         return (attribute_type._AttributeType(item) for item in
                 Streamer(thing_type_get_owns(
                     self.native_transaction(transaction),
@@ -145,14 +147,14 @@ class _ThingType(ThingType, _Type, ABC):
                           annotations: Optional[set[Annotation]] = None):
         return self.get_owns(transaction, value_type, Transitivity.Explicit, annotations)
 
-    def get_plays(self, transaction: Transaction, transitivity: Transitivity) -> Iterator[RoleType]:
+    def get_plays(self, transaction: Transaction, transitivity: Transitivity = Transitivity.Transitive) -> Iterator[RoleType]:
         from typedb.concept.type import role_type
 
         return (role_type._RoleType(item) for item in
                 Streamer(thing_type_get_plays(
                     self.native_transaction(transaction),
                     self._concept,
-                    transitivity
+                    transitivity.value
                 ), concept_iterator_next)
         )
 
@@ -160,15 +162,19 @@ class _ThingType(ThingType, _Type, ABC):
         return self.get_plays(transaction, Transitivity.Explicit)
 
     def get_plays_overridden(self, transaction: Transaction, role_type: RoleType) -> Optional[RoleType]:
+        from typedb.concept.type.role_type import _RoleType
+
         if res := thing_type_get_plays_overridden(self.native_transaction(transaction),
                 self._concept, role_type.native_object()):
-            return role_type._RoleType(res)
+            return _RoleType(res)
         return None
 
     def get_owns_overridden(self, transaction: Transaction, attribute_type: AttributeType) -> Optional[AttributeType]:
+        from typedb.concept.type.attribute_type import _AttributeType
+
         if res := thing_type_get_owns_overridden(self.native_transaction(transaction),
                                                  self._concept, attribute_type.native_object()):
-            return attribute_type._AttributeType(res)
+            return _AttributeType(res)
         return None
 
     def unset_owns(self, transaction: Transaction, attribute_type: AttributeType) -> None:
@@ -193,13 +199,13 @@ class _Root(_ThingType):
         return self,
 
     def get_subtypes(self, transaction: Transaction) -> Iterator[_ThingType]:
-        return (_ThingType(item) for item in chain(
+        return (_ThingType.of(item) for item in chain(
             (self, ), transaction.concepts().get_root_entity_type().get_subtypes(transaction),
             transaction.concepts().get_root_relation_type().get_subtypes(transaction),
             transaction.concepts().get_root_attribute_type().get_subtypes(transaction)))
 
     def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_ThingType]:
-        return (_ThingType(item) for item in (transaction.concepts().get_root_entity_type(),
+        return (_ThingType.of(item) for item in (transaction.concepts().get_root_entity_type(),
                                               transaction.concepts().get_root_relation_type(),
                                               transaction.concepts().get_root_attribute_type()))
 

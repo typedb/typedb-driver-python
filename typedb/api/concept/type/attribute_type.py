@@ -22,7 +22,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING, Iterator, Set
+from typing import Optional, TYPE_CHECKING, Iterator, Set, Union
 
 from typedb.api.concept.value.value import Value, ValueType
 from typedb.api.concept.thing.attribute import Attribute
@@ -59,11 +59,11 @@ class AttributeType(ThingType, ABC):
         return self.get_value_type() == ValueType.DATETIME
 
     @abstractmethod
-    def put(self, transaction: Transaction, value: Value) -> Attribute:
+    def put(self, transaction: Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
         pass
 
     @abstractmethod
-    def get(self, transaction: Transaction, value: Value) -> Optional[Attribute]:
+    def get(self, transaction: Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
         pass
 
     @abstractmethod
@@ -103,10 +103,6 @@ class AttributeType(ThingType, ABC):
     def get_owners_explicit(self, transaction: Transaction,
                             annotations: Optional[set[Annotation]] = None) -> Iterator[ThingType]:
         pass
-
-    # @abstractmethod
-    # def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteAttributeType":
-    #     pass
 
     # @abstractmethod
     # def as_boolean(self) -> "BooleanAttributeType":
