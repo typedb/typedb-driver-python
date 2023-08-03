@@ -35,7 +35,7 @@ from typedb.typedb_client_python import Concept, value_new_boolean, value_new_lo
     value_get_date_time_as_millis
 
 
-class _Value(Value, _Concept, ABC):
+class _Value(Value, _Concept):
 
     # def as_value(self) -> "Value":
     #     return self
@@ -68,7 +68,7 @@ class _Value(Value, _Concept, ABC):
     # @staticmethod
     @of.register
     def _(value: datetime):
-        return _Value(value_new_date_time_from_millis(int(value.astimezone(timezone.utc).timestamp() * 1000)))
+        return _Value(value_new_date_time_from_millis(int(value.replace(tzinfo=timezone.utc).timestamp() * 1000)))
 
     # @staticmethod
     @of.register

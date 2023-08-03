@@ -38,7 +38,7 @@ from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.value.value import _Value
 
 
-class _Attribute(Attribute, _Thing, ABC):
+class _Attribute(Attribute, _Thing):
 
     # def as_attribute(self) -> "Attribute":
     #     return self

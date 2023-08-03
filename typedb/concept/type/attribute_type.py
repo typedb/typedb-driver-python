@@ -166,7 +166,9 @@ class _AttributeType(AttributeType, _ThingType):
         return attribute._Attribute(attribute_type_put(self.native_transaction(transaction), self._concept,
                                                        _Value.of(value).native_object()))
 
-    def get(self, transaction: Transaction, value: Value) -> Optional[Attribute]:
+    def get(self, transaction: Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
+        print(f"get: {self}, {value}, {_Value.of(value)}")
+        print(attribute_type_get(self.native_transaction(transaction), self._concept, _Value.of(value).native_object()), flush=True)
         if res := attribute_type_get(self.native_transaction(transaction), self._concept, _Value.of(value).native_object()):
             return attribute._Attribute(res)
         return None

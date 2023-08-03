@@ -18,6 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+from datetime import timezone
 
 from behave import *
 from hamcrest import *
@@ -123,6 +124,7 @@ def step_impl(context: Context, var: str, type_label: str, value: str):
 
 @step("{var:Var} = attribute({type_label}) as(datetime) get: {value:DateTime}")
 def step_impl(context: Context, var: str, type_label: str, value: datetime):
+    print(context.tx().concepts().get_attribute_type(type_label), flush=True)
     context.put(var, context.tx().concepts().get_attribute_type(type_label).get(context.tx(), value))
 
 
