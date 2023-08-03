@@ -19,13 +19,16 @@
 # under the License.
 #
 
+from __future__ import annotations
 import enum
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.logic.logic_manager import LogicManager
-from typedb.api.connection.options import Options
-from typedb.api.query.query_manager import QueryManager
+if TYPE_CHECKING:
+    from typedb.api.concept.concept_manager import ConceptManager
+    from typedb.api.logic.logic_manager import LogicManager
+    from typedb.api.connection.options import Options
+    from typedb.api.query.query_manager import QueryManager
 
 
 class TransactionType(enum.Enum):
@@ -37,9 +40,6 @@ class TransactionType(enum.Enum):
 
     def is_write(self):
         return self is TransactionType.WRITE
-
-    # def proto(self):
-    #     return transaction_proto.Transaction.Type.Value(self.name)
 
 
 class Transaction(ABC):

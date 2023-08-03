@@ -18,13 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Optional
 
-from typedb.api.connection.database import DatabaseManager
-from typedb.api.connection.options import Options
-from typedb.api.connection.session import Session, SessionType
-from typedb.api.connection.user import UserManager, User
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.connection.database import DatabaseManager
+    from typedb.api.connection.options import Options
+    from typedb.api.connection.session import Session, SessionType
+    from typedb.api.connection.user import UserManager, User
 
 
 class Client(ABC):

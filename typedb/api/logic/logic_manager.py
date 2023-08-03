@@ -19,10 +19,12 @@
 # under the License.
 #
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Iterator, Optional
+from typing import Iterator, Optional, TYPE_CHECKING
 
-from typedb.api.logic.rule import Rule
+if TYPE_CHECKING:
+    from typedb.api.logic.rule import Rule
 
 
 class LogicManager(ABC):

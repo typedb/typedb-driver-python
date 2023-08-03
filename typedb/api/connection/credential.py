@@ -23,7 +23,6 @@ from os import path
 from typing import Optional
 
 from typedb.common.exception import TypeDBClientException, CLUSTER_INVALID_ROOT_CA_PATH, CLUSTER_INCONSISTENT_CREDENTIAL
-
 from typedb.typedb_client_python import credential_new, check_error
 
 

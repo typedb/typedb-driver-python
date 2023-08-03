@@ -22,7 +22,7 @@
 from __future__ import annotations
 from typing import Optional
 
-
+from typedb.common.exception import TypeDBClientException, POSITIVE_VALUE_REQUIRED
 from typedb.typedb_client_python import options_new, options_has_infer, options_get_infer, options_set_infer, \
     options_get_trace_inference, options_has_trace_inference, options_set_trace_inference, options_get_explain, \
     options_has_explain, options_set_explain, options_has_parallel, options_get_parallel, options_set_parallel, \
@@ -33,8 +33,6 @@ from typedb.typedb_client_python import options_new, options_has_infer, options_
     options_set_transaction_timeout_millis, options_get_schema_lock_acquire_timeout_millis, \
     options_has_schema_lock_acquire_timeout_millis, options_set_schema_lock_acquire_timeout_millis, \
     options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica
-
-from typedb.common.exception import TypeDBClientException, POSITIVE_VALUE_REQUIRED
 
 
 class Options:
@@ -87,7 +85,8 @@ class Options:
 
     @property
     def trace_inference(self) -> Optional[bool]:
-        return options_get_trace_inference(self.native_object) if options_has_trace_inference(self.native_object) else None
+        return options_get_trace_inference(self.native_object) if options_has_trace_inference(self.native_object) \
+            else None
 
     @trace_inference.setter
     def trace_inference(self, trace_inference: bool):

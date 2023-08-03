@@ -22,12 +22,13 @@
 from __future__ import annotations
 from enum import Enum
 from abc import ABC, abstractmethod
-
-from typedb.api.connection.database import Database
-from typedb.api.connection.options import Options
-from typedb.api.connection.transaction import Transaction, TransactionType
+from typing import TYPE_CHECKING
 
 from typedb.typedb_client_python import Data, Schema
+
+if TYPE_CHECKING:
+    from typedb.api.connection.options import Options
+    from typedb.api.connection.transaction import Transaction, TransactionType
 
 
 class SessionType(Enum):

@@ -22,15 +22,15 @@
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 def vaticle_dependencies():
-#    git_repository(
-#        name = "vaticle_dependencies",
-#        remote = "https://github.com/dmikhalin/dependencies",
-#        branch = "python-ffi", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_dependencies
-#    )
-    native.local_repository(
+    git_repository(
         name = "vaticle_dependencies",
-        path = "/Users/dmitry/Vaticle/dependencies",
+        remote = "https://github.com/dmikhalin/dependencies",
+        branch = "python-ffi", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_dependencies
     )
+#    native.local_repository(
+#        name = "vaticle_dependencies",
+#        path = "/Users/dmitry/Vaticle/dependencies",
+#    )
 
 def vaticle_typedb_common():
     git_repository(
@@ -58,7 +58,6 @@ def vaticle_typedb_behaviour():
         name = "vaticle_typedb_behaviour",
         remote = "https://github.com/vaticle/typedb-behaviour",
         commit = "26f4a19a797203c2eeb0682b6f7d25e238b97345",  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_behaviour
-#        commit = "90b4addcd71a398e9e52e322021c49310e66a47a" # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_typedb_behaviour
     )
 
 def vaticle_factory_tracing():
@@ -69,12 +68,12 @@ def vaticle_factory_tracing():
     )
 
 def vaticle_typedb_driver_java():
-#    git_repository(
-#        name = "vaticle_typedb_driver_java",
-#        remote = "https://github.com/dmikhalin/typedb-client-java",
-#        branch = "python-ffi"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
-#    )
-    native.local_repository(
+    git_repository(
         name = "vaticle_typedb_driver_java",
-        path = "/Users/dmitry/Vaticle/typedb-client-java",
+        remote = "https://github.com/dmikhalin/typedb-client-java",
+        branch = "python-ffi"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
     )
+#    native.local_repository(
+#        name = "vaticle_typedb_driver_java",
+#        path = "/Users/dmitry/Vaticle/typedb-client-java",
+#    )
