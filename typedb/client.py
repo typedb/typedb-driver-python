@@ -18,6 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 from typing import Iterable
 
 from typedb.connection.client import _Client
@@ -34,12 +35,14 @@ from typedb.api.concept.thing.entity import *  # noqa # pylint: disable=unused-i
 from typedb.api.concept.thing.relation import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.thing.thing import *  # noqa # pylint: disable=unused-import
 
+from typedb.api.concept.type.annotation import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.attribute_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.entity_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.relation_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.role_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.thing_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.type import *  # noqa # pylint: disable=unused-import
+from typedb.api.concept.value import * # noqa # pylint: disable=unused-import
 
 from typedb.api.concept.concept import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.concept_manager import *  # noqa # pylint: disable=unused-import

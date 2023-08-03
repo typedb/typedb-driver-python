@@ -27,7 +27,7 @@ from hamcrest import *
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
     parse_label, parse_value_type
 from tests.behaviour.context import Context
-# from typedb.api.concept.value.value import Value
+from typedb.api.concept.value.value import Value
 from typedb.client import *
 
 

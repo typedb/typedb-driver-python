@@ -18,25 +18,23 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
 
-from typedb.api.concept.thing.attribute import Attribute
-from typedb.api.concept.thing.entity import Entity
-from typedb.api.concept.thing.relation import Relation
-from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.api.concept.type.entity_type import EntityType
-from typedb.api.concept.type.relation_type import RelationType
-from typedb.api.concept.type.thing_type import ThingType
-from typedb.api.concept.value.value import ValueType
-from typedb.common.exception import TypeDBException
+from __future__ import  annotations
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.concept.thing.attribute import Attribute
+    from typedb.api.concept.thing.entity import Entity
+    from typedb.api.concept.thing.relation import Relation
+    from typedb.api.concept.type.attribute_type import AttributeType
+    from typedb.api.concept.type.entity_type import EntityType
+    from typedb.api.concept.type.relation_type import RelationType
+    from typedb.api.concept.value.value import ValueType
+    from typedb.common.exception import TypeDBException
 
 
 class ConceptManager(ABC):
-
-    # @abstractmethod
-    # def get_root_thing_type(self) -> ThingType:
-    #     pass
 
     @abstractmethod
     def get_root_entity_type(self) -> EntityType:
@@ -49,14 +47,6 @@ class ConceptManager(ABC):
     @abstractmethod
     def get_root_attribute_type(self) -> AttributeType:
         pass
-
-    # @abstractmethod
-    # def get_thing_type(self, label: str) -> ThingType:
-    #     pass
-
-    # @abstractmethod
-    # def get_thing(self, iid: str) -> Thing:
-    #     pass
 
     @abstractmethod
     def get_entity_type(self, label: str) -> EntityType:

@@ -42,10 +42,6 @@ class Client(ABC):
     def session(self, database: str, session_type: SessionType, options: Optional[Options] = None) -> Session:
         pass
 
-    # @abstractmethod
-    # def is_cluster(self) -> bool:
-    #     pass
-
     @abstractmethod
     def close(self) -> None:
         pass

@@ -23,11 +23,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator, Optional
 
-from typedb.api.concept.type.annotation import Annotation
 from typedb.api.concept.type.type import Type
 from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.api.concept.type.annotation import Annotation
     from typedb.api.concept.thing.thing import Thing
     from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.value.value import ValueType
@@ -117,5 +117,3 @@ class ThingType(Type, ABC):
     @abstractmethod
     def get_syntax(self, transaction: Transaction) -> str:
         pass
-
-

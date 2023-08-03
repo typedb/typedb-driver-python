@@ -23,15 +23,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Mapping, Union
+from typing import Mapping, Union
 
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 
 from typedb.typedb_client_python import Object, Boolean, Long, Double, String, DateTime
-
-if TYPE_CHECKING:
-    pass
 
 
 class Value(Concept, ABC):
@@ -104,10 +101,6 @@ class _ValueType:
     def native_object(self):
         return self._native_object
 
-    # @staticmethod
-    # def of(value_type):
-    #     pass
-
 
 class ValueType(Enum):
     OBJECT = _ValueType(False, False, Object)
@@ -137,58 +130,3 @@ class ValueType(Enum):
             if type_.native_object == value_type:
                 return type_
         raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
-
-    # class BooleanValue(Value, ABC):
-#
-#     def is_boolean(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_value(self) -> bool:
-#         pass
-#
-#
-# class LongValue(Value, ABC):
-#
-#     def is_long(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_value(self) -> int:
-#         pass
-#
-#
-# class DoubleValue(Value, ABC):
-#
-#     def is_double(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_value(self) -> float:
-#         pass
-#
-#
-# class StringValue(Value, ABC):
-#
-#     def is_string(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_value(self) -> str:
-#         pass
-#
-#
-# class DateTimeValue(Value, ABC):
-#
-#     def is_datetime(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_value(self) -> datetime:
-#         pass
-#
-#     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-#         return {
-#             "value_type": str(self.get_value_type()),
-#             "value": self.get_value().isoformat(timespec='milliseconds')
-#         }

@@ -18,15 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator, Union, Optional
 
-from typedb.api.concept.thing.relation import Relation
-from typedb.api.concept.type.role_type import RoleType
 from typedb.api.concept.type.thing_type import ThingType
 
 if TYPE_CHECKING:
+    from typedb.api.concept.thing.relation import Relation
+    from typedb.api.concept.type.role_type import RoleType
     from typedb.api.connection.transaction import Transaction
 
 

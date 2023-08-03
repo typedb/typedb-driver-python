@@ -23,10 +23,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator
 
-from typedb.api.concept.thing.entity import Entity
 from typedb.api.concept.type.thing_type import ThingType
 
 if TYPE_CHECKING:
+    from typedb.api.concept.thing.entity import Entity
     from typedb.api.connection.transaction import Transaction
 
 
@@ -40,44 +40,21 @@ class EntityType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator["EntityType"]:
+    def get_subtypes(self, transaction: Transaction) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator["EntityType"]:
+    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator["Entity"]:
+    def get_instances(self, transaction: Transaction) -> Iterator[Entity]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator["Entity"]:
+    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Entity]:
         pass
 
     @abstractmethod
-    def set_supertype(self, transaction: Transaction, super_entity_type: "EntityType"):
+    def set_supertype(self, transaction: Transaction, super_entity_type: EntityType):
         pass
-
-    # @abstractmethod
-    # def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteEntityType":
-    #     pass
-
-
-# class RemoteEntityType(RemoteThingType, EntityType, ABC):
-#
-#     @abstractmethod
-#     def create(self) -> "Entity":
-#         pass
-#
-#     @abstractmethod
-#     def get_instances(self) -> Iterator["Entity"]:
-#         pass
-#
-#     @abstractmethod
-#     def get_subtypes(self) -> Iterator[EntityType]:
-#         pass
-#
-#     @abstractmethod
-#     def set_supertype(self, entity_type: EntityType) -> None:
-#         pass
