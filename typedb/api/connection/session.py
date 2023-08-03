@@ -20,7 +20,7 @@
 #
 
 from __future__ import annotations
-import enum
+from enum import Enum
 from abc import ABC, abstractmethod
 
 from typedb.api.connection.database import Database
@@ -30,7 +30,7 @@ from typedb.api.connection.transaction import Transaction, TransactionType
 from typedb.typedb_client_python import Data, Schema
 
 
-class SessionType(enum.Enum):
+class SessionType(Enum):
     DATA = Data
     SCHEMA = Schema
 
@@ -39,9 +39,6 @@ class SessionType(enum.Enum):
 
     def is_schema(self):
         return self is SessionType.SCHEMA
-
-    # def proto(self):
-    #     return session_proto.Session.Type.Value(self.name)
 
 
 class Session(ABC):

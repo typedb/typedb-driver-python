@@ -102,34 +102,34 @@ class _Value(Value, _Concept):
         raise TypeDBClientException(ILLEGAL_STATE)
 
     def is_boolean(self) -> bool:
-        return value_is_boolean(self._concept)
+        return value_is_boolean(self.native_object)
 
     def is_long(self) -> bool:
-        return value_is_long(self._concept)
+        return value_is_long(self.native_object)
 
     def is_double(self) -> bool:
-        return value_is_double(self._concept)
+        return value_is_double(self.native_object)
 
     def is_string(self) -> bool:
-        return value_is_string(self._concept)
+        return value_is_string(self.native_object)
 
     def is_datetime(self) -> bool:
-        return value_is_date_time(self._concept)
+        return value_is_date_time(self.native_object)
 
     def as_boolean(self) -> bool:
-        return value_get_boolean(self._concept)
+        return value_get_boolean(self.native_object)
 
     def as_long(self) -> int:
-        return value_get_long(self._concept)
+        return value_get_long(self.native_object)
 
     def as_double(self) -> float:
-        return value_get_double(self._concept)
+        return value_get_double(self.native_object)
 
     def as_string(self) -> str:
-        return value_get_string(self._concept)
+        return value_get_string(self.native_object)
 
     def as_datetime(self) -> datetime:
-        return datetime.utcfromtimestamp(value_get_date_time_as_millis(self._concept) / 1000)
+        return datetime.utcfromtimestamp(value_get_date_time_as_millis(self.native_object) / 1000)
 
     def __repr__(self):
         return f"{self.get_value_type()}({self.get_value()})"

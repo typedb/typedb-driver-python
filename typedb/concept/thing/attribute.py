@@ -44,16 +44,16 @@ class _Attribute(Attribute, _Thing):
     #     return self
 
     def get_type(self) -> _AttributeType:
-        return _AttributeType(attribute_get_type(self._concept))
+        return _AttributeType(attribute_get_type(self.native_object))
 
     def get_value(self) -> _Value:
-        return _Value(attribute_get_value(self._concept))
+        return _Value(attribute_get_value(self.native_object))
 
     def get_owners(self, transaction: Transaction, owner_type: Optional[ThingType] = None) -> Iterator[_Thing]:
         return (_Thing.of(item) for item in Streamer(attribute_get_owners(self.native_transaction(transaction),
-                                                                       self._concept,
-                                                                       owner_type.native_object() if owner_type else None
-                                                                       ), concept_iterator_next))
+                                                                          self.native_object,
+                                                                          owner_type.native_object if owner_type else None
+                                                                          ), concept_iterator_next))
 
 
 # class _BooleanAttribute(BooleanAttribute, _Attribute):

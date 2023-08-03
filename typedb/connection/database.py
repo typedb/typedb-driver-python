@@ -35,54 +35,55 @@ from typedb.common.streamer import Streamer
 class _Database(database.Database):
 
     def __init__(self, database: NativeDatabase):
-        self._database = database
+        self._native_object = database
         self._name = database_get_name(database)
 
+    @property
     def native_object(self):
-        return self._database
+        return self._native_object
 
     def name(self) -> str:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
         return self._name
 
     def schema(self) -> str:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        return database_schema(self._database)
+        return database_schema(self.native_object)
 
     def rule_schema(self) -> str:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        return database_rule_schema(self._database)
+        return database_rule_schema(self.native_object)
 
     def type_schema(self) -> str:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        return database_type_schema(self._database)
+        return database_type_schema(self.native_object)
 
     def delete(self) -> None:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        database_delete(self._database)
+        database_delete(self.native_object)
 
     def replicas(self) -> set[Replica]:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        repl_iter = Streamer(database_get_replicas_info(self._database), replica_info_iterator_next)
+        repl_iter = Streamer(database_get_replicas_info(self.native_object), replica_info_iterator_next)
         return set(_Database.Replica(replica_info) for replica_info in repl_iter)
 
     def primary_replica(self) -> Optional[Replica]:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        if res := database_get_primary_replica_info(self._database):
+        if res := database_get_primary_replica_info(self.native_object):
             return _Database.Replica(res)
         return None
 
     def preferred_replica(self) -> Optional[Replica]:
-        if not self._database.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(DATABASE_DELETED, self._name)
-        if res := database_get_preferred_replica_info(self._database):
+        if res := database_get_preferred_replica_info(self.native_object):
             return _Database.Replica(res)
         return None
 

@@ -40,7 +40,7 @@ class _Client(Client):
 
     def __init__(self, addresses: list[str], credential: Optional[Credential] = None):
         if credential:
-            self._connection = connection_open_encrypted(addresses, credential.native_object())
+            self._connection = connection_open_encrypted(addresses, credential.native_object)
         else:
             self._connection = connection_open_plaintext(addresses[0])
         self._database_manager = _DatabaseManagerImpl(self._connection)
@@ -48,10 +48,6 @@ class _Client(Client):
 
     def session(self, database: str, session_type: SessionType, options: Options = None) -> _Session:
         return _Session(self.databases().get(database), session_type, options if options else Options())
-
-    # def remove_session(self, session: _SessionImpl) -> None:
-    #     with self._sessions_lock:
-    #         del self._sessions[session.session_id()]
 
     def is_open(self) -> bool:
         return connection_is_open(self._connection)
@@ -64,12 +60,6 @@ class _Client(Client):
 
     def user(self) -> User:
         return self._user_manager.get_current_user()
-
-    # def address(self) -> str:
-    #     return self._address
-    #
-     # def is_cluster(self) -> bool:
-    #     return False
 
     def __enter__(self):
         return self

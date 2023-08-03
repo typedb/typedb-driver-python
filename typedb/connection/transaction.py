@@ -43,7 +43,7 @@ class _Transaction(Transaction):
         self._session = session     # Do we need this?
         self._transaction_type = transaction_type
         self._options = options
-        self._transaction = transaction_new(session.native_object(), transaction_type.value, options.native_object())
+        self._transaction = transaction_new(session.native_object, transaction_type.value, options.native_object)
         self._concept_manager = _ConceptManager(self._transaction)
         self._query_manager = _QueryManager(self._transaction)
         self._logic_manager = _LogicManager(self._transaction)

@@ -100,6 +100,7 @@ class _ValueType:
     def is_keyable(self) -> bool:
         return self._is_keyable
 
+    @property
     def native_object(self):
         return self._native_object
 
@@ -116,8 +117,9 @@ class ValueType(Enum):
     STRING = _ValueType(True, True, String)
     DATETIME = _ValueType(True, True, DateTime)
 
+    @property
     def native_object(self):
-        return self.value.native_object()
+        return self.value.native_object
 
     def __str__(self):
         mapping = {ValueType.OBJECT: "object",
@@ -132,7 +134,7 @@ class ValueType(Enum):
     @staticmethod
     def of(value_type: Union[Object, Boolean, Long, Double, String, DateTime]) -> ValueType:
         for type_ in ValueType:
-            if type_.native_object() == value_type:
+            if type_.native_object == value_type:
                 return type_
         raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
 

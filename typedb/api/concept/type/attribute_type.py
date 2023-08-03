@@ -26,7 +26,8 @@ from typing import Optional, TYPE_CHECKING, Iterator, Set, Union
 
 from typedb.api.concept.value.value import Value, ValueType
 from typedb.api.concept.thing.attribute import Attribute
-from typedb.api.concept.type.thing_type import ThingType, Annotation
+from typedb.api.concept.type.thing_type import ThingType
+from typedb.api.concept.type.annotation import Annotation
 
 if TYPE_CHECKING:
     from typedb.api.connection.transaction import Transaction

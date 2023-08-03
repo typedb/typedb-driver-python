@@ -26,6 +26,7 @@ from typedb.api.connection.options import Options
 from typedb.api.connection.session import Session, SessionType
 from typedb.api.connection.transaction import Transaction, TransactionType
 from typedb.common.exception import TypeDBClientException
+from typedb.connection.database import _Database
 from typedb.connection.transaction import _Transaction
 
 from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, \
@@ -38,26 +39,27 @@ from typedb.typedb_client_python import session_new, session_on_close, session_f
 
 class _Session(Session):
 
-    def __init__(self, database: Database, session_type: SessionType, options: Optional[Options] = None):
+    def __init__(self, database: _Database, session_type: SessionType, options: Optional[Options] = None):
         if not options:
             options = Options()
         self._type = session_type
         self._options = options
-        db = database.native_object()
+        db = database.native_object
         db.thisown = 0
-        self._session = session_new(db, session_type.value, options.native_object())
+        self._native_object = session_new(db, session_type.value, options.native_object)
 
+    @property
     def native_object(self):
-        return self._session
+        return self._native_object
 
     def is_open(self) -> bool:
-        return session_is_open(self._session)
+        return session_is_open(self.native_object)
 
     def type(self) -> SessionType:
         return self._type
 
     def database_name(self) -> str:
-        return session_get_database_name(self._session)
+        return session_get_database_name(self.native_object)
 
     def options(self) -> Options:
         return self._options
@@ -66,10 +68,10 @@ class _Session(Session):
         return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:
-        session_force_close(self._session)
+        session_force_close(self.native_object)
 
     def on_close(self, function: callable):
-        session_on_close(self._session, _Session.Callback(function))
+        session_on_close(self.native_object, _Session.Callback(function))
 
     class Callback(SessionCallbackDirector):
 

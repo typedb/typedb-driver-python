@@ -32,11 +32,12 @@ class Credential:
     def __init__(self, username: str, password: str, *, tls_root_ca_path: Optional[str] = None, tls_enabled: bool = True):
         if tls_root_ca_path is not None and not tls_enabled:
             raise TypeDBClientException.of(CLUSTER_INCONSISTENT_CREDENTIAL)
-        self._credential = credential_new(username, password, tls_root_ca_path, tls_enabled)
+        self._native_object = credential_new(username, password, tls_root_ca_path, tls_enabled)
         if check_error():
             raise TypeDBClientException("Credential error.")
         if tls_root_ca_path is not None and not path.exists(tls_root_ca_path):
             raise TypeDBClientException.of(CLUSTER_INVALID_ROOT_CA_PATH, tls_root_ca_path)
 
+    @property
     def native_object(self):
-        return self._credential
+        return self._native_object

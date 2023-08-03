@@ -58,7 +58,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return map(_ConceptMap, Streamer(query_match(self._transaction, query, options.native_object()),
+        return map(_ConceptMap, Streamer(query_match(self._transaction, query, options.native_object),
                                          concept_map_iterator_next))
 
     def match_aggregate(self, query: str, options: Optional[Options] = None) -> Numeric:
@@ -68,7 +68,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return _Numeric(query_match_aggregate(self._transaction, query, options.native_object()))
+        return _Numeric(query_match_aggregate(self._transaction, query, options.native_object))
 
     def match_group(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMapGroup]:
         if not self._transaction.thisown:
@@ -77,7 +77,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return map(_ConceptMapGroup, Streamer(query_match_group(self._transaction, query, options.native_object()),
+        return map(_ConceptMapGroup, Streamer(query_match_group(self._transaction, query, options.native_object),
                                               concept_map_group_iterator_next))
 
     def match_group_aggregate(self, query: str, options: Optional[Options] = None) -> Iterator[NumericGroup]:
@@ -87,7 +87,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return map(_NumericGroup, Streamer(query_match_group_aggregate(self._transaction, query, options.native_object()),
+        return map(_NumericGroup, Streamer(query_match_group_aggregate(self._transaction, query, options.native_object),
                                            numeric_group_iterator_next))
 
     def insert(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMap]:
@@ -97,7 +97,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return map(_ConceptMap, Streamer(query_insert(self._transaction, query, options.native_object()),
+        return map(_ConceptMap, Streamer(query_insert(self._transaction, query, options.native_object),
                                          concept_map_iterator_next))
 
     def delete(self, query: str, options: Optional[Options] = None) -> None:
@@ -107,7 +107,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return query_delete(self._transaction, query, options.native_object())
+        return query_delete(self._transaction, query, options.native_object)
 
     def update(self, query: str, options: Optional[Options] = None) -> Iterator[ConceptMap]:
         if not self._transaction.thisown:
@@ -116,7 +116,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return map(_ConceptMap, Streamer(query_update(self._transaction, query, options.native_object()),
+        return map(_ConceptMap, Streamer(query_update(self._transaction, query, options.native_object),
                                          concept_map_iterator_next))
 
     def define(self, query: str, options: Options = None) -> None:
@@ -126,7 +126,7 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return query_define(self._transaction, query, options.native_object())
+        return query_define(self._transaction, query, options.native_object)
 
     def undefine(self, query: str, options: Options = None) -> None:
         if not self._transaction.thisown:
@@ -135,14 +135,14 @@ class _QueryManager(QueryManager):
             raise TypeDBClientException(MISSING_QUERY)
         if not options:
             options = Options()
-        return query_undefine(self._transaction, query, options.native_object())
+        return query_undefine(self._transaction, query, options.native_object)
 
     def explain(self, explainable: ConceptMap.Explainable, options: Optional[Options] = None) -> Iterator[Explanation]:
         if not self._transaction.thisown:
             raise TypeDBClientException(TRANSACTION_CLOSED)
         if not options:
             options = Options()
-        return map(_Explanation, Streamer(query_explain(self._transaction, explainable.id(), options.native_object()),
+        return map(_Explanation, Streamer(query_explain(self._transaction, explainable.id(), options.native_object),
                                           explanation_iterator_next))
 
     # def query_void(self, req: transaction_proto.Transaction.Req):

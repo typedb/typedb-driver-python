@@ -94,7 +94,7 @@ class _ConceptManager(ConceptManager):
     def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
         if not label:
             raise TypeDBClientException.of(MISSING_LABEL)
-        return _AttributeType(concepts_put_attribute_type(self._transaction, label, value_type.native_object()))
+        return _AttributeType(concepts_put_attribute_type(self._transaction, label, value_type.native_object))
 
     def get_entity(self, iid: str) -> Optional[_Entity]:
         if not iid:

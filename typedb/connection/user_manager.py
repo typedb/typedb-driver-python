@@ -22,17 +22,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from typedb.api.connection.user import UserManager, User
+from typedb.api.connection.user import UserManager
 from typedb.common.streamer import Streamer
-# from typedb.connection.cluster.database import _FailsafeTask, _ClusterDatabase
 from typedb.connection.user import _User
-
-from typedb.typedb_client_python import user_manager_new, Connection as NativeConnection, users_contains, users_create, \
+from typedb.typedb_client_python import user_manager_new, users_contains, users_create, \
     users_delete, users_all, users_get, users_set_password, users_current_user, user_iterator_next
 
+if TYPE_CHECKING:
+    from typedb.api.connection.user import User
+    from typedb.typedb_client_python import Connection as NativeConnection
 
-# if TYPE_CHECKING:
-#     from typedb.connection.client import _Client
 
 class _UserManager(UserManager):
 
@@ -51,10 +50,6 @@ class _UserManager(UserManager):
 
     def all(self) -> list[User]:
         return [_User(user, self._connection) for user in Streamer(users_all(self._user_manager), user_iterator_next)]
-
-    # def _get_user_list(self, replica: _ClusterDatabase.Replica):
-    #     users_proto = self._client._stub(replica.address()).users_all(cluster_user_manager_all_req())
-    #     return [_User.of(user, self._client) for user in users_proto.users]
 
     def get(self, username: str) -> Optional[User]:
         if user := users_get(self._user_manager, username):

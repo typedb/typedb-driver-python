@@ -39,7 +39,7 @@ class _Entity(Entity, _Thing):
     #     return _Entity(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
 
     def get_type(self) -> entity_type._EntityType:
-        return entity_type._EntityType(entity_get_type(self._concept))
+        return entity_type._EntityType(entity_get_type(self.native_object))
 
     # def as_entity(self) -> "Entity":
     #     return self
