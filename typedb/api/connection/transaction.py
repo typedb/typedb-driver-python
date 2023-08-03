@@ -48,22 +48,27 @@ class Transaction(ABC):
     def is_open(self) -> bool:
         pass
 
+    @property
     @abstractmethod
     def transaction_type(self) -> TransactionType:
         pass
 
+    @property
     @abstractmethod
     def options(self) -> Options:
         pass
 
+    @property
     @abstractmethod
     def concepts(self) -> ConceptManager:
         pass
 
+    @property
     @abstractmethod
     def logic(self) -> LogicManager:
         pass
 
+    @property
     @abstractmethod
     def query(self) -> QueryManager:
         pass

@@ -22,16 +22,13 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Mapping, Union, Iterator
+from typing import Mapping, Union, Iterator, TYPE_CHECKING
 
-from typedb.api.concept.concept import Concept
+if TYPE_CHECKING:
+    from typedb.api.concept.concept import Concept
 
 
 class ConceptMap(ABC):
-
-    # @abstractmethod
-    # def map(self) -> Mapping[str, Concept]:
-    #     pass
 
     @abstractmethod
     def variables(self) -> Iterator[str]:
@@ -49,7 +46,7 @@ class ConceptMap(ABC):
     def explainables(self) -> Explainables:
         pass
 
-    def to_json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool, datetime]]]:
+    def to_json(self) -> Mapping[str, Mapping[str, Union[str, int, float, bool]]]:
         return {
             var: self.get(var).to_json()
             for var in self.variables()

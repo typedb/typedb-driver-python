@@ -43,7 +43,7 @@ class _Concept(Concept, ABC):
 
     @staticmethod
     def native_transaction(transaction: _Transaction) -> NativeTransaction:
-        return transaction.concepts().native_transaction()
+        return transaction.concepts.native_transaction()
 
     @property
     def native_object(self):

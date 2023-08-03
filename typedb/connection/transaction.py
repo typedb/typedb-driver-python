@@ -40,7 +40,7 @@ class _Transaction(Transaction):
     def __init__(self, session: _Session, transaction_type: TransactionType, options: Options = None):
         if not options:
             options = Options()
-        self._session = session     # Do we need this?
+        # self._session = session
         self._transaction_type = transaction_type
         self._options = options
         self._transaction = transaction_new(session.native_object, transaction_type.value, options.native_object)
@@ -48,9 +48,11 @@ class _Transaction(Transaction):
         self._query_manager = _QueryManager(self._transaction)
         self._logic_manager = _LogicManager(self._transaction)
 
+    @property
     def transaction_type(self) -> TransactionType:
         return self._transaction_type
 
+    @property
     def options(self) -> Options:
         return self._options
 
@@ -59,12 +61,15 @@ class _Transaction(Transaction):
             return False
         return transaction_is_open(self._transaction)
 
+    @property
     def concepts(self) -> _ConceptManager:
         return self._concept_manager
 
+    @property
     def logic(self) -> _LogicManager:
         return self._logic_manager
 
+    @property
     def query(self) -> _QueryManager:
         return self._query_manager
 

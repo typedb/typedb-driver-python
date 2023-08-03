@@ -23,35 +23,26 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from typedb.api.connection.user import User
-
 from typedb.typedb_client_python import user_get_username, \
     user_get_password_expiry_seconds, user_password_update
 
 if TYPE_CHECKING:
-    # from typedb.connection.client import _Client
     from typedb.typedb_client_python import User as NativeUser, Connection as NativeConnection
 
 
 class _User(User):
 
     def __init__(self, user: NativeUser, connection: NativeConnection):
-        self._user = user
-        self._connection = connection
-
-    # @staticmethod
-    # def of(user: cluster_user_proto.ClusterUser, client: "_ClusterClient"):
-    #     if user.WhichOneof("password_expiry") == "password_expiry_seconds":
-    #         return _User(client, user.username, user.password_expiry_seconds)
-    #     else:
-    #         return _User(client, user.username, None)
+        self._native_user = user
+        self._native_connection = connection
 
     def username(self) -> str:
-        return user_get_username(self._user)
+        return user_get_username(self._native_user)
 
     def password_expiry_seconds(self) -> Optional[int]:
-        if res := user_get_password_expiry_seconds(self._user) >= 0:
+        if res := user_get_password_expiry_seconds(self._native_user) >= 0:
             return res
         return None
 
     def password_update(self, password_old: str, password_new: str) -> None:
-        user_password_update(self._user, self._connection, password_old, password_new)
+        user_password_update(self._native_user, self._native_connection, password_old, password_new)

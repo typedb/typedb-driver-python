@@ -35,9 +35,9 @@ class TestDebug(TestCase):
 
     def setUp(self):
         with TypeDB.core_client(TypeDB.DEFAULT_ADDRESS) as client:
-            if client.databases().contains(TYPEDB):
-                client.databases().get(TYPEDB).delete()
-            client.databases().create(TYPEDB)
+            if client.databases.contains(TYPEDB):
+                client.databases.get(TYPEDB).delete()
+            client.databases.create(TYPEDB)
 
     # TODO: Write anything you want in this test for local debugging. A TypeDB server should be running in the background
     def test_debug(self):
@@ -64,7 +64,7 @@ class TestDebug(TestCase):
                     (friend: $x, friend: $y) isa friendship;
                 };
                 """
-                tx.query().define(schema)
+                tx.query.define(schema)
                 tx.commit()
 
             with client.session(TYPEDB, DATA) as session, session.transaction(WRITE) as tx:
@@ -74,17 +74,17 @@ class TestDebug(TestCase):
                 $y isa person, has name "Yasmin";
                 (husband: $x, wife: $y) isa marriage;
                 """
-                tx.query().insert(data)
+                tx.query.insert(data)
                 tx.commit()
 
             opts = Options(infer=True, explain=True)
             with client.session(TYPEDB, DATA) as session, session.transaction(READ, opts) as tx:
-                answers = list(tx.query().match("match (friend: $p1, friend: $p2) isa friendship; $p1 has name $na;"))
+                answers = list(tx.query.match("match (friend: $p1, friend: $p2) isa friendship; $p1 has name $na;"))
                 assert len(answers[0].explainables().relations()) == 1
                 assert len(answers[1].explainables().relations()) == 1
-                explanations = list(tx.query().explain(next(iter(answers[0].explainables().relations().values()))))
+                explanations = list(tx.query.explain(next(iter(answers[0].explainables().relations().values()))))
                 assert len(explanations) == 3
-                explanations2 = list(tx.query().explain(next(iter(answers[1].explainables().relations().values()))))
+                explanations2 = list(tx.query.explain(next(iter(answers[1].explainables().relations().values()))))
                 assert len(explanations2) == 3
                 print([str(e) for e in explanations])
 

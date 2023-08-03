@@ -37,9 +37,9 @@ class TestClusterFailover(TestCase):
         root_ca_path = os.environ["ROOT_CA"]
         credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
         with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
-            if client.databases().contains("typedb"):
-                client.databases().get("typedb").delete()
-            client.databases().create("typedb")
+            if client.databases.contains("typedb"):
+                client.databases.get("typedb").delete()
+            client.databases.create("typedb")
 
     @staticmethod
     def server_start(index):
@@ -80,21 +80,21 @@ class TestClusterFailover(TestCase):
         root_ca_path = os.environ["ROOT_CA"]
         credential = Credential("admin", "password", tls_root_ca_path=root_ca_path)
         with TypeDB.cluster_client(["localhost:11729", "localhost:21729", "localhost:31729"], credential) as client:
-            assert client.databases().contains("typedb")
-            primary_replica = self.get_primary_replica(client.databases())
+            assert client.databases.contains("typedb")
+            primary_replica = self.get_primary_replica(client.databases)
             print("Performing operations against the primary replica " + str(primary_replica))
             with client.session("typedb", SCHEMA) as session, session.transaction(WRITE) as tx:
-                tx.concepts().put_entity_type("person")
+                tx.concepts.put_entity_type("person")
                 print("Put the entity type 'person'.")
                 tx.commit()
             with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
-                person = tx.concepts().get_entity_type("person")
+                person = tx.concepts.get_entity_type("person")
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
                 assert person.get_label().name() == "person"
             iteration = 0
             while iteration < 10:
                 iteration += 1
-                primary_replica = self.get_primary_replica(client.databases())
+                primary_replica = self.get_primary_replica(client.databases)
                 print("Stopping primary replica (test %d/10)..." % iteration)
                 port = primary_replica.address()[10:15]
                 lsof = subprocess.check_output(["lsof", "-i", ":%s" % port])
@@ -104,7 +104,7 @@ class TestClusterFailover(TestCase):
                 print("Primary replica stopped successfully.")
                 sleep(5)  # TODO: This ensures the server is actually shut down, but it's odd that it needs to be so long
                 with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
-                    person = tx.concepts().get_entity_type("person")
+                    person = tx.concepts.get_entity_type("person")
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
                     assert person.get_label().name() == "person"
                 idx = str(primary_replica.address())[10]

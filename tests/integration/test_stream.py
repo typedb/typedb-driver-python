@@ -35,14 +35,14 @@ class TestStream(TestCase):
 
     def setUp(self):
         with TypeDB.core_client("127.0.0.1:1729") as client:
-            if TYPEDB not in [db.name() for db in client.databases().all()]:
-                client.databases().create(TYPEDB)
+            if TYPEDB not in [db.name() for db in client.databases.all()]:
+                client.databases.create(TYPEDB)
 
     def test_multiple_done_response_handling(self):
         with TypeDB.core_client(TypeDB.DEFAULT_ADDRESS) as client:
             with client.session(TYPEDB, SCHEMA) as session, session.transaction(WRITE) as tx:
                 for i in range(51):
-                    tx.query().define(f"define person sub entity, owns name{i}; name{i} sub attribute, value string;")
+                    tx.query.define(f"define person sub entity, owns name{i}; name{i} sub attribute, value string;")
                 tx.commit()
             # With these options (the default in TypeDB at time of writing), the server may respond with:
             # 50 answers -> CONTINUE -> 1 answer [compensating for latency] -> DONE. The client will respond to
@@ -51,9 +51,9 @@ class TestStream(TestCase):
             tx_options = Options(prefetch=True, prefetch_size=50)
             for i in range(50):
                 with client.session(TYPEDB, DATA) as session, session.transaction(READ, tx_options) as tx:
-                    person_type = tx.concepts().get_entity_type("person")
+                    person_type = tx.concepts.get_entity_type("person")
                     _attrs = list(person_type.get_owns(tx, annotations={Annotation.key()}))
-                    next(tx.query().match("match $x sub thing; limit 1;"))
+                    next(tx.query.match("match $x sub thing; limit 1;"))
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

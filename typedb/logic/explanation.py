@@ -32,23 +32,10 @@ from typedb.typedb_client_python import Explanation as NativeExplanation, explan
     explanation_get_mapping, explanation_to_string, explanation_equals
 
 
-# def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarList]):
-#     mapping = {}
-#     for from_ in var_mapping:
-#         tos = var_mapping[from_]
-#         mapping[from_] = set(tos.vars)
-#     return mapping
-
-
 class _Explanation(Explanation):
 
     def __init__(self, explanation: NativeExplanation):
         self._explanation = explanation
-
-    # @staticmethod
-    # def of(explanation: logic_proto.Explanation):
-    #     return _Explanation(_Rule.of(explanation.rule), _var_mapping_of(explanation.var_mapping),
-    #                         _ConceptMap.of(explanation.conclusion), _ConceptMap.of(explanation.condition))
 
     def rule(self) -> Rule:
         return _Rule(explanation_get_rule(self._explanation))

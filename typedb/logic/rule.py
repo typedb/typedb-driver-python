@@ -49,7 +49,7 @@ class _Rule(Rule):
     def set_label(self, transaction: Transaction, new_label: str) -> None:
         if not new_label:
             raise TypeDBClientException(MISSING_LABEL)
-        rule_set_label(transaction.logic(), self._rule, new_label)
+        rule_set_label(transaction.logic, self._rule, new_label)
 
     def get_when(self) -> str:
         return self._when
@@ -58,10 +58,10 @@ class _Rule(Rule):
         return self._then
 
     def delete(self, transaction: Transaction) -> None:
-        rule_delete(transaction.logic(), self._rule)
+        rule_delete(transaction.logic, self._rule)
 
     def is_deleted(self, transaction: Transaction) -> bool:
-        return rule_is_deleted(transaction.logic(), self._rule)
+        return rule_is_deleted(transaction.logic, self._rule)
 
     def __str__(self):
         return rule_to_string(self._rule)

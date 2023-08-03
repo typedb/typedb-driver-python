@@ -66,7 +66,9 @@ class Thing(Concept, ABC):
         pass
 
     @abstractmethod
-    def get_has(self, transaction: Transaction, attribute_type: AttributeType = None, attribute_types: list[AttributeType] = None, annotations: set[Annotation] = frozenset()) -> Iterator[Attribute]:
+    def get_has(self, transaction: Transaction, attribute_type: AttributeType = None,
+                attribute_types: list[AttributeType] = None,
+                annotations: set[Annotation] = frozenset()) -> Iterator[Attribute]:
         pass
 
     @abstractmethod

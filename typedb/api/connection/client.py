@@ -33,6 +33,7 @@ class Client(ABC):
     def is_open(self) -> bool:
         pass
 
+    @property
     @abstractmethod
     def databases(self) -> DatabaseManager:
         pass
@@ -49,6 +50,7 @@ class Client(ABC):
     def close(self) -> None:
         pass
 
+    @property
     @abstractmethod
     def users(self) -> UserManager:
         pass

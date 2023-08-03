@@ -21,12 +21,12 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional, Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.role_type import RoleType
 
 if TYPE_CHECKING:
+    from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.type.relation_type import RelationType
     from typedb.api.connection.transaction import Transaction
 

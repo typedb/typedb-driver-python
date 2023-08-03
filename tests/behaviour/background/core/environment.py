@@ -53,7 +53,7 @@ def after_scenario(context: Context, scenario):
 
     # TODO: reset the database through the TypeDB runner once it exists
     context.setup_context_client_fn()
-    for database in context.client.databases().all():
+    for database in context.client.databases.all():
         database.delete()
     context.client.close()
 

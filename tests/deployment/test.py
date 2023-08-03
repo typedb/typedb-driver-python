@@ -48,14 +48,14 @@ class TestClientPython(TestCase):
         client.close()
 
     def setUp(self):
-        if not client.databases().contains("typedb"):
-            client.databases().create("typedb")
+        if not client.databases.contains("typedb"):
+            client.databases.create("typedb")
 
     def test_database(self):
-        if client.databases().contains("typedb"):
-            client.databases().get("typedb").delete()
-        client.databases().create("typedb")
-        self.assertTrue(client.databases().contains("typedb"))
+        if client.databases.contains("typedb"):
+            client.databases.get("typedb").delete()
+        client.databases.create("typedb")
+        self.assertTrue(client.databases.contains("typedb"))
 
     def test_session(self):
         session = client.session("typedb", SCHEMA)
@@ -69,20 +69,20 @@ class TestClientPython(TestCase):
     def test_define_and_undef_relation_type(self):
         with client.session("typedb", SCHEMA) as session:
             with session.transaction(WRITE) as tx:
-                tx.query().define("define lionfight sub relation, relates victor, relates loser;")
-                lionfight_type = tx.concepts().get_relation_type("lionfight")
+                tx.query.define("define lionfight sub relation, relates victor, relates loser;")
+                lionfight_type = tx.concepts.get_relation_type("lionfight")
                 print("define: " + lionfight_type.get_label().name())
-                tx.query().undefine("undefine lionfight sub relation;")
+                tx.query.undefine("undefine lionfight sub relation;")
                 tx.commit()
 
     def test_insert_some_entities(self):
         with client.session("typedb", SCHEMA) as session:
             with session.transaction(WRITE) as tx:
-                tx.query().define("define lion sub entity;")
+                tx.query.define("define lion sub entity;")
                 tx.commit()
         with client.session("typedb", DATA) as session:
             with session.transaction(WRITE) as tx:
-                for answer in tx.query().insert("insert $a isa lion; $b isa lion; $c isa lion;"):
+                for answer in tx.query.insert("insert $a isa lion; $b isa lion; $c isa lion;"):
                     print("insert: " + str(answer))
                     tx.commit()
 

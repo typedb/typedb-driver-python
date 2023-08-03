@@ -36,28 +36,28 @@ if TYPE_CHECKING:
 class _UserManager(UserManager):
 
     def __init__(self, connection: NativeConnection):
-        self._user_manager = user_manager_new(connection)
-        self._connection = connection
+        self._native_user_manager = user_manager_new(connection)
+        self._native_connection = connection
 
     def contains(self, username: str) -> bool:
-        return users_contains(self._user_manager, username)
+        return users_contains(self._native_user_manager, username)
 
     def create(self, username: str, password: str) -> None:
-        users_create(self._user_manager, username, password)
+        users_create(self._native_user_manager, username, password)
 
     def delete(self, username: str) -> None:
-        users_delete(self._user_manager, username)
+        users_delete(self._native_user_manager, username)
 
     def all(self) -> list[User]:
-        return [_User(user, self._connection) for user in Streamer(users_all(self._user_manager), user_iterator_next)]
+        return [_User(user, self._native_connection) for user in Streamer(users_all(self._native_user_manager), user_iterator_next)]
 
     def get(self, username: str) -> Optional[User]:
-        if user := users_get(self._user_manager, username):
-            return _User(user, self._connection)
+        if user := users_get(self._native_user_manager, username):
+            return _User(user, self._native_connection)
         return None
 
     def password_set(self, username: str, password: str) -> None:
-        users_set_password(self._user_manager, username, password)
+        users_set_password(self._native_user_manager, username, password)
 
     def get_current_user(self) -> User:
-        return _User(users_current_user(self._user_manager), self._connection)
+        return _User(users_current_user(self._native_user_manager), self._native_connection)

@@ -39,13 +39,13 @@ def step_impl(context: Context):
 
 @step("users contains: {username:Words}")
 def step_impl(context: Context, username: str):
-    assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
+    assert_that([u.username() for u in _get_client(context).users.all()], has_item(username))
 
 
 @step("users contains: {username:Words}; throws exception")
 def step_impl(context: Context, username: str):
     try:
-        assert_that([u.username() for u in _get_client(context).users().all()], has_item(username))
+        assert_that([u.username() for u in _get_client(context).users.all()], has_item(username))
         assert False
     except Exception:
         pass
@@ -54,19 +54,19 @@ def step_impl(context: Context, username: str):
 
 @step("users not contains: {username}")
 def step_impl(context: Context, username: str):
-    assert_that([u.username() for u in _get_client(context).users().all()], not_(has_item(username)))
+    assert_that([u.username() for u in _get_client(context).users.all()], not_(has_item(username)))
 
 
 @step("users create: {username:Words}, {password:Words}")
 def step_impl(context: Context, username: str, password: str):
-    _get_client(context).users().create(username, password)
+    _get_client(context).users.create(username, password)
 
 
 
 @step("users create: {username:Words}, {password:Words}; throws exception")
 def step_impl(context: Context, username: str, password: str):
     try :
-        _get_client(context).users().create(username, password)
+        _get_client(context).users.create(username, password)
         assert False
     except (TypeDBClientException, RuntimeError):
         pass
@@ -74,13 +74,13 @@ def step_impl(context: Context, username: str, password: str):
 
 @step("users get all")
 def step_impl(context: Context):
-    _get_client(context).users().all()
+    _get_client(context).users.all()
 
 
 @step("users get all; throws exception")
 def step_impl(context: Context):
     try:
-        _get_client(context).users().all()
+        _get_client(context).users.all()
         assert False
     except (TypeDBClientException, RuntimeError):
         pass
@@ -88,13 +88,13 @@ def step_impl(context: Context):
 
 @step("users get user: {username:Words}")
 def step_impl(context: Context, username: str):
-    _get_client(context).users().get(username)
+    _get_client(context).users.get(username)
 
 
 @step("users get user: {username:Words}; throws exception")
 def step_impl(context: Context, username: str):
     try :
-        _get_client(context).users().get(username)
+        _get_client(context).users.get(username)
         assert False
     except (TypeDBClientException, RuntimeError):
         pass
@@ -102,14 +102,14 @@ def step_impl(context: Context, username: str):
 
 @step("users delete: {username:Words}")
 def step_impl(context: Context, username: str):
-    _get_client(context).users().delete(username)
+    _get_client(context).users.delete(username)
 
 
 
 @step("users delete: {username:Words}; throws exception")
 def step_impl(context: Context, username: str):
     try:
-        _get_client(context).users().delete(username)
+        _get_client(context).users.delete(username)
         assert False
     except (TypeDBClientException, RuntimeError):
         pass
@@ -117,13 +117,13 @@ def step_impl(context: Context, username: str):
 
 @step("users password set: {username:Words}, {password:Words}")
 def step_impl(context: Context, username: str, password: str):
-    _get_client(context).users().password_set(username, password)
+    _get_client(context).users.password_set(username, password)
 
 
 @step("users password set: {username:Words}, {password:Words}; throws exception")
 def step_impl(context: Context, username: str, password: str):
     try:
-        _get_client(context).users().password_set(username, password)
+        _get_client(context).users.password_set(username, password)
         assert False
     except (TypeDBClientException, RuntimeError):
         pass
@@ -131,4 +131,4 @@ def step_impl(context: Context, username: str, password: str):
 
 @step("users password update: {username}, {password_old}, {password_new}")
 def step_impl(context: Context, username: str, password_old: str, password_new: str):
-    _get_client(context).users().get(username).password_update(password_old, password_new)
+    _get_client(context).users.get(username).password_update(password_old, password_new)

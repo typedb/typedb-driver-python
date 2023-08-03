@@ -19,10 +19,13 @@
 # under the License.
 #
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from typedb.api.answer.numeric import Numeric
-from typedb.api.concept.concept import Concept
+if TYPE_CHECKING:
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.concept.concept import Concept
 
 
 class NumericGroup(ABC):

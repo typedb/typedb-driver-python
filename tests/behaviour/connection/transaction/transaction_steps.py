@@ -165,7 +165,7 @@ def for_each_session_transaction_has_type(context: Context, transaction_types: l
         assert_that(transactions, has_length(len(transaction_types)))
         transactions_iterator = iter(transactions)
         for transaction_type in transaction_types:
-            assert_that(next(transactions_iterator).transaction_type(), is_(transaction_type))
+            assert_that(next(transactions_iterator).transaction_type, is_(transaction_type))
 
 
 # NOTE: behave ignores trailing colons in feature files
@@ -226,7 +226,7 @@ def step_impl(context: Context):
         assert_that(future_transactions, has_length(len(types)))
         future_transactions_iter = iter(future_transactions)
         for type_ in types:
-            assert_that(next(future_transactions_iter).result().transaction_type(), is_(type_))
+            assert_that(next(future_transactions_iter).result().transaction_type, is_(type_))
 
 
 ############################################
@@ -271,7 +271,7 @@ def step_impl(context: Context, exception: str):
     for session in context.sessions:
         for transaction in context.sessions_to_transactions[session]:
             try:
-                transaction.query().define(context.text)
+                transaction.query.define(context.text)
                 assert False
             except (TypeDBClientException, RuntimeError) as e:
                 assert_that(exception, is_in(str(e)))

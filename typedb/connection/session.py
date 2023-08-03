@@ -55,12 +55,14 @@ class _Session(Session):
     def is_open(self) -> bool:
         return session_is_open(self.native_object)
 
+    @property
     def type(self) -> SessionType:
         return self._type
 
     def database_name(self) -> str:
         return session_get_database_name(self.native_object)
 
+    @property
     def options(self) -> Options:
         return self._options
 

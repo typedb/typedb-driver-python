@@ -78,7 +78,7 @@ class _ConceptMap(ConceptMap):
         return concept_map_equals(self._concept_map, other._concept_map)
 
     def __hash__(self):
-        return hash((tuple(self.variables()), tuple(self.concepts())))
+        return hash((tuple(self.variables()), tuple(self.concepts)))
 
     class Explainables(ConceptMap.Explainables):
 

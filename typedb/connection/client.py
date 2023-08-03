@@ -26,7 +26,6 @@ from typedb.api.connection.credential import Credential
 from typedb.api.connection.options import Options
 from typedb.api.connection.session import SessionType
 from typedb.api.connection.user import UserManager, User
-# from typedb.common.exception import CLIENT_NOT_OPEN, TypeDBClientException
 from typedb.connection.database_manager import _DatabaseManagerImpl
 from typedb.connection.session import _Session
 
@@ -47,14 +46,16 @@ class _Client(Client):
         self._user_manager = _UserManager(self._connection)
 
     def session(self, database: str, session_type: SessionType, options: Options = None) -> _Session:
-        return _Session(self.databases().get(database), session_type, options if options else Options())
+        return _Session(self.databases.get(database), session_type, options if options else Options())
 
     def is_open(self) -> bool:
         return connection_is_open(self._connection)
 
+    @property
     def databases(self) -> _DatabaseManagerImpl:
         return self._database_manager
 
+    @property
     def users(self) -> UserManager:
         return self._user_manager
 

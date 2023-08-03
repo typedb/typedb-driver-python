@@ -47,6 +47,7 @@ class Session(ABC):
     def is_open(self) -> bool:
         pass
 
+    @property
     @abstractmethod
     def type(self) -> SessionType:
         pass
@@ -55,6 +56,7 @@ class Session(ABC):
     def database_name(self) -> str:
         pass
 
+    @property
     @abstractmethod
     def options(self) -> Options:
         pass

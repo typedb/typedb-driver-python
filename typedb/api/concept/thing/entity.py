@@ -27,7 +27,6 @@ from typedb.api.concept.thing.thing import Thing
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.entity_type import EntityType
-    # from typedb.api.connection.transaction import Transaction
 
 
 class Entity(Thing, ABC):

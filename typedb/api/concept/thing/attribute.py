@@ -21,13 +21,12 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import TYPE_CHECKING, Iterator, Mapping, Union, Optional
 
 from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.value.value import Value
 
 if TYPE_CHECKING:
+    from typedb.api.concept.value.value import Value
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.type.thing_type import ThingType
     from typedb.api.connection.transaction import Transaction
@@ -49,21 +48,6 @@ class Attribute(Thing, ABC):
     def as_attribute(self) -> Attribute:
         return self
 
-    # def is_boolean(self):
-    #     return False
-    #
-    # def is_long(self):
-    #     return False
-    #
-    # def is_double(self):
-    #     return False
-    #
-    # def is_string(self):
-    #     return False
-    #
-    # def is_datetime(self):
-    #     return False
-
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         # TODO: Check it
         return {"type": self.get_type().get_label().scoped_name()} | self.get_value().to_json()
@@ -71,120 +55,3 @@ class Attribute(Thing, ABC):
     @abstractmethod
     def get_owners(self, transaction: Transaction, owner_type: Optional[ThingType] = None) -> Iterator[Thing]:
         pass
-
-
-# class BooleanAttribute(Attribute, ABC):
-#
-#     def is_boolean(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_type(self) -> "BooleanAttributeType":
-#         pass
-#
-#     @abstractmethod
-#     def get_value(self) -> bool:
-#         pass
-#
-#     @abstractmethod
-#     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteBooleanAttribute":
-#         pass
-#
-#
-# class RemoteBooleanAttribute(RemoteAttribute, BooleanAttribute, ABC):
-#     pass
-#
-#
-# class LongAttribute(Attribute, ABC):
-#
-#     def is_long(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_type(self) -> "LongAttributeType":
-#         pass
-#
-#     @abstractmethod
-#     def get_value(self) -> int:
-#         pass
-#
-#     @abstractmethod
-#     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteLongAttribute":
-#         pass
-#
-#
-# class RemoteLongAttribute(RemoteAttribute, LongAttribute, ABC):
-#     pass
-#
-#
-# class DoubleAttribute(Attribute, ABC):
-#
-#     def is_double(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_type(self) -> "DoubleAttributeType":
-#         pass
-#
-#     @abstractmethod
-#     def get_value(self) -> float:
-#         pass
-#
-#     @abstractmethod
-#     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDoubleAttribute":
-#         pass
-#
-#
-# class RemoteDoubleAttribute(RemoteAttribute, DoubleAttribute, ABC):
-#     pass
-#
-#
-# class StringAttribute(Attribute, ABC):
-#
-#     def is_string(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_type(self) -> "StringAttributeType":
-#         pass
-#
-#     @abstractmethod
-#     def get_value(self) -> str:
-#         pass
-#
-#     @abstractmethod
-#     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteStringAttribute":
-#         pass
-#
-#
-# class RemoteStringAttribute(RemoteAttribute, StringAttribute, ABC):
-#     pass
-#
-#
-# class DateTimeAttribute(Attribute, ABC):
-#
-#     def is_datetime(self) -> bool:
-#         return True
-#
-#     @abstractmethod
-#     def get_type(self) -> "DateTimeAttributeType":
-#         pass
-#
-#     @abstractmethod
-#     def get_value(self) -> datetime:
-#         pass
-#
-#     @abstractmethod
-#     def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDateTimeAttribute":
-#         pass
-#
-#     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-#         return {
-#             "type": self.get_type().get_label().name(),
-#             "value_type": str(self.get_type().get_value_type()),
-#             "value": self.get_value().isoformat(timespec='milliseconds')
-#         }
-#
-#
-# class RemoteDateTimeAttribute(RemoteAttribute, DateTimeAttribute, ABC):
-#     pass

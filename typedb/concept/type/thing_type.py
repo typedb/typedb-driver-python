@@ -90,10 +90,10 @@ class _ThingType(ThingType, _Type, ABC):
         thing_type_delete(self.native_transaction(transaction), self.native_object)
 
     def is_deleted(self, transaction: Transaction) -> bool:
-        return thing_type_is_deleted(transaction.concepts().native_transaction(), self.native_object)
+        return thing_type_is_deleted(transaction.concepts.native_transaction(), self.native_object)
 
     def set_label(self, transaction: Transaction, new_label: Label) -> None:
-        thing_type_set_label(transaction.concepts().native_transaction(), self.native_object, new_label)
+        thing_type_set_label(transaction.concepts.native_transaction(), self.native_object, new_label)
 
     @abstractmethod
     def get_instances(self, transaction: Transaction):
@@ -104,19 +104,19 @@ class _ThingType(ThingType, _Type, ABC):
         pass
 
     def set_abstract(self, transaction: Transaction) -> None:
-        thing_type_set_abstract(transaction.concepts().native_transaction(), self.native_object)
+        thing_type_set_abstract(transaction.concepts.native_transaction(), self.native_object)
 
     def unset_abstract(self, transaction: Transaction) -> None:
-        thing_type_unset_abstract(transaction.concepts().native_transaction(), self.native_object)
+        thing_type_unset_abstract(transaction.concepts.native_transaction(), self.native_object)
 
     def set_plays(self, transaction: Transaction,
                   role_type: RoleType, overridden_role_type: Optional[RoleType] = None) -> None:
-        thing_type_set_plays(transaction.concepts().native_transaction(),
+        thing_type_set_plays(transaction.concepts.native_transaction(),
                              self.native_object, role_type.native_object,
                              overridden_role_type.native_object if overridden_role_type else None)
 
     def unset_plays(self, transaction: Transaction, role_type: RoleType) -> None:
-        thing_type_unset_plays(transaction.concepts().native_transaction(), self.native_object, role_type.native_object)
+        thing_type_unset_plays(transaction.concepts.native_transaction(), self.native_object, role_type.native_object)
 
     def set_owns(self, transaction: Transaction, attribute_type: AttributeType,
                  overridden_type: Optional[AttributeType] = None, annotations: Optional[set[Annotation]] = None) -> None:
@@ -201,20 +201,20 @@ class _Root(_ThingType):
 
     def get_subtypes(self, transaction: Transaction) -> Iterator[_ThingType]:
         return (_ThingType.of(item) for item in chain(
-            (self, ), transaction.concepts().get_root_entity_type().get_subtypes(transaction),
-            transaction.concepts().get_root_relation_type().get_subtypes(transaction),
-            transaction.concepts().get_root_attribute_type().get_subtypes(transaction)))
+            (self, ), transaction.concepts.get_root_entity_type().get_subtypes(transaction),
+            transaction.concepts.get_root_relation_type().get_subtypes(transaction),
+            transaction.concepts.get_root_attribute_type().get_subtypes(transaction)))
 
     def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_ThingType]:
-        return (_ThingType.of(item) for item in (transaction.concepts().get_root_entity_type(),
-                                              transaction.concepts().get_root_relation_type(),
-                                              transaction.concepts().get_root_attribute_type()))
+        return (_ThingType.of(item) for item in (transaction.concepts.get_root_entity_type(),
+                                              transaction.concepts.get_root_relation_type(),
+                                              transaction.concepts.get_root_attribute_type()))
 
     def get_instances(self, transaction: Transaction) -> Iterator[_Thing]:
         return (_Thing(item) for item in chain(
-            (self, ), transaction.concepts().get_root_entity_type().get_instances(transaction),
-            transaction.concepts().get_root_relation_type().get_instances(transaction),
-            transaction.concepts().get_root_attribute_type().get_instances(transaction)))
+            (self, ), transaction.concepts.get_root_entity_type().get_instances(transaction),
+            transaction.concepts.get_root_relation_type().get_instances(transaction),
+            transaction.concepts.get_root_attribute_type().get_instances(transaction)))
 
     def get_instances_explicit(self, transaction: Transaction) -> Iterator[_Thing]:
         return ()
@@ -228,7 +228,7 @@ class _Root(_ThingType):
 #         return self
 #
 #     def is_deleted(self) -> bool:
-#         return not self._transaction_ext.concepts().get_thing_type(self.get_label().name())
+#         return not self._transaction_ext.concepts.get_thing_type(self.get_label().name())
 #
 #     def set_supertype(self, thing_type: ThingType):
 #         self.execute(thing_type_set_supertype_req(self.get_label(), concept_proto_builder.thing_type(thing_type)))

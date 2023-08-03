@@ -18,11 +18,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Iterator
 
-from typedb.api.answer.concept_map import ConceptMap
-from typedb.api.concept.concept import Concept
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Iterator, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.api.concept.concept import Concept
 
 
 class ConceptMapGroup(ABC):

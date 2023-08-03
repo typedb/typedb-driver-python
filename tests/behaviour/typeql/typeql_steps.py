@@ -33,134 +33,134 @@ from typedb.client import *
 
 @step("typeql define")
 def step_impl(context: Context):
-    context.tx().query().define(query=context.text)
+    context.tx().query.define(query=context.text)
 
 
 @step("typeql define; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().define).with_args(query=context.text), raises(Exception))
+    assert_that(calling(context.tx().query.define).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql define; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().define).with_args(query=context.text),
+    assert_that(calling(context.tx().query.define).with_args(query=context.text),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("typeql undefine")
 def step_impl(context: Context):
-    context.tx().query().undefine(query=context.text)
+    context.tx().query.undefine(query=context.text)
 
 
 @step("typeql undefine; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().undefine).with_args(query=context.text), raises(Exception))
+    assert_that(calling(context.tx().query.undefine).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql undefine; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().undefine).with_args(query=context.text),
+    assert_that(calling(context.tx().query.undefine).with_args(query=context.text),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("typeql insert")
 def step_impl(context: Context):
-    context.tx().query().insert(query=context.text)
+    context.tx().query.insert(query=context.text)
 
 
 @step("typeql insert; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)), raises(Exception))
+    assert_that(calling(next).with_args(context.tx().query.insert(query=context.text)), raises(Exception))
 
 
 @step("typeql insert; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(next).with_args(context.tx().query().insert(query=context.text)),
+    assert_that(calling(next).with_args(context.tx().query.insert(query=context.text)),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("typeql delete")
 def step_impl(context: Context):
-    context.tx().query().delete(query=context.text)
+    context.tx().query.delete(query=context.text)
 
 
 @step("typeql delete; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().delete).with_args(query=context.text), raises(Exception))
+    assert_that(calling(context.tx().query.delete).with_args(query=context.text), raises(Exception))
 
 
 @step("typeql delete; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(context.tx().query().delete).with_args(query=context.text),
+    assert_that(calling(context.tx().query.delete).with_args(query=context.text),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("typeql update")
 def step_impl(context: Context):
-    context.tx().query().update(query=context.text)
+    context.tx().query.update(query=context.text)
 
 
 @step("typeql update; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)), raises(Exception))
+    assert_that(calling(next).with_args(context.tx().query.update(query=context.text)), raises(Exception))
 
 
 @step("typeql update; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(next).with_args(context.tx().query().update(query=context.text)),
+    assert_that(calling(next).with_args(context.tx().query.update(query=context.text)),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("get answers of typeql insert")
 def step_impl(context: Context):
     context.clear_answers()
-    context.answers = [answer for answer in context.tx().query().insert(query=context.text)]
+    context.answers = [answer for answer in context.tx().query.insert(query=context.text)]
 
 
 @step("get answers of typeql match")
 def step_impl(context: Context):
     context.clear_answers()
-    context.answers = [answer for answer in context.tx().query().match(query=context.text)]
+    context.answers = [answer for answer in context.tx().query.match(query=context.text)]
 
 
 @step("typeql match; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().match(query=context.text)), raises(Exception))
+    assert_that(calling(next).with_args(context.tx().query.match(query=context.text)), raises(Exception))
 
 
 @step("typeql match; throws exception containing \"{pattern}\"")
 def step_impl(context: Context, pattern: str):
-    assert_that(calling(next).with_args(context.tx().query().match(query=context.text)),
+    assert_that(calling(next).with_args(context.tx().query.match(query=context.text)),
                 raises(Exception, re.escape(pattern)))
 
 
 @step("get answer of typeql match aggregate")
 def step_impl(context: Context):
     context.clear_answers()
-    context.numeric_answer = context.tx().query().match_aggregate(query=context.text)
+    context.numeric_answer = context.tx().query.match_aggregate(query=context.text)
 
 
 @step("typeql match aggregate; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(context.tx().query().match_aggregate).with_args(query=context.text), raises(Exception))
+    assert_that(calling(context.tx().query.match_aggregate).with_args(query=context.text), raises(Exception))
 
 
 @step("get answers of typeql match group")
 def step_impl(context: Context):
     context.clear_answers()
-    context.answer_groups = [group for group in context.tx().query().match_group(query=context.text)]
+    context.answer_groups = [group for group in context.tx().query.match_group(query=context.text)]
 
 
 @step("typeql match group; throws exception")
 def step_impl(context: Context):
-    assert_that(calling(next).with_args(context.tx().query().match_group(query=context.text)),
+    assert_that(calling(next).with_args(context.tx().query.match_group(query=context.text)),
                 raises(Exception))
 
 
 @step("get answers of typeql match group aggregate")
 def step_impl(context: Context):
     context.clear_answers()
-    context.numeric_answer_groups = [group for group in context.tx().query().match_group_aggregate(query=context.text)]
+    context.numeric_answer_groups = [group for group in context.tx().query.match_group_aggregate(query=context.text)]
 
 
 @step("answer size is: {expected_size:Int}")
@@ -171,12 +171,12 @@ def step_impl(context: Context, expected_size: int):
 
 @step("rules contain: {rule_label}")
 def step_impl(context: Context, rule_label: str):
-    return rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()]
+    return rule_label in [rule.get_label() for rule in context.tx().logic.get_rules()]
 
 
 @step("rules do not contain: {rule_label}")
 def step_impl(context: Context, rule_label: str):
-    return not (rule_label in [rule.get_label() for rule in context.tx().logic().get_rules()])
+    return not (rule_label in [rule.get_label() for rule in context.tx().logic.get_rules()])
 
 
 class ConceptMatchResult:
@@ -552,11 +552,11 @@ def apply_query_template(template: str, answer: ConceptMap):
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(list(context.tx().query().match(query)), has_length(1))
+        assert_that(list(context.tx().query.match(query)), has_length(1))
 
 
 @step("templated typeql match; throws exception")
 def step_impl(context: Context):
     for answer in context.answers:
         query = apply_query_template(template=context.text, answer=answer)
-        assert_that(calling(list).with_args(context.tx().query().match(query)), raises(Exception))
+        assert_that(calling(list).with_args(context.tx().query.match(query)), raises(Exception))
