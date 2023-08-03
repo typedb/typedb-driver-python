@@ -49,7 +49,8 @@ class _UserManager(UserManager):
         users_delete(self._native_user_manager, username)
 
     def all(self) -> list[User]:
-        return [_User(user, self._native_connection) for user in Streamer(users_all(self._native_user_manager), user_iterator_next)]
+        return [_User(user, self._native_connection) for user in Streamer(users_all(self._native_user_manager),
+                                                                          user_iterator_next)]
 
     def get(self, username: str) -> Optional[User]:
         if user := users_get(self._native_user_manager, username):

@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from typedb.typedb_client_python import Concept as NativeConcept, Transaction as NativeTransaction
 
 
-
 class _Concept(Concept, ABC):
 
     def __init__(self, concept: NativeConcept):

@@ -19,24 +19,25 @@
 # under the License.
 #
 
-from typedb.api.answer.numeric import Numeric
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from typedb.api.answer.numeric_group import NumericGroup
-from typedb.api.concept.concept import Concept
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.concept import _Concept
-
-from typedb.typedb_client_python import NumericGroup as NativeNumericGroup, numeric_group_get_owner, \
+from typedb.typedb_client_python import numeric_group_get_owner, \
     numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals
+
+if TYPE_CHECKING:
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.concept.concept import Concept
+    from typedb.typedb_client_python import NumericGroup as NativeNumericGroup
 
 
 class _NumericGroup(NumericGroup):
 
     def __init__(self, numeric_group: NativeNumericGroup):
         self._numeric_group = numeric_group
-
-    # @staticmethod
-    # def of(numeric_group_proto: answer_proto.NumericGroup):
-    #     return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
 
     def owner(self) -> Concept:
         return _Concept.of(numeric_group_get_owner(self._numeric_group))

@@ -23,16 +23,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.connection.options import Options
-from typedb.api.connection.transaction import Transaction, TransactionType
+from typedb.api.connection.transaction import Transaction
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
+from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 if TYPE_CHECKING:
     from typedb.connection.session import _Session
-
-from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
+    from typedb.api.connection.transaction import TransactionType
 
 
 class _Transaction(Transaction):
@@ -40,13 +40,12 @@ class _Transaction(Transaction):
     def __init__(self, session: _Session, transaction_type: TransactionType, options: Options = None):
         if not options:
             options = Options()
-        # self._session = session
         self._transaction_type = transaction_type
         self._options = options
-        self._transaction = transaction_new(session.native_object, transaction_type.value, options.native_object)
-        self._concept_manager = _ConceptManager(self._transaction)
-        self._query_manager = _QueryManager(self._transaction)
-        self._logic_manager = _LogicManager(self._transaction)
+        self._native_transaction = transaction_new(session.native_object, transaction_type.value, options.native_object)
+        self._concept_manager = _ConceptManager(self._native_transaction)
+        self._query_manager = _QueryManager(self._native_transaction)
+        self._logic_manager = _LogicManager(self._native_transaction)
 
     @property
     def transaction_type(self) -> TransactionType:
@@ -57,9 +56,9 @@ class _Transaction(Transaction):
         return self._options
 
     def is_open(self) -> bool:
-        if not self._transaction.thisown:
+        if not self._native_transaction.thisown:
             return False
-        return transaction_is_open(self._transaction)
+        return transaction_is_open(self._native_transaction)
 
     @property
     def concepts(self) -> _ConceptManager:
@@ -74,24 +73,24 @@ class _Transaction(Transaction):
         return self._query_manager
 
     def on_close(self, function: callable):
-        transaction_on_close(self._transaction, _Transaction.TransactionOnClose().callback(function))
+        transaction_on_close(self._native_transaction, _Transaction.TransactionOnClose().callback(function))
 
     class TransactionOnClose(TransactionCallbackDirector):
         pass
 
     def commit(self):
-        if not self._transaction.thisown:
+        if not self._native_transaction.thisown:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        transaction_commit(self._transaction)
+        transaction_commit(self._native_transaction)
 
     def rollback(self):
-        if not self._transaction.thisown:
+        if not self._native_transaction.thisown:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        transaction_rollback(self._transaction)
+        transaction_rollback(self._native_transaction)
 
     def close(self):
-        if self._transaction.thisown:
-            transaction_force_close(self._transaction)
+        if self._native_transaction.thisown:
+            transaction_force_close(self._native_transaction)
 
     def __enter__(self):
         return self

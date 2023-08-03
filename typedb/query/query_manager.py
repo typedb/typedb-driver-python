@@ -22,11 +22,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Iterator, Optional
 
-from typedb.api.answer.concept_map import ConceptMap
-from typedb.api.answer.concept_map_group import ConceptMapGroup
-from typedb.api.answer.numeric import Numeric
-from typedb.api.answer.numeric_group import NumericGroup
-from typedb.api.logic.explanation import Explanation
 from typedb.api.connection.options import Options
 from typedb.api.query.query_manager import QueryManager
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, MISSING_QUERY
@@ -36,14 +31,18 @@ from typedb.concept.answer.concept_map_group import _ConceptMapGroup
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.answer.numeric_group import _NumericGroup
 from typedb.logic.explanation import _Explanation
-
-from typedb.typedb_client_python import Transaction as NativeTransaction, query_match, concept_map_iterator_next, \
+from typedb.typedb_client_python import query_match, concept_map_iterator_next, \
     query_match_group, concept_map_group_iterator_next, query_insert, query_update, query_explain, \
     explanation_iterator_next, query_match_aggregate, numeric_group_iterator_next, query_match_group_aggregate, \
     query_delete, query_define, query_undefine
 
-# if TYPE_CHECKING:
-#     from typedb.api.connection.transaction import Transaction
+if TYPE_CHECKING:
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.api.answer.concept_map_group import ConceptMapGroup
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.answer.numeric_group import NumericGroup
+    from typedb.api.logic.explanation import Explanation
+    from typedb.typedb_client_python import Transaction as NativeTransaction
 
 
 class _QueryManager(QueryManager):
@@ -144,12 +143,3 @@ class _QueryManager(QueryManager):
             options = Options()
         return map(_Explanation, Streamer(query_explain(self._transaction, explainable.id(), options.native_object),
                                           explanation_iterator_next))
-
-    # def query_void(self, req: transaction_proto.Transaction.Req):
-    #     return self._transaction_ext.run_query(req)
-    #
-    # def query(self, req: transaction_proto.Transaction.Req):
-    #     return self._transaction_ext.run_query(req).map(lambda res: res.query_manager_res)
-    #
-    # def stream(self, req: transaction_proto.Transaction.Req):
-    #     return (rp.query_manager_res_part for rp in self._transaction_ext.stream(req))

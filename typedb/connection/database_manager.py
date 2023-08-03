@@ -19,13 +19,19 @@
 #   under the License.
 #
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MISSING_DB_NAME
 from typedb.common.streamer import Streamer
 from typedb.connection.database import _Database
 
-from typedb.typedb_client_python import Connection as NativeConnection, databases_contains, databases_create, \
+from typedb.typedb_client_python import databases_contains, databases_create, \
     database_manager_new, databases_get, databases_all, database_iterator_next
+
+if TYPE_CHECKING:
+    from typedb.typedb_client_python import Connection as NativeConnection
 
 
 def _not_blank(name: str) -> str:
@@ -34,7 +40,7 @@ def _not_blank(name: str) -> str:
     return name
 
 
-class _DatabaseManagerImpl(DatabaseManager):
+class _DatabaseManager(DatabaseManager):
 
     def __init__(self, connection: NativeConnection):
         self._database_manager = database_manager_new(connection)

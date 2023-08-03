@@ -21,33 +21,25 @@
 
 from __future__ import annotations
 from abc import ABC
-from typing import Union, TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Optional
 
-from typedb.api.concept.thing.attribute import Attribute
+import typedb.concept.thing as thing
+import typedb.concept.type as type_
 from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.attribute_type import AttributeType
-from typedb.api.concept.type.role_type import RoleType
-from typedb.common.exception import TypeDBClientException, MISSING_IID, MISSING_TRANSACTION, \
-    GET_HAS_WITH_MULTIPLE_FILTERS
+from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.streamer import Streamer
 from typedb.concept.concept import _Concept
-import typedb.concept.thing as thing
-# from typedb.concept.thing.attribute import _Attribute
-# from typedb.concept.thing.relation import _Relation
-# from typedb.concept.type.role_type import _RoleType
-
-from typedb.api.concept.type.annotation import Annotation
-# from typedb.concept.type.annotation import Annotation
+from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, \
+    thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
+    thing_delete, thing_is_deleted, concept_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.concept.type.annotation import Annotation
     from typedb.concept.thing.attribute import _Attribute
     from typedb.concept.thing.relation import _Relation
     from typedb.concept.type.role_type import _RoleType
-
-from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, \
-    Annotation as NativeAnnotation, Concept as NativeConcept, thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
-    thing_delete, thing_is_deleted, concept_iterator_next, concept_is_attribute_type
+    from typedb.concept.type.attribute_type import _AttributeType
+    from typedb.connection.transaction import _Transaction
 
 
 class _Thing(Thing, _Concept, ABC):
@@ -58,10 +50,9 @@ class _Thing(Thing, _Concept, ABC):
     def is_inferred(self) -> bool:
         return thing_get_is_inferred(self.native_object)
 
-    # def as_thing(self) -> Thing:
-    #     return self
-
-    def get_has(self, transaction: Transaction, *, attribute_type=None, attribute_types: list[AttributeType] = (), annotations: set[Annotation] = frozenset()) -> Iterator[_Attribute]:
+    def get_has(self, transaction: _Transaction, *, attribute_type: Optional[_AttributeType] = None,
+                attribute_types: list[_AttributeType] = (),
+                annotations: set[Annotation] = frozenset()) -> Iterator[_Attribute]:
         if [bool(attribute_type), bool(attribute_types), bool(annotations)].count(True) > 1:
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
@@ -72,27 +63,27 @@ class _Thing(Thing, _Concept, ABC):
                 Streamer(thing_get_has(self.native_transaction(transaction), self.native_object, native_attribute_types, native_annotations),
                          concept_iterator_next))
 
-    def get_relations(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Relation]:
+    def get_relations(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[_Relation]:
         native_role_types = [rt.native_object for rt in role_types]
         return (thing.relation._Relation(item) for item in
                 Streamer(thing_get_relations(self.native_transaction(transaction), self.native_object, native_role_types),
                          concept_iterator_next))
 
-    def get_playing(self, transaction: Transaction) -> Iterator[_RoleType]:
-        return (thing.role_type._RoleType(rt) for rt in
+    def get_playing(self, transaction: _Transaction) -> Iterator[_RoleType]:
+        return (type_.role_type._RoleType(rt) for rt in
                 Streamer(thing_get_playing(self.native_transaction(transaction), self.native_object),
                          concept_iterator_next))
 
-    def set_has(self, transaction: Transaction, attribute: Attribute) -> None:
+    def set_has(self, transaction: _Transaction, attribute: _Attribute) -> None:
         thing_set_has(self.native_transaction(transaction), self.native_object, attribute.native_object)
 
-    def unset_has(self, transaction: Transaction, attribute: Attribute) -> None:
+    def unset_has(self, transaction: _Transaction, attribute: _Attribute) -> None:
         thing_unset_has(self.native_transaction(transaction), self.native_object, attribute.native_object)
 
-    def delete(self, transaction: Transaction) -> None:
+    def delete(self, transaction: _Transaction) -> None:
         thing_delete(self.native_transaction(transaction), self.native_object)
 
-    def is_deleted(self, transaction: Transaction) -> bool:
+    def is_deleted(self, transaction: _Transaction) -> bool:
         return thing_is_deleted(self.native_transaction(transaction), self.native_object)
 
     def __str__(self):
@@ -107,4 +98,3 @@ class _Thing(Thing, _Concept, ABC):
 
     def __hash__(self):
         return hash(self.get_iid())
-

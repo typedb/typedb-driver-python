@@ -26,7 +26,6 @@ from typedb.common.exception import TypeDBClientException, MISSING_VARIABLE
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
-
 from typedb.typedb_client_python import Explanation as NativeExplanation, explanation_get_rule, \
     explanation_get_conclusion, explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
     explanation_get_mapping, explanation_to_string, explanation_equals

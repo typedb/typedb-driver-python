@@ -24,7 +24,6 @@ from typing import TYPE_CHECKING
 
 from typedb.api.logic.rule import Rule
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL
-
 from typedb.typedb_client_python import Rule as NativeRule, rule_get_when, rule_get_then, rule_get_label, \
     rule_set_label, rule_delete, rule_is_deleted, rule_to_string
 
@@ -38,10 +37,6 @@ class _Rule(Rule):
         self._rule = rule
         self._when = rule_get_when(self._rule)
         self._then = rule_get_then(self._rule)
-
-    # @staticmethod
-    # def of(rule_proto: logic_proto.Rule):
-    #     return _Rule(rule_proto.label, rule_proto.when, rule_proto.then)
 
     def get_label(self) -> str:
         return rule_get_label(self._rule)

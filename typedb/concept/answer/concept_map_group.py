@@ -18,29 +18,27 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Iterator
 
-from typedb.api.answer.concept_map import ConceptMap
+from __future__ import annotations
+from typing import Iterator, TYPE_CHECKING
+
 from typedb.api.answer.concept_map_group import ConceptMapGroup
-from typedb.api.concept.concept import Concept
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.concept import _Concept
 
-from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup, concept_map_group_get_owner, \
+from typedb.typedb_client_python import concept_map_group_get_owner, \
     concept_map_group_get_concept_maps, concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
 
+if TYPE_CHECKING:
+    from typedb.api.concept.concept import Concept
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup
 
 class _ConceptMapGroup(ConceptMapGroup):
 
     def __init__(self, concept_map_group: NativeConceptMapGroup):
         self._concept_map_group = concept_map_group
-
-    # @staticmethod
-    # def of(cm_group: answer_proto.ConceptMapGroup) -> "_ConceptMapGroup":
-    #     owner = concept_proto_reader.concept(cm_group.owner)
-    #     concept_maps = list(map(lambda cm: _ConceptMap.of(cm), cm_group.concept_maps))
-    #     return _ConceptMapGroup(owner, concept_maps)
 
     def owner(self) -> Concept:
         return _Concept.of(concept_map_group_get_owner(self._concept_map_group))

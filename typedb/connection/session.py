@@ -19,22 +19,21 @@
 # under the License.
 #
 
+from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from typedb.api.connection.database import Database
 from typedb.api.connection.options import Options
-from typedb.api.connection.session import Session, SessionType
-from typedb.api.connection.transaction import Transaction, TransactionType
-from typedb.common.exception import TypeDBClientException
-from typedb.connection.database import _Database
+from typedb.api.connection.session import Session
 from typedb.connection.transaction import _Transaction
 
 from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, \
-    session_get_database_name, SessionCallbackDirector, check_error
+    session_get_database_name, SessionCallbackDirector
 
 
-# if TYPE_CHECKING:
-#     from typedb.connection.client import _Client
+if TYPE_CHECKING:
+    from typedb.api.connection.session import SessionType
+    from typedb.api.connection.transaction import Transaction, TransactionType
+    from typedb.connection.database import _Database
 
 
 class _Session(Session):

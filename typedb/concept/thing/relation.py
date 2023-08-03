@@ -20,53 +20,42 @@
 #
 
 from __future__ import annotations
-from typing import Iterator
+from typing import Iterator, Any, TYPE_CHECKING
 
 from typedb.api.concept.thing.relation import Relation
-from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.relation_type import RelationType
 from typedb.api.concept.type.role_type import RoleType
-from typedb.api.connection.transaction import Transaction
 from typedb.common.streamer import Streamer
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.relation_type import _RelationType
 from typedb.concept.type.role_type import _RoleType
-
 from typedb.typedb_client_python import relation_get_type, relation_add_role_player, relation_remove_role_player, \
-    relation_get_players_by_role_type, Concept, relation_get_role_players, role_player_get_role_type, \
+    relation_get_players_by_role_type, relation_get_role_players, role_player_get_role_type, \
     role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
+
+if TYPE_CHECKING:
+    from typedb.api.concept.thing.thing import Thing
+    from typedb.connection.transaction import _Transaction
 
 
 class _Relation(Relation, _Thing):
 
-    # def __init__(self, iid: str, is_inferred: bool, relation_type: RelationType):
-    #     super(_Relation, self).__init__(iid, is_inferred)
-    #     self._type = relation_type
-
-    # @staticmethod
-    # def of(thing_proto: concept_proto.Thing):
-    #     return _Relation(concept_proto_reader.iid(thing_proto.iid), thing_proto.inferred, concept_proto_reader.type_(thing_proto.type))
-
     def get_type(self) -> _RelationType:
         return _RelationType(relation_get_type(self.native_object))
 
-    # def as_relation(self) -> Relation:
-    #     return self
-
-    def add_player(self, transaction: Transaction, role_type: RoleType, player: Thing) -> None:
+    def add_player(self, transaction: _Transaction, role_type: _RoleType, player: _Thing) -> None:
         relation_add_role_player(self.native_transaction(transaction), self.native_object,
                                  role_type.native_object, player.native_object)
 
-    def remove_player(self, transaction: Transaction, role_type: RoleType, player: Thing) -> None:
+    def remove_player(self, transaction: _Transaction, role_type: _RoleType, player: _Thing) -> None:
         relation_remove_role_player(self.native_transaction(transaction), self.native_object,
                                     role_type.native_object, player.native_object)
 
-    def get_players_by_role_type(self, transaction: Transaction, *role_types: RoleType) -> Iterator[_Thing]:
+    def get_players_by_role_type(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[Any]:
         native_role_types = [rt.native_object for rt in role_types]
         return (_Thing.of(item) for item in Streamer(relation_get_players_by_role_type(self.native_transaction(transaction),
                                                                                        self.native_object, native_role_types), concept_iterator_next))
 
-    def get_players(self, transaction: Transaction) -> dict[RoleType, list[Thing]]:
+    def get_players(self, transaction: _Transaction) -> dict[RoleType, list[Thing]]:
         role_players = {}
         for role_player in Streamer(relation_get_role_players(self.native_transaction(transaction), self.native_object), role_player_iterator_next):
             role = _RoleType(role_player_get_role_type(role_player))
@@ -75,5 +64,5 @@ class _Relation(Relation, _Thing):
             role_players[role].append(player)
         return role_players
 
-    def get_relating(self, transaction: Transaction) -> Iterator[_RoleType]:
+    def get_relating(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return (_RoleType(item) for item in Streamer(relation_get_relating(self.native_transaction(transaction), self.native_object), concept_iterator_next))

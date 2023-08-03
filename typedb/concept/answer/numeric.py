@@ -19,29 +19,22 @@
 # under the License.
 #
 
-from typedb.api.answer.numeric import Numeric
-from typedb.common.exception import TypeDBClientException, BAD_ANSWER_TYPE, ILLEGAL_CAST
+from __future__ import annotations
+from typing import  TYPE_CHECKING
 
-from typedb.typedb_client_python import Numeric as NativeNumeric, numeric_is_long, numeric_is_double, numeric_is_nan, \
+from typedb.api.answer.numeric import Numeric
+from typedb.common.exception import TypeDBClientException, ILLEGAL_CAST
+from typedb.typedb_client_python import numeric_is_long, numeric_is_double, numeric_is_nan, \
     numeric_get_long, numeric_get_double, numeric_to_string
+
+if TYPE_CHECKING:
+    from typedb.typedb_client_python import Numeric as NativeNumeric
 
 
 class _Numeric(Numeric):
 
     def __init__(self, numeric: NativeNumeric):
         self._numeric = numeric
-
-    # @staticmethod
-    # def of(numeric_proto: answer_proto.Numeric):
-    #     numeric_case = numeric_proto.WhichOneof("value")
-    #     if numeric_case == "long_value":
-    #         return _Numeric(numeric_proto.long_value, None)
-    #     elif numeric_case == "double_value":
-    #         return _Numeric(None, numeric_proto.double_value)
-    #     elif numeric_case == "nan":
-    #         return _Numeric(None, None)
-    #     else:
-    #         raise TypeDBClientException.of(BAD_ANSWER_TYPE, numeric_case)
 
     def is_int(self) -> bool:
         return numeric_is_long(self._numeric)

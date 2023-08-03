@@ -24,14 +24,12 @@ from typing import Optional
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID, TypeDBException
-# from typedb.api.connection.transaction import Transaction
 from typedb.concept.thing.attribute import _Attribute
 from typedb.concept.thing.entity import _Entity
 from typedb.concept.thing.relation import _Relation
 from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
-
 from typedb.typedb_client_python import Transaction, concepts_get_entity_type, concepts_get_relation_type, \
     concepts_get_attribute_type, \
     concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, concepts_get_entity, \
@@ -46,9 +44,6 @@ class _ConceptManager(ConceptManager):
 
     def native_transaction(self):
         return self._transaction
-
-    # def get_root_thing_type(self):
-    #     return self.get_thing_type("thing")
 
     def get_root_entity_type(self) -> _EntityType:
         return self.get_entity_type("entity")
@@ -65,7 +60,6 @@ class _ConceptManager(ConceptManager):
         if _type := concepts_get_entity_type(self._transaction, label):
             return _EntityType(_type)
         return None
-        # return _type if _type and _type.is_entity_type() else None
 
     def get_relation_type(self, label: str) -> Optional[_RelationType]:
         if not label:
@@ -120,16 +114,3 @@ class _ConceptManager(ConceptManager):
     def get_schema_exception(self) -> list[TypeDBException]:
         return [TypeDBException(schema_exception_code(e), schema_exception_message(e))
                 for e in concepts_get_schema_exceptions(self._transaction)]
-
-
-    # def get_thing_type(self, label: str):
-    #     res = self.execute(concept_manager_get_thing_type_req(label))
-    #     return concept_proto_reader.thing_type(res.get_thing_type_res.thing_type) if res.get_thing_type_res.WhichOneof("res") == "thing_type" else None
-
-    # def get_thing(self, iid: str):
-    #     res = self.execute(concept_manager_get_thing_req(iid))
-    #     return concept_proto_reader.thing(res.get_thing_res.thing) if res.get_thing_res.WhichOneof("res") == "thing" else None
-
-    # def execute(self, req: transaction_proto.Transaction.Req):
-    #     pass
-    #     # return self._transaction_ext.execute(req).concept_manager_res

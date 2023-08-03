@@ -20,7 +20,6 @@
 #
 
 from __future__ import annotations
-from abc import ABC
 from datetime import datetime, timezone
 from functools import singledispatchmethod
 from typing import Union
@@ -28,17 +27,13 @@ from typing import Union
 from typedb.api.concept.value.value import Value, ValueType
 from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE
 from typedb.concept.concept import _Concept
-
-from typedb.typedb_client_python import Concept, value_new_boolean, value_new_long, value_new_double, value_new_string, \
+from typedb.typedb_client_python import value_new_boolean, value_new_long, value_new_double, value_new_string, \
     value_new_date_time_from_millis, value_is_boolean, value_is_long, value_is_double, value_is_string, \
     value_is_date_time, value_get_boolean, value_get_long, value_get_double, value_get_string, \
     value_get_date_time_as_millis
 
 
 class _Value(Value, _Concept):
-
-    # def as_value(self) -> "Value":
-    #     return self
 
     # @staticmethod
     @singledispatchmethod
@@ -139,87 +134,3 @@ class _Value(Value, _Concept):
 
     def __hash__(self):
         return hash(self.get_value())
-
-# class _BooleanValue(BooleanValue, _Value):
-#
-#     def __init__(self, value: bool):
-#         super(_BooleanValue, self).__init__()
-#         self._value = value
-#
-#     @staticmethod
-#     def of(value_proto: concept_proto.Value):
-#         return _BooleanValue(value_proto.value.boolean)
-#
-#     def get_value(self):
-#         return self._value
-#
-#     def get_value_type(self) -> "ValueType":
-#         return ValueType.BOOLEAN
-#
-#
-# class _LongValue(LongValue, _Value):
-#
-#     def __init__(self, value: int):
-#         super(_LongValue, self).__init__()
-#         self._value = value
-#
-#     @staticmethod
-#     def of(value_proto: concept_proto.Value):
-#         return _LongValue(value_proto.value.long)
-#
-#     def get_value(self):
-#         return self._value
-#
-#     def get_value_type(self) -> "ValueType":
-#         return ValueType.LONG
-#
-#
-# class _DoubleValue(DoubleValue, _Value):
-#
-#     def __init__(self, value: float):
-#         super(_DoubleValue, self).__init__()
-#         self._value = value
-#
-#     @staticmethod
-#     def of(value_proto: concept_proto.Value):
-#         return _DoubleValue(value_proto.value.double)
-#
-#     def get_value(self):
-#         return self._value
-#
-#     def get_value_type(self) -> "ValueType":
-#         return ValueType.DOUBLE
-#
-#
-# class _StringValue(StringValue, _Value):
-#
-#     def __init__(self, value: str):
-#         super(_StringValue, self).__init__()
-#         self._value = value
-#
-#     @staticmethod
-#     def of(value_proto: concept_proto.Value):
-#         return _StringValue(value_proto.value.string)
-#
-#     def get_value(self):
-#         return self._value
-#
-#     def get_value_type(self) -> "ValueType":
-#         return ValueType.STRING
-#
-#
-# class _DateTimeValue(DateTimeValue, _Value):
-#
-#     def __init__(self, value: datetime):
-#         super(_DateTimeValue, self).__init__()
-#         self._value = value
-#
-#     @staticmethod
-#     def of(value_proto: concept_proto.Value):
-#         return _DateTimeValue(datetime.utcfromtimestamp(float(value_proto.value.date_time) / 1000.0))
-#
-#     def get_value(self):
-#         return self._value
-#
-#     def get_value_type(self) -> "ValueType":
-#         return ValueType.DATETIME

@@ -19,20 +19,21 @@
 #   under the License.
 #
 
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, TYPE_CHECKING
 
 from typedb.api.connection.client import Client
-from typedb.api.connection.credential import Credential
 from typedb.api.connection.options import Options
-from typedb.api.connection.session import SessionType
-from typedb.api.connection.user import UserManager, User
-from typedb.connection.database_manager import _DatabaseManagerImpl
+from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
-
+from typedb.connection.user_manager import _UserManager
 from typedb.typedb_client_python import connection_open_plaintext, \
     connection_open_encrypted, connection_is_open, connection_force_close
 
-from typedb.connection.user_manager import _UserManager
+if TYPE_CHECKING:
+    from typedb.api.connection.credential import Credential
+    from typedb.api.connection.session import SessionType
+    from typedb.api.connection.user import UserManager, User
 
 
 class _Client(Client):
@@ -42,7 +43,7 @@ class _Client(Client):
             self._connection = connection_open_encrypted(addresses, credential.native_object)
         else:
             self._connection = connection_open_plaintext(addresses[0])
-        self._database_manager = _DatabaseManagerImpl(self._connection)
+        self._database_manager = _DatabaseManager(self._connection)
         self._user_manager = _UserManager(self._connection)
 
     def session(self, database: str, session_type: SessionType, options: Options = None) -> _Session:
@@ -52,7 +53,7 @@ class _Client(Client):
         return connection_is_open(self._connection)
 
     @property
-    def databases(self) -> _DatabaseManagerImpl:
+    def databases(self) -> _DatabaseManager:
         return self._database_manager
 
     @property

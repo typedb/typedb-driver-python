@@ -63,6 +63,7 @@ from typedb.api.query.query_manager import *  # noqa # pylint: disable=unused-im
 
 from typedb.common.exception import *  # noqa # pylint: disable=unused-import
 from typedb.common.label import *  # noqa # pylint: disable=unused-import
+from typedb.common.transitivity import *  # noqa # pylint: disable=unused-import
 
 
 class TypeDB:
@@ -77,4 +78,4 @@ class TypeDB:
         if isinstance(addresses, str):
             return _Client([addresses], credential)
         else:
-            return _Client(addresses, credential)
+            return _Client(list(addresses), credential)
