@@ -22,8 +22,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from typedb.api.connection.options import Options
-from typedb.api.connection.session import Session
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.session import TypeDBSession
 from typedb.connection.transaction import _Transaction
 
 from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, \
@@ -32,15 +32,15 @@ from typedb.typedb_client_python import session_new, session_on_close, session_f
 
 if TYPE_CHECKING:
     from typedb.api.connection.session import SessionType
-    from typedb.api.connection.transaction import Transaction, TransactionType
+    from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
     from typedb.connection.database import _Database
 
 
-class _Session(Session):
+class _Session(TypeDBSession):
 
-    def __init__(self, database: _Database, session_type: SessionType, options: Optional[Options] = None):
+    def __init__(self, database: _Database, session_type: SessionType, options: Optional[TypeDBOptions] = None):
         if not options:
-            options = Options()
+            options = TypeDBOptions()
         self._type = session_type
         self._options = options
         db = database.native_object
@@ -62,10 +62,10 @@ class _Session(Session):
         return session_get_database_name(self.native_object)
 
     @property
-    def options(self) -> Options:
+    def options(self) -> TypeDBOptions:
         return self._options
 
-    def transaction(self, transaction_type: TransactionType, options: Options = None) -> Transaction:
+    def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> TypeDBTransaction:
         return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:

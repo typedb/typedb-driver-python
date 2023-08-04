@@ -22,14 +22,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from typedb.api.connection.user import UserManager
+from typedb.api.user.user import UserManager
 from typedb.common.streamer import Streamer
-from typedb.connection.user import _User
+from typedb.user.user import _User
 from typedb.typedb_client_python import user_manager_new, users_contains, users_create, \
     users_delete, users_all, users_get, users_set_password, users_current_user, user_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.api.connection.user import User
+    from typedb.api.user.user import User
     from typedb.typedb_client_python import Connection as NativeConnection
 
 

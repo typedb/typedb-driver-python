@@ -28,7 +28,7 @@ from typedb.api.concept.type.thing_type import ThingType
 if TYPE_CHECKING:
     from typedb.api.concept.thing.relation import Relation
     from typedb.api.concept.type.role_type import RoleType
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class RelationType(ThingType, ABC):
@@ -37,42 +37,42 @@ class RelationType(ThingType, ABC):
         return True
 
     @abstractmethod
-    def create(self, transaction: Transaction) -> Relation:
+    def create(self, transaction: TypeDBTransaction) -> Relation:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator[Relation]:
+    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Relation]:
+    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_relates(self, transaction: Transaction, role_label: Optional[str] = None) \
+    def get_relates(self, transaction: TypeDBTransaction, role_label: Optional[str] = None) \
             -> Union[Optional[RoleType], Iterator[RoleType]]:
         pass
 
     @abstractmethod
-    def get_relates_explicit(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_relates_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_relates_overridden(self, transaction: Transaction, role_label: str) -> Optional[RoleType]:
+    def get_relates_overridden(self, transaction: TypeDBTransaction, role_label: str) -> Optional[RoleType]:
         pass
 
     @abstractmethod
-    def set_relates(self, transaction: Transaction, role_label: str, overridden_label: Optional[str] = None) -> None:
+    def set_relates(self, transaction: TypeDBTransaction, role_label: str, overridden_label: Optional[str] = None) -> None:
         pass
 
     @abstractmethod
-    def unset_relates(self, transaction: Transaction, role_label: str) -> None:
+    def unset_relates(self, transaction: TypeDBTransaction, role_label: str) -> None:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator[RelationType]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[RelationType]:
         pass
 
     @abstractmethod
-    def set_supertype(self, transaction: Transaction, super_relation_type: RelationType) -> None:
+    def set_supertype(self, transaction: TypeDBTransaction, super_relation_type: RelationType) -> None:
         pass

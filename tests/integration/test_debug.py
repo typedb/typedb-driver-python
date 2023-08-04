@@ -77,7 +77,7 @@ class TestDebug(TestCase):
                 tx.query.insert(data)
                 tx.commit()
 
-            opts = Options(infer=True, explain=True)
+            opts = TypeDBOptions(infer=True, explain=True)
             with client.session(TYPEDB, DATA) as session, session.transaction(READ, opts) as tx:
                 answers = list(tx.query.match("match (friend: $p1, friend: $p2) isa friendship; $p1 has name $na;"))
                 assert len(answers[0].explainables().relations()) == 1

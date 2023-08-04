@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.thing.relation import Relation
     from typedb.api.concept.type.relation_type import RelationType
     from typedb.api.concept.type.thing_type import ThingType
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class RoleType(Type, ABC):
@@ -39,49 +39,49 @@ class RoleType(Type, ABC):
         return True
 
     @abstractmethod
-    def get_supertype(self, transaction: Transaction) -> Optional[RoleType]:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[RoleType]:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_relation_type(self, transaction: Transaction) -> RelationType:
+    def get_relation_type(self, transaction: TypeDBTransaction) -> RelationType:
         pass
 
     @abstractmethod
-    def get_relation_types(self, transaction: Transaction) -> Iterator[RelationType]:
+    def get_relation_types(self, transaction: TypeDBTransaction) -> Iterator[RelationType]:
         pass
 
     @abstractmethod
-    def get_player_types(self, transaction: Transaction) -> Iterator[ThingType]:
+    def get_player_types(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_player_types_explicit(self, transaction: Transaction) -> Iterator[ThingType]:
+    def get_player_types_explicit(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_relation_instances(self, transaction: Transaction) -> Iterator[Relation]:
+    def get_relation_instances(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_relation_instances_explicit(self, transaction: Transaction) -> Iterator[Relation]:
+    def get_relation_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_player_instances(self, transaction: Transaction) -> Iterator[Thing]:
+    def get_player_instances(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def get_player_instances_explicit(self, transaction: Transaction) -> Iterator[Thing]:
+    def get_player_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
         pass

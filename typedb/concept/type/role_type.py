@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Iterator, Optional, TYPE_CHECKING
 
 from typedb.api.concept.type.role_type import RoleType
-from typedb.api.connection.transaction import Transaction
+from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
@@ -53,59 +53,59 @@ class _RoleType(_Type, RoleType):
     def get_label(self) -> Label:
         return Label.of(role_type_get_scope(self.native_object), role_type_get_name(self.native_object))
 
-    def delete(self, transaction: Transaction) -> None:
+    def delete(self, transaction: TypeDBTransaction) -> None:
         role_type_delete(transaction.native_object, self.native_object)
 
-    def is_deleted(self, transaction: Transaction) -> bool:
+    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
         return role_type_is_deleted(transaction.native_object, self.native_object)
 
-    def set_label(self, transaction: Transaction, new_label: Label) -> None:
+    def set_label(self, transaction: TypeDBTransaction, new_label: Label) -> None:
         role_type_set_label(transaction.native_object, self.native_object, new_label)
 
-    def get_supertype(self, transaction: Transaction) -> Optional[_RoleType]:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[_RoleType]:
         if res := role_type_get_supertype(transaction.native_object, self.native_object):
             return _RoleType(res)
         return None
 
-    def get_supertypes(self, transaction: Transaction) -> Iterator[_RoleType]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
         return (_RoleType(item) for item in
                 Streamer(role_type_get_supertypes(transaction.native_object, self.native_object), concept_iterator_next))
 
-    def get_subtypes(self, transaction: Transaction) -> Iterator[_RoleType]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
         return (_RoleType(item) for item in
                 Streamer(role_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
 
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[_RoleType]:
+    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
         return (_RoleType(item) for item in
                 Streamer(role_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.Explicit.value), concept_iterator_next))
 
-    def get_relation_type(self, transaction: Transaction) -> relation_type._RelationType:
+    def get_relation_type(self, transaction: TypeDBTransaction) -> relation_type._RelationType:
         return relation_type._RelationType(role_type_get_relation_type(transaction.native_object, self.native_object))
 
-    def get_relation_types(self, transaction: Transaction) -> Iterator[relation_type._RelationType]:
+    def get_relation_types(self, transaction: TypeDBTransaction) -> Iterator[relation_type._RelationType]:
         return (relation_type._RelationType(item) for item in
                 Streamer(role_type_get_relation_types(transaction.native_object, self.native_object), concept_iterator_next))
 
-    def get_player_types(self, transaction: Transaction) -> Iterator[_ThingType]:
+    def get_player_types(self, transaction: TypeDBTransaction) -> Iterator[_ThingType]:
         return (_ThingType.of(item) for item in Streamer(role_type_get_player_types(transaction.native_object,
                                                                                     self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
 
-    def get_player_types_explicit(self, transaction: Transaction) -> Iterator[_ThingType]:
+    def get_player_types_explicit(self, transaction: TypeDBTransaction) -> Iterator[_ThingType]:
         return (_ThingType.of(item) for item in Streamer(role_type_get_player_types(transaction.native_object,
                                                                                     self.native_object, Transitivity.Explicit.value), concept_iterator_next))
 
-    def get_relation_instances(self, transaction: Transaction) -> Iterator[relation._Relation]:
+    def get_relation_instances(self, transaction: TypeDBTransaction) -> Iterator[relation._Relation]:
         return (relation._Relation(item) for item in Streamer(role_type_get_relation_instances(transaction.native_object,
                                                                                                self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
 
-    def get_relation_instances_explicit(self, transaction: Transaction) -> Iterator[relation._Relation]:
+    def get_relation_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[relation._Relation]:
         return (relation._Relation(item) for item in Streamer(role_type_get_relation_instances(transaction.native_object,
                                                                                                self.native_object, Transitivity.Explicit.value), concept_iterator_next))
 
-    def get_player_instances(self, transaction: Transaction) -> Iterator[_Thing]:
+    def get_player_instances(self, transaction: TypeDBTransaction) -> Iterator[_Thing]:
         return (_Thing(item) for item in Streamer(role_type_get_player_instances(transaction.native_object,
                                                                                  self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
 
-    def get_player_instances_explicit(self, transaction: Transaction) -> Iterator[_Thing]:
+    def get_player_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[_Thing]:
         return (_Thing(item) for item in Streamer(role_type_get_player_instances(transaction.native_object,
                                                                                  self.native_object, Transitivity.Explicit.value), concept_iterator_next))

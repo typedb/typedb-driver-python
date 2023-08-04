@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
     from typedb.api.concept.type.annotation import Annotation
     from typedb.api.concept.thing.attribute import Attribute
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class AttributeType(ThingType, ABC):
@@ -61,47 +61,47 @@ class AttributeType(ThingType, ABC):
         return self.get_value_type() == ValueType.DATETIME
 
     @abstractmethod
-    def put(self, transaction: Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
+    def put(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
         pass
 
     @abstractmethod
-    def get(self, transaction: Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
+    def get(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
         pass
 
     @abstractmethod
-    def get_regex(self, transaction: Transaction) -> str:
+    def get_regex(self, transaction: TypeDBTransaction) -> str:
         pass
 
     @abstractmethod
-    def set_regex(self, transaction: Transaction, regex: str) -> None:
+    def set_regex(self, transaction: TypeDBTransaction, regex: str) -> None:
         pass
 
     @abstractmethod
-    def unset_regex(self, transaction: Transaction) -> None:
+    def unset_regex(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def set_supertype(self, transaction: Transaction, attribute_type: AttributeType) -> None:
+    def set_supertype(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_subtypes_with_value_type(self, transaction: Transaction, value_type: ValueType) -> Iterator[AttributeType]:
+    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator[Attribute]:
+    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Attribute]:
+    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_owners(self, transaction: Transaction,
+    def get_owners(self, transaction: TypeDBTransaction,
                    annotations: Optional[set[Annotation]] = None) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_owners_explicit(self, transaction: Transaction,
+    def get_owners_explicit(self, transaction: TypeDBTransaction,
                             annotations: Optional[set[Annotation]] = None) -> Iterator[ThingType]:
         pass

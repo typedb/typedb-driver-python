@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.type.thing_type import ThingType
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Attribute(Thing, ABC):
@@ -53,5 +53,5 @@ class Attribute(Thing, ABC):
         return {"type": self.get_type().get_label().scoped_name()} | self.get_value().to_json()
 
     @abstractmethod
-    def get_owners(self, transaction: Transaction, owner_type: Optional[ThingType] = None) -> Iterator[Thing]:
+    def get_owners(self, transaction: TypeDBTransaction, owner_type: Optional[ThingType] = None) -> Iterator[Thing]:
         pass

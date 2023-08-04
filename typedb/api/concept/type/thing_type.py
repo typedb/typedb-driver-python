@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.value.value import ValueType
     from typedb.api.concept.type.attribute_type import AttributeType
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class ThingType(Type, ABC):
@@ -41,79 +41,79 @@ class ThingType(Type, ABC):
         return True
 
     @abstractmethod
-    def get_supertype(self, transaction: Transaction) -> Optional[ThingType]:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[ThingType]:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: Transaction) -> Iterator[ThingType]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator[ThingType]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[ThingType]:
+    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator[Thing]:
+    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Thing]:
+    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def set_abstract(self, transaction: Transaction) -> None:
+    def set_abstract(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def unset_abstract(self, transaction: Transaction) -> None:
+    def unset_abstract(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def set_plays(self, transaction: Transaction, role_type: RoleType,
+    def set_plays(self, transaction: TypeDBTransaction, role_type: RoleType,
                   overriden_type: Optional[RoleType] = None) -> None:
         pass
 
     @abstractmethod
-    def unset_plays(self, transaction: Transaction, role_type: RoleType) -> None:
+    def unset_plays(self, transaction: TypeDBTransaction, role_type: RoleType) -> None:
         pass
 
     @abstractmethod
-    def set_owns(self, transaction: Transaction, attribute_type: AttributeType,
+    def set_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType,
                  overridden_type: Optional[AttributeType] = None,
                  annotations: Optional[set[Annotation]] = None) -> None:
         pass
 
     @abstractmethod
-    def get_owns(self, transaction: Transaction, value_type: Optional[ValueType] = None,
+    def get_owns(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
                  transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, transaction: Transaction, value_type: Optional[ValueType] = None,
+    def get_owns_explicit(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
         pass
 
     @abstractmethod
-    def get_plays(self, transaction: Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[RoleType]:
+    def get_plays(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_plays_explicit(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_plays_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_plays_overridden(self, transaction: Transaction, role_type: RoleType) -> Optional[RoleType]:
+    def get_plays_overridden(self, transaction: TypeDBTransaction, role_type: RoleType) -> Optional[RoleType]:
         pass
 
     @abstractmethod
-    def unset_owns(self, transaction: Transaction, attribute_type: AttributeType) -> None:
+    def unset_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_syntax(self, transaction: Transaction) -> str:
+    def get_syntax(self, transaction: TypeDBTransaction) -> str:
         pass

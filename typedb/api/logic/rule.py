@@ -24,7 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Rule(ABC):
@@ -34,7 +34,7 @@ class Rule(ABC):
         pass
 
     @abstractmethod
-    def set_label(self, transaction: Transaction, new_label: str) -> None:
+    def set_label(self, transaction: TypeDBTransaction, new_label: str) -> None:
         pass
 
     @abstractmethod
@@ -46,9 +46,9 @@ class Rule(ABC):
         pass
 
     @abstractmethod
-    def delete(self, transaction: Transaction) -> None:
+    def delete(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def is_deleted(self, transaction: Transaction) -> bool:
+    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
         pass

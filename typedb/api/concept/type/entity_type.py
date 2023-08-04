@@ -27,7 +27,7 @@ from typedb.api.concept.type.thing_type import ThingType
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.entity import Entity
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class EntityType(ThingType, ABC):
@@ -36,25 +36,25 @@ class EntityType(ThingType, ABC):
         return True
 
     @abstractmethod
-    def create(self, transaction: Transaction) -> Entity:
+    def create(self, transaction: TypeDBTransaction) -> Entity:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator[EntityType]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[EntityType]:
+    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: Transaction) -> Iterator[Entity]:
+    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Entity]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: Transaction) -> Iterator[Entity]:
+    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Entity]:
         pass
 
     @abstractmethod
-    def set_supertype(self, transaction: Transaction, super_entity_type: EntityType):
+    def set_supertype(self, transaction: TypeDBTransaction, super_entity_type: EntityType):
         pass

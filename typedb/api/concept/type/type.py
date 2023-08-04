@@ -27,7 +27,7 @@ from typedb.api.concept.concept import Concept
 
 if TYPE_CHECKING:
     from typedb.common.label import Label
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Type(Concept, ABC):
@@ -51,17 +51,17 @@ class Type(Concept, ABC):
         return {"label": self.get_label().scoped_name()}
 
     @abstractmethod
-    def get_supertype(self, transaction: Transaction) -> Type:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Type:
         pass
 
     @abstractmethod
-    def get_supertypes(self, transaction: Transaction) -> Iterator[Type]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[Type]:
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: Transaction) -> Iterator[Type]:
+    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[Type]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: Transaction) -> Iterator[Type]:
+    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[Type]:
         pass

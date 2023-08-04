@@ -25,12 +25,12 @@ from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typedb.api.connection.database import DatabaseManager
-    from typedb.api.connection.options import Options
-    from typedb.api.connection.session import Session, SessionType
-    from typedb.api.connection.user import UserManager, User
+    from typedb.api.connection.options import TypeDBOptions
+    from typedb.api.connection.session import TypeDBSession, SessionType
+    from typedb.api.user.user import UserManager, User
 
 
-class Client(ABC):
+class TypeDBClient(ABC):
 
     @abstractmethod
     def is_open(self) -> bool:
@@ -42,7 +42,7 @@ class Client(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: Optional[Options] = None) -> Session:
+    def session(self, database: str, session_type: SessionType, options: Optional[TypeDBOptions] = None) -> TypeDBSession:
         pass
 
     @abstractmethod

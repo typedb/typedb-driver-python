@@ -28,7 +28,7 @@ from tests.behaviour.context import Context
 
 def _get_client(context: Context):
     client = context.client
-    assert isinstance(client, Client)
+    assert isinstance(client, TypeDBClient)
     return client
 
 

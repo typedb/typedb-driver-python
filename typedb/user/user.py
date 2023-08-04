@@ -22,7 +22,7 @@
 from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
-from typedb.api.connection.user import User
+from typedb.api.user.user import User
 from typedb.typedb_client_python import user_get_username, \
     user_get_password_expiry_seconds, user_password_update
 

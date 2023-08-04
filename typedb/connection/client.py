@@ -22,23 +22,23 @@
 from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
-from typedb.api.connection.client import Client
-from typedb.api.connection.options import Options
+from typedb.api.connection.client import TypeDBClient
+from typedb.api.connection.options import TypeDBOptions
 from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
-from typedb.connection.user_manager import _UserManager
+from typedb.user.user_manager import _UserManager
 from typedb.typedb_client_python import connection_open_plaintext, \
     connection_open_encrypted, connection_is_open, connection_force_close
 
 if TYPE_CHECKING:
-    from typedb.api.connection.credential import Credential
+    from typedb.api.connection.credential import TypeDBCredential
     from typedb.api.connection.session import SessionType
-    from typedb.api.connection.user import UserManager, User
+    from typedb.api.user.user import UserManager, User
 
 
-class _Client(Client):
+class _Client(TypeDBClient):
 
-    def __init__(self, addresses: list[str], credential: Optional[Credential] = None):
+    def __init__(self, addresses: list[str], credential: Optional[TypeDBCredential] = None):
         if credential:
             self._connection = connection_open_encrypted(addresses, credential.native_object)
         else:
@@ -46,8 +46,8 @@ class _Client(Client):
         self._database_manager = _DatabaseManager(self._connection)
         self._user_manager = _UserManager(self._connection)
 
-    def session(self, database: str, session_type: SessionType, options: Options = None) -> _Session:
-        return _Session(self.databases.get(database), session_type, options if options else Options())
+    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> _Session:
+        return _Session(self.databases.get(database), session_type, options if options else TypeDBOptions())
 
     def is_open(self) -> bool:
         return connection_is_open(self._connection)

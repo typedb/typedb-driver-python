@@ -53,7 +53,7 @@ from typedb.api.connection.database import *  # noqa # pylint: disable=unused-im
 from typedb.api.connection.options import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.session import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.transaction import *  # noqa # pylint: disable=unused-import
-from typedb.api.connection.user import *  # noqa # pylint: disable=unused-import
+from typedb.api.user.user import *  # noqa # pylint: disable=unused-import
 
 from typedb.api.logic.explanation import *  # noqa # pylint: disable=unused-import
 from typedb.api.logic.logic_manager import *  # noqa # pylint: disable=unused-import
@@ -70,11 +70,11 @@ class TypeDB:
     DEFAULT_ADDRESS = "localhost:1729"
 
     @staticmethod
-    def core_client(address: str) -> Client:
+    def core_client(address: str) -> TypeDBClient:
         return _Client([address])
 
     @staticmethod
-    def cluster_client(addresses: Union[Iterable[str], str], credential: Credential) -> Client:
+    def cluster_client(addresses: Union[Iterable[str], str], credential: TypeDBCredential) -> TypeDBClient:
         if isinstance(addresses, str):
             return _Client([addresses], credential)
         else:

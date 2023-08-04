@@ -46,13 +46,13 @@ class Context(behave.runner.Context):
     def __init__(self):
         self.table: Optional[Table] = None
         self.THREAD_POOL_SIZE = 0
-        self.client: Optional[Client] = None
-        self.sessions: list[Session] = []
-        self.sessions_to_transactions: dict[Session, list[Transaction]] = {}
-        self.sessions_parallel: list[Session] = []
-        self.sessions_parallel_to_transactions_parallel: dict[Session, list[Transaction]] = {}
-        self.session_options: Optional[Options] = None
-        self.transaction_options: Optional[Options] = None
+        self.client: Optional[TypeDBClient] = None
+        self.sessions: list[TypeDBSession] = []
+        self.sessions_to_transactions: dict[TypeDBSession, list[TypeDBTransaction]] = {}
+        self.sessions_parallel: list[TypeDBSession] = []
+        self.sessions_parallel_to_transactions_parallel: dict[TypeDBSession, list[TypeDBTransaction]] = {}
+        self.session_options: Optional[TypeDBOptions] = None
+        self.transaction_options: Optional[TypeDBOptions] = None
         self.things: dict[str, Thing] = {}
         self.answers: Optional[list[ConceptMap]] = None
         self.numeric_answer: Optional[Numeric] = None
@@ -61,7 +61,7 @@ class Context(behave.runner.Context):
         self.config = Config()
         self.option_setters = {}
 
-    def tx(self) -> Transaction:
+    def tx(self) -> TypeDBTransaction:
         return self.sessions_to_transactions[self.sessions[0]][0]
 
     def put(self, var: str, thing: Thing) -> None:

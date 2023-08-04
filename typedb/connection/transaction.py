@@ -22,8 +22,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from typedb.api.connection.options import Options
-from typedb.api.connection.transaction import Transaction
+from typedb.api.connection.options import TypeDBOptions
+from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
@@ -35,11 +35,11 @@ if TYPE_CHECKING:
     from typedb.api.connection.transaction import TransactionType
 
 
-class _Transaction(Transaction):
+class _Transaction(TypeDBTransaction):
 
-    def __init__(self, session: _Session, transaction_type: TransactionType, options: Options = None):
+    def __init__(self, session: _Session, transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
-            options = Options()
+            options = TypeDBOptions()
         self._transaction_type = transaction_type
         self._options = options
         self._native_object = transaction_new(session.native_object, transaction_type.value, options.native_object)
@@ -52,7 +52,7 @@ class _Transaction(Transaction):
         return self._transaction_type
 
     @property
-    def options(self) -> Options:
+    def options(self) -> TypeDBOptions:
         return self._options
 
     @property

@@ -35,7 +35,7 @@ from typedb.typedb_client_python import options_new, options_has_infer, options_
     options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica
 
 
-class Options:
+class TypeDBOptions:
 
     def __init__(self, *,
                  infer: Optional[bool] = None,

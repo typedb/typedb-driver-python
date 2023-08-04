@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.type.thing_type import ThingType
     from typedb.api.concept.type.annotation import Annotation
-    from typedb.api.connection.transaction import Transaction
+    from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class Thing(Concept, ABC):
@@ -58,31 +58,31 @@ class Thing(Concept, ABC):
         return {"type": self.get_type().get_label().name()}
 
     @abstractmethod
-    def set_has(self, transaction: Transaction, attribute: Attribute) -> None:
+    def set_has(self, transaction: TypeDBTransaction, attribute: Attribute) -> None:
         pass
 
     @abstractmethod
-    def unset_has(self, transaction: Transaction, attribute: Attribute) -> None:
+    def unset_has(self, transaction: TypeDBTransaction, attribute: Attribute) -> None:
         pass
 
     @abstractmethod
-    def get_has(self, transaction: Transaction, attribute_type: AttributeType = None,
+    def get_has(self, transaction: TypeDBTransaction, attribute_type: AttributeType = None,
                 attribute_types: list[AttributeType] = None,
                 annotations: set[Annotation] = frozenset()) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_relations(self, transaction: Transaction, role_types: list[RoleType] = None):
+    def get_relations(self, transaction: TypeDBTransaction, role_types: list[RoleType] = None):
         pass
 
     @abstractmethod
-    def get_playing(self, transaction: Transaction) -> Iterator[RoleType]:
+    def get_playing(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def delete(self, transaction: Transaction) -> None:
+    def delete(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def is_deleted(self, transaction: Transaction) -> bool:
+    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
         pass
