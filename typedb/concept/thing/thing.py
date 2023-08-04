@@ -50,29 +50,33 @@ class _Thing(Thing, _Concept, ABC):
     def is_inferred(self) -> bool:
         return thing_get_is_inferred(self.native_object)
 
-    def get_has(self, transaction: _Transaction, *, attribute_type: Optional[_AttributeType] = None,
+    def get_has(self,
+                transaction: _Transaction,
+                *,
+                attribute_type: Optional[_AttributeType] = None,
                 attribute_types: list[_AttributeType] = (),
-                annotations: set[Annotation] = frozenset()) -> Iterator[_Attribute]:
+                annotations: set[Annotation] = frozenset()
+                ) -> Iterator[_Attribute]:
         if [bool(attribute_type), bool(attribute_types), bool(annotations)].count(True) > 1:
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
         native_attribute_types = [type.native_object for type in attribute_types]
         native_annotations = [anno.native_object for anno in annotations]
-        return (thing.attribute._Attribute(item) for item in
-                Streamer(thing_get_has(transaction.native_object, self.native_object, native_attribute_types, native_annotations),
-                         concept_iterator_next))
+        return map(thing.attribute._Attribute,
+                   Streamer(thing_get_has(transaction.native_object, self.native_object,
+                                          native_attribute_types, native_annotations),
+                            concept_iterator_next))
 
     def get_relations(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[_Relation]:
         native_role_types = [rt.native_object for rt in role_types]
-        return (thing.relation._Relation(item) for item in
-                Streamer(thing_get_relations(transaction.native_object, self.native_object, native_role_types),
-                         concept_iterator_next))
+        return map(thing.relation._Relation,
+                   Streamer(thing_get_relations(transaction.native_object, self.native_object, native_role_types),
+                            concept_iterator_next))
 
     def get_playing(self, transaction: _Transaction) -> Iterator[_RoleType]:
-        return (type_.role_type._RoleType(rt) for rt in
-                Streamer(thing_get_playing(transaction.native_object, self.native_object),
-                         concept_iterator_next))
+        return map(type_.role_type._RoleType,
+                   Streamer(thing_get_playing(transaction.native_object, self.native_object), concept_iterator_next))
 
     def set_has(self, transaction: _Transaction, attribute: _Attribute) -> None:
         thing_set_has(transaction.native_object, self.native_object, attribute.native_object)

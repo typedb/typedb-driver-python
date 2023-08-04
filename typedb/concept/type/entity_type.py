@@ -51,21 +51,25 @@ class _EntityType(EntityType, thing_type._ThingType):
         return None
 
     def get_supertypes(self, transaction: _Transaction) -> Iterator[_EntityType]:
-        return (_EntityType(item) for item in
-                Streamer(entity_type_get_supertypes(transaction.native_object, self.native_object), concept_iterator_next))
+        return map(_EntityType, Streamer(entity_type_get_supertypes(transaction.native_object, self.native_object),
+                                         concept_iterator_next))
 
     def get_subtypes(self, transaction: _Transaction) -> Iterator[_EntityType]:
-        return (_EntityType(item) for item in
-                Streamer(entity_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+        return map(_EntityType, Streamer(entity_type_get_subtypes(transaction.native_object, self.native_object,
+                                                                  Transitivity.TRANSITIVE.value),
+                                         concept_iterator_next))
 
     def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_EntityType]:
-        return (_EntityType(item) for item in
-                Streamer(entity_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+        return map(_EntityType, Streamer(entity_type_get_subtypes(transaction.native_object, self.native_object,
+                                                                  Transitivity.EXPLICIT.value),
+                                         concept_iterator_next))
 
     def get_instances(self, transaction: _Transaction) -> Iterator[entity._Entity]:
-        return (entity._Entity(item) for item in
-                Streamer(entity_type_get_instances(transaction.native_object, self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+        return map(entity._Entity, Streamer(entity_type_get_instances(transaction.native_object, self.native_object,
+                                                                      Transitivity.TRANSITIVE.value),
+                                            concept_iterator_next))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[entity._Entity]:
-        return (entity._Entity(item) for item in
-                Streamer(entity_type_get_instances(transaction.native_object, self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+        return map(entity._Entity, Streamer(entity_type_get_instances(transaction.native_object, self.native_object,
+                                                                      Transitivity.EXPLICIT.value),
+                                            concept_iterator_next))

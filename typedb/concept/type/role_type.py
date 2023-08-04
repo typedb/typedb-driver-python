@@ -20,10 +20,9 @@
 #
 
 from __future__ import annotations
-from typing import Iterator, Optional, TYPE_CHECKING
+from typing import Iterator, Optional, TYPE_CHECKING, Any
 
 from typedb.api.concept.type.role_type import RoleType
-from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
@@ -39,7 +38,9 @@ from typedb.typedb_client_python import role_type_is_root, role_type_is_abstract
     role_type_get_relation_type, role_type_get_relation_types, role_type_get_player_types, concept_iterator_next
 
 if TYPE_CHECKING:
-    pass
+    from typedb.connection.transaction import _Transaction
+    from typedb.concept.thing.relation import _Relation
+    from typedb.concept.type.relation_type import _RelationType
 
 
 class _RoleType(_Type, RoleType):
@@ -53,59 +54,71 @@ class _RoleType(_Type, RoleType):
     def get_label(self) -> Label:
         return Label.of(role_type_get_scope(self.native_object), role_type_get_name(self.native_object))
 
-    def delete(self, transaction: TypeDBTransaction) -> None:
+    def delete(self, transaction: _Transaction) -> None:
         role_type_delete(transaction.native_object, self.native_object)
 
-    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
+    def is_deleted(self, transaction: _Transaction) -> bool:
         return role_type_is_deleted(transaction.native_object, self.native_object)
 
-    def set_label(self, transaction: TypeDBTransaction, new_label: Label) -> None:
+    def set_label(self, transaction: _Transaction, new_label: Label) -> None:
         role_type_set_label(transaction.native_object, self.native_object, new_label)
 
-    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[_RoleType]:
+    def get_supertype(self, transaction: _Transaction) -> Optional[_RoleType]:
         if res := role_type_get_supertype(transaction.native_object, self.native_object):
             return _RoleType(res)
         return None
 
-    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
-        return (_RoleType(item) for item in
-                Streamer(role_type_get_supertypes(transaction.native_object, self.native_object), concept_iterator_next))
+    def get_supertypes(self, transaction: _Transaction) -> Iterator[_RoleType]:
+        return map(_RoleType, Streamer(role_type_get_supertypes(transaction.native_object, self.native_object),
+                                       concept_iterator_next))
 
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
-        return (_RoleType(item) for item in
-                Streamer(role_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+    def get_subtypes(self, transaction: _Transaction) -> Iterator[_RoleType]:
+        return map(_RoleType, Streamer(role_type_get_subtypes(transaction.native_object, self.native_object,
+                                                              Transitivity.TRANSITIVE.value),
+                                       concept_iterator_next))
 
-    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[_RoleType]:
-        return (_RoleType(item) for item in
-                Streamer(role_type_get_subtypes(transaction.native_object, self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+    def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
+        return map(_RoleType, Streamer(role_type_get_subtypes(transaction.native_object, self.native_object,
+                                                              Transitivity.EXPLICIT.value),
+                                       concept_iterator_next))
 
-    def get_relation_type(self, transaction: TypeDBTransaction) -> relation_type._RelationType:
+    def get_relation_type(self, transaction: _Transaction) -> _RelationType:
         return relation_type._RelationType(role_type_get_relation_type(transaction.native_object, self.native_object))
 
-    def get_relation_types(self, transaction: TypeDBTransaction) -> Iterator[relation_type._RelationType]:
-        return (relation_type._RelationType(item) for item in
-                Streamer(role_type_get_relation_types(transaction.native_object, self.native_object), concept_iterator_next))
+    def get_relation_types(self, transaction: _Transaction) -> Iterator[_RelationType]:
+        return map(relation_type._RelationType,
+                   Streamer(role_type_get_relation_types(transaction.native_object, self.native_object),
+                            concept_iterator_next))
 
-    def get_player_types(self, transaction: TypeDBTransaction) -> Iterator[_ThingType]:
-        return (_ThingType.of(item) for item in Streamer(role_type_get_player_types(transaction.native_object,
-                                                                                    self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+    def get_player_types(self, transaction: _Transaction) -> Iterator[Any]:
+        return map(_ThingType.of,
+                   Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
+                                                       Transitivity.TRANSITIVE.value),
+                            concept_iterator_next))
 
-    def get_player_types_explicit(self, transaction: TypeDBTransaction) -> Iterator[_ThingType]:
-        return (_ThingType.of(item) for item in Streamer(role_type_get_player_types(transaction.native_object,
-                                                                                    self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+    def get_player_types_explicit(self, transaction: _Transaction) -> Iterator[Any]:
+        return map(_ThingType.of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
+                                                                      Transitivity.EXPLICIT.value),
+                                           concept_iterator_next))
 
-    def get_relation_instances(self, transaction: TypeDBTransaction) -> Iterator[relation._Relation]:
-        return (relation._Relation(item) for item in Streamer(role_type_get_relation_instances(transaction.native_object,
-                                                                                               self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+    def get_relation_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
+        return map(relation._Relation,
+                   Streamer(role_type_get_relation_instances(transaction.native_object,
+                                                             self.native_object, Transitivity.TRANSITIVE.value),
+                            concept_iterator_next))
 
-    def get_relation_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[relation._Relation]:
-        return (relation._Relation(item) for item in Streamer(role_type_get_relation_instances(transaction.native_object,
-                                                                                               self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+    def get_relation_instances_explicit(self, transaction: _Transaction) -> Iterator[_Relation]:
+        return map(relation._Relation,
+                   Streamer(role_type_get_relation_instances(transaction.native_object, self.native_object,
+                                                             Transitivity.EXPLICIT.value),
+                            concept_iterator_next))
 
-    def get_player_instances(self, transaction: TypeDBTransaction) -> Iterator[_Thing]:
-        return (_Thing(item) for item in Streamer(role_type_get_player_instances(transaction.native_object,
-                                                                                 self.native_object, Transitivity.TRANSITIVE.value), concept_iterator_next))
+    def get_player_instances(self, transaction: _Transaction) -> Iterator[_Thing]:
+        return map(_Thing, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
+                                                                   Transitivity.TRANSITIVE.value),
+                                    concept_iterator_next))
 
-    def get_player_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[_Thing]:
-        return (_Thing(item) for item in Streamer(role_type_get_player_instances(transaction.native_object,
-                                                                                 self.native_object, Transitivity.Explicit.value), concept_iterator_next))
+    def get_player_instances_explicit(self, transaction: _Transaction) -> Iterator[_Thing]:
+        return map(_Thing, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
+                                                                   Transitivity.EXPLICIT.value),
+                                    concept_iterator_next))

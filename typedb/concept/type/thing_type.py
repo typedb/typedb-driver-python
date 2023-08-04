@@ -31,7 +31,7 @@ from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.type import _Type
-from typedb.typedb_client_python import Concept as NativeConcept, concept_is_entity_type, concept_is_relation_type, \
+from typedb.typedb_client_python import concept_is_entity_type, concept_is_relation_type, \
     concept_is_attribute_type, concept_is_root_thing_type, thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from typedb.concept.type.attribute_type import _AttributeType
     from typedb.concept.type.role_type import _RoleType
     from typedb.connection.transaction import _Transaction
+    from typedb.typedb_client_python import Concept as NativeConcept
 
 
 class _ThingType(ThingType, _Type, ABC):
@@ -109,7 +110,8 @@ class _ThingType(ThingType, _Type, ABC):
         thing_type_unset_plays(transaction.native_object, self.native_object, role_type.native_object)
 
     def set_owns(self, transaction: _Transaction, attribute_type: _AttributeType,
-                 overridden_type: Optional[_AttributeType] = None, annotations: Optional[set[Annotation]] = None) -> None:
+                 overridden_type: Optional[_AttributeType] = None, annotations: Optional[set[Annotation]] = None
+                 ) -> None:
         overridden_type_native = overridden_type.native_object if overridden_type else None
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
         thing_type_set_owns(
@@ -125,32 +127,29 @@ class _ThingType(ThingType, _Type, ABC):
                  ) -> Iterator[AttributeType]:
         from typedb.concept.type import attribute_type
 
-        return (attribute_type._AttributeType(item) for item in
-                Streamer(thing_type_get_owns(
-                    transaction.native_object,
-                    self.native_object,
-                    value_type.native_object if value_type else None,
-                    transitivity.value,
-                    [anno.native_object for anno in annotations] if annotations else []
-                ), concept_iterator_next))
+        return map(attribute_type._AttributeType,
+                   Streamer(thing_type_get_owns(transaction.native_object,
+                                                self.native_object,
+                                                value_type.native_object if value_type else None,
+                                                transitivity.value,
+                                                [anno.native_object for anno in annotations] if annotations else []),
+                            concept_iterator_next))
 
     def get_owns_explicit(self, transaction: _Transaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
-        return self.get_owns(transaction, value_type, Transitivity.Explicit, annotations)
+        return self.get_owns(transaction, value_type, Transitivity.EXPLICIT, annotations)
 
-    def get_plays(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[_RoleType]:
+    def get_plays(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                  ) -> Iterator[_RoleType]:
         from typedb.concept.type import role_type
 
-        return (role_type._RoleType(item) for item in
-                Streamer(thing_type_get_plays(
-                    transaction.native_object,
-                    self.native_object,
-                    transitivity.value
-                ), concept_iterator_next)
+        return map(role_type._RoleType,
+                   Streamer(thing_type_get_plays(transaction.native_object, self.native_object, transitivity.value),
+                            concept_iterator_next)
         )
 
     def get_plays_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
-        return self.get_plays(transaction, Transitivity.Explicit)
+        return self.get_plays(transaction, Transitivity.EXPLICIT)
 
     def get_plays_overridden(self, transaction: _Transaction, role_type: _RoleType) -> Optional[_RoleType]:
         from typedb.concept.type.role_type import _RoleType
@@ -190,21 +189,21 @@ class _Root(_ThingType):
         return self,
 
     def get_subtypes(self, transaction: _Transaction) -> Iterator[Any]:
-        return (_ThingType.of(item) for item in chain(
-            (self, ), transaction.concepts.get_root_entity_type().get_subtypes(transaction),
-            transaction.concepts.get_root_relation_type().get_subtypes(transaction),
-            transaction.concepts.get_root_attribute_type().get_subtypes(transaction)))
+        return chain((self, ),
+                     transaction.concepts.get_root_entity_type().get_subtypes(transaction),
+                     transaction.concepts.get_root_relation_type().get_subtypes(transaction),
+                     transaction.concepts.get_root_attribute_type().get_subtypes(transaction))
 
     def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[Any]:
-        return (_ThingType.of(item) for item in (transaction.concepts.get_root_entity_type(),
-                                              transaction.concepts.get_root_relation_type(),
-                                              transaction.concepts.get_root_attribute_type()))
+        return (transaction.concepts.get_root_entity_type(),
+                transaction.concepts.get_root_relation_type(),
+                transaction.concepts.get_root_attribute_type())
 
-    def get_instances(self, transaction: _Transaction) -> Iterator[_Thing]:
-        return (_Thing(item) for item in chain(
-            (self, ), transaction.concepts.get_root_entity_type().get_instances(transaction),
-            transaction.concepts.get_root_relation_type().get_instances(transaction),
-            transaction.concepts.get_root_attribute_type().get_instances(transaction)))
+    def get_instances(self, transaction: _Transaction) -> Iterator[Any]:
+        return chain((self, ),
+                     transaction.concepts.get_root_entity_type().get_instances(transaction),
+                     transaction.concepts.get_root_relation_type().get_instances(transaction),
+                     transaction.concepts.get_root_attribute_type().get_instances(transaction))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Thing]:
         return ()
