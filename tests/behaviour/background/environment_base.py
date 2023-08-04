@@ -59,8 +59,6 @@ def _get_thing_type_impl(context: Context, root_label: RootLabel, type_label: st
         return context.tx().concepts.get_attribute_type(type_label)
     elif root_label == RootLabel.RELATION:
         return context.tx().concepts.get_relation_type(type_label)
-    # elif root_label == RootLabel.THING:
-    #     return context.tx().concepts.get_root_thing_type()
     else:
         raise ValueError("Unrecognised value")
 

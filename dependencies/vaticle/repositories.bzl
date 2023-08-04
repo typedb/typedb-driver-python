@@ -68,12 +68,12 @@ def vaticle_factory_tracing():
     )
 
 def vaticle_typedb_driver_java():
-    git_repository(
-        name = "vaticle_typedb_driver_java",
-        remote = "https://github.com/dmikhalin/typedb-client-java",
-        branch = "python-ffi"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
-    )
-#    native.local_repository(
+#    git_repository(
 #        name = "vaticle_typedb_driver_java",
-#        path = "/Users/dmitry/Vaticle/typedb-client-java",
+#        remote = "https://github.com/dmikhalin/typedb-client-java",
+#        branch = "python-ffi"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
 #    )
+    native.local_repository(
+        name = "vaticle_typedb_driver_java",
+        path = "/Users/dmitry/Vaticle/typedb-client-java",
+    )

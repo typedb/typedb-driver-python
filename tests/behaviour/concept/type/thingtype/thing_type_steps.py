@@ -282,7 +282,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, annotati
 
 @step("{root_label:RootLabel}({type_label}) get owns attribute types contain")
 def step_impl(context: Context, root_label: RootLabel, type_label: str):
-    get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, set());
+    get_owns_attribute_types_with_annotations_contains(context, root_label, type_label, set())
 
 
 def get_owns_attribute_types_with_annotations_do_not_contain(context: Context, root_label: RootLabel, type_label: str, annotations: Set["Annotation"]):
@@ -436,35 +436,3 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
     actuals = get_actual_plays_explicit(context, root_label, type_label)
     for role_label in role_labels:
         assert_that(role_label, not_(is_in(actuals)))
-
-
-@step("thing type root get supertypes contain")
-def step_impl(context: Context):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.tx().concepts.get_root_thing_type().get_supertypes(context.tx())]
-    for super_label in super_labels:
-        assert_that(super_label, is_in(actuals))
-
-
-@step("thing type root get supertypes do not contain")
-def step_impl(context: Context):
-    super_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.tx().concepts.get_root_thing_type().get_supertypes(context.tx())]
-    for super_label in super_labels:
-        assert_that(super_label, not_(is_in(actuals)))
-
-
-@step("thing type root get subtypes contain")
-def step_impl(context: Context):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.tx().concepts.get_root_thing_type().get_subtypes(context.tx())]
-    for sub_label in sub_labels:
-        assert_that(sub_label, is_in(actuals))
-
-
-@step("thing type root get subtypes do not contain")
-def step_impl(context: Context):
-    sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label().name() for t in context.tx().concepts.get_root_thing_type().get_subtypes(context.tx())]
-    for sub_label in sub_labels:
-        assert_that(sub_label, not_(is_in(actuals)))

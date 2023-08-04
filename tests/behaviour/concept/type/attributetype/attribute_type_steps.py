@@ -22,7 +22,7 @@
 from behave import *
 from hamcrest import *
 
-from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
+from tests.behaviour.config.parameters import parse_list, parse_label
 from tests.behaviour.context import Context
 from typedb.client import *
 
@@ -44,29 +44,9 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
     assert_that(supertype.get_value_type(), is_(value_type))
 
 
-# def attribute_type_as_value_type(context: Context, type_label: str, value_type: ValueType):
-#     return context.tx().concepts.get_attribute_type(type_label)
-#     # attribute_type = context.tx().concepts.get_attribute_type(type_label)
-#     # if value_type is ValueType.OBJECT:
-#     #     return attribute_type
-#     # elif value_type is ValueType.BOOLEAN:
-#     #     return attribute_type.as_boolean()
-#     # elif value_type is ValueType.LONG:
-#     #     return attribute_type.as_long()
-#     # elif value_type is ValueType.DOUBLE:
-#     #     return attribute_type.as_double()
-#     # elif value_type is ValueType.STRING:
-#     #     return attribute_type.as_string()
-#     # elif value_type is ValueType.DATETIME:
-#     #     return attribute_type.as_datetime()
-#     # else:
-#     #     raise ValueError("Unrecognised value type: " + str(value_type))
-
-
 @step("attribute({type_label}) as({value_type:ValueType}) get subtypes contain")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    # attribute_type = attribute_type_as_value_type(context, type_label, value_type)
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(), value_type)))
     for sub_label in sub_labels:
@@ -76,7 +56,6 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 @step("attribute({type_label}) as({value_type:ValueType}) get subtypes do not contain")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    # attribute_type = attribute_type_as_value_type(context, type_label, value_type)
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(), value_type)))
     for sub_label in sub_labels:
@@ -94,7 +73,6 @@ def step_impl(context: Context, type_label: str, value_type: ValueType, regex: s
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     assert_that(value_type, is_(ValueType.STRING))
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
-    # attribute_type_as_value_type(context, type_label, value_type)
     attribute_type.unset_regex(context.tx())
 
 
@@ -102,7 +80,6 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 def step_impl(context: Context, type_label: str, value_type: ValueType, regex: str):
     assert_that(value_type, is_(ValueType.STRING))
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
-    # attribute_type = attribute_type_as_value_type(context, type_label, value_type)
     assert_that(attribute_type.get_regex(context.tx()), is_(regex))
 
 
@@ -110,7 +87,6 @@ def step_impl(context: Context, type_label: str, value_type: ValueType, regex: s
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     assert_that(value_type, is_(ValueType.STRING))
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
-    # attribute_type = attribute_type_as_value_type(context, type_label, value_type)
     assert_that(attribute_type.get_regex(context.tx()), is_(None))
 
 

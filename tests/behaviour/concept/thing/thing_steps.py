@@ -186,18 +186,3 @@ def step_impl(context: Context, var1: str, label: Label, var2: str):
 @step("relation {var1:Var} get relations do not contain: {var2:Var}")
 def step_impl(context: Context, var1: str, var2: str):
     assert_that(context.get(var1).get_relations(context.tx()), not_(has_item(context.get(var2))))
-
-
-@step("root(thing) get instances count: {count:Int}")
-def step_impl(context: Context, count: int):
-    assert_that(list(context.tx().concepts.get_root_thing_type().get_instances(context.tx())), has_length(count))
-
-
-@step("root(thing) get instances contain: {var:Var}")
-def step_impl(context: Context, var: str):
-    assert_that(context.tx().concepts.get_root_thing_type().get_instances(context.tx()), has_item(context.get(var)))
-
-
-@step("root(thing) get instances is empty")
-def step_impl(context: Context):
-    assert_that(list(context.tx().concepts.get_root_thing_type().get_instances(context.tx())), has_length(0))
