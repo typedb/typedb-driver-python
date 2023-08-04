@@ -161,7 +161,8 @@ class TypeDBOptions:
 
     @property
     def read_any_replica(self) -> Optional[bool]:
-        return options_get_read_any_replica(self.native_object) if options_has_read_any_replica(self.native_object) else None
+        return options_get_read_any_replica(self.native_object) if options_has_read_any_replica(self.native_object) \
+            else None
 
     @read_any_replica.setter
     def read_any_replica(self, read_any_replice: bool):

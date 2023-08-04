@@ -44,8 +44,8 @@ def before_scenario(context: Context):
     context.put = lambda var, thing: _put_impl(context, var, thing)
     context.get_thing_type = lambda root_label, type_label: _get_thing_type_impl(context, root_label, type_label)
     context.clear_answers = lambda: _clear_answers_impl(context)
-    context.option_setters = {option: lambda options, value: setattr(options, option.replace("-", "_"), value) for option in
-                              ["session-idle-timeout-millis", "transaction-timeout-millis"]}
+    context.option_setters = {option: lambda options, value: setattr(options, option.replace("-", "_"), value)
+                              for option in ["session-idle-timeout-millis", "transaction-timeout-millis"]}
 
 
 def _put_impl(context: Context, variable: str, thing: Thing):

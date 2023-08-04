@@ -19,10 +19,10 @@
 # under the License.
 #
 
-from typing import Optional
+from __future__ import annotations
+from typing import Optional, TYPE_CHECKING
 
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.concept.value.value import ValueType
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID, TypeDBException
 from typedb.concept.thing.attribute import _Attribute
 from typedb.concept.thing.entity import _Entity
@@ -30,16 +30,19 @@ from typedb.concept.thing.relation import _Relation
 from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
-from typedb.typedb_client_python import Transaction, concepts_get_entity_type, concepts_get_relation_type, \
-    concepts_get_attribute_type, \
-    concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, concepts_get_entity, \
-    concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, schema_exception_message, \
-    schema_exception_code
+from typedb.typedb_client_python import concepts_get_entity_type, concepts_get_relation_type, \
+    concepts_get_attribute_type, concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, \
+    concepts_get_entity, concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, \
+    schema_exception_message, schema_exception_code
+
+if TYPE_CHECKING:
+    from typedb.api.concept.value.value import ValueType
+    from typedb.typedb_client_python import Transaction as NativeTransaction
 
 
 class _ConceptManager(ConceptManager):
 
-    def __init__(self, transaction: Transaction):
+    def __init__(self, transaction: NativeTransaction):
         self._transaction = transaction
 
     def native_transaction(self):

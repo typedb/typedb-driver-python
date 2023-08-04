@@ -57,5 +57,6 @@ def after_scenario(context: Context, scenario):
         database.delete()
     context.client.close()
 
+
 def after_all(context: Context):
     environment_base.after_all(context)

@@ -80,7 +80,7 @@ class Value(Concept, ABC):
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "value_type": str(self.get_value_type()),
-            "value": self.get_value() if not self.is_datetime() else self.get_value().isoformat(timespec='milliseconds'),
+            "value": self.get_value() if not self.is_datetime() else self.get_value().isoformat(timespec='milliseconds')
         }
 
 

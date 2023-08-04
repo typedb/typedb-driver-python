@@ -36,6 +36,9 @@ class RelationType(ThingType, ABC):
     def is_relation_type(self) -> bool:
         return True
 
+    def as_relation_type(self) -> RelationType:
+        return self
+
     @abstractmethod
     def create(self, transaction: TypeDBTransaction) -> Relation:
         pass
@@ -62,7 +65,8 @@ class RelationType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def set_relates(self, transaction: TypeDBTransaction, role_label: str, overridden_label: Optional[str] = None) -> None:
+    def set_relates(self, transaction: TypeDBTransaction, role_label: str, overridden_label: Optional[str] = None
+                    ) -> None:
         pass
 
     @abstractmethod

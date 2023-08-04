@@ -34,9 +34,9 @@ from typedb.concept.value.value import _Value
 
 from typedb.typedb_client_python import attribute_type_set_supertype, attribute_type_get_supertype, \
     attribute_type_get_supertypes, attribute_type_get_subtypes, attribute_type_get_subtypes_with_value_type, \
-    attribute_type_get_instances, attribute_type_get_owners, attribute_type_put, \
-    attribute_type_get, attribute_type_get_regex, attribute_type_set_regex, attribute_type_unset_regex, \
-    attribute_type_get_value_type, concept_iterator_next
+    attribute_type_get_instances, attribute_type_get_owners, attribute_type_put, attribute_type_get, \
+    attribute_type_get_regex, attribute_type_set_regex, attribute_type_unset_regex, attribute_type_get_value_type, \
+    concept_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.attribute import Attribute

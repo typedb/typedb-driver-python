@@ -37,6 +37,10 @@ class Type(Concept, ABC):
         pass
 
     @abstractmethod
+    def set_label(self, transaction: TypeDBTransaction, new_label: Label) -> None:
+        pass
+
+    @abstractmethod
     def is_root(self) -> bool:
         pass
     
@@ -64,4 +68,8 @@ class Type(Concept, ABC):
 
     @abstractmethod
     def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[Type]:
+        pass
+
+    @abstractmethod
+    def delete(self, transaction: TypeDBTransaction) -> None:
         pass

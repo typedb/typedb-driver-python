@@ -35,6 +35,9 @@ class EntityType(ThingType, ABC):
     def is_entity_type(self):
         return True
 
+    def as_entity_type(self) -> EntityType:
+        return self
+
     @abstractmethod
     def create(self, transaction: TypeDBTransaction) -> Entity:
         pass

@@ -27,8 +27,8 @@ from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MIS
 from typedb.common.streamer import Streamer
 from typedb.connection.database import _Database
 
-from typedb.typedb_client_python import databases_contains, databases_create, \
-    database_manager_new, databases_get, databases_all, database_iterator_next
+from typedb.typedb_client_python import databases_contains, databases_create, database_manager_new, databases_get, \
+    databases_all, database_iterator_next
 
 if TYPE_CHECKING:
     from typedb.typedb_client_python import Connection as NativeConnection

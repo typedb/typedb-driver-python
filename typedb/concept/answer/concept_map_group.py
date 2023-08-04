@@ -27,13 +27,14 @@ from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.concept import _Concept
 
-from typedb.typedb_client_python import concept_map_group_get_owner, \
-    concept_map_group_get_concept_maps, concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
+from typedb.typedb_client_python import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
+    concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
     from typedb.api.answer.concept_map import ConceptMap
     from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup
+
 
 class _ConceptMapGroup(ConceptMapGroup):
 

@@ -28,9 +28,8 @@ from typedb.common.transitivity import Transitivity
 from typedb.concept.thing import entity
 from typedb.concept.type import thing_type
 
-from typedb.typedb_client_python import entity_type_create, entity_type_get_subtypes, \
-    entity_type_get_instances, entity_type_get_supertypes, entity_type_get_supertype, entity_type_set_supertype, \
-    concept_iterator_next
+from typedb.typedb_client_python import entity_type_create, entity_type_get_subtypes, entity_type_get_instances, \
+    entity_type_get_supertypes, entity_type_get_supertype, entity_type_set_supertype, concept_iterator_next
 
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction

@@ -71,5 +71,6 @@ class QueryManager(ABC):
         pass
 
     @abstractmethod
-    def explain(self, explainable: ConceptMap.Explainable, options: Optional[TypeDBOptions] = None) -> Iterator[Explanation]:
+    def explain(self, explainable: ConceptMap.Explainable, options: Optional[TypeDBOptions] = None
+                ) -> Iterator[Explanation]:
         pass

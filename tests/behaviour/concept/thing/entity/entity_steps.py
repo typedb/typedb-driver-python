@@ -28,7 +28,8 @@ from tests.behaviour.context import Context
 
 @step("entity({type_label}) create new instance; throws exception")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(context.tx().concepts.get_entity_type(type_label).create).with_args(context.tx()), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_entity_type(type_label).create).with_args(context.tx()),
+                raises(Exception))
 
 
 @step("{var:Var} = entity({type_label}) create new instance")

@@ -20,7 +20,7 @@
 #
 
 from __future__ import annotations
-from typing import  TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientException, ILLEGAL_CAST
@@ -54,7 +54,6 @@ class _Numeric(Numeric):
         if not self.is_float():
             raise TypeDBClientException.of(ILLEGAL_CAST, "float")
         return numeric_get_double(self._numeric)
-
 
     def __str__(self):
         return numeric_to_string(self._numeric)

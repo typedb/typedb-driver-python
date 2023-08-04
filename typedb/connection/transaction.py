@@ -28,7 +28,8 @@ from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
-from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
+from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, \
+    transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 if TYPE_CHECKING:
     from typedb.connection.session import _Session

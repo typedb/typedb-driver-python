@@ -43,9 +43,9 @@ class _Session(TypeDBSession):
             options = TypeDBOptions()
         self._type = session_type
         self._options = options
-        db = database.native_object
-        db.thisown = 0
-        self._native_object = session_new(db, session_type.value, options.native_object)
+        native_database = database.native_object
+        native_database.thisown = 0
+        self._native_object = session_new(native_database, session_type.value, options.native_object)
 
     @property
     def native_object(self):

@@ -34,6 +34,9 @@ class Entity(Thing, ABC):
     def is_entity(self) -> bool:
         return True
 
+    def as_entity(self) -> Entity:
+        return self
+
     @abstractmethod
     def get_type(self) -> EntityType:
         pass

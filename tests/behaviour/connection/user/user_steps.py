@@ -47,7 +47,7 @@ def step_impl(context: Context, username: str):
     try:
         assert_that([u.username() for u in _get_client(context).users.all()], has_item(username))
         assert False
-    except Exception:
+    except (TypeDBClientException, RuntimeError):
         pass
 
 

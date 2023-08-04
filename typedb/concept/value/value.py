@@ -35,37 +35,30 @@ from typedb.typedb_client_python import value_new_boolean, value_new_long, value
 
 class _Value(Value, _Concept):
 
-    # @staticmethod
     @singledispatchmethod
     def of(value):
         raise TypeDBClientException.of(UNEXPECTED_NATIVE_VALUE)
 
-    # @staticmethod
     @of.register
     def _(value: bool):
         return _Value(value_new_boolean(value))
 
-    # @staticmethod
     @of.register
     def _(value: int):
         return _Value(value_new_long(value))
 
-    # @staticmethod
     @of.register
     def _(value: float):
         return _Value(value_new_double(value))
 
-    # @staticmethod
     @of.register
     def _(value: str):
         return _Value(value_new_string(value))
 
-    # @staticmethod
     @of.register
     def _(value: datetime):
         return _Value(value_new_date_time_from_millis(int(value.replace(tzinfo=timezone.utc).timestamp() * 1000)))
 
-    # @staticmethod
     @of.register
     def _(value: Value):
         return value

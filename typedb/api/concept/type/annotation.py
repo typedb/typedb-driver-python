@@ -58,5 +58,7 @@ class Annotation:
         return hash((self.is_key(), self.is_unique()))
 
     def __eq__(self, other):
-        return isinstance(other, Annotation) and isinstance(self.native_object, NativeAnnotation) and \
-            isinstance(other.native_object, NativeAnnotation) and annotation_equals(self.native_object, other.native_object)
+        return isinstance(other, Annotation) \
+            and isinstance(self.native_object, NativeAnnotation) \
+            and isinstance(other.native_object, NativeAnnotation) \
+            and annotation_equals(self.native_object, other.native_object)

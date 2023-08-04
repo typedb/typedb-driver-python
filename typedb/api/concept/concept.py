@@ -73,10 +73,12 @@ class Concept(ABC):
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.entity_type.EntityType))
 
     def as_attribute_type(self) -> type.attribute_type.AttributeType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.attribute_type.AttributeType))
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__,
+                                                                 type.attribute_type.AttributeType))
 
     def as_relation_type(self) -> type.relation_type.RelationType:
-        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.relation_type.RelationType))
+        raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__,
+                                                                 type.relation_type.RelationType))
 
     def as_role_type(self) -> type.role_type.RoleType:
         raise TypeDBClientException.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, type.role_type.RoleType))

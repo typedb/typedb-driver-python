@@ -19,7 +19,6 @@
 # under the License.
 #
 
-import sys
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import partial
 
@@ -147,6 +146,7 @@ def step_impl(context: Context):
     future_session_iter = iter(context.sessions_parallel)
     for name in database_names:
         assert_that(next(future_session_iter).result().database_name(), is_(name))
+
 
 ######################################
 # session configuration              #

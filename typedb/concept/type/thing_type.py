@@ -145,8 +145,7 @@ class _ThingType(ThingType, _Type, ABC):
 
         return map(role_type._RoleType,
                    Streamer(thing_type_get_plays(transaction.native_object, self.native_object, transitivity.value),
-                            concept_iterator_next)
-        )
+                            concept_iterator_next))
 
     def get_plays_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return self.get_plays(transaction, Transitivity.EXPLICIT)

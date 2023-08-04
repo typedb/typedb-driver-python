@@ -24,11 +24,12 @@ from typing import TYPE_CHECKING
 
 from typedb.api.logic.rule import Rule
 from typedb.common.exception import TypeDBClientException, MISSING_LABEL
-from typedb.typedb_client_python import Rule as NativeRule, rule_get_when, rule_get_then, rule_get_label, \
-    rule_set_label, rule_delete, rule_is_deleted, rule_to_string
+from typedb.typedb_client_python import rule_get_when, rule_get_then, rule_get_label, rule_set_label, rule_delete, \
+    rule_is_deleted, rule_to_string
 
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction
+    from typedb.typedb_client_python import Rule as NativeRule
 
 
 class _Rule(Rule):

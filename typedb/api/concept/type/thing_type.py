@@ -99,7 +99,8 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_plays(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[RoleType]:
+    def get_plays(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                  ) -> Iterator[RoleType]:
         pass
 
     @abstractmethod

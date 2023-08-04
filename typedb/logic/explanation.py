@@ -19,16 +19,22 @@
 # under the License.
 #
 
-from typedb.api.answer.concept_map import ConceptMap
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from typedb.api.logic.explanation import Explanation
-from typedb.api.logic.rule import Rule
 from typedb.common.exception import TypeDBClientException, MISSING_VARIABLE
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
-from typedb.typedb_client_python import Explanation as NativeExplanation, explanation_get_rule, \
-    explanation_get_conclusion, explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
+from typedb.typedb_client_python import explanation_get_rule, explanation_get_conclusion, \
+    explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
     explanation_get_mapping, explanation_to_string, explanation_equals
+
+if TYPE_CHECKING:
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.api.logic.rule import Rule
+    from typedb.typedb_client_python import Explanation as NativeExplanation
 
 
 class _Explanation(Explanation):

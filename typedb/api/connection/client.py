@@ -42,7 +42,8 @@ class TypeDBClient(ABC):
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: Optional[TypeDBOptions] = None) -> TypeDBSession:
+    def session(self, database: str, session_type: SessionType, options: Optional[TypeDBOptions] = None
+                ) -> TypeDBSession:
         pass
 
     @abstractmethod

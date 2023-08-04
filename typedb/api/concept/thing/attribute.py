@@ -49,7 +49,6 @@ class Attribute(Thing, ABC):
         return self
 
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-        # TODO: Check it
         return {"type": self.get_type().get_label().scoped_name()} | self.get_value().to_json()
 
     @abstractmethod

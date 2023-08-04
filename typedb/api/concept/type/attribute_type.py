@@ -22,7 +22,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING, Iterator, Set, Union
+from typing import Optional, TYPE_CHECKING, Iterator, Union
 
 from typedb.api.concept.value.value import ValueType
 from typedb.api.concept.type.thing_type import ThingType
@@ -65,7 +65,8 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
+    def get(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]
+            ) -> Optional[Attribute]:
         pass
 
     @abstractmethod
@@ -85,7 +86,8 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType) -> Iterator[AttributeType]:
+    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType
+                                     ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod

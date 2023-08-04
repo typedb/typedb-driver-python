@@ -28,13 +28,12 @@ from typedb.common.exception import TypeDBClientException, VARIABLE_DOES_NOT_EXI
 from typedb.common.streamer import Streamer
 from typedb.concept.concept import _Concept
 
-from typedb.typedb_client_python import concept_map_get_variables, string_iterator_next, \
-    concept_map_get_values, concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, \
-    concept_map_equals, explainables_get_relation, \
-    explainables_get_attribute, \
-    explainables_get_ownership, explainables_get_relations_keys, explainables_get_attributes_keys, \
-    explainables_get_ownerships_keys, string_pair_iterator_next, explainables_to_string, explainables_equals, \
-    explainable_get_conjunction, explainable_get_id
+from typedb.typedb_client_python import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
+    concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, concept_map_equals, \
+    explainables_get_relation, explainables_get_attribute, explainables_get_ownership, \
+    explainables_get_relations_keys, explainables_get_attributes_keys, explainables_get_ownerships_keys, \
+    string_pair_iterator_next, explainables_to_string, explainables_equals, explainable_get_conjunction, \
+    explainable_get_id
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
@@ -79,7 +78,7 @@ class _ConceptMap(ConceptMap):
         return concept_map_equals(self.native_object, other.native_object)
 
     def __hash__(self):
-        return hash((tuple(self.variables()), tuple(self.concepts)))
+        return hash((tuple(self.variables()), tuple(self.concepts())))
 
     class Explainables(ConceptMap.Explainables):
 

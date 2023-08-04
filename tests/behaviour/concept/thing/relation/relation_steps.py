@@ -29,7 +29,8 @@ from tests.behaviour.context import Context
 
 @step("relation({type_label}) create new instance; throws exception")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(context.tx().concepts.get_relation_type(type_label).create).with_args(context.tx()), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_relation_type(type_label).create).with_args(context.tx()),
+                raises(Exception))
 
 
 @step("{var:Var} = relation({type_label}) create new instance")

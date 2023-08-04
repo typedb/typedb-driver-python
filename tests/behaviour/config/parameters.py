@@ -53,16 +53,16 @@ register_type(Float=parse_float)
 
 
 @parse.with_pattern("[\w_-]+")
-def parseWords(text):
+def parse_words(text):
     return text
 
 
-register_type(Words=parseWords)
+register_type(Words=parse_words)
 
 
 @parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
 def parse_datetime_pattern(text: str) -> datetime:
-    return parse_datetime(str)
+    return parse_datetime(text)
 
 
 def parse_datetime(text: str) -> datetime:
@@ -119,7 +119,7 @@ register_type(Label=parse_label)
 
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
-def parse_annotations(text: str) -> Set[Annotation]:
+def parse_annotations(text: str) -> set[Annotation]:
     try:
         return {{"key": Annotation.key(), "unique": Annotation.unique()}[anno.strip()] for anno in text.split(",")}
     except KeyError:

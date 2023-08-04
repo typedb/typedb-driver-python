@@ -38,6 +38,9 @@ class RoleType(Type, ABC):
     def is_role_type(self) -> bool:
         return True
 
+    def as_role_type(self) -> RoleType:
+        return self
+
     @abstractmethod
     def get_supertype(self, transaction: TypeDBTransaction) -> Optional[RoleType]:
         pass

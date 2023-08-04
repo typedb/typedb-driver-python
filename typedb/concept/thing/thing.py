@@ -29,9 +29,8 @@ from typedb.api.concept.thing.thing import Thing
 from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.streamer import Streamer
 from typedb.concept.concept import _Concept
-from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, \
-    thing_get_relations, thing_get_playing, thing_set_has, thing_unset_has, \
-    thing_delete, thing_is_deleted, concept_iterator_next
+from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
+    thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.annotation import Annotation
@@ -61,7 +60,7 @@ class _Thing(Thing, _Concept, ABC):
             raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
-        native_attribute_types = [type.native_object for type in attribute_types]
+        native_attribute_types = [type_.native_object for type_ in attribute_types]
         native_annotations = [anno.native_object for anno in annotations]
         return map(thing.attribute._Attribute,
                    Streamer(thing_get_has(transaction.native_object, self.native_object,
