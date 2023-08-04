@@ -44,7 +44,7 @@ class _Attribute(Attribute, _Thing):
         return _Value(attribute_get_value(self.native_object))
 
     def get_owners(self, transaction: _Transaction, owner_type: Optional[_ThingType] = None) -> Iterator[Any]:
-        return (_Thing.of(item) for item in Streamer(attribute_get_owners(self.native_transaction(transaction),
+        return (_Thing.of(item) for item in Streamer(attribute_get_owners(transaction.native_object,
                                                                           self.native_object,
                                                                           owner_type.native_object if owner_type else None
                                                                           ), concept_iterator_next))

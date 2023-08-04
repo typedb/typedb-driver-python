@@ -60,31 +60,31 @@ class _Thing(Thing, _Concept, ABC):
         native_attribute_types = [type.native_object for type in attribute_types]
         native_annotations = [anno.native_object for anno in annotations]
         return (thing.attribute._Attribute(item) for item in
-                Streamer(thing_get_has(self.native_transaction(transaction), self.native_object, native_attribute_types, native_annotations),
+                Streamer(thing_get_has(transaction.native_object, self.native_object, native_attribute_types, native_annotations),
                          concept_iterator_next))
 
     def get_relations(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[_Relation]:
         native_role_types = [rt.native_object for rt in role_types]
         return (thing.relation._Relation(item) for item in
-                Streamer(thing_get_relations(self.native_transaction(transaction), self.native_object, native_role_types),
+                Streamer(thing_get_relations(transaction.native_object, self.native_object, native_role_types),
                          concept_iterator_next))
 
     def get_playing(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return (type_.role_type._RoleType(rt) for rt in
-                Streamer(thing_get_playing(self.native_transaction(transaction), self.native_object),
+                Streamer(thing_get_playing(transaction.native_object, self.native_object),
                          concept_iterator_next))
 
     def set_has(self, transaction: _Transaction, attribute: _Attribute) -> None:
-        thing_set_has(self.native_transaction(transaction), self.native_object, attribute.native_object)
+        thing_set_has(transaction.native_object, self.native_object, attribute.native_object)
 
     def unset_has(self, transaction: _Transaction, attribute: _Attribute) -> None:
-        thing_unset_has(self.native_transaction(transaction), self.native_object, attribute.native_object)
+        thing_unset_has(transaction.native_object, self.native_object, attribute.native_object)
 
     def delete(self, transaction: _Transaction) -> None:
-        thing_delete(self.native_transaction(transaction), self.native_object)
+        thing_delete(transaction.native_object, self.native_object)
 
     def is_deleted(self, transaction: _Transaction) -> bool:
-        return thing_is_deleted(self.native_transaction(transaction), self.native_object)
+        return thing_is_deleted(transaction.native_object, self.native_object)
 
     def __str__(self):
         return "%s[%s:%s]" % (type(self).__name__, self.get_type().get_label(), self.get_iid())

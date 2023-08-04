@@ -19,20 +19,18 @@
 # under the License.
 #
 
-## To install primary (not dev) dependencies, run: 
-#  pip install -r requirements.txt
+package(default_visibility = ["//tests/behaviour:__subpackages__"])
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
-## To install ALL (including dev) dependencies, run:
-#  pip install -r requirements_dev.txt
+py_library(
+    name = "steps",
+    srcs = ["thing_type_steps.py"],
+    deps = [],
+)
 
-
-## Configuration options
-
-
-# Allow importing of snapshots
---extra-index-url https://repo.vaticle.com/repository/pypi-snapshot/simple
-
-
-## Dependencies
-
-parse==1.18.0
+checkstyle_test(
+    name = "checkstyle",
+    include = glob(["*"]),
+    license_type = "apache-header",
+    size = "small",
+)

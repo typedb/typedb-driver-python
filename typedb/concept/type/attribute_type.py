@@ -64,52 +64,52 @@ class _AttributeType(AttributeType, _ThingType):
         return super(_AttributeType, self).__hash__()
 
     def set_supertype(self, transaction: _Transaction, attribute_type: _AttributeType) -> None:
-        attribute_type_set_supertype(self.native_transaction(transaction), self.native_object,
+        attribute_type_set_supertype(transaction.native_object, self.native_object,
                                      attribute_type.native_object)
 
     def get_supertype(self, transaction: _Transaction) -> Optional[_AttributeType]:
-        if res := attribute_type_get_supertype(self.native_transaction(transaction), self.native_object):
+        if res := attribute_type_get_supertype(transaction.native_object, self.native_object):
             return _AttributeType(res)
         return None
 
     def get_supertypes(self, transaction: _Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
-                Streamer(attribute_type_get_supertypes(self.native_transaction(transaction), self.native_object),
+                Streamer(attribute_type_get_supertypes(transaction.native_object, self.native_object),
                          concept_iterator_next))
 
     def get_subtypes(self, transaction: _Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
-                Streamer(attribute_type_get_subtypes(self.native_transaction(transaction), self.native_object,
-                                                     Transitivity.Transitive.value), concept_iterator_next))
+                Streamer(attribute_type_get_subtypes(transaction.native_object, self.native_object,
+                                                     Transitivity.TRANSITIVE.value), concept_iterator_next))
 
     def get_subtypes_with_value_type(self, transaction: _Transaction, value_type: ValueType) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
-                Streamer(attribute_type_get_subtypes_with_value_type(self.native_transaction(transaction), self.native_object,
+                Streamer(attribute_type_get_subtypes_with_value_type(transaction.native_object, self.native_object,
                                                                      value_type.native_object,
-                                                                     Transitivity.Transitive.value), concept_iterator_next))
+                                                                     Transitivity.TRANSITIVE.value), concept_iterator_next))
 
     def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_AttributeType]:
         return (_AttributeType(item) for item in
-                Streamer(attribute_type_get_subtypes(self.native_transaction(transaction), self.native_object,
+                Streamer(attribute_type_get_subtypes(transaction.native_object, self.native_object,
                                                      Transitivity.Explicit.value), concept_iterator_next))
 
     def get_instances(self, transaction: _Transaction) -> Iterator[attribute._Attribute]:
         return (attribute._Attribute(item) for item in
-                Streamer(attribute_type_get_instances(self.native_transaction(transaction), self.native_object,
-                                                      Transitivity.Transitive.value), concept_iterator_next))
+                Streamer(attribute_type_get_instances(transaction.native_object, self.native_object,
+                                                      Transitivity.TRANSITIVE.value), concept_iterator_next))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[attribute._Attribute]:
         return (attribute._Attribute(item) for item in
-                Streamer(attribute_type_get_instances(self.native_transaction(transaction), self.native_object,
+                Streamer(attribute_type_get_instances(transaction.native_object, self.native_object,
                                                       Transitivity.Explicit.value), concept_iterator_next))
 
     def get_owners(self, transaction: _Transaction,
                    annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
         return (_ThingType.of(item) for item in Streamer(attribute_type_get_owners(
-            self.native_transaction(transaction),
+            transaction.native_object,
             self.native_object,
-            Transitivity.Transitive.value,
+            Transitivity.TRANSITIVE.value,
             annotations_array,
         ), concept_iterator_next))
 
@@ -117,28 +117,28 @@ class _AttributeType(AttributeType, _ThingType):
                             annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
         return (_ThingType.of(item) for item in Streamer(attribute_type_get_owners(
-            self.native_transaction(transaction),
+            transaction.native_object,
             self.native_object,
             Transitivity.Explicit.value,
             annotations_array,
         ), concept_iterator_next))
 
     def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
-        return attribute._Attribute(attribute_type_put(self.native_transaction(transaction), self.native_object,
+        return attribute._Attribute(attribute_type_put(transaction.native_object, self.native_object,
                                                        _Value.of(value).native_object))
 
     def get(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Optional[Attribute]:
         print(f"get: {self}, {value}, {_Value.of(value)}")
-        print(attribute_type_get(self.native_transaction(transaction), self.native_object, _Value.of(value).native_object), flush=True)
-        if res := attribute_type_get(self.native_transaction(transaction), self.native_object, _Value.of(value).native_object):
+        print(attribute_type_get(transaction.native_object, self.native_object, _Value.of(value).native_object), flush=True)
+        if res := attribute_type_get(transaction.native_object, self.native_object, _Value.of(value).native_object):
             return attribute._Attribute(res)
         return None
 
     def get_regex(self, transaction: _Transaction) -> str:
-        return attribute_type_get_regex(self.native_transaction(transaction), self.native_object)
+        return attribute_type_get_regex(transaction.native_object, self.native_object)
 
     def set_regex(self, transaction: _Transaction, regex: str) -> None:
-        attribute_type_set_regex(self.native_transaction(transaction), self.native_object, regex)
+        attribute_type_set_regex(transaction.native_object, self.native_object, regex)
 
     def unset_regex(self, transaction: _Transaction) -> None:
-        attribute_type_unset_regex(self.native_transaction(transaction), self.native_object)
+        attribute_type_unset_regex(transaction.native_object, self.native_object)

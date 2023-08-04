@@ -24,7 +24,7 @@ exports_files(["requirements.txt", "deployment.bzl"])
 load("@vaticle_typedb_client_python_pip//:requirements.bzl",
        vaticle_typedb_client_python_requirement = "requirement")
 
-#load("@vaticle_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
+load("@vaticle_bazel_distribution//pip:rules.bzl", "assemble_pip", "deploy_pip")
 load("@vaticle_bazel_distribution_pip//:requirements.bzl", vaticle_bazel_distribution_requirement = "requirement")
 load("@vaticle_bazel_distribution//github:rules.bzl", "deploy_github")
 
@@ -54,9 +54,6 @@ py_library(
     name = "client_python",
     srcs = glob(["typedb/**/*.py"]) + [":python-ffi"] ,
 #    data = [
-##        vaticle_typedb_client_python_requirement("typedb-protocol"),
-##        vaticle_typedb_client_python_requirement("protobuf"),
-##        vaticle_typedb_client_python_requirement("grpcio"),
 ##        "@vaticle_typedb_driver_java//rust:typedb_client_python",
 #    ],
     data = [":python-lib"],
@@ -80,41 +77,41 @@ checkstyle_test(
     size = "small",
 )
 
-#assemble_pip(
-#    name = "assemble-pip",
-#    target = ":client_python",
-#    package_name = "typedb-client",
-#    classifiers = [
-#        "Programming Language :: Python",
-#        "Programming Language :: Python :: 3",
-#        "Programming Language :: Python :: 3.5",
-#        "Programming Language :: Python :: 3.6",
-#        "Programming Language :: Python :: 3.7",
-#        "Programming Language :: Python :: 3.8",
-#        "Programming Language :: Python :: 3.9",
-#        "License :: OSI Approved :: Apache Software License",
-#        "Operating System :: OS Independent",
-#        "Intended Audience :: Developers",
-#        "Intended Audience :: Science/Research",
-#        "Environment :: Console",
-#        "Topic :: Database :: Front-Ends"
-#    ],
-#    url = "https://github.com/vaticle/typedb-client-python/",
-#    author = "Vaticle",
-#    author_email = "community@vaticle.com",
-#    license = "Apache-2.0",
-#    requirements_file = "//:requirements.txt",
-#    keywords = ["typedb", "database", "graph", "knowledgebase", "knowledge-engineering"],
-#    description = "TypeDB Client for Python",
-#    long_description_file = "//:README.md",
-#)
+assemble_pip(
+    name = "assemble-pip",
+    target = ":client_python",
+    package_name = "typedb-client",
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Environment :: Console",
+        "Topic :: Database :: Front-Ends"
+    ],
+    url = "https://github.com/vaticle/typedb-driver-python/",
+    author = "Vaticle",
+    author_email = "community@vaticle.com",
+    license = "Apache-2.0",
+    requirements_file = "//:requirements.txt",
+    keywords = ["typedb", "database", "graph", "knowledgebase", "knowledge-engineering"],
+    description = "TypeDB Client for Python",
+    long_description_file = "//:README.md",
+)
 
-#deploy_pip(
-#    name = "deploy-pip",
-#    target = ":assemble-pip",
-#    snapshot = deployment["pypi.snapshot"],
-#    release = deployment["pypi.release"],
-#)
+deploy_pip(
+    name = "deploy-pip",
+    target = ":assemble-pip",
+    snapshot = deployment["pypi.snapshot"],
+    release = deployment["pypi.release"],
+)
 
 deploy_github(
     name = "deploy-github",

@@ -42,10 +42,10 @@ class _Transaction(Transaction):
             options = Options()
         self._transaction_type = transaction_type
         self._options = options
-        self._native_transaction = transaction_new(session.native_object, transaction_type.value, options.native_object)
-        self._concept_manager = _ConceptManager(self._native_transaction)
-        self._query_manager = _QueryManager(self._native_transaction)
-        self._logic_manager = _LogicManager(self._native_transaction)
+        self._native_object = transaction_new(session.native_object, transaction_type.value, options.native_object)
+        self._concept_manager = _ConceptManager(self._native_object)
+        self._query_manager = _QueryManager(self._native_object)
+        self._logic_manager = _LogicManager(self._native_object)
 
     @property
     def transaction_type(self) -> TransactionType:
@@ -54,11 +54,6 @@ class _Transaction(Transaction):
     @property
     def options(self) -> Options:
         return self._options
-
-    def is_open(self) -> bool:
-        if not self._native_transaction.thisown:
-            return False
-        return transaction_is_open(self._native_transaction)
 
     @property
     def concepts(self) -> _ConceptManager:
@@ -72,25 +67,34 @@ class _Transaction(Transaction):
     def query(self) -> _QueryManager:
         return self._query_manager
 
+    @property
+    def native_object(self):
+        return self._native_object
+
+    def is_open(self) -> bool:
+        if not self.native_object.thisown:
+            return False
+        return transaction_is_open(self.native_object)
+
     def on_close(self, function: callable):
-        transaction_on_close(self._native_transaction, _Transaction.TransactionOnClose().callback(function))
+        transaction_on_close(self.native_object, _Transaction.TransactionOnClose().callback(function))
 
     class TransactionOnClose(TransactionCallbackDirector):
         pass
 
     def commit(self):
-        if not self._native_transaction.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        transaction_commit(self._native_transaction)
+        transaction_commit(self.native_object)
 
     def rollback(self):
-        if not self._native_transaction.thisown:
+        if not self.native_object.thisown:
             raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        transaction_rollback(self._native_transaction)
+        transaction_rollback(self.native_object)
 
     def close(self):
-        if self._native_transaction.thisown:
-            transaction_force_close(self._native_transaction)
+        if self.native_object.thisown:
+            transaction_force_close(self.native_object)
 
     def __enter__(self):
         return self

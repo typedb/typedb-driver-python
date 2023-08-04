@@ -73,28 +73,30 @@ class _Value(Value, _Concept):
     def get_value_type(self) -> ValueType:
         if self.is_boolean():
             return ValueType.BOOLEAN
-        if self.is_long():
+        elif self.is_long():
             return ValueType.LONG
-        if self.is_double():
+        elif self.is_double():
             return ValueType.DOUBLE
-        if self.is_string():
+        elif self.is_string():
             return ValueType.STRING
-        if self.is_datetime():
+        elif self.is_datetime():
             return ValueType.DATETIME
-        raise TypeDBClientException(ILLEGAL_STATE)
+        else:
+            raise TypeDBClientException(ILLEGAL_STATE)
 
     def get_value(self) -> Union[bool, int, float, str, datetime]:
         if self.is_boolean():
             return self.as_boolean()
-        if self.is_long():
+        elif self.is_long():
             return self.as_long()
-        if self.is_double():
+        elif self.is_double():
             return self.as_double()
-        if self.is_string():
+        elif self.is_string():
             return self.as_string()
-        if self.is_datetime():
+        elif self.is_datetime():
             return self.as_datetime()
-        raise TypeDBClientException(ILLEGAL_STATE)
+        else:
+            raise TypeDBClientException(ILLEGAL_STATE)
 
     def is_boolean(self) -> bool:
         return value_is_boolean(self.native_object)

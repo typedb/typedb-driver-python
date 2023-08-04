@@ -62,23 +62,24 @@ class _Concept(Concept, ABC):
 
         if concept_is_entity_type(concept):
             return _EntityType(concept)
-        if concept_is_relation_type(concept):
+        elif concept_is_relation_type(concept):
             return _RelationType(concept)
-        if concept_is_attribute_type(concept):
+        elif concept_is_attribute_type(concept):
             return _AttributeType(concept)
-        if concept_is_root_thing_type(concept):
+        elif concept_is_root_thing_type(concept):
             return _Root(concept)
-        if concept_is_entity(concept):
+        elif concept_is_entity(concept):
             return _Entity(concept)
-        if concept_is_relation(concept):
+        elif concept_is_relation(concept):
             return _Relation(concept)
-        if concept_is_attribute(concept):
+        elif concept_is_attribute(concept):
             return _Attribute(concept)
-        if concept_is_value(concept):
+        elif concept_is_value(concept):
             return _Value(concept)
-        if concept_is_role_type(concept):
+        elif concept_is_role_type(concept):
             return _RoleType(concept)
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        else:
+            raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
 
     def __str__(self):
         return concept_to_string(self.native_object)

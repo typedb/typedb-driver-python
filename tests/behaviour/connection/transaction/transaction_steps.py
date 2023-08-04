@@ -255,11 +255,11 @@ def step_impl(context: Context, is_open):
 # transaction configuration          #
 ######################################
 
-@step("set transaction option {option} to: {value}")
-def step_impl(context: Context, option: str, value: str):
+@step("set transaction option {option} to: {value:Int}")
+def step_impl(context: Context, option: str, value: int):
     if option not in context.option_setters:
         raise Exception("Unrecognised option: " + option)
-    context.option_setters[option](context.transaction_options, int(value))
+    context.option_setters[option](context.transaction_options, value)
 
 
 ######################################

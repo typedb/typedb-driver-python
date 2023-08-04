@@ -49,8 +49,8 @@ class Context(behave.runner.Context):
         self.client: Optional[Client] = None
         self.sessions: list[Session] = []
         self.sessions_to_transactions: dict[Session, list[Transaction]] = {}
-        # self.sessions_parallel: list[Future[TypeDBSession]] = []
-        # self.sessions_parallel_to_transactions_parallel: dict[Future[TypeDBSession], list[Transaction]] = {}
+        self.sessions_parallel: list[Session] = []
+        self.sessions_parallel_to_transactions_parallel: dict[Session, list[Transaction]] = {}
         self.session_options: Optional[Options] = None
         self.transaction_options: Optional[Options] = None
         self.things: dict[str, Thing] = {}

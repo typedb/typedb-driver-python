@@ -25,5 +25,5 @@ from typedb.typedb_client_python import Transitive, Explicit
 
 
 class Transitivity(Enum):
-    Transitive = Transitive
+    TRANSITIVE = Transitive
     Explicit = Explicit

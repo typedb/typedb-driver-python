@@ -46,10 +46,9 @@ class _DatabaseManager(DatabaseManager):
         self._database_manager = database_manager_new(connection)
 
     def get(self, name: str) -> _Database:
-        if self.contains(name):
-            return _Database(databases_get(self._database_manager, name))
-        else:
+        if not self.contains(name):
             raise TypeDBClientException.of(DATABASE_DELETED, name)
+        return _Database(databases_get(self._database_manager, name))
 
     def contains(self, name: str) -> bool:
         return databases_contains(self._database_manager, _not_blank(name))

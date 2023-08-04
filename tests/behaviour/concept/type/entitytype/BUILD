@@ -35,7 +35,7 @@ typedb_behaviour_py_test(
         "//tests/behaviour/concept/thing/relation:steps",
         "//tests/behaviour/concept/type/attributetype:steps",
         "//tests/behaviour/concept/type/relationtype:steps",
-        "//tests/behaviour/concept/type/thingtype:steps",
+        "//tests/behaviour/concept/type:steps",
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",
         "//tests/behaviour/connection/session:steps",

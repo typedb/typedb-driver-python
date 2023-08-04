@@ -46,14 +46,15 @@ class _Numeric(Numeric):
         return numeric_is_nan(self._numeric)
 
     def as_int(self):
-        if self.is_int():
-            return numeric_get_long(self._numeric)
-        raise TypeDBClientException.of(ILLEGAL_CAST, "int")
+        if not self.is_int():
+            raise TypeDBClientException.of(ILLEGAL_CAST, "int")
+        return numeric_get_long(self._numeric)
 
     def as_float(self):
-        if self.is_float():
-            return numeric_get_double(self._numeric)
-        raise TypeDBClientException.of(ILLEGAL_CAST, "float")
+        if not self.is_float():
+            raise TypeDBClientException.of(ILLEGAL_CAST, "float")
+        return numeric_get_double(self._numeric)
+
 
     def __str__(self):
         return numeric_to_string(self._numeric)

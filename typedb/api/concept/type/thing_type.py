@@ -89,7 +89,7 @@ class ThingType(Type, ABC):
 
     @abstractmethod
     def get_owns(self, transaction: Transaction, value_type: Optional[ValueType] = None,
-                 transitivity: Transitivity = Transitivity.Transitive, annotations: Optional[set[Annotation]] = None
+                 transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         pass
 
@@ -99,7 +99,7 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_plays(self, transaction: Transaction, transitivity: Transitivity = Transitivity.Transitive) -> Iterator[RoleType]:
+    def get_plays(self, transaction: Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
