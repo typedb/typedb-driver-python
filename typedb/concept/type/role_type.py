@@ -26,11 +26,7 @@ from typedb.api.concept.type.role_type import RoleType
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
-from typedb.concept import concept_factory
-from typedb.concept.thing import relation
-from typedb.concept.thing.thing import _Thing
-from typedb.concept.type import relation_type
-from typedb.concept.type.thing_type import _ThingType
+from typedb.concept.concept_factory import relation_of, thing_of, relation_type_of, thing_type_of
 from typedb.concept.type.type import _Type
 
 from typedb.typedb_client_python import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
@@ -42,6 +38,7 @@ from typedb.typedb_client_python import role_type_is_root, role_type_is_abstract
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction
     from typedb.concept.thing.relation import _Relation
+    from typedb.concept.thing.thing import _Thing
     from typedb.concept.type.relation_type import _RelationType
 
 
@@ -85,42 +82,42 @@ class _RoleType(_Type, RoleType):
                                        concept_iterator_next))
 
     def get_relation_type(self, transaction: _Transaction) -> _RelationType:
-        return type_.relation_type._RelationType(role_type_get_relation_type(transaction.native_object, self.native_object))
+        return relation_type_of(role_type_get_relation_type(transaction.native_object, self.native_object))
 
     def get_relation_types(self, transaction: _Transaction) -> Iterator[_RelationType]:
-        return map(type_.relation_type._RelationType,
+        return map(relation_type_of,
                    Streamer(role_type_get_relation_types(transaction.native_object, self.native_object),
                             concept_iterator_next))
 
     def get_player_types(self, transaction: _Transaction) -> Iterator[Any]:
-        return map(concept_factory.thing_type_of,
+        return map(thing_type_of,
                    Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
                                                        Transitivity.TRANSITIVE.value),
                             concept_iterator_next))
 
     def get_player_types_explicit(self, transaction: _Transaction) -> Iterator[Any]:
-        return map(concept_factory.thing_type_of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
+        return map(thing_type_of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
                                                                                         Transitivity.EXPLICIT.value),
                                                              concept_iterator_next))
 
     def get_relation_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
-        return map(thing.relation._Relation,
+        return map(relation_of,
                    Streamer(role_type_get_relation_instances(transaction.native_object,
                                                              self.native_object, Transitivity.TRANSITIVE.value),
                             concept_iterator_next))
 
     def get_relation_instances_explicit(self, transaction: _Transaction) -> Iterator[_Relation]:
-        return map(thing.relation._Relation,
+        return map(relation_of,
                    Streamer(role_type_get_relation_instances(transaction.native_object, self.native_object,
                                                              Transitivity.EXPLICIT.value),
                             concept_iterator_next))
 
-    def get_player_instances(self, transaction: _Transaction) -> Iterator[thing.thing._Thing]:
-        return map(thing.thing._Thing, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
+    def get_player_instances(self, transaction: _Transaction) -> Iterator[_Thing]:
+        return map(thing_of, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
                                                                    Transitivity.TRANSITIVE.value),
                                     concept_iterator_next))
 
-    def get_player_instances_explicit(self, transaction: _Transaction) -> Iterator[thing.thing._Thing]:
-        return map(thing.thing._Thing, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
+    def get_player_instances_explicit(self, transaction: _Transaction) -> Iterator[_Thing]:
+        return map(thing_of, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
                                                                    Transitivity.EXPLICIT.value),
                                     concept_iterator_next))

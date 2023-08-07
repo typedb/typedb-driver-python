@@ -20,14 +20,18 @@
 #
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from typedb.api.concept.thing.entity import Entity
+from typedb.concept.concept_factory import entity_type_of
 from typedb.concept.thing.thing import _Thing
-from typedb.concept import type as type_
 from typedb.typedb_client_python import entity_get_type
+
+if TYPE_CHECKING:
+    from typedb.concept.type.entity_type import _EntityType
 
 
 class _Entity(Entity, _Thing):
 
-    def get_type(self) -> type_.entity_type._EntityType:
-        return type_.entity_type._EntityType(entity_get_type(self.native_object))
+    def get_type(self) -> _EntityType:
+        return entity_type_of(entity_get_type(self.native_object))

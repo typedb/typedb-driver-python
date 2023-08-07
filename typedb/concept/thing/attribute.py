@@ -24,7 +24,7 @@ from typing import Optional, Iterator, Any, TYPE_CHECKING
 
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.common.streamer import Streamer
-from typedb.concept import concept_factory
+from typedb.concept.concept_factory import attribute_type_of, thing_of, value_of
 from typedb.concept.thing.thing import _Thing
 from typedb.concept import type as type_
 from typedb.concept.value.value import _Value
@@ -38,13 +38,13 @@ if TYPE_CHECKING:
 
 class _Attribute(Attribute, _Thing):
 
-    def get_type(self) -> type_.attribute_type._AttributeType:
-        return type_.attribute_type._AttributeType(attribute_get_type(self.native_object))
+    def get_type(self) -> _AttributeType:
+        return attribute_type_of(attribute_get_type(self.native_object))
 
     def get_value(self) -> _Value:
-        return _Value(attribute_get_value(self.native_object))
+        return value_of(attribute_get_value(self.native_object))
 
     def get_owners(self, transaction: _Transaction, owner_type: Optional[_ThingType] = None) -> Iterator[Any]:
-        return map(concept_factory.thing_of, Streamer(attribute_get_owners(transaction.native_object, self.native_object,
+        return map(thing_of, Streamer(attribute_get_owners(transaction.native_object, self.native_object,
                                                             owner_type.native_object if owner_type else None),
                                        concept_iterator_next))
