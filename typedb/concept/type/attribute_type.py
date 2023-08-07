@@ -39,7 +39,6 @@ from typedb.typedb_client_python import attribute_type_set_supertype, attribute_
     concept_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.api.concept.thing.attribute import Attribute
     from typedb.api.concept.type.annotation import Annotation
     from typedb.api.concept.value.value import Value
     from typedb.connection.transaction import _Transaction
@@ -126,12 +125,12 @@ class _AttributeType(AttributeType, _ThingType):
                                                       Transitivity.EXPLICIT.value, annotations_array),
                             concept_iterator_next))
 
-    def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
+    def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> attribute._Attribute:
         return attribute._Attribute(attribute_type_put(transaction.native_object, self.native_object,
                                                        _Value.of(value).native_object))
 
     def get(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]
-            ) -> Optional[Attribute]:
+            ) -> Optional[attribute._Attribute]:
         if res := attribute_type_get(transaction.native_object, self.native_object, _Value.of(value).native_object):
             return attribute._Attribute(res)
         return None

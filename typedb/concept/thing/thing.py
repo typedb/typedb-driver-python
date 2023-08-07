@@ -23,14 +23,14 @@ from __future__ import annotations
 from abc import ABC
 from typing import TYPE_CHECKING, Iterator, Optional
 
-import typedb.concept.thing as thing
-import typedb.concept.type as type_
 from typedb.api.concept.thing.thing import Thing
-from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS
+from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS, UNEXPECTED_NATIVE_VALUE
 from typedb.common.streamer import Streamer
 from typedb.concept.concept import _Concept
+from typedb.concept import thing, type as type_
 from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
-    thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
+    thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next, \
+    concept_is_entity, concept_is_relation, concept_is_attribute
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.annotation import Annotation
@@ -39,9 +39,21 @@ if TYPE_CHECKING:
     from typedb.concept.type.role_type import _RoleType
     from typedb.concept.type.attribute_type import _AttributeType
     from typedb.connection.transaction import _Transaction
+    from typedb.typedb_client_python import Concept as NativeConcept
 
 
 class _Thing(Thing, _Concept, ABC):
+
+    @staticmethod
+    def of(concept: NativeConcept) -> _Concept:
+        if concept_is_entity(concept):
+            return thing.entity._Entity(concept)
+        elif concept_is_relation(concept):
+            return thing.relation._Relation(concept)
+        elif concept_is_attribute(concept):
+            return thing.attribute._Attribute(concept)
+        else:
+            raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
 
     def get_iid(self) -> str:
         return thing_get_iid(self.native_object)

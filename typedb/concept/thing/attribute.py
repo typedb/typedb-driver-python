@@ -25,7 +25,7 @@ from typing import Optional, Iterator, Any, TYPE_CHECKING
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.common.streamer import Streamer
 from typedb.concept.thing.thing import _Thing
-from typedb.concept.type.attribute_type import _AttributeType
+from typedb.concept import type as type_
 from typedb.concept.value.value import _Value
 from typedb.typedb_client_python import attribute_get_type, attribute_get_value, attribute_get_owners, \
     concept_iterator_next
@@ -37,8 +37,8 @@ if TYPE_CHECKING:
 
 class _Attribute(Attribute, _Thing):
 
-    def get_type(self) -> _AttributeType:
-        return _AttributeType(attribute_get_type(self.native_object))
+    def get_type(self) -> type_.attribute_type._AttributeType:
+        return type_.attribute_type._AttributeType(attribute_get_type(self.native_object))
 
     def get_value(self) -> _Value:
         return _Value(attribute_get_value(self.native_object))

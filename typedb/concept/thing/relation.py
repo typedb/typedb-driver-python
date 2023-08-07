@@ -23,24 +23,22 @@ from __future__ import annotations
 from typing import Iterator, Any, TYPE_CHECKING
 
 from typedb.api.concept.thing.relation import Relation
-from typedb.api.concept.type.role_type import RoleType
 from typedb.common.streamer import Streamer
 from typedb.concept.thing.thing import _Thing
-from typedb.concept.type.relation_type import _RelationType
+from typedb.concept import type as type_
 from typedb.concept.type.role_type import _RoleType
 from typedb.typedb_client_python import relation_get_type, relation_add_role_player, relation_remove_role_player, \
     relation_get_players_by_role_type, relation_get_role_players, role_player_get_role_type, \
     role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.api.concept.thing.thing import Thing
     from typedb.connection.transaction import _Transaction
 
 
 class _Relation(Relation, _Thing):
 
-    def get_type(self) -> _RelationType:
-        return _RelationType(relation_get_type(self.native_object))
+    def get_type(self) -> type_.relation_type._RelationType:
+        return type_.relation_type._RelationType(relation_get_type(self.native_object))
 
     def add_player(self, transaction: _Transaction, role_type: _RoleType, player: _Thing) -> None:
         relation_add_role_player(transaction.native_object, self.native_object,
@@ -56,7 +54,7 @@ class _Relation(Relation, _Thing):
                                                                          native_role_types),
                                        concept_iterator_next))
 
-    def get_players(self, transaction: _Transaction) -> dict[RoleType, list[Thing]]:
+    def get_players(self, transaction: _Transaction) -> dict[_RoleType, list[_Thing]]:
         role_players = {}
         for role_player in Streamer(relation_get_role_players(transaction.native_object, self.native_object),
                                     role_player_iterator_next):
