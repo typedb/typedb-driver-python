@@ -152,8 +152,8 @@ def step_impl(context: Context):
 # session configuration              #
 ######################################
 
-@step("set session option {option} to: {value}")
-def step_impl(context: Context, option: str, value: str):
+@step("set session option {option} to: {value:Int}")
+def step_impl(context: Context, option: str, value: int):
     if option not in context.option_setters:
         raise Exception("Unrecognised option: " + option)
-    context.option_setters[option](context.session_options, int(value))
+    context.option_setters[option](context.session_options, value)
