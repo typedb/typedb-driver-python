@@ -28,7 +28,6 @@ typedb_cluster_py_test(
     srcs = ["test_cluster_failover.py"],
     deps = [
         "//:client_python",
-        "@vaticle_typedb_driver_java//rust:typedb_client_python",
         "//:python-lib",
         ],
     size = "medium",
@@ -40,7 +39,6 @@ py_test(
     srcs = ["test_debug.py"],
     deps = [
         "//:client_python",
-        "@vaticle_typedb_driver_java//rust:typedb_client_python",
         "//:python-lib",
         ],
     python_version = "PY3"
@@ -51,7 +49,6 @@ py_test(
     srcs = ["test_stream.py"],
     deps = [
         "//:client_python",
-        "@vaticle_typedb_driver_java//rust:typedb_client_python",
         "//:python-lib",
         ],
     python_version = "PY3"
