@@ -26,8 +26,11 @@ from typedb.api.concept.type.role_type import RoleType
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
-from typedb.concept import thing
-from typedb.concept import type as type_
+from typedb.concept import concept_factory
+from typedb.concept.thing import relation
+from typedb.concept.thing.thing import _Thing
+from typedb.concept.type import relation_type
+from typedb.concept.type.thing_type import _ThingType
 from typedb.concept.type.type import _Type
 
 from typedb.typedb_client_python import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
@@ -90,15 +93,15 @@ class _RoleType(_Type, RoleType):
                             concept_iterator_next))
 
     def get_player_types(self, transaction: _Transaction) -> Iterator[Any]:
-        return map(type_.thing_type._ThingType.of,
+        return map(concept_factory.thing_type_of,
                    Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
                                                        Transitivity.TRANSITIVE.value),
                             concept_iterator_next))
 
     def get_player_types_explicit(self, transaction: _Transaction) -> Iterator[Any]:
-        return map(type_.thing_type._ThingType.of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
-                                                                      Transitivity.EXPLICIT.value),
-                                           concept_iterator_next))
+        return map(concept_factory.thing_type_of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
+                                                                                        Transitivity.EXPLICIT.value),
+                                                             concept_iterator_next))
 
     def get_relation_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
         return map(thing.relation._Relation,

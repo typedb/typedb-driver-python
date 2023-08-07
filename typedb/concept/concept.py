@@ -24,11 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept
-from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
-from typedb.typedb_client_python import \
-    concept_is_entity_type, concept_is_relation_type, concept_is_attribute_type, concept_is_root_thing_type, \
-    concept_is_entity, concept_is_relation, concept_is_attribute, concept_is_value, concept_is_role_type, \
-    concept_to_string, concept_equals
+from typedb.typedb_client_python import concept_to_string, concept_equals
 
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction
@@ -47,39 +43,6 @@ class _Concept(Concept, ABC):
     @property
     def native_object(self):
         return self._native_object
-
-    @staticmethod
-    def of(concept: NativeConcept) -> _Concept:
-        from typedb.concept.thing.attribute import _Attribute
-        from typedb.concept.thing.entity import _Entity
-        from typedb.concept.thing.relation import _Relation
-        from typedb.concept.type.attribute_type import _AttributeType
-        from typedb.concept.type.entity_type import _EntityType
-        from typedb.concept.type.relation_type import _RelationType
-        from typedb.concept.type.role_type import _RoleType
-        from typedb.concept.type.thing_type import _Root
-        from typedb.concept.value.value import _Value
-
-        if concept_is_entity_type(concept):
-            return _EntityType(concept)
-        elif concept_is_relation_type(concept):
-            return _RelationType(concept)
-        elif concept_is_attribute_type(concept):
-            return _AttributeType(concept)
-        elif concept_is_root_thing_type(concept):
-            return _Root(concept)
-        elif concept_is_entity(concept):
-            return _Entity(concept)
-        elif concept_is_relation(concept):
-            return _Relation(concept)
-        elif concept_is_attribute(concept):
-            return _Attribute(concept)
-        elif concept_is_value(concept):
-            return _Value(concept)
-        elif concept_is_role_type(concept):
-            return _RoleType(concept)
-        else:
-            raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
 
     def __str__(self):
         return concept_to_string(self.native_object)

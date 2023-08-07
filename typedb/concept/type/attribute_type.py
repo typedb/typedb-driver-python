@@ -28,6 +28,7 @@ from typedb.api.concept.value.value import ValueType
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
+from typedb.concept import concept_factory
 from typedb.concept.thing import attribute
 from typedb.concept.type.thing_type import _ThingType
 from typedb.concept.value.value import _Value
@@ -112,7 +113,7 @@ class _AttributeType(AttributeType, _ThingType):
     def get_owners(self, transaction: _Transaction,
                    annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
-        return map(_ThingType.of,
+        return map(concept_factory.thing_type_of,
                    Streamer(attribute_type_get_owners(transaction.native_object, self.native_object,
                                                       Transitivity.TRANSITIVE.value, annotations_array),
                             concept_iterator_next))
@@ -120,7 +121,7 @@ class _AttributeType(AttributeType, _ThingType):
     def get_owners_explicit(self, transaction: _Transaction,
                             annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
-        return map(_ThingType.of,
+        return map(concept_factory.thing_type_of,
                    Streamer(attribute_type_get_owners(transaction.native_object, self.native_object,
                                                       Transitivity.EXPLICIT.value, annotations_array),
                             concept_iterator_next))

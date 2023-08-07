@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.concept.answer.numeric import _Numeric
-from typedb.concept.concept import _Concept
+from typedb.concept import concept_factory
 from typedb.typedb_client_python import numeric_group_get_owner, \
     numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals
 
@@ -40,7 +40,7 @@ class _NumericGroup(NumericGroup):
         self._numeric_group = numeric_group
 
     def owner(self) -> Concept:
-        return _Concept.of(numeric_group_get_owner(self._numeric_group))
+        return concept_factory.concept_of(numeric_group_get_owner(self._numeric_group))
 
     def numeric(self) -> Numeric:
         return _Numeric(numeric_group_get_numeric(self._numeric_group))

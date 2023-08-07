@@ -26,7 +26,7 @@ from typedb.api.answer.concept_map import ConceptMap
 from typedb.common.exception import TypeDBClientException, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
     NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE
 from typedb.common.streamer import Streamer
-from typedb.concept.concept import _Concept
+from typedb.concept import concept_factory
 
 from typedb.typedb_client_python import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
     concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, concept_map_equals, \
@@ -54,7 +54,7 @@ class _ConceptMap(ConceptMap):
         return Streamer(concept_map_get_variables(self.native_object), string_iterator_next)
 
     def concepts(self) -> Iterator[Concept]:
-        return map(_Concept.of, Streamer(concept_map_get_values(self.native_object), concept_iterator_next))
+        return map(concept_factory.concept_of, Streamer(concept_map_get_values(self.native_object), concept_iterator_next))
 
     def get(self, variable: str) -> Concept:
         if not variable:
@@ -62,7 +62,7 @@ class _ConceptMap(ConceptMap):
         concept = concept_map_get(self.native_object, variable)
         if not concept:
             raise TypeDBClientException.of(VARIABLE_DOES_NOT_EXIST, variable)
-        return _Concept.of(concept)
+        return concept_factory.concept_of(concept)
 
     def explainables(self) -> ConceptMap.Explainables:
         return _ConceptMap.Explainables(concept_map_get_explainables(self.native_object))

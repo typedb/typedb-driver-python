@@ -25,14 +25,11 @@ from itertools import chain
 from typing import Optional, Iterator, TYPE_CHECKING, Any
 
 from typedb.api.concept.type.thing_type import ThingType
-from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
 from typedb.common.label import Label
 from typedb.common.streamer import Streamer
 from typedb.common.transitivity import Transitivity
-from typedb.concept import type as type_
 from typedb.concept.type.type import _Type
-from typedb.typedb_client_python import concept_is_entity_type, concept_is_relation_type, \
-    concept_is_attribute_type, concept_is_root_thing_type, thing_type_is_root, thing_type_is_abstract, \
+from typedb.typedb_client_python import thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
     thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax, \
@@ -45,24 +42,11 @@ if TYPE_CHECKING:
     from typedb.concept.thing.thing import _Thing
     from typedb.concept.type.attribute_type import _AttributeType
     from typedb.concept.type.role_type import _RoleType
+    from typedb.concept.thing.thing import _Thing
     from typedb.connection.transaction import _Transaction
-    from typedb.typedb_client_python import Concept as NativeConcept
 
 
 class _ThingType(ThingType, _Type, ABC):
-
-    @staticmethod
-    def of(concept: NativeConcept):
-        if concept_is_entity_type(concept):
-            return type_.entity_type._EntityType(concept)
-        elif concept_is_relation_type(concept):
-            return type_.relation_type._RelationType(concept)
-        elif concept_is_attribute_type(concept):
-            return type_.attribute_type._AttributeType(concept)
-        elif concept_is_root_thing_type(concept):
-            return _Root(concept)
-        else:
-            raise TypeDBClientException.of(UNEXPECTED_NATIVE_VALUE)
 
     def as_thing_type(self) -> ThingType:
         return self

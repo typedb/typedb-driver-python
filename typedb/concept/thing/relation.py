@@ -24,6 +24,7 @@ from typing import Iterator, Any, TYPE_CHECKING
 
 from typedb.api.concept.thing.relation import Relation
 from typedb.common.streamer import Streamer
+import typedb.concept
 from typedb.concept.thing.thing import _Thing
 from typedb.concept import type as type_
 from typedb.concept.type.role_type import _RoleType
@@ -50,7 +51,7 @@ class _Relation(Relation, _Thing):
 
     def get_players_by_role_type(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[Any]:
         native_role_types = [rt.native_object for rt in role_types]
-        return map(_Thing.of, Streamer(relation_get_players_by_role_type(transaction.native_object, self.native_object,
+        return map(typedb.concept.concept_factory.thing_of, Streamer(relation_get_players_by_role_type(transaction.native_object, self.native_object,
                                                                          native_role_types),
                                        concept_iterator_next))
 
@@ -59,7 +60,7 @@ class _Relation(Relation, _Thing):
         for role_player in Streamer(relation_get_role_players(transaction.native_object, self.native_object),
                                     role_player_iterator_next):
             role = _RoleType(role_player_get_role_type(role_player))
-            player = _Thing.of(role_player_get_player(role_player))
+            player = typedb.concept.concept_factory.thing_of(role_player_get_player(role_player))
             role_players.setdefault(role, [])
             role_players[role].append(player)
         return role_players
