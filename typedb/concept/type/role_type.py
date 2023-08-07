@@ -97,8 +97,8 @@ class _RoleType(_Type, RoleType):
 
     def get_player_types_explicit(self, transaction: _Transaction) -> Iterator[Any]:
         return map(thing_type_of, Streamer(role_type_get_player_types(transaction.native_object, self.native_object,
-                                                                                        Transitivity.EXPLICIT.value),
-                                                             concept_iterator_next))
+                                                                      Transitivity.EXPLICIT.value),
+                                           concept_iterator_next))
 
     def get_relation_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
         return map(relation_of,
@@ -114,10 +114,10 @@ class _RoleType(_Type, RoleType):
 
     def get_player_instances(self, transaction: _Transaction) -> Iterator[_Thing]:
         return map(thing_of, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
-                                                                   Transitivity.TRANSITIVE.value),
-                                    concept_iterator_next))
+                                                                     Transitivity.TRANSITIVE.value),
+                                      concept_iterator_next))
 
     def get_player_instances_explicit(self, transaction: _Transaction) -> Iterator[_Thing]:
         return map(thing_of, Streamer(role_type_get_player_instances(transaction.native_object, self.native_object,
-                                                                   Transitivity.EXPLICIT.value),
-                                    concept_iterator_next))
+                                                                     Transitivity.EXPLICIT.value),
+                                      concept_iterator_next))

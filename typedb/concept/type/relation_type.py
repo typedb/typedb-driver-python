@@ -64,13 +64,13 @@ class _RelationType(RelationType, _ThingType):
                 return role_type_of(res)
             return None
         return map(role_type_of, Streamer(relation_type_get_relates(transaction.native_object,
-                                                                 self.native_object, Transitivity.TRANSITIVE.value),
-                                       concept_iterator_next))
+                                                                    self.native_object, Transitivity.TRANSITIVE.value),
+                                          concept_iterator_next))
 
     def get_relates_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return map(role_type_of, Streamer(relation_type_get_relates(transaction.native_object,
-                                                                 self.native_object, Transitivity.EXPLICIT.value),
-                                       concept_iterator_next))
+                                                                    self.native_object, Transitivity.EXPLICIT.value),
+                                          concept_iterator_next))
 
     def get_relates_overridden(self, transaction: _Transaction, role_label: str) -> Optional[type_.role_type._RoleType]:
         if res := relation_type_get_relates_overridden(transaction.native_object, self.native_object, role_label):

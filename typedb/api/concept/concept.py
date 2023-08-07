@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
 
 
-
 class Concept(ABC):
 
     def is_type(self) -> bool:

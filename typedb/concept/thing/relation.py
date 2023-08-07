@@ -53,8 +53,8 @@ class _Relation(Relation, _Thing):
     def get_players_by_role_type(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[Any]:
         native_role_types = [rt.native_object for rt in role_types]
         return map(thing_of, Streamer(relation_get_players_by_role_type(transaction.native_object, self.native_object,
-                                                                         native_role_types),
-                                       concept_iterator_next))
+                                                                        native_role_types),
+                                      concept_iterator_next))
 
     def get_players(self, transaction: _Transaction) -> dict[_RoleType, list[_Thing]]:
         role_players = {}
@@ -68,4 +68,4 @@ class _Relation(Relation, _Thing):
 
     def get_relating(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return map(role_type_of, Streamer(relation_get_relating(transaction.native_object, self.native_object),
-                                       concept_iterator_next))
+                                          concept_iterator_next))

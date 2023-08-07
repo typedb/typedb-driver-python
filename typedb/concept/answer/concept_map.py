@@ -54,7 +54,8 @@ class _ConceptMap(ConceptMap):
         return Streamer(concept_map_get_variables(self.native_object), string_iterator_next)
 
     def concepts(self) -> Iterator[Concept]:
-        return map(concept_factory.concept_of, Streamer(concept_map_get_values(self.native_object), concept_iterator_next))
+        return map(concept_factory.concept_of, Streamer(concept_map_get_values(self.native_object),
+                                                        concept_iterator_next))
 
     def get(self, variable: str) -> Concept:
         if not variable:

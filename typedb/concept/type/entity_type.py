@@ -65,10 +65,10 @@ class _EntityType(EntityType, _ThingType):
 
     def get_instances(self, transaction: _Transaction) -> Iterator[_Entity]:
         return map(entity_of, Streamer(entity_type_get_instances(transaction.native_object, self.native_object,
-                                                                      Transitivity.TRANSITIVE.value),
-                                            concept_iterator_next))
+                                                                 Transitivity.TRANSITIVE.value),
+                                       concept_iterator_next))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Entity]:
         return map(entity_of, Streamer(entity_type_get_instances(transaction.native_object, self.native_object,
-                                                                      Transitivity.EXPLICIT.value),
-                                            concept_iterator_next))
+                                                                 Transitivity.EXPLICIT.value),
+                                       concept_iterator_next))

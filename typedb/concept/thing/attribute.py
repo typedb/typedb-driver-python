@@ -46,5 +46,5 @@ class _Attribute(Attribute, _Thing):
 
     def get_owners(self, transaction: _Transaction, owner_type: Optional[_ThingType] = None) -> Iterator[Any]:
         return map(thing_of, Streamer(attribute_get_owners(transaction.native_object, self.native_object,
-                                                            owner_type.native_object if owner_type else None),
-                                       concept_iterator_next))
+                                                           owner_type.native_object if owner_type else None),
+                                      concept_iterator_next))

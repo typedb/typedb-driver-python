@@ -125,7 +125,7 @@ class _AttributeType(AttributeType, _ThingType):
 
     def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> _Attribute:
         return attribute_of(attribute_type_put(transaction.native_object, self.native_object,
-                                                       _Value.of(value).native_object))
+                                               _Value.of(value).native_object))
 
     def get(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]
             ) -> Optional[_Attribute]:

@@ -61,7 +61,8 @@ class ErrorMessage:
 class ClientErrorMessage(ErrorMessage):
 
     def __init__(self, code: int, message: str):
-        super(ClientErrorMessage, self).__init__(code_prefix="CLI", code_number=code, message_prefix="Client Error", message_body=message)
+        super(ClientErrorMessage, self).__init__(code_prefix="CLI", code_number=code, message_prefix="Client Error",
+                                                 message_body=message)
 
 
 RPC_METHOD_UNAVAILABLE = ClientErrorMessage(1, "The server does not support this method, please check "
