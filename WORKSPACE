@@ -78,8 +78,10 @@ java_grpc_compile()
 
 # Load //tool/common
 load("@vaticle_dependencies//tool/common:deps.bzl", "vaticle_dependencies_ci_pip",
-    vaticle_dependencies_tool_maven_artifacts = "maven_artifacts")
+     vaticle_dependencies_tool_maven_artifacts = "maven_artifacts")
 vaticle_dependencies_ci_pip()
+load("@vaticle_dependencies_ci_pip//:requirements.bzl", "install_deps")
+install_deps()
 
 # Load //tool/checkstyle
 load("@vaticle_dependencies//tool/checkstyle:deps.bzl", checkstyle_deps = "deps")
@@ -101,6 +103,8 @@ rules_pkg_dependencies()
 # Load //pip
 load("@vaticle_bazel_distribution//pip:deps.bzl", pip_deps = "deps")
 pip_deps()
+load("@vaticle_bazel_distribution_pip//:requirements.bzl", "install_deps")
+install_deps()
 
 # Load //github
 load("@vaticle_bazel_distribution//github:deps.bzl", github_deps = "deps")
@@ -126,11 +130,19 @@ vaticle_typedb_cluster_artifacts()
 # Load @vaticle_typedb_client_python #
 ######################################
 
-load("@rules_python//python:pip.bzl", "pip_install")
-pip_install(
+#load("@rules_python//python:pip.bzl", "pip_install")
+#pip_install(
+#    name = "vaticle_typedb_client_python_pip",
+#    requirements = "//:requirements_dev.txt",
+#)
+
+load("@rules_python//python:pip.bzl", "pip_parse")
+pip_parse(
     name = "vaticle_typedb_client_python_pip",
-    requirements = "//:requirements_dev.txt",
+    requirements_lock = "//:requirements_dev.txt",
 )
+load("@vaticle_typedb_client_python_pip//:requirements.bzl", "install_deps")
+install_deps()
 
 ############################
 # Load @maven dependencies #
