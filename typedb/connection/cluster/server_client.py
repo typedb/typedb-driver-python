@@ -38,6 +38,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
                 self._channel_credentials = grpc.ssl_channel_credentials(root_ca.read())
         else:
             self._channel_credentials = grpc.ssl_channel_credentials()
+        self._channel, self._stub = None, None # Prevent missing members
         self._channel, self._stub = self.new_channel_and_stub()
         self._databases = _TypeDBDatabaseManagerImpl(self.stub())
         self._is_open = True
