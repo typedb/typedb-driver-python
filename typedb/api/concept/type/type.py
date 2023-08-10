@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Iterator, Mapping, TYPE_CHECKING
+from typing import Iterator, Mapping, Optional, TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept
 
@@ -55,7 +55,7 @@ class Type(Concept, ABC):
         return {"label": self.get_label().scoped_name()}
 
     @abstractmethod
-    def get_supertype(self, transaction: TypeDBTransaction) -> Type:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[Type]:
         pass
 
     @abstractmethod

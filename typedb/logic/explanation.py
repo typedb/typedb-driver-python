@@ -59,7 +59,7 @@ class _Explanation(Explanation):
             raise TypeDBClientException(MISSING_VARIABLE)
         return set(Streamer(explanation_get_mapping(self._explanation, var), string_iterator_next))
 
-    def __str__(self):
+    def __repr__(self):
         return explanation_to_string(self._explanation)
 
     def __eq__(self, other):

@@ -68,7 +68,7 @@ class _ConceptMap(ConceptMap):
     def explainables(self) -> ConceptMap.Explainables:
         return _ConceptMap.Explainables(concept_map_get_explainables(self.native_object))
 
-    def __str__(self):
+    def __repr__(self):
         return concept_map_to_string(self.native_object)
 
     def __eq__(self, other):
@@ -126,7 +126,7 @@ class _ConceptMap(ConceptMap):
             return {key: self.ownership(*key) for key in Streamer(explainables_get_ownerships_keys(self.native_object),
                                                                   string_pair_iterator_next)}
 
-        def __str__(self):
+        def __repr__(self):
             return explainables_to_string(self.native_object)
 
         def __eq__(self, other):

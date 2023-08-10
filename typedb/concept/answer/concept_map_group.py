@@ -48,7 +48,7 @@ class _ConceptMapGroup(ConceptMapGroup):
         return map(_ConceptMap, Streamer(concept_map_group_get_concept_maps(self._concept_map_group),
                                          concept_map_iterator_next))
 
-    def __str__(self):
+    def __repr__(self):
         return concept_map_group_to_string(self._concept_map_group)
 
     def __eq__(self, other):

@@ -56,6 +56,9 @@ class Label:
     def __str__(self):
         return self.scoped_name()
 
+    def __repr__(self):
+        return f"Label('{str(self)}')"
+
     def __hash__(self):
         return hash((self._name, self._scope))
 

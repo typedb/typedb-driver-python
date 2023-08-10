@@ -121,11 +121,11 @@ class _Value(Value, _Concept):
     def as_datetime(self) -> datetime:
         return datetime.utcfromtimestamp(value_get_date_time_as_millis(self.native_object) / 1000)
 
-    def __repr__(self):
-        return f"{self.get_value_type()}({self.get_value()})"
-
     def __str__(self):
         return str(self.get_value())
+
+    def __repr__(self):
+        return f"{self.get_value_type()}({self.get_value()})"
 
     def __hash__(self):
         return hash(self.get_value())

@@ -34,25 +34,25 @@ typedb_cluster_py_test(
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
 )
 
-#py_test(
-#    name = "test_debug",
-#    srcs = ["test_debug.py"],
-#    deps = [
-#        "//:client_python",
-#        "//:python-lib",
-#        ],
-#    python_version = "PY3"
-#)
-#
-#py_test(
-#    name = "test_stream",
-#    srcs = ["test_stream.py"],
-#    deps = [
-#        "//:client_python",
-#        "//:python-lib",
-#        ],
-#    python_version = "PY3"
-#)
+py_test(
+    name = "test_debug",
+    srcs = ["test_debug.py"],
+    deps = [
+        "//:client_python",
+        ],
+    data = ["//:python-lib"],
+    python_version = "PY3"
+)
+
+py_test(
+    name = "test_stream",
+    srcs = ["test_stream.py"],
+    deps = [
+        "//:client_python",
+        ],
+    data = ["//:python-lib"],
+    python_version = "PY3"
+)
 
 checkstyle_test(
     name = "checkstyle",

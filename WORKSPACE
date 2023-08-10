@@ -64,9 +64,6 @@ fetch_crates()
 load("@crates//:defs.bzl", "crate_repositories")
 crate_repositories()
 
-load("@vaticle_dependencies//tool/swig:deps.bzl", swig_deps = "deps")
-swig_deps()
-
 # Load //builder/grpc
 load("@vaticle_dependencies//builder/grpc:deps.bzl", grpc_deps = "deps")
 grpc_deps()
@@ -86,6 +83,10 @@ install_deps()
 # Load //tool/checkstyle
 load("@vaticle_dependencies//tool/checkstyle:deps.bzl", checkstyle_deps = "deps")
 checkstyle_deps()
+
+# Load //tool/swig
+load("@vaticle_dependencies//tool/swig:deps.bzl", swig_deps = "deps")
+swig_deps()
 
 ######################################
 # Load @vaticle_bazel_distribution #
@@ -114,12 +115,12 @@ github_deps()
 # Load @vaticle dependencies #
 ##############################
 
-load("//dependencies/vaticle:repositories.bzl", "vaticle_typedb_common", "vaticle_typeql", "vaticle_typedb_behaviour", "vaticle_typedb_driver_java", "vaticle_typedb_protocol")
-vaticle_typedb_common()
-vaticle_typeql()
+load("//dependencies/vaticle:repositories.bzl", "vaticle_typedb_behaviour", "vaticle_typedb_common", "vaticle_typedb_driver_java", "vaticle_typedb_protocol", "vaticle_typeql")
 vaticle_typedb_behaviour()
+vaticle_typedb_common()
 vaticle_typedb_driver_java()
 vaticle_typedb_protocol()
+vaticle_typeql()
 
 # Load artifacts
 load("//dependencies/vaticle:artifacts.bzl", "vaticle_typedb_artifacts", "vaticle_typedb_cluster_artifacts")
@@ -129,12 +130,6 @@ vaticle_typedb_cluster_artifacts()
 ######################################
 # Load @vaticle_typedb_client_python #
 ######################################
-
-#load("@rules_python//python:pip.bzl", "pip_install")
-#pip_install(
-#    name = "vaticle_typedb_client_python_pip",
-#    requirements = "//:requirements_dev.txt",
-#)
 
 load("@rules_python//python:pip.bzl", "pip_parse")
 pip_parse(

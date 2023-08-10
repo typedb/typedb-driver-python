@@ -52,10 +52,7 @@ genrule(
 
 py_library(
     name = "client_python",
-    srcs = glob(["typedb/**/*.py"]) + [":python-ffi"] ,
-#    data = [
-##        "@vaticle_typedb_driver_java//rust:typedb_client_python",
-#    ],
+    srcs = glob(["typedb/**/*.py"]) + [":python-ffi"],
     data = [":python-lib"],
     deps = ["@vaticle_typedb_driver_java//rust:typedb_client_python"],
     visibility = ["//visibility:public"]

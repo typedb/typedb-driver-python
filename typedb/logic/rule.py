@@ -59,7 +59,7 @@ class _Rule(Rule):
     def is_deleted(self, transaction: _Transaction) -> bool:
         return rule_is_deleted(transaction.logic, self._rule)
 
-    def __str__(self):
+    def __repr__(self):
         return rule_to_string(self._rule)
 
     def __eq__(self, other):

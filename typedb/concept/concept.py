@@ -44,7 +44,7 @@ class _Concept(Concept, ABC):
     def native_object(self):
         return self._native_object
 
-    def __str__(self):
+    def __repr__(self):
         return concept_to_string(self.native_object)
 
     def __eq__(self, other):

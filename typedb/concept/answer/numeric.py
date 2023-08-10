@@ -55,7 +55,7 @@ class _Numeric(Numeric):
             raise TypeDBClientException.of(ILLEGAL_CAST, "float")
         return numeric_get_double(self._numeric)
 
-    def __str__(self):
+    def __repr__(self):
         return numeric_to_string(self._numeric)
 
     def __eq__(self, other):

@@ -45,7 +45,7 @@ class _NumericGroup(NumericGroup):
     def numeric(self) -> Numeric:
         return _Numeric(numeric_group_get_numeric(self._numeric_group))
 
-    def __str__(self):
+    def __repr__(self):
         return numeric_group_to_string(self._numeric_group)
 
     def __eq__(self, other):

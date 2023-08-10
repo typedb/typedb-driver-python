@@ -115,14 +115,10 @@ class ValueType(Enum):
         return self.value.native_object
 
     def __str__(self):
-        mapping = {ValueType.OBJECT: "object",
-                   ValueType.BOOLEAN: "boolean",
-                   ValueType.LONG: "long",
-                   ValueType.DOUBLE: "double",
-                   ValueType.STRING: "string",
-                   ValueType.DATETIME: "datetime",
-                   }
-        return mapping[self]
+        return self.name.lower()
+
+    def __repr__(self):
+        return str(self)
 
     @staticmethod
     def of(value_type: Union[Object, Boolean, Long, Double, String, DateTime]) -> ValueType:
