@@ -32,7 +32,7 @@ def step_impl(context: Context, relation_label: str, role_label: str, super_role
     try:
         context.tx().concepts.get_relation_type(relation_label).set_relates(context.tx(), role_label, overridden_label=super_role)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -46,7 +46,7 @@ def step_impl(context: Context, relation_label: str, role_label: str):
     try:
         context.tx().concepts.get_relation_type(relation_label).set_relates(context.tx(), role_label)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -60,7 +60,7 @@ def step_impl(context: Context, relation_label: str, role_label: str):
     try:
         context.tx().concepts.get_relation_type(relation_label).unset_relates(context.tx(), role_label)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 

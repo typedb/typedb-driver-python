@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import TypeDBTransaction
-from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED
+from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
@@ -85,12 +85,12 @@ class _Transaction(TypeDBTransaction):
 
     def commit(self):
         if not self.native_object.thisown:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         transaction_commit(self.native_object)
 
     def rollback(self):
         if not self.native_object.thisown:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
+            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         transaction_rollback(self.native_object)
 
     def close(self):

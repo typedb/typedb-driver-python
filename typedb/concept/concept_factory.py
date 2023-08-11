@@ -22,7 +22,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
-from typedb.common.exception import TypeDBClientException, UNEXPECTED_NATIVE_VALUE
+from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE
 import typedb.concept
 from typedb.concept.value.value import _Value
 from typedb.typedb_client_python import \
@@ -53,84 +53,84 @@ def concept_of(native_concept: NativeConcept) -> _Concept:
     elif concept_is_role_type(native_concept):
         return typedb.concept.type.role_type._RoleType(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def thing_type_of(native_concept: NativeConcept) -> _ThingType:
     if concept_thing_type := _try_thing_type(native_concept):
         return concept_thing_type
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def thing_of(native_concept: NativeConcept) -> _Thing:
     if concept_thing := _try_thing(native_concept):
         return concept_thing
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def entity_type_of(native_concept: NativeConcept) -> _EntityType:
     if concept_is_entity_type(native_concept):
         return typedb.concept.type.entity_type._EntityType(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def attribute_type_of(native_concept: NativeConcept) -> _AttributeType:
     if concept_is_attribute_type(native_concept):
         return typedb.concept.type.attribute_type._AttributeType(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def relation_type_of(native_concept: NativeConcept) -> _RelationType:
     if concept_is_relation_type(native_concept):
         return typedb.concept.type.relation_type._RelationType(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def role_type_of(native_concept: NativeConcept) -> _RoleType:
     if concept_is_role_type(native_concept):
         return typedb.concept.type.role_type._RoleType(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def root_of(native_concept: NativeConcept) -> _Root:
     if concept_is_root_thing_type(native_concept):
         return typedb.concept.type.thing_type._Root(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def entity_of(native_concept: NativeConcept) -> _Entity:
     if concept_is_entity(native_concept):
         return typedb.concept.thing.entity._Entity(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def attribute_of(native_concept: NativeConcept) -> _Attribute:
     if concept_is_attribute(native_concept):
         return typedb.concept.thing.attribute._Attribute(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def relation_of(native_concept: NativeConcept) -> _Relation:
     if concept_is_relation(native_concept):
         return typedb.concept.thing.relation._Relation(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def value_of(native_concept: NativeConcept) -> _Value:
     if concept_is_value(native_concept):
         return typedb.concept.value.value._Value(native_concept)
     else:
-        raise TypeDBClientException(UNEXPECTED_NATIVE_VALUE)
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
 def _try_thing_type(native_concept: NativeConcept) -> Optional[_ThingType]:

@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.connection.database import DatabaseManager
-from typedb.common.exception import TypeDBClientException, DATABASE_DELETED, MISSING_DB_NAME
+from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, MISSING_DB_NAME
 from typedb.common.streamer import Streamer
 from typedb.connection.database import _Database
 
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 def _not_blank(name: str) -> str:
     if name in [None, ""] or name.isspace():
-        raise TypeDBClientException.of(MISSING_DB_NAME)
+        raise TypeDBClientExceptionExt.of(MISSING_DB_NAME)
     return name
 
 
@@ -47,7 +47,7 @@ class _DatabaseManager(DatabaseManager):
 
     def get(self, name: str) -> _Database:
         if not self.contains(name):
-            raise TypeDBClientException.of(DATABASE_DELETED, name)
+            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, name)
         return _Database(databases_get(self._database_manager, name))
 
     def contains(self, name: str) -> bool:

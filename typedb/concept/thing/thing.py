@@ -24,7 +24,7 @@ from abc import ABC
 from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.concept.thing.thing import Thing
-from typedb.common.exception import TypeDBClientException, GET_HAS_WITH_MULTIPLE_FILTERS
+from typedb.common.exception import TypeDBClientExceptionExt, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.streamer import Streamer
 from typedb.concept.concept_factory import attribute_of, relation_of, role_type_of
 from typedb.concept.concept import _Concept
@@ -56,7 +56,7 @@ class _Thing(Thing, _Concept, ABC):
                 annotations: set[Annotation] = frozenset()
                 ) -> Iterator[_Attribute]:
         if [bool(attribute_type), bool(attribute_types), bool(annotations)].count(True) > 1:
-            raise TypeDBClientException.of(GET_HAS_WITH_MULTIPLE_FILTERS)
+            raise TypeDBClientExceptionExt.of(GET_HAS_WITH_MULTIPLE_FILTERS)
         if attribute_type:
             attribute_types = [attribute_type]
         native_attribute_types = [type_.native_object for type_ in attribute_types]

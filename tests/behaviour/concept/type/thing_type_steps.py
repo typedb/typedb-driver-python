@@ -42,7 +42,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
     try:
         context.get_thing_type(root_label, type_label).delete(context.tx())
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -77,7 +77,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, is_abstr
         else:
             thing_type.unset_abstract(context.tx())
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -104,21 +104,21 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, super_la
         try:
             context.tx().concepts.get_entity_type(type_label).set_supertype(context.tx(), entity_supertype)
             assert False
-        except (TypeDBClientException, RuntimeError):
+        except TypeDBClientException:
             pass
     elif root_label == RootLabel.ATTRIBUTE:
         attribute_supertype = context.tx().concepts.get_attribute_type(super_label)
         try:
             context.tx().concepts.get_attribute_type(type_label).set_supertype(context.tx(), attribute_supertype)
             assert False
-        except (TypeDBClientException, RuntimeError):
+        except TypeDBClientException:
             pass
     elif root_label == RootLabel.RELATION:
         relation_supertype = context.tx().concepts.get_relation_type(super_label)
         try:
             context.tx().concepts.get_relation_type(type_label).set_supertype(context.tx(), relation_supertype)
             assert False
-        except (TypeDBClientException, RuntimeError):
+        except TypeDBClientException:
             pass
     else:
         raise ValueError("Unrecognised value")
@@ -185,7 +185,7 @@ def set_owns_attribute_type_as_type_with_annotations_throws_exception(context: C
     try:
         context.get_thing_type(root_label, type_label).set_owns(context.tx(), attribute_type, overridden_type, annotations=annotations)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -205,7 +205,7 @@ def set_owns_attribute_type_with_annotations_throws_exception(context: Context, 
     try:
         context.get_thing_type(root_label, type_label).set_owns(context.tx(), attribute_type, annotations=annotations)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 @step("{root_label:RootLabel}({type_label}) set owns attribute type: {att_type_label}, with annotations: {annotations:Annotations}; throws exception")
@@ -255,7 +255,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, att_type
     try:
         context.get_thing_type(root_label, type_label).unset_owns(context.tx(), attribute_type)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -355,7 +355,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
     try:
         context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type, overridden_type)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -372,7 +372,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
     try:
         context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -388,7 +388,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
     try:
         context.get_thing_type(root_label, type_label).unset_plays(context.tx(), role_type)
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 

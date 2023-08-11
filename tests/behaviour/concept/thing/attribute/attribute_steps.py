@@ -53,7 +53,7 @@ def step_impl(context: Context, var: str, value_type: ValueType):
 
 @step("attribute({type_label}) as(boolean) put: {value:Bool}; throws exception")
 def step_impl(context: Context, type_label: str, value: bool):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(boolean) put: {value:Bool}")
@@ -63,7 +63,7 @@ def step_impl(context: Context, var: str, type_label: str, value: bool):
 
 @step("attribute({type_label}) as(long) put: {value:Int}; throws exception")
 def step_impl(context: Context, type_label: str, value: int):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(long) put: {value:Int}")
@@ -73,7 +73,7 @@ def step_impl(context: Context, var: str, type_label: str, value: int):
 
 @step("attribute({type_label}) as(double) put: {value:Float}; throws exception")
 def step_impl(context: Context, type_label: str, value: float):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(double) put: {value:Float}")
@@ -83,7 +83,7 @@ def step_impl(context: Context, var: str, type_label: str, value: float):
 
 @step("attribute({type_label}) as(string) put: {value}; throws exception")
 def step_impl(context: Context, type_label: str, value: str):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(string) put: {value}")
@@ -93,7 +93,7 @@ def step_impl(context: Context, var: str, type_label: str, value: str):
 
 @step("attribute({type_label}) as(datetime) put: {value:DateTime}; throws exception")
 def step_impl(context: Context, type_label: str, value: datetime):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(Exception))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(datetime) put: {value:DateTime}")

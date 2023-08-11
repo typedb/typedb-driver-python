@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_IID, TypeDBException
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, MISSING_IID, TypeDBException
 from typedb.concept.thing.attribute import _Attribute
 from typedb.concept.thing.entity import _Entity
 from typedb.concept.thing.relation import _Relation
@@ -59,57 +59,57 @@ class _ConceptManager(ConceptManager):
 
     def get_entity_type(self, label: str) -> Optional[_EntityType]:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         if _type := concepts_get_entity_type(self._transaction, label):
             return _EntityType(_type)
         return None
 
     def get_relation_type(self, label: str) -> Optional[_RelationType]:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         if _type := concepts_get_relation_type(self._transaction, label):
             return _RelationType(_type)
         return None
 
     def get_attribute_type(self, label: str) -> Optional[_AttributeType]:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         if _type := concepts_get_attribute_type(self._transaction, label):
             return _AttributeType(_type)
         return None
 
     def put_entity_type(self, label: str) -> _EntityType:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         return _EntityType(concepts_put_entity_type(self._transaction, label))
 
     def put_relation_type(self, label: str) -> _RelationType:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         return _RelationType(concepts_put_relation_type(self._transaction, label))
 
     def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
         if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
+            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
         return _AttributeType(concepts_put_attribute_type(self._transaction, label, value_type.native_object))
 
     def get_entity(self, iid: str) -> Optional[_Entity]:
         if not iid:
-            raise TypeDBClientException.of(MISSING_IID)
+            raise TypeDBClientExceptionExt.of(MISSING_IID)
         if concept := concepts_get_entity(self._transaction, iid):
             return _Entity(concept)
         return None
 
     def get_relation(self, iid: str) -> Optional[_Relation]:
         if not iid:
-            raise TypeDBClientException.of(MISSING_IID)
+            raise TypeDBClientExceptionExt.of(MISSING_IID)
         if concept := concepts_get_relation(self._transaction, iid):
             return _Relation(concept)
         return None
 
     def get_attribute(self, iid: str) -> Optional[_Attribute]:
         if not iid:
-            raise TypeDBClientException.of(MISSING_IID)
+            raise TypeDBClientExceptionExt.of(MISSING_IID)
         if concept := concepts_get_attribute(self._transaction, iid):
             return _Attribute(concept)
         return None

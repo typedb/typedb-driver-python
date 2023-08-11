@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric import Numeric
-from typedb.common.exception import TypeDBClientException, ILLEGAL_CAST
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST
 from typedb.typedb_client_python import numeric_is_long, numeric_is_double, numeric_is_nan, \
     numeric_get_long, numeric_get_double, numeric_to_string
 
@@ -47,12 +47,12 @@ class _Numeric(Numeric):
 
     def as_int(self):
         if not self.is_int():
-            raise TypeDBClientException.of(ILLEGAL_CAST, "int")
+            raise TypeDBClientExceptionExt.of(ILLEGAL_CAST, "int")
         return numeric_get_long(self._numeric)
 
     def as_float(self):
         if not self.is_float():
-            raise TypeDBClientException.of(ILLEGAL_CAST, "float")
+            raise TypeDBClientExceptionExt.of(ILLEGAL_CAST, "float")
         return numeric_get_double(self._numeric)
 
     def __repr__(self):

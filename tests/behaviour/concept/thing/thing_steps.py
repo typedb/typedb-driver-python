@@ -63,7 +63,7 @@ def step_impl(context: Context, var1: str, var2: str):
     try:
         context.get(var1).set_has(context.tx(), context.get(var2).as_attribute())
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 

@@ -123,7 +123,7 @@ def parse_annotations(text: str) -> set[Annotation]:
     try:
         return {{"key": Annotation.key(), "unique": Annotation.unique()}[anno.strip()] for anno in text.split(",")}
     except KeyError:
-        raise TypeDBClientException.of(UNRECOGNISED_ANNOTATION)
+        raise TypeDBClientException(UNRECOGNISED_ANNOTATION)
 
 
 register_type(Annotations=parse_annotations)

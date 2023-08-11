@@ -22,8 +22,10 @@
 from __future__ import annotations
 from typing import Union, Any
 
+from typedb.typedb_client_python import TypeDBClientException
 
-class TypeDBClientException(Exception):
+
+class TypeDBClientExceptionExt(TypeDBClientException):
 
     def __init__(self, msg: Union[ErrorMessage, str], cause: BaseException = None, params: Any = None):
         if isinstance(msg, str):
@@ -38,7 +40,7 @@ class TypeDBClientException(Exception):
 
     @staticmethod
     def of(error_message: ErrorMessage, params: Any = None):
-        return TypeDBClientException(msg=error_message, cause=None, params=params)
+        return TypeDBClientExceptionExt(msg=error_message, cause=None, params=params)
 
 
 class ErrorMessage:
@@ -65,16 +67,14 @@ class ClientErrorMessage(ErrorMessage):
                                                  message_body=message)
 
 
-RPC_METHOD_UNAVAILABLE = ClientErrorMessage(1, "The server does not support this method, please check "
-                                               "the client-server compatibility:\n'%s'.")
-CLIENT_NOT_OPEN = ClientErrorMessage(2, "The client is not open.")
-SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no further operation is allowed.")
+# CLIENT_NOT_OPEN = ClientErrorMessage(2, "The client is not open.")
+# SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no further operation is allowed.")
 TRANSACTION_CLOSED = ClientErrorMessage(4, "The transaction has been closed and no further operation is allowed.")
-TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
-UNABLE_TO_CONNECT = ClientErrorMessage(6, "Unable to connect to TypeDB server.")
+# TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
+# UNABLE_TO_CONNECT = ClientErrorMessage(6, "Unable to connect to TypeDB server.")
 POSITIVE_VALUE_REQUIRED = ClientErrorMessage(7, "Value should be positive, was: '%d'.")
 MISSING_DB_NAME = ClientErrorMessage(8, "Database name cannot be empty.")
-DB_DOES_NOT_EXIST = ClientErrorMessage(9, "The database '%s' does not exist.")
+# DB_DOES_NOT_EXIST = ClientErrorMessage(9, "The database '%s' does not exist.")
 MISSING_RESPONSE = ClientErrorMessage(10, "Unexpected empty response for request ID '%s'.")
 UNKNOWN_REQUEST_ID = ClientErrorMessage(11, "Received a response with unknown request id '%s':\n%s")
 CLUSTER_NO_PRIMARY_REPLICA_YET = ClientErrorMessage(12, "No replica has been marked as the primary replica for "

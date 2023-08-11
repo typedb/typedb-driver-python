@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.rule import Rule
-from typedb.common.exception import TypeDBClientException, MISSING_LABEL
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL
 from typedb.typedb_client_python import rule_get_when, rule_get_then, rule_get_label, rule_set_label, rule_delete, \
     rule_is_deleted, rule_to_string
 
@@ -44,7 +44,7 @@ class _Rule(Rule):
 
     def set_label(self, transaction: _Transaction, new_label: str) -> None:
         if not new_label:
-            raise TypeDBClientException(MISSING_LABEL)
+            raise TypeDBClientExceptionExt(MISSING_LABEL)
         rule_set_label(transaction.logic, self._rule, new_label)
 
     def get_when(self) -> str:

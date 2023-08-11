@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.explanation import Explanation
-from typedb.common.exception import TypeDBClientException, MISSING_VARIABLE
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
@@ -56,7 +56,7 @@ class _Explanation(Explanation):
 
     def query_variable_mapping(self, var: str) -> set[str]:
         if not var:
-            raise TypeDBClientException(MISSING_VARIABLE)
+            raise TypeDBClientExceptionExt(MISSING_VARIABLE)
         return set(Streamer(explanation_get_mapping(self._explanation, var), string_iterator_next))
 
     def __repr__(self):

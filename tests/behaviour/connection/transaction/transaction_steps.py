@@ -61,7 +61,7 @@ def open_transactions_of_type_throws_exception(context: Context, transaction_typ
             try:
                 session.transaction(transaction_type)
                 assert False
-            except (TypeDBClientException, RuntimeError):
+            except TypeDBClientException:
                 pass
 
 
@@ -122,7 +122,7 @@ def step_impl(context: Context):
     try:
         context.tx().commit()
         assert False
-    except (TypeDBClientException, RuntimeError):
+    except TypeDBClientException:
         pass
 
 
@@ -147,7 +147,7 @@ def step_impl(context: Context):
             try:
                 transaction.commit()
                 assert False
-            except (TypeDBClientException, RuntimeError):
+            except TypeDBClientException:
                 pass
 
 
@@ -273,5 +273,5 @@ def step_impl(context: Context, exception: str):
             try:
                 transaction.query.define(context.text)
                 assert False
-            except (TypeDBClientException, RuntimeError) as e:
+            except TypeDBClientException as e:
                 assert_that(exception, is_in(str(e)))
