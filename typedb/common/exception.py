@@ -44,8 +44,6 @@ class TypeDBClientException(Exception):
             return TypeDBClientException(msg=UNABLE_TO_CONNECT, cause=rpc_error)
         elif rpc_error.code() is StatusCode.INTERNAL and "[RPL01]" in str(rpc_error):
             return TypeDBClientException(msg=CLUSTER_REPLICA_NOT_PRIMARY, cause=None)
-        elif rpc_error.code() is StatusCode.UNAUTHENTICATED and "[CLS08]" in str(rpc_error):
-            return TypeDBClientException(msg=CLUSTER_TOKEN_CREDENTIAL_INVALID, cause=None)
         elif rpc_error.code() is StatusCode.INTERNAL:
             return TypeDBClientException(msg=rpc_error.details(), cause=None)
         else:
