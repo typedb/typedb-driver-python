@@ -25,7 +25,7 @@ from typing import Mapping, Iterator, TYPE_CHECKING
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.common.exception import TypeDBClientExceptionExt, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
     NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE, NULL_NATIVE_OBJECT
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept import concept_factory
 
 from typedb.typedb_client_python import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
@@ -53,11 +53,11 @@ class _ConceptMap(ConceptMap):
         return self._native_object
 
     def variables(self) -> Iterator[str]:
-        return Streamer(concept_map_get_variables(self.native_object), string_iterator_next)
+        return IteratorWrapper(concept_map_get_variables(self.native_object), string_iterator_next)
 
     def concepts(self) -> Iterator[Concept]:
-        return map(concept_factory.concept_of, Streamer(concept_map_get_values(self.native_object),
-                                                        concept_iterator_next))
+        return map(concept_factory.concept_of, IteratorWrapper(concept_map_get_values(self.native_object),
+                                                               concept_iterator_next))
 
     def get(self, variable: str) -> Concept:
         if not variable:
@@ -119,16 +119,19 @@ class _ConceptMap(ConceptMap):
             return _ConceptMap.Explainable(explainable)
 
         def relations(self) -> Mapping[str, ConceptMap.Explainable]:
-            return {key: self.relation(key) for key in Streamer(explainables_get_relations_keys(self.native_object),
-                                                                string_iterator_next)}
+            return {key: self.relation(key)
+                    for key in IteratorWrapper(explainables_get_relations_keys(self.native_object),
+                                               string_iterator_next)}
 
         def attributes(self) -> Mapping[str, ConceptMap.Explainable]:
-            return {key: self.attribute(key) for key in Streamer(explainables_get_attributes_keys(self.native_object),
-                                                                 string_iterator_next)}
+            return {key: self.attribute(key)
+                    for key in IteratorWrapper(explainables_get_attributes_keys(self.native_object),
+                                               string_iterator_next)}
 
         def ownerships(self) -> Mapping[tuple[str, str], ConceptMap.Explainable]:
-            return {key: self.ownership(*key) for key in Streamer(explainables_get_ownerships_keys(self.native_object),
-                                                                  string_pair_iterator_next)}
+            return {key: self.ownership(*key)
+                    for key in IteratorWrapper(explainables_get_ownerships_keys(self.native_object),
+                                               string_pair_iterator_next)}
 
         def __repr__(self):
             return explainables_to_string(self.native_object)

@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, MISSING_DB_NAME
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.connection.database import _Database
 
 from typedb.typedb_client_python import databases_contains, databases_create, database_manager_new, databases_get, \
@@ -57,4 +57,4 @@ class _DatabaseManager(DatabaseManager):
         databases_create(self._database_manager, _not_blank(name))
 
     def all(self) -> list[_Database]:
-        return list(map(_Database, Streamer(databases_all(self._database_manager), database_iterator_next)))
+        return list(map(_Database, IteratorWrapper(databases_all(self._database_manager), database_iterator_next)))

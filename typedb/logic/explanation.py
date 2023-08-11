@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 from typedb.api.logic.explanation import Explanation
 from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE, NULL_NATIVE_OBJECT
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
 from typedb.typedb_client_python import explanation_get_rule, explanation_get_conclusion, \
@@ -54,12 +54,12 @@ class _Explanation(Explanation):
         return _ConceptMap(explanation_get_condition(self._explanation))
 
     def query_variables(self) -> set[str]:
-        return set(Streamer(explanation_get_mapped_variables(self._explanation), string_iterator_next))
+        return set(IteratorWrapper(explanation_get_mapped_variables(self._explanation), string_iterator_next))
 
     def query_variable_mapping(self, var: str) -> set[str]:
         if not var:
             raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-        return set(Streamer(explanation_get_mapping(self._explanation, var), string_iterator_next))
+        return set(IteratorWrapper(explanation_get_mapping(self._explanation, var), string_iterator_next))
 
     def __repr__(self):
         return explanation_to_string(self._explanation)

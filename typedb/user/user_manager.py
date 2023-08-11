@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from typedb.api.user.user import UserManager
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.user.user import _User
 from typedb.typedb_client_python import user_manager_new, users_contains, users_create, users_delete, users_all, \
     users_get, users_set_password, users_current_user, user_iterator_next
@@ -49,8 +49,8 @@ class _UserManager(UserManager):
         users_delete(self._native_user_manager, username)
 
     def all(self) -> list[User]:
-        return [_User(user, self._native_connection) for user in Streamer(users_all(self._native_user_manager),
-                                                                          user_iterator_next)]
+        return [_User(user, self._native_connection) for user in IteratorWrapper(users_all(self._native_user_manager),
+                                                                                 user_iterator_next)]
 
     def get(self, username: str) -> Optional[User]:
         if user := users_get(self._native_user_manager, username):

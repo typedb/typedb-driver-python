@@ -22,7 +22,7 @@
 from typing import Callable
 
 
-class Streamer:
+class IteratorWrapper:
 
     def __init__(self, native_iterator: object, native_next: Callable):
         self._iterator = native_iterator

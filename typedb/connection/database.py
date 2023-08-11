@@ -24,7 +24,7 @@ from typing import Optional, TYPE_CHECKING
 
 from typedb.api.connection import database
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, NULL_NATIVE_OBJECT
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.typedb_client_python import database_get_name, database_schema, database_delete, database_rule_schema, \
     database_type_schema, ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, \
     replica_info_get_term, database_get_replicas_info, database_get_primary_replica_info, \
@@ -75,7 +75,7 @@ class _Database(database.Database):
     def replicas(self) -> set[Replica]:
         if not self.native_object.thisown:
             raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
-        repl_iter = Streamer(database_get_replicas_info(self.native_object), replica_info_iterator_next)
+        repl_iter = IteratorWrapper(database_get_replicas_info(self.native_object), replica_info_iterator_next)
         return set(_Database.Replica(replica_info) for replica_info in repl_iter)
 
     def primary_replica(self) -> Optional[Replica]:

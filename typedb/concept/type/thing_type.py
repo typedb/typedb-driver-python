@@ -26,7 +26,7 @@ from typing import Optional, Iterator, TYPE_CHECKING, Any
 
 from typedb.api.concept.type.thing_type import ThingType
 from typedb.common.label import Label
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.transitivity import Transitivity
 from typedb.concept.concept_factory import attribute_type_of, role_type_of
 from typedb.concept.type.type import _Type
@@ -110,12 +110,13 @@ class _ThingType(ThingType, _Type, ABC):
                  transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
         return map(attribute_type_of,
-                   Streamer(thing_type_get_owns(transaction.native_object,
-                                                self.native_object,
-                                                value_type.native_object if value_type else None,
-                                                transitivity.value,
-                                                [anno.native_object for anno in annotations] if annotations else []),
-                            concept_iterator_next))
+                   IteratorWrapper(thing_type_get_owns(transaction.native_object,
+                                                       self.native_object,
+                                                       value_type.native_object if value_type else None,
+                                                       transitivity.value,
+                                                       [anno.native_object for anno in annotations] if annotations
+                                                                                                    else []),
+                                   concept_iterator_next))
 
     def get_owns_explicit(self, transaction: _Transaction, value_type: Optional[ValueType] = None,
                           annotations: Optional[set[Annotation]] = None):
@@ -124,8 +125,9 @@ class _ThingType(ThingType, _Type, ABC):
     def get_plays(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
                   ) -> Iterator[_RoleType]:
         return map(role_type_of,
-                   Streamer(thing_type_get_plays(transaction.native_object, self.native_object, transitivity.value),
-                            concept_iterator_next))
+                   IteratorWrapper(thing_type_get_plays(transaction.native_object, self.native_object,
+                                                        transitivity.value),
+                                   concept_iterator_next))
 
     def get_plays_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
         return self.get_plays(transaction, Transitivity.EXPLICIT)

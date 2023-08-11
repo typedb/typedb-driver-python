@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Optional
 from typedb.api.logic.logic_manager import LogicManager
 from typedb.api.logic.rule import Rule
 from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.logic.rule import _Rule
 
 from typedb.typedb_client_python import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
@@ -51,7 +51,7 @@ class _LogicManager(LogicManager):
         return None
 
     def get_rules(self):
-        return map(_Rule, Streamer(logic_manager_get_rules(self._transaction), rule_iterator_next))
+        return map(_Rule, IteratorWrapper(logic_manager_get_rules(self._transaction), rule_iterator_next))
 
     def put_rule(self, label: str, when: str, then: str):
         if not label:

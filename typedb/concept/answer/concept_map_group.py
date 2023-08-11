@@ -24,7 +24,7 @@ from typing import Iterator, TYPE_CHECKING
 
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
-from typedb.common.streamer import Streamer
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept import concept_factory
 
@@ -48,8 +48,8 @@ class _ConceptMapGroup(ConceptMapGroup):
         return concept_factory.concept_of(concept_map_group_get_owner(self._concept_map_group))
 
     def concept_maps(self) -> Iterator[ConceptMap]:
-        return map(_ConceptMap, Streamer(concept_map_group_get_concept_maps(self._concept_map_group),
-                                         concept_map_iterator_next))
+        return map(_ConceptMap, IteratorWrapper(concept_map_group_get_concept_maps(self._concept_map_group),
+                                                concept_map_iterator_next))
 
     def __repr__(self):
         return concept_map_group_to_string(self._concept_map_group)
