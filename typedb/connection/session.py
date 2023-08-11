@@ -72,7 +72,7 @@ class _Session(TypeDBSession):
         session_force_close(self.native_object)
 
     def on_close(self, function: callable):
-        session_on_close(self.native_object, _Session.Callback(function))
+        session_on_close(self.native_object, _Session.Callback(function).__disown__())
 
     class Callback(SessionCallbackDirector):
 

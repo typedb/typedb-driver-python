@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.explanation import Explanation
-from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE, NULL_NATIVE_OBJECT
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
@@ -40,6 +40,8 @@ if TYPE_CHECKING:
 class _Explanation(Explanation):
 
     def __init__(self, explanation: NativeExplanation):
+        if not explanation:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._explanation = explanation
 
     def rule(self) -> Rule:

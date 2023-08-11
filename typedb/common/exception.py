@@ -67,31 +67,14 @@ class ClientErrorMessage(ErrorMessage):
                                                  message_body=message)
 
 
-# CLIENT_NOT_OPEN = ClientErrorMessage(2, "The client is not open.")
-# SESSION_CLOSED = ClientErrorMessage(3, "The session has been closed and no further operation is allowed.")
-TRANSACTION_CLOSED = ClientErrorMessage(4, "The transaction has been closed and no further operation is allowed.")
-# TRANSACTION_CLOSED_WITH_ERRORS = ClientErrorMessage(5, "The transaction has been closed with error(s):\n%s.")
-# UNABLE_TO_CONNECT = ClientErrorMessage(6, "Unable to connect to TypeDB server.")
-POSITIVE_VALUE_REQUIRED = ClientErrorMessage(7, "Value should be positive, was: '%d'.")
-MISSING_DB_NAME = ClientErrorMessage(8, "Database name cannot be empty.")
-# DB_DOES_NOT_EXIST = ClientErrorMessage(9, "The database '%s' does not exist.")
-MISSING_RESPONSE = ClientErrorMessage(10, "Unexpected empty response for request ID '%s'.")
-UNKNOWN_REQUEST_ID = ClientErrorMessage(11, "Received a response with unknown request id '%s':\n%s")
-CLUSTER_NO_PRIMARY_REPLICA_YET = ClientErrorMessage(12, "No replica has been marked as the primary replica for "
-                                                        "latest known term '%d'.")
-CLUSTER_UNABLE_TO_CONNECT = ClientErrorMessage(13, "Unable to connect to TypeDB Cluster. Attempted connecting to "
-                                                   "the cluster members, but none are available: '%s'.")
-CLUSTER_REPLICA_NOT_PRIMARY = ClientErrorMessage(14, "The replica is not the primary replica.")
-CLUSTER_ALL_NODES_FAILED = ClientErrorMessage(15, "Attempted connecting to all cluster members, but the following "
-                                                  "errors occurred: \n%s")
-CLUSTER_USER_DOES_NOT_EXIST = ClientErrorMessage(16, "The user '%s' does not exist.")
-CLUSTER_TOKEN_CREDENTIAL_INVALID = ClientErrorMessage(17, "Invalid token credential.")
-CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(18, "The provided Root CA path '%s' does not exist.")
-CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(21, "TLS disabled but the Root CA path provided.")
-CLUSTER_CLIENT_CALLED_WITH_STRING = ClientErrorMessage(19, "The first argument of TypeDBClient.cluster() must be "
-                                                           "a List of server addresses to connect to. It was called "
-                                                           "with a string, not a List, which is not allowed.")
-DATABASE_DELETED = ClientErrorMessage(20, "The database '%s' has been deleted and no further operation is allowed.")
+CLIENT_CLOSED = ClientErrorMessage(1, "The client has been closed and no further operation is allowed.")
+SESSION_CLOSED = ClientErrorMessage(2, "The session has been closed and no further operation is allowed.")
+TRANSACTION_CLOSED = ClientErrorMessage(3, "The transaction has been closed and no further operation is allowed.")
+DATABASE_DELETED = ClientErrorMessage(4, "The database '%s' has been deleted and no further operation is allowed.")
+MISSING_DB_NAME = ClientErrorMessage(5, "Database name cannot be empty.")
+POSITIVE_VALUE_REQUIRED = ClientErrorMessage(6, "Value should be positive, was: '%d'.")
+CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(7, "The provided Root CA path '%s' does not exist.")
+CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(8, "TLS disabled but the Root CA path provided.")
 
 
 class ConceptErrorMessage(ErrorMessage):
@@ -105,21 +88,15 @@ INVALID_CONCEPT_CASTING = ConceptErrorMessage(1, "Invalid concept conversion fro
 MISSING_TRANSACTION = ConceptErrorMessage(2, "Transaction cannot be null.")
 MISSING_IID = ConceptErrorMessage(3, "IID cannot be null or empty.")
 MISSING_LABEL = ConceptErrorMessage(4, "Label cannot be null or empty.")
-MISSING_VARIABLE = ConceptErrorMessage(14, "Variable name cannot be null or empty.")
-BAD_ANNOTATION = ConceptErrorMessage(5, "The annotation '%s' was not recognised.")
-BAD_ENCODING = ConceptErrorMessage(6, "The encoding '%s' was not recognised.")
-BAD_VALUE_TYPE = ConceptErrorMessage(7, "The value type '%s' was not recognised.")
-BAD_ATTRIBUTE_VALUE = ConceptErrorMessage(8, "The attribute value '%s' was not recognised.")
-VALUE_HAS_NO_REMOTE = ConceptErrorMessage(9, "A 'value' has no remote concept.")
-NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(10, "The concept identified by '%s' is not explainable.")
-NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(11, "The ownership by owner '%s' of attribute '%s' "
+MISSING_VARIABLE = ConceptErrorMessage(5, "Variable name cannot be null or empty.")
+MISSING_VALUE = ConceptErrorMessage(6, "Value cannot be null or empty.")
+NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(7, "The concept identified by '%s' is not explainable.")
+NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(8, "The ownership by owner '%s' of attribute '%s' "
                                                             "is not explainable.")
-GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(12, "Only one filter can be applied at a time to get_has. "
+GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(9, "Only one filter can be applied at a time to get_has. "
                                                         "The possible filters are: [attribute_type, attribute_types, "
                                                         "annotations]")
-UNSUPPORTED_TIMEZONE_INFORMATION = ConceptErrorMessage(13, "A date-time attribute cannot accept timezone aware "
-                                                           "datetime objects.")
-UNRECOGNISED_ANNOTATION = ConceptErrorMessage(14, "The annotation '%s' is not recognised.")
+UNRECOGNISED_ANNOTATION = ConceptErrorMessage(10, "The annotation '%s' is not recognised.")
 
 
 class QueryErrorMessage(ErrorMessage):
@@ -130,10 +107,7 @@ class QueryErrorMessage(ErrorMessage):
 
 
 VARIABLE_DOES_NOT_EXIST = QueryErrorMessage(1, "The variable '%s' does not exist.")
-NO_EXPLANATION = QueryErrorMessage(2, "No explanation was found.")
-BAD_ANSWER_TYPE = QueryErrorMessage(3, "The answer type '%s' was not recognised.")
-MISSING_ANSWER = QueryErrorMessage(4, "The required field 'answer' of type '%s' was not set.")
-MISSING_QUERY = QueryErrorMessage(5, "Query cannot be null or empty.")
+MISSING_QUERY = QueryErrorMessage(2, "Query cannot be null or empty.")
 
 
 class InternalErrorMessage(ErrorMessage):
@@ -145,14 +119,16 @@ class InternalErrorMessage(ErrorMessage):
 
 UNEXPECTED_NATIVE_VALUE = InternalErrorMessage(1, "Unexpected native value encountered!")
 ILLEGAL_STATE = InternalErrorMessage(2, "Illegal state has been reached!")
-# ILLEGAL_ARGUMENT = InternalErrorMessage(3, "Illegal argument provided: '%s'")
 ILLEGAL_CAST = InternalErrorMessage(3, "Illegal casting operation to '%s'.")
-NULL_NATIVE_VALUE = InternalErrorMessage(4, "Unhandled null pointer to a native object encountered!")
+NULL_NATIVE_OBJECT = InternalErrorMessage(4, "Unhandled null pointer to a native object encountered!")
 
 
 class TypeDBException(Exception):
 
     def __init__(self, code: str, message: str):
         super().__init__(code, message)
-        self.code = code
-        self.message = message
+        self._code = code
+        self._message = message
+
+    def __str__(self):
+        return "%s %s" % (self._code, self._message)

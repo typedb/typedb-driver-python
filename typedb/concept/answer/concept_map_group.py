@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import Iterator, TYPE_CHECKING
 
 from typedb.api.answer.concept_map_group import ConceptMapGroup
+from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
 from typedb.common.streamer import Streamer
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept import concept_factory
@@ -39,6 +40,8 @@ if TYPE_CHECKING:
 class _ConceptMapGroup(ConceptMapGroup):
 
     def __init__(self, concept_map_group: NativeConceptMapGroup):
+        if not concept_map_group:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._concept_map_group = concept_map_group
 
     def owner(self) -> Concept:

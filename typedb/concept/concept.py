@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept
+from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
 from typedb.typedb_client_python import concept_to_string, concept_equals
 
 if TYPE_CHECKING:
@@ -34,6 +35,8 @@ if TYPE_CHECKING:
 class _Concept(Concept, ABC):
 
     def __init__(self, concept: NativeConcept):
+        if not concept:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._native_object = concept
 
     @staticmethod

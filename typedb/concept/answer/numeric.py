@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric import Numeric
-from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST, NULL_NATIVE_OBJECT
 from typedb.typedb_client_python import numeric_is_long, numeric_is_double, numeric_is_nan, \
     numeric_get_long, numeric_get_double, numeric_to_string
 
@@ -34,6 +34,8 @@ if TYPE_CHECKING:
 class _Numeric(Numeric):
 
     def __init__(self, numeric: NativeNumeric):
+        if not numeric:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._numeric = numeric
 
     def is_int(self) -> bool:

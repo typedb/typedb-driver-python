@@ -24,7 +24,7 @@ from typing import Mapping, Iterator, TYPE_CHECKING
 
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.common.exception import TypeDBClientExceptionExt, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
-    NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE
+    NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE, NULL_NATIVE_OBJECT
 from typedb.common.streamer import Streamer
 from typedb.concept import concept_factory
 
@@ -44,6 +44,8 @@ if TYPE_CHECKING:
 class _ConceptMap(ConceptMap):
 
     def __init__(self, concept_map: NativeConceptMap):
+        if not concept_map:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._native_object = concept_map
 
     @property
@@ -84,6 +86,8 @@ class _ConceptMap(ConceptMap):
     class Explainables(ConceptMap.Explainables):
 
         def __init__(self, explainables: NativeExplainables):
+            if not explainables:
+                raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
             self._native_object = explainables
 
         @property
@@ -142,6 +146,8 @@ class _ConceptMap(ConceptMap):
     class Explainable(ConceptMap.Explainable):
 
         def __init__(self, explainable: NativeExplainable):
+            if not explainable:
+                raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
             self._native_object = explainable
 
         @property

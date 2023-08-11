@@ -24,16 +24,17 @@ from typing import TYPE_CHECKING
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import TypeDBTransaction
-from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED
+from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED, TypeDBException
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
-from typedb.typedb_client_python import transaction_new, transaction_commit, transaction_rollback, \
+from typedb.typedb_client_python import error_code, error_message, transaction_new, transaction_commit, transaction_rollback, \
     transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 if TYPE_CHECKING:
     from typedb.connection.session import _Session
     from typedb.api.connection.transaction import TransactionType
+    from typedb.typedb_client_python import Error as NativeError
 
 
 class _Transaction(TypeDBTransaction):
@@ -78,14 +79,21 @@ class _Transaction(TypeDBTransaction):
         return transaction_is_open(self.native_object)
 
     def on_close(self, function: callable):
-        transaction_on_close(self.native_object, _Transaction.TransactionOnClose().callback(function))
+        transaction_on_close(self.native_object, _Transaction.TransactionOnClose(function).__disown__())
 
     class TransactionOnClose(TransactionCallbackDirector):
-        pass
+
+        def __init__(self, function: callable):
+            super().__init__()
+            self._function = function
+
+        def callback(self, error: NativeError) -> None:
+            self._function(TypeDBException(error_code(error), error_message(error)))
 
     def commit(self):
         if not self.native_object.thisown:
             raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+        self.native_object.thisown = 0
         transaction_commit(self.native_object)
 
     def rollback(self):

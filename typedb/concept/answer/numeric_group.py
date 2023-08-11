@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric_group import NumericGroup
+from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept import concept_factory
 from typedb.typedb_client_python import numeric_group_get_owner, \
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
 class _NumericGroup(NumericGroup):
 
     def __init__(self, numeric_group: NativeNumericGroup):
+        if not numeric_group:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._numeric_group = numeric_group
 
     def owner(self) -> Concept:

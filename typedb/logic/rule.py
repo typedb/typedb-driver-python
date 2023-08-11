@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.rule import Rule
-from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, NULL_NATIVE_OBJECT
 from typedb.typedb_client_python import rule_get_when, rule_get_then, rule_get_label, rule_set_label, rule_delete, \
     rule_is_deleted, rule_to_string
 
@@ -35,6 +35,8 @@ if TYPE_CHECKING:
 class _Rule(Rule):
 
     def __init__(self, rule: NativeRule):
+        if not rule:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._rule = rule
         self._when = rule_get_when(self._rule)
         self._then = rule_get_then(self._rule)

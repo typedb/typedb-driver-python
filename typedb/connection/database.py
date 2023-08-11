@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from typedb.api.connection import database
-from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED
+from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, NULL_NATIVE_OBJECT
 from typedb.common.streamer import Streamer
 from typedb.typedb_client_python import database_get_name, database_schema, database_delete, database_rule_schema, \
     database_type_schema, ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, \
@@ -37,6 +37,8 @@ if TYPE_CHECKING:
 class _Database(database.Database):
 
     def __init__(self, database: NativeDatabase):
+        if not database:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._native_object = database
         self._name = database_get_name(database)
 
@@ -67,6 +69,7 @@ class _Database(database.Database):
     def delete(self) -> None:
         if not self.native_object.thisown:
             raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
+        self.native_object.thisown = 0
         database_delete(self.native_object)
 
     def replicas(self) -> set[Replica]:

@@ -25,7 +25,7 @@ from functools import singledispatchmethod
 from typing import Union
 
 from typedb.api.concept.value.value import Value, ValueType
-from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE
+from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE, MISSING_VALUE
 from typedb.concept.concept import _Concept
 from typedb.typedb_client_python import value_new_boolean, value_new_long, value_new_double, value_new_string, \
     value_new_date_time_from_millis, value_is_boolean, value_is_long, value_is_double, value_is_string, \
@@ -53,6 +53,8 @@ class _Value(Value, _Concept):
 
     @of.register
     def _(value: str):
+        if not value:
+            raise TypeDBClientExceptionExt(MISSING_VALUE)
         return _Value(value_new_string(value))
 
     @of.register
