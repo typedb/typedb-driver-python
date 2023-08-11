@@ -53,7 +53,7 @@ typedb_behaviour_py_test(
         "//tests/behaviour/util:util",
         "//tests/behaviour/config:parameters",
         "//tests/behaviour/background",
-        "//:python-lib",
+        "//:native-client-binary",
     ],
     native_typedb_artifact = "//tests:native-typedb-artifact",
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",
