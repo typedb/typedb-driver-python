@@ -60,7 +60,7 @@ class _ClusterServerClient(_TypeDBClientImpl):
             self._channel_credentials,
             grpc.metadata_call_credentials(_CredentialAuth(
                 credential=self._credential,
-                token_fn=lambda: None if self._stub is None else self._stub.token()
+                token_fn=lambda: None if (not hasattr(self, '_stub') or self._stub is None) else self._stub.token()
             ))
         )
         return grpc.secure_channel(self._address, combined_credentials)
