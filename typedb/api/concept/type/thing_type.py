@@ -49,19 +49,13 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
-        pass
-
-    @abstractmethod
-    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
-        pass
-
-    @abstractmethod
-    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Thing]:
         pass
 
     @abstractmethod
@@ -88,31 +82,26 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_owns(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
-                 transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
-                 ) -> Iterator[AttributeType]:
+    def unset_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
-                          annotations: Optional[set[Annotation]] = None):
-        pass
-
     @abstractmethod
     def get_plays(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
                   ) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_plays_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
-        pass
-
-    @abstractmethod
     def get_plays_overridden(self, transaction: TypeDBTransaction, role_type: RoleType) -> Optional[RoleType]:
         pass
 
+    def get_owns(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
+                 transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
+                 ) -> Iterator[AttributeType]:
+        pass
+
     @abstractmethod
-    def unset_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
+    def get_owns_overridden(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> Optional[AttributeType]:
         pass
 
     @abstractmethod

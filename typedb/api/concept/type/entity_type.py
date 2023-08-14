@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator
 
 from typedb.api.concept.type.thing_type import ThingType
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.entity import Entity
@@ -43,19 +44,13 @@ class EntityType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[EntityType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[EntityType]:
-        pass
-
-    @abstractmethod
-    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Entity]:
-        pass
-
-    @abstractmethod
-    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Entity]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Entity]:
         pass
 
     @abstractmethod

@@ -74,53 +74,37 @@ class _AttributeType(AttributeType, _ThingType):
                    IteratorWrapper(attribute_type_get_supertypes(transaction.native_object, self.native_object),
                                    concept_iterator_next))
 
-    def get_subtypes(self, transaction: _Transaction) -> Iterator[_AttributeType]:
+    def get_subtypes(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[_AttributeType]:
         return map(_AttributeType,
                    IteratorWrapper(attribute_type_get_subtypes(transaction.native_object, self.native_object,
-                                                               Transitivity.TRANSITIVE.value),
+                                                               transitivity.value),
                                    concept_iterator_next))
 
-    def get_subtypes_with_value_type(self, transaction: _Transaction, value_type: ValueType
+    def get_subtypes_with_value_type(self, transaction: _Transaction, value_type: ValueType,
+                                     transitivity: Transitivity = Transitivity.TRANSITIVE
                                      ) -> Iterator[_AttributeType]:
         return map(_AttributeType,
                    IteratorWrapper(attribute_type_get_subtypes_with_value_type(transaction.native_object,
                                                                                self.native_object,
                                                                                value_type.native_object,
-                                                                               Transitivity.TRANSITIVE.value),
+                                                                               transitivity.value),
                                    concept_iterator_next))
 
-    def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_AttributeType]:
-        return map(_AttributeType,
-                   IteratorWrapper(attribute_type_get_subtypes(transaction.native_object, self.native_object,
-                                                               Transitivity.EXPLICIT.value),
-                                   concept_iterator_next))
-
-    def get_instances(self, transaction: _Transaction) -> Iterator[_Attribute]:
+    def get_instances(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[_Attribute]:
         return map(wrap_attribute,
                    IteratorWrapper(attribute_type_get_instances(transaction.native_object, self.native_object,
-                                                                Transitivity.TRANSITIVE.value),
-                                   concept_iterator_next))
-
-    def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Attribute]:
-        return map(wrap_attribute,
-                   IteratorWrapper(attribute_type_get_instances(transaction.native_object, self.native_object,
-                                                                Transitivity.EXPLICIT.value),
+                                                                transitivity.value),
                                    concept_iterator_next))
 
     def get_owners(self, transaction: _Transaction,
-                   annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
+                   annotations: Optional[set[Annotation]] = None,
+                   transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
         return map(wrap_thing_type,
                    IteratorWrapper(attribute_type_get_owners(transaction.native_object, self.native_object,
-                                                             Transitivity.TRANSITIVE.value, annotations_array),
-                                   concept_iterator_next))
-
-    def get_owners_explicit(self, transaction: _Transaction,
-                            annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
-        annotations_array = [anno.native_object for anno in annotations] if annotations else []
-        return map(wrap_thing_type,
-                   IteratorWrapper(attribute_type_get_owners(transaction.native_object, self.native_object,
-                                                             Transitivity.EXPLICIT.value, annotations_array),
+                                                             transitivity.value, annotations_array),
                                    concept_iterator_next))
 
     def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> _Attribute:

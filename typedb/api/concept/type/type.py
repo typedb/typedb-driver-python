@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 from typing import Iterator, Mapping, Optional, TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.common.label import Label
@@ -63,11 +64,8 @@ class Type(Concept, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[Type]:
-        pass
-
-    @abstractmethod
-    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[Type]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[Type]:
         pass
 
     @abstractmethod

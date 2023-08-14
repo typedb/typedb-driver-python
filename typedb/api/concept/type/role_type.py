@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.concept.type.type import Type
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.thing import Thing
@@ -50,11 +51,8 @@ class RoleType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
-        pass
-
-    @abstractmethod
-    def get_subtypes_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
@@ -66,25 +64,16 @@ class RoleType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_player_types(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
+    def get_player_types(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                         ) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_player_types_explicit(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
+    def get_relation_instances(self, transaction: TypeDBTransaction,
+                               transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_relation_instances(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
-        pass
-
-    @abstractmethod
-    def get_relation_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
-        pass
-
-    @abstractmethod
-    def get_player_instances(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
-        pass
-
-    @abstractmethod
-    def get_player_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Thing]:
+    def get_player_instances(self, transaction: TypeDBTransaction,
+                             transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[Thing]:
         pass

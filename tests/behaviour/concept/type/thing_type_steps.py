@@ -303,7 +303,9 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 def get_owns_explicit_attribute_types_with_annotations_contain(context: Context, root_label: RootLabel, type_label: str, annotations: set["Annotation"]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).get_owns_explicit(context.tx(), annotations=annotations)]
+    actuals = [t.get_label()
+               for t in context.get_thing_type(root_label, type_label).get_owns(context.tx(), annotations=annotations,
+                                                                                transitivity=Transitivity.EXPLICIT)]
     for attribute_label in attribute_labels:
         assert_that(actuals, has_item(attribute_label))
 
@@ -320,7 +322,9 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 def get_owns_explicit_attribute_types_with_annotations_do_not_contain(context: Context, root_label: RootLabel, type_label: str, annotations: set["Annotation"]):
     attribute_labels = [parse_label(s) for s in parse_list(context.table)]
-    actuals = [t.get_label() for t in context.get_thing_type(root_label, type_label).get_owns_explicit(context.tx(), annotations=annotations)]
+    actuals = [t.get_label()
+               for t in context.get_thing_type(root_label, type_label).get_owns(context.tx(), annotations=annotations,
+                                                                                transitivity=Transitivity.EXPLICIT)]
     for attribute_label in attribute_labels:
         assert_that(actuals, not_(has_item(attribute_label)))
 
@@ -419,7 +423,8 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 
 
 def get_actual_plays_explicit(context: Context, root_label: RootLabel, type_label: str):
-    return [t.get_label() for t in context.get_thing_type(root_label, type_label).get_plays_explicit(context.tx())]
+    return [t.get_label() for t in context.get_thing_type(root_label, type_label).get_plays(context.tx(),
+                                                                                            Transitivity.EXPLICIT)]
 
 
 @step("{root_label:RootLabel}({type_label}) get playing roles explicit contain")

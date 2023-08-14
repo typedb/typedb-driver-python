@@ -128,7 +128,9 @@ def step_impl(context: Context, relation_label: str):
 
 
 def get_actual_related_role_explicit_labels(context: Context, relation_label: str):
-    return [r.get_label() for r in context.tx().concepts.get_relation_type(relation_label).get_relates_explicit(context.tx())]
+    return [r.get_label()
+            for r in context.tx().concepts.get_relation_type(relation_label)
+            .get_relates(context.tx(), transitivity=Transitivity.EXPLICIT)]
 
 
 @step("relation({relation_label}) get related explicit roles contain")

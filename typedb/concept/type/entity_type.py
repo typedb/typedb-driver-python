@@ -54,22 +54,14 @@ class _EntityType(EntityType, _ThingType):
                                                                            self.native_object),
                                                 concept_iterator_next))
 
-    def get_subtypes(self, transaction: _Transaction) -> Iterator[_EntityType]:
+    def get_subtypes(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[_EntityType]:
         return map(_EntityType, IteratorWrapper(entity_type_get_subtypes(transaction.native_object, self.native_object,
-                                                                         Transitivity.TRANSITIVE.value),
+                                                                         transitivity.value),
                                                 concept_iterator_next))
 
-    def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_EntityType]:
-        return map(_EntityType, IteratorWrapper(entity_type_get_subtypes(transaction.native_object, self.native_object,
-                                                                         Transitivity.EXPLICIT.value),
-                                                concept_iterator_next))
-
-    def get_instances(self, transaction: _Transaction) -> Iterator[_Entity]:
+    def get_instances(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[_Entity]:
         return map(wrap_entity, IteratorWrapper(entity_type_get_instances(transaction.native_object, self.native_object,
-                                                                          Transitivity.TRANSITIVE.value),
-                                                concept_iterator_next))
-
-    def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Entity]:
-        return map(wrap_entity, IteratorWrapper(entity_type_get_instances(transaction.native_object, self.native_object,
-                                                                          Transitivity.EXPLICIT.value),
+                                                                          transitivity.value),
                                                 concept_iterator_next))

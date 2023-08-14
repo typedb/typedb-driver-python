@@ -136,7 +136,7 @@ def attribute_get_owners_explicit_with_annotations_contain(context: Context, typ
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(),
-            attribute_type.get_owners_explicit(context.tx(), annotations=annotations)))
+            attribute_type.get_owners(context.tx(), annotations=annotations, transitivity=Transitivity.EXPLICIT)))
     for owner_label in owner_labels:
         assert_that(actuals, has_item(owner_label))
 
@@ -157,7 +157,7 @@ def attribute_get_owners_explicit_with_annotations_do_not_contain(context: Conte
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(),
-            attribute_type.get_owners_explicit(context.tx(), annotations=annotations)))
+            attribute_type.get_owners(context.tx(), annotations=annotations, transitivity=Transitivity.EXPLICIT)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
 

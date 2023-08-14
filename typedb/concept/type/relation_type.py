@@ -44,20 +44,16 @@ class _RelationType(RelationType, _ThingType):
     def create(self, transaction: _Transaction) -> _Relation:
         return wrap_relation(relation_type_create(transaction.native_object, self.native_object))
 
-    def get_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
+    def get_instances(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[_Relation]:
         return map(wrap_relation,
                    IteratorWrapper(relation_type_get_instances(transaction.native_object,
-                                                               self.native_object, Transitivity.TRANSITIVE.value),
+                                                               self.native_object, transitivity.value),
                                    concept_iterator_next))
 
-    def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Relation]:
-        return map(wrap_relation,
-                   IteratorWrapper(relation_type_get_instances(transaction.native_object,
-                                                               self.native_object, Transitivity.EXPLICIT.value),
-                                   concept_iterator_next))
-
-    def get_relates(self, transaction: _Transaction, role_label: Optional[str] = None) \
-            -> Union[Optional[type_.role_type._RoleType], Iterator[type_.role_type._RoleType]]:
+    def get_relates(self, transaction: _Transaction, role_label: Optional[str] = None,
+                    transitivity: Transitivity = Transitivity.TRANSITIVE) \
+            -> Union[Optional[_RoleType], Iterator[_RoleType]]:
         if role_label:
             if res := relation_type_get_relates_for_role_label(transaction.native_object,
                                                                self.native_object, role_label):
@@ -65,13 +61,7 @@ class _RelationType(RelationType, _ThingType):
             return None
         return map(wrap_role_type, IteratorWrapper(relation_type_get_relates(transaction.native_object,
                                                                              self.native_object,
-                                                                             Transitivity.TRANSITIVE.value),
-                                                   concept_iterator_next))
-
-    def get_relates_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
-        return map(wrap_role_type, IteratorWrapper(relation_type_get_relates(transaction.native_object,
-                                                                             self.native_object,
-                                                                             Transitivity.EXPLICIT.value),
+                                                                             transitivity.value),
                                                    concept_iterator_next))
 
     def get_relates_overridden(self, transaction: _Transaction, role_label: str) -> Optional[type_.role_type._RoleType]:
@@ -85,16 +75,11 @@ class _RelationType(RelationType, _ThingType):
     def unset_relates(self, transaction: _Transaction, role_label: str) -> None:
         relation_type_unset_relates(transaction.native_object, self.native_object, role_label)
 
-    def get_subtypes(self, transaction: _Transaction) -> Iterator[_RelationType]:
+    def get_subtypes(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[_RelationType]:
         return map(_RelationType, IteratorWrapper(relation_type_get_subtypes(transaction.native_object,
                                                                              self.native_object,
-                                                                             Transitivity.TRANSITIVE.value),
-                                                  concept_iterator_next))
-
-    def get_subtypes_explicit(self, transaction: _Transaction) -> Iterator[_RelationType]:
-        return map(_RelationType, IteratorWrapper(relation_type_get_subtypes(transaction.native_object,
-                                                                             self.native_object,
-                                                                             Transitivity.EXPLICIT.value),
+                                                                             transitivity.value),
                                                   concept_iterator_next))
 
     def get_supertype(self, transaction: _Transaction) -> Optional[_RelationType]:

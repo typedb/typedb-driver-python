@@ -24,6 +24,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator, Union, Optional
 
 from typedb.api.concept.type.thing_type import ThingType
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.relation import Relation
@@ -44,20 +45,14 @@ class RelationType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Relation]:
-        pass
-
-    @abstractmethod
-    def get_relates(self, transaction: TypeDBTransaction, role_label: Optional[str] = None) \
+    def get_relates(self, transaction: TypeDBTransaction, role_label: Optional[str] = None,
+                    transitivity: Transitivity = Transitivity.TRANSITIVE) \
             -> Union[Optional[RoleType], Iterator[RoleType]]:
-        pass
-
-    @abstractmethod
-    def get_relates_explicit(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
@@ -74,7 +69,8 @@ class RelationType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes(self, transaction: TypeDBTransaction) -> Iterator[RelationType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[RelationType]:
         pass
 
     @abstractmethod

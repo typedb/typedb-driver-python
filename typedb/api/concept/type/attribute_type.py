@@ -26,6 +26,7 @@ from typing import Optional, TYPE_CHECKING, Iterator, Union
 
 from typedb.api.concept.value.value import ValueType
 from typedb.api.concept.type.thing_type import ThingType
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
     from typedb.api.concept.value.value import Value
@@ -86,24 +87,17 @@ class AttributeType(ThingType, ABC):
         pass
 
     @abstractmethod
-    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType
+    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType,
+                                     transitivity: Transitivity = Transitivity.TRANSITIVE
                                      ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_instances(self, transaction: TypeDBTransaction) -> Iterator[Attribute]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_instances_explicit(self, transaction: TypeDBTransaction) -> Iterator[Attribute]:
-        pass
-
-    @abstractmethod
-    def get_owners(self, transaction: TypeDBTransaction,
-                   annotations: Optional[set[Annotation]] = None) -> Iterator[ThingType]:
-        pass
-
-    @abstractmethod
-    def get_owners_explicit(self, transaction: TypeDBTransaction,
-                            annotations: Optional[set[Annotation]] = None) -> Iterator[ThingType]:
+    def get_owners(self, transaction: TypeDBTransaction, annotations: Optional[set[Annotation]] = None,
+                   transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[ThingType]:
         pass
