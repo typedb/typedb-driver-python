@@ -27,7 +27,7 @@ from typedb.api.concept.type.attribute_type import AttributeType
 from typedb.api.concept.value.value import ValueType
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.transitivity import Transitivity
-from typedb.concept.concept_factory import attribute_of, thing_type_of
+from typedb.concept.concept_factory import wrap_attribute, wrap_thing_type
 from typedb.concept.type.thing_type import _ThingType
 from typedb.concept.value.value import _Value
 
@@ -96,13 +96,13 @@ class _AttributeType(AttributeType, _ThingType):
                                    concept_iterator_next))
 
     def get_instances(self, transaction: _Transaction) -> Iterator[_Attribute]:
-        return map(attribute_of,
+        return map(wrap_attribute,
                    IteratorWrapper(attribute_type_get_instances(transaction.native_object, self.native_object,
                                                                 Transitivity.TRANSITIVE.value),
                                    concept_iterator_next))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Attribute]:
-        return map(attribute_of,
+        return map(wrap_attribute,
                    IteratorWrapper(attribute_type_get_instances(transaction.native_object, self.native_object,
                                                                 Transitivity.EXPLICIT.value),
                                    concept_iterator_next))
@@ -110,7 +110,7 @@ class _AttributeType(AttributeType, _ThingType):
     def get_owners(self, transaction: _Transaction,
                    annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
-        return map(thing_type_of,
+        return map(wrap_thing_type,
                    IteratorWrapper(attribute_type_get_owners(transaction.native_object, self.native_object,
                                                              Transitivity.TRANSITIVE.value, annotations_array),
                                    concept_iterator_next))
@@ -118,19 +118,19 @@ class _AttributeType(AttributeType, _ThingType):
     def get_owners_explicit(self, transaction: _Transaction,
                             annotations: Optional[set[Annotation]] = None) -> Iterator[Any]:
         annotations_array = [anno.native_object for anno in annotations] if annotations else []
-        return map(thing_type_of,
+        return map(wrap_thing_type,
                    IteratorWrapper(attribute_type_get_owners(transaction.native_object, self.native_object,
                                                              Transitivity.EXPLICIT.value, annotations_array),
                                    concept_iterator_next))
 
     def put(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]) -> _Attribute:
-        return attribute_of(attribute_type_put(transaction.native_object, self.native_object,
-                                               _Value.of(value).native_object))
+        return wrap_attribute(attribute_type_put(transaction.native_object, self.native_object,
+                                                 _Value.of(value).native_object))
 
     def get(self, transaction: _Transaction, value: Union[Value, bool, int, float, str, datetime]
             ) -> Optional[_Attribute]:
         if res := attribute_type_get(transaction.native_object, self.native_object, _Value.of(value).native_object):
-            return attribute_of(res)
+            return wrap_attribute(res)
         return None
 
     def get_regex(self, transaction: _Transaction) -> str:

@@ -28,7 +28,7 @@ from typedb.api.concept.type.thing_type import ThingType
 from typedb.common.label import Label
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.transitivity import Transitivity
-from typedb.concept.concept_factory import attribute_type_of, role_type_of
+from typedb.concept.concept_factory import wrap_attribute_type, wrap_role_type
 from typedb.concept.type.type import _Type
 from typedb.native_client_wrapper import thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
@@ -109,7 +109,7 @@ class _ThingType(ThingType, _Type, ABC):
     def get_owns(self, transaction: _Transaction, value_type: Optional[ValueType] = None,
                  transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
                  ) -> Iterator[AttributeType]:
-        return map(attribute_type_of,
+        return map(wrap_attribute_type,
                    IteratorWrapper(thing_type_get_owns(transaction.native_object,
                                                        self.native_object,
                                                        value_type.native_object if value_type else None,
@@ -124,7 +124,7 @@ class _ThingType(ThingType, _Type, ABC):
 
     def get_plays(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
                   ) -> Iterator[_RoleType]:
-        return map(role_type_of,
+        return map(wrap_role_type,
                    IteratorWrapper(thing_type_get_plays(transaction.native_object, self.native_object,
                                                         transitivity.value),
                                    concept_iterator_next))
@@ -135,13 +135,13 @@ class _ThingType(ThingType, _Type, ABC):
     def get_plays_overridden(self, transaction: _Transaction, role_type: _RoleType) -> Optional[_RoleType]:
         if res := thing_type_get_plays_overridden(transaction.native_object,
                                                   self.native_object, role_type.native_object):
-            return role_type_of(res)
+            return wrap_role_type(res)
         return None
 
     def get_owns_overridden(self, transaction: _Transaction, attribute_type: _AttributeType) -> Optional[AttributeType]:
         if res := thing_type_get_owns_overridden(transaction.native_object,
                                                  self.native_object, attribute_type.native_object):
-            return attribute_type_of(res)
+            return wrap_attribute_type(res)
         return None
 
     def unset_owns(self, transaction: _Transaction, attribute_type: _AttributeType) -> None:

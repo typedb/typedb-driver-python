@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Iterator, Optional
 from typedb.api.concept.thing.thing import Thing
 from typedb.common.exception import TypeDBClientExceptionExt, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.concept.concept_factory import attribute_of, relation_of, role_type_of
+from typedb.concept.concept_factory import wrap_attribute, wrap_relation, wrap_role_type
 from typedb.concept.concept import _Concept
 from typedb.native_client_wrapper import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
     thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
@@ -61,20 +61,20 @@ class _Thing(Thing, _Concept, ABC):
             attribute_types = [attribute_type]
         native_attribute_types = [type_.native_object for type_ in attribute_types]
         native_annotations = [anno.native_object for anno in annotations]
-        return map(attribute_of,
+        return map(wrap_attribute,
                    IteratorWrapper(thing_get_has(transaction.native_object, self.native_object,
                                                  native_attribute_types, native_annotations),
                                    concept_iterator_next))
 
     def get_relations(self, transaction: _Transaction, *role_types: _RoleType) -> Iterator[_Relation]:
         native_role_types = [rt.native_object for rt in role_types]
-        return map(relation_of,
+        return map(wrap_relation,
                    IteratorWrapper(thing_get_relations(transaction.native_object, self.native_object,
                                                        native_role_types),
                                    concept_iterator_next))
 
     def get_playing(self, transaction: _Transaction) -> Iterator[_RoleType]:
-        return map(role_type_of,
+        return map(wrap_role_type,
                    IteratorWrapper(thing_get_playing(transaction.native_object, self.native_object),
                                    concept_iterator_next))
 

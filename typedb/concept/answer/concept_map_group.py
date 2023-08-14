@@ -45,7 +45,7 @@ class _ConceptMapGroup(ConceptMapGroup):
         self._concept_map_group = concept_map_group
 
     def owner(self) -> Concept:
-        return concept_factory.concept_of(concept_map_group_get_owner(self._concept_map_group))
+        return concept_factory.wrap_concept(concept_map_group_get_owner(self._concept_map_group))
 
     def concept_maps(self) -> Iterator[ConceptMap]:
         return map(_ConceptMap, IteratorWrapper(concept_map_group_get_concept_maps(self._concept_map_group),

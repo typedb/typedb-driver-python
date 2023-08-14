@@ -56,8 +56,8 @@ class _ConceptMap(ConceptMap):
         return IteratorWrapper(concept_map_get_variables(self.native_object), string_iterator_next)
 
     def concepts(self) -> Iterator[Concept]:
-        return map(concept_factory.concept_of, IteratorWrapper(concept_map_get_values(self.native_object),
-                                                               concept_iterator_next))
+        return map(concept_factory.wrap_concept, IteratorWrapper(concept_map_get_values(self.native_object),
+                                                                 concept_iterator_next))
 
     def get(self, variable: str) -> Concept:
         if not variable:
@@ -65,7 +65,7 @@ class _ConceptMap(ConceptMap):
         concept = concept_map_get(self.native_object, variable)
         if not concept:
             raise TypeDBClientExceptionExt.of(VARIABLE_DOES_NOT_EXIST, variable)
-        return concept_factory.concept_of(concept)
+        return concept_factory.wrap_concept(concept)
 
     def explainables(self) -> ConceptMap.Explainables:
         return _ConceptMap.Explainables(concept_map_get_explainables(self.native_object))

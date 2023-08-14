@@ -43,7 +43,7 @@ class _NumericGroup(NumericGroup):
         self._numeric_group = numeric_group
 
     def owner(self) -> Concept:
-        return concept_factory.concept_of(numeric_group_get_owner(self._numeric_group))
+        return concept_factory.wrap_concept(numeric_group_get_owner(self._numeric_group))
 
     def numeric(self) -> Numeric:
         return _Numeric(numeric_group_get_numeric(self._numeric_group))

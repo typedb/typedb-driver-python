@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Concept as NativeConcept
 
 
-def concept_of(native_concept: NativeConcept) -> _Concept:
+def wrap_concept(native_concept: NativeConcept) -> _Concept:
     if concept_thing_type := _try_thing_type(native_concept):
         return concept_thing_type
     elif concept_thing := _try_thing(native_concept):
@@ -56,77 +56,77 @@ def concept_of(native_concept: NativeConcept) -> _Concept:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def thing_type_of(native_concept: NativeConcept) -> _ThingType:
+def wrap_thing_type(native_concept: NativeConcept) -> _ThingType:
     if concept_thing_type := _try_thing_type(native_concept):
         return concept_thing_type
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def thing_of(native_concept: NativeConcept) -> _Thing:
+def wrap_thing(native_concept: NativeConcept) -> _Thing:
     if concept_thing := _try_thing(native_concept):
         return concept_thing
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def entity_type_of(native_concept: NativeConcept) -> _EntityType:
+def wrap_entity_type(native_concept: NativeConcept) -> _EntityType:
     if concept_is_entity_type(native_concept):
         return typedb.concept.type.entity_type._EntityType(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def attribute_type_of(native_concept: NativeConcept) -> _AttributeType:
+def wrap_attribute_type(native_concept: NativeConcept) -> _AttributeType:
     if concept_is_attribute_type(native_concept):
         return typedb.concept.type.attribute_type._AttributeType(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def relation_type_of(native_concept: NativeConcept) -> _RelationType:
+def wrap_relation_type(native_concept: NativeConcept) -> _RelationType:
     if concept_is_relation_type(native_concept):
         return typedb.concept.type.relation_type._RelationType(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def role_type_of(native_concept: NativeConcept) -> _RoleType:
+def wrap_role_type(native_concept: NativeConcept) -> _RoleType:
     if concept_is_role_type(native_concept):
         return typedb.concept.type.role_type._RoleType(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def root_of(native_concept: NativeConcept) -> _Root:
+def wrap_root(native_concept: NativeConcept) -> _Root:
     if concept_is_root_thing_type(native_concept):
         return typedb.concept.type.thing_type._Root(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def entity_of(native_concept: NativeConcept) -> _Entity:
+def wrap_entity(native_concept: NativeConcept) -> _Entity:
     if concept_is_entity(native_concept):
         return typedb.concept.thing.entity._Entity(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def attribute_of(native_concept: NativeConcept) -> _Attribute:
+def wrap_attribute(native_concept: NativeConcept) -> _Attribute:
     if concept_is_attribute(native_concept):
         return typedb.concept.thing.attribute._Attribute(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def relation_of(native_concept: NativeConcept) -> _Relation:
+def wrap_relation(native_concept: NativeConcept) -> _Relation:
     if concept_is_relation(native_concept):
         return typedb.concept.thing.relation._Relation(native_concept)
     else:
         raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)
 
 
-def value_of(native_concept: NativeConcept) -> _Value:
+def wrap_value(native_concept: NativeConcept) -> _Value:
     if concept_is_value(native_concept):
         return typedb.concept.value.value._Value(native_concept)
     else:

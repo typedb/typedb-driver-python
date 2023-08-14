@@ -24,7 +24,7 @@ from typing import Optional, Iterator, Any, TYPE_CHECKING
 
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.concept.concept_factory import attribute_type_of, thing_of, value_of
+from typedb.concept.concept_factory import wrap_attribute_type, wrap_thing, wrap_value
 from typedb.concept.thing.thing import _Thing
 from typedb.concept import type as type_
 from typedb.concept.value.value import _Value
@@ -39,12 +39,12 @@ if TYPE_CHECKING:
 class _Attribute(Attribute, _Thing):
 
     def get_type(self) -> _AttributeType:
-        return attribute_type_of(attribute_get_type(self.native_object))
+        return wrap_attribute_type(attribute_get_type(self.native_object))
 
     def get_value(self) -> _Value:
-        return value_of(attribute_get_value(self.native_object))
+        return wrap_value(attribute_get_value(self.native_object))
 
     def get_owners(self, transaction: _Transaction, owner_type: Optional[_ThingType] = None) -> Iterator[Any]:
-        return map(thing_of, IteratorWrapper(attribute_get_owners(transaction.native_object, self.native_object,
-                                                                  owner_type.native_object if owner_type else None),
-                                             concept_iterator_next))
+        return map(wrap_thing, IteratorWrapper(attribute_get_owners(transaction.native_object, self.native_object,
+                                                                    owner_type.native_object if owner_type else None),
+                                               concept_iterator_next))

@@ -25,7 +25,7 @@ from typing import Iterator, Optional, Union, TYPE_CHECKING
 from typedb.api.concept.type.relation_type import RelationType
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.transitivity import Transitivity
-from typedb.concept.concept_factory import relation_of, role_type_of
+from typedb.concept.concept_factory import wrap_relation, wrap_role_type
 from typedb.concept.type.thing_type import _ThingType
 
 from typedb.native_client_wrapper import relation_type_create, relation_type_set_supertype, \
@@ -42,16 +42,16 @@ if TYPE_CHECKING:
 class _RelationType(RelationType, _ThingType):
 
     def create(self, transaction: _Transaction) -> _Relation:
-        return relation_of(relation_type_create(transaction.native_object, self.native_object))
+        return wrap_relation(relation_type_create(transaction.native_object, self.native_object))
 
     def get_instances(self, transaction: _Transaction) -> Iterator[_Relation]:
-        return map(relation_of,
+        return map(wrap_relation,
                    IteratorWrapper(relation_type_get_instances(transaction.native_object,
                                                                self.native_object, Transitivity.TRANSITIVE.value),
                                    concept_iterator_next))
 
     def get_instances_explicit(self, transaction: _Transaction) -> Iterator[_Relation]:
-        return map(relation_of,
+        return map(wrap_relation,
                    IteratorWrapper(relation_type_get_instances(transaction.native_object,
                                                                self.native_object, Transitivity.EXPLICIT.value),
                                    concept_iterator_next))
@@ -61,22 +61,22 @@ class _RelationType(RelationType, _ThingType):
         if role_label:
             if res := relation_type_get_relates_for_role_label(transaction.native_object,
                                                                self.native_object, role_label):
-                return role_type_of(res)
+                return wrap_role_type(res)
             return None
-        return map(role_type_of, IteratorWrapper(relation_type_get_relates(transaction.native_object,
-                                                                           self.native_object,
-                                                                           Transitivity.TRANSITIVE.value),
-                                                 concept_iterator_next))
+        return map(wrap_role_type, IteratorWrapper(relation_type_get_relates(transaction.native_object,
+                                                                             self.native_object,
+                                                                             Transitivity.TRANSITIVE.value),
+                                                   concept_iterator_next))
 
     def get_relates_explicit(self, transaction: _Transaction) -> Iterator[_RoleType]:
-        return map(role_type_of, IteratorWrapper(relation_type_get_relates(transaction.native_object,
-                                                                           self.native_object,
-                                                                           Transitivity.EXPLICIT.value),
-                                                 concept_iterator_next))
+        return map(wrap_role_type, IteratorWrapper(relation_type_get_relates(transaction.native_object,
+                                                                             self.native_object,
+                                                                             Transitivity.EXPLICIT.value),
+                                                   concept_iterator_next))
 
     def get_relates_overridden(self, transaction: _Transaction, role_label: str) -> Optional[type_.role_type._RoleType]:
         if res := relation_type_get_relates_overridden(transaction.native_object, self.native_object, role_label):
-            return role_type_of(res)
+            return wrap_role_type(res)
         return None
 
     def set_relates(self, transaction: _Transaction, role_label: str, overridden_label: Optional[str] = None) -> None:
