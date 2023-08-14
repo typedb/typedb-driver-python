@@ -67,14 +67,12 @@ class ClientErrorMessage(ErrorMessage):
                                                  message_body=message)
 
 
-CLIENT_CLOSED = ClientErrorMessage(1, "The client has been closed and no further operation is allowed.")
-SESSION_CLOSED = ClientErrorMessage(2, "The session has been closed and no further operation is allowed.")
-TRANSACTION_CLOSED = ClientErrorMessage(3, "The transaction has been closed and no further operation is allowed.")
-DATABASE_DELETED = ClientErrorMessage(4, "The database '%s' has been deleted and no further operation is allowed.")
-MISSING_DB_NAME = ClientErrorMessage(5, "Database name cannot be empty.")
-POSITIVE_VALUE_REQUIRED = ClientErrorMessage(6, "Value should be positive, was: '%d'.")
-CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(7, "The provided Root CA path '%s' does not exist.")
-CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(8, "TLS disabled but the Root CA path provided.")
+TRANSACTION_CLOSED = ClientErrorMessage(1, "The transaction has been closed and no further operation is allowed.")
+DATABASE_DELETED = ClientErrorMessage(2, "The database '%s' has been deleted and no further operation is allowed.")
+MISSING_DB_NAME = ClientErrorMessage(3, "Database name cannot be empty.")
+POSITIVE_VALUE_REQUIRED = ClientErrorMessage(4, "Value should be positive, was: '%d'.")
+CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(5, "The provided Root CA path '%s' does not exist.")
+CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(6, "TLS disabled but the Root CA path provided.")
 
 
 class ConceptErrorMessage(ErrorMessage):
@@ -85,18 +83,17 @@ class ConceptErrorMessage(ErrorMessage):
 
 
 INVALID_CONCEPT_CASTING = ConceptErrorMessage(1, "Invalid concept conversion from '%s' to '%s'.")
-MISSING_TRANSACTION = ConceptErrorMessage(2, "Transaction cannot be null.")
-MISSING_IID = ConceptErrorMessage(3, "IID cannot be null or empty.")
-MISSING_LABEL = ConceptErrorMessage(4, "Label cannot be null or empty.")
-MISSING_VARIABLE = ConceptErrorMessage(5, "Variable name cannot be null or empty.")
-MISSING_VALUE = ConceptErrorMessage(6, "Value cannot be null or empty.")
-NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(7, "The concept identified by '%s' is not explainable.")
-NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(8, "The ownership by owner '%s' of attribute '%s' "
+MISSING_IID = ConceptErrorMessage(2, "IID cannot be null or empty.")
+MISSING_LABEL = ConceptErrorMessage(3, "Label cannot be null or empty.")
+MISSING_VARIABLE = ConceptErrorMessage(4, "Variable name cannot be null or empty.")
+MISSING_VALUE = ConceptErrorMessage(5, "Value cannot be null or empty.")
+NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(6, "The concept identified by '%s' is not explainable.")
+NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(7, "The ownership by owner '%s' of attribute '%s' "
                                                             "is not explainable.")
-GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(9, "Only one filter can be applied at a time to get_has. "
+GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(8, "Only one filter can be applied at a time to get_has. "
                                                         "The possible filters are: [attribute_type, attribute_types, "
                                                         "annotations]")
-UNRECOGNISED_ANNOTATION = ConceptErrorMessage(10, "The annotation '%s' is not recognised.")
+UNRECOGNISED_ANNOTATION = ConceptErrorMessage(9, "The annotation '%s' is not recognised.")
 
 
 class QueryErrorMessage(ErrorMessage):
