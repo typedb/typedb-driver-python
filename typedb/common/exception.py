@@ -22,7 +22,7 @@
 from __future__ import annotations
 from typing import Union, Any
 
-from typedb.typedb_client_python import TypeDBClientException
+from typedb.native_client_wrapper import TypeDBClientException
 
 
 class TypeDBClientExceptionExt(TypeDBClientException):

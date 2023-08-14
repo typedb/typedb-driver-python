@@ -28,7 +28,7 @@ from typedb.concept.concept_factory import attribute_type_of, thing_of, value_of
 from typedb.concept.thing.thing import _Thing
 from typedb.concept import type as type_
 from typedb.concept.value.value import _Value
-from typedb.typedb_client_python import attribute_get_type, attribute_get_value, attribute_get_owners, \
+from typedb.native_client_wrapper import attribute_get_type, attribute_get_value, attribute_get_owners, \
     concept_iterator_next
 
 if TYPE_CHECKING:

@@ -28,7 +28,7 @@ from typedb.common.exception import TypeDBClientExceptionExt, GET_HAS_WITH_MULTI
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.concept_factory import attribute_of, relation_of, role_type_of
 from typedb.concept.concept import _Concept
-from typedb.typedb_client_python import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
+from typedb.native_client_wrapper import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
     thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
 
 if TYPE_CHECKING:

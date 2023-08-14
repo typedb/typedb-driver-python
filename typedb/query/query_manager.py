@@ -31,7 +31,7 @@ from typedb.concept.answer.concept_map_group import _ConceptMapGroup
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.answer.numeric_group import _NumericGroup
 from typedb.logic.explanation import _Explanation
-from typedb.typedb_client_python import query_match, concept_map_iterator_next, query_match_group, \
+from typedb.native_client_wrapper import query_match, concept_map_iterator_next, query_match_group, \
     concept_map_group_iterator_next, query_insert, query_update, query_explain, explanation_iterator_next, \
     query_match_aggregate, numeric_group_iterator_next, query_match_group_aggregate, query_delete, query_define, \
     query_undefine
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from typedb.api.answer.numeric import Numeric
     from typedb.api.answer.numeric_group import NumericGroup
     from typedb.api.logic.explanation import Explanation
-    from typedb.typedb_client_python import Transaction as NativeTransaction
+    from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
 class _QueryManager(QueryManager):

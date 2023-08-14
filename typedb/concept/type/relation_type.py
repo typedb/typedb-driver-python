@@ -28,7 +28,7 @@ from typedb.common.transitivity import Transitivity
 from typedb.concept.concept_factory import relation_of, role_type_of
 from typedb.concept.type.thing_type import _ThingType
 
-from typedb.typedb_client_python import relation_type_create, relation_type_set_supertype, \
+from typedb.native_client_wrapper import relation_type_create, relation_type_set_supertype, \
     relation_type_get_relates_for_role_label, relation_type_get_relates, relation_type_get_relates_overridden, \
     relation_type_set_relates, relation_type_unset_relates, relation_type_get_supertype, relation_type_get_supertypes, \
     relation_type_get_subtypes, relation_type_get_instances, concept_iterator_next

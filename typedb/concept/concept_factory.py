@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Optional
 from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE
 import typedb.concept
 from typedb.concept.value.value import _Value
-from typedb.typedb_client_python import \
+from typedb.native_client_wrapper import \
     concept_is_entity_type, concept_is_relation_type, concept_is_attribute_type, concept_is_root_thing_type, \
     concept_is_entity, concept_is_relation, concept_is_attribute, concept_is_value, concept_is_role_type
 
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from typedb.concept.type.relation_type import _RelationType
     from typedb.concept.type.role_type import _RoleType
     from typedb.concept.type.thing_type import _ThingType, _Root
-    from typedb.typedb_client_python import Concept as NativeConcept
+    from typedb.native_client_wrapper import Concept as NativeConcept
 
 
 def concept_of(native_concept: NativeConcept) -> _Concept:

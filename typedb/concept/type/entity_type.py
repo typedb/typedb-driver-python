@@ -27,7 +27,7 @@ from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.transitivity import Transitivity
 from typedb.concept.concept_factory import entity_of
 from typedb.concept.type.thing_type import _ThingType
-from typedb.typedb_client_python import entity_type_create, entity_type_get_subtypes, entity_type_get_instances, \
+from typedb.native_client_wrapper import entity_type_create, entity_type_get_subtypes, entity_type_get_instances, \
     entity_type_get_supertypes, entity_type_get_supertype, entity_type_set_supertype, concept_iterator_next
 
 if TYPE_CHECKING:

@@ -25,12 +25,12 @@ from typing import TYPE_CHECKING, Optional
 from typedb.api.user.user import UserManager
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.user.user import _User
-from typedb.typedb_client_python import user_manager_new, users_contains, users_create, users_delete, users_all, \
+from typedb.native_client_wrapper import user_manager_new, users_contains, users_create, users_delete, users_all, \
     users_get, users_set_password, users_current_user, user_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.user.user import User
-    from typedb.typedb_client_python import Connection as NativeConnection
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
 class _UserManager(UserManager):

@@ -28,11 +28,11 @@ from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.logic.rule import _Rule
 
-from typedb.typedb_client_python import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
+from typedb.native_client_wrapper import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
     logic_manager_put_rule
 
 if TYPE_CHECKING:
-    from typedb.typedb_client_python import Transaction as NativeTransaction
+    from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
 class _LogicManager(LogicManager):

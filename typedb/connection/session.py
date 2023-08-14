@@ -26,7 +26,7 @@ from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import TypeDBSession
 from typedb.connection.transaction import _Transaction
 
-from typedb.typedb_client_python import session_new, session_on_close, session_force_close, session_is_open, \
+from typedb.native_client_wrapper import session_new, session_on_close, session_force_close, session_is_open, \
     session_get_database_name, SessionCallbackDirector
 
 

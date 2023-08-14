@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Optional
 
 from typedb.common.exception import TypeDBClientExceptionExt, POSITIVE_VALUE_REQUIRED
-from typedb.typedb_client_python import options_new, options_has_infer, options_get_infer, options_set_infer, \
+from typedb.native_client_wrapper import options_new, options_has_infer, options_get_infer, options_set_infer, \
     options_get_trace_inference, options_has_trace_inference, options_set_trace_inference, options_get_explain, \
     options_has_explain, options_set_explain, options_has_parallel, options_get_parallel, options_set_parallel, \
     options_get_prefetch, options_has_prefetch, options_set_prefetch, options_has_prefetch_size, \

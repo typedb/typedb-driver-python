@@ -35,8 +35,8 @@ load(":deployment.bzl", github_deployment = "deployment")
 
 
 genrule(
-    name = "typedb-client-ffi",
-    outs = ["typedb/typedb_client_python.py"],
+    name = "native-client-wrapper",
+    outs = ["typedb/native_client_wrapper.py"],
     srcs = ["@vaticle_typedb_driver_java//rust:typedb_client_python"],
     cmd = "cp $< $@",
     visibility = ["//visibility:public"]
@@ -44,15 +44,15 @@ genrule(
 
 genrule(
     name = "native-client-binary",
-    outs = ["typedb/_typedb_client_python.so"],
-    srcs = ["@vaticle_typedb_driver_java//rust:_typedb_client_python"],
+    outs = ["typedb/_native_client_python.so"],
+    srcs = ["@vaticle_typedb_driver_java//rust:_native_client_python"],
     cmd = "cp $< $@",
     visibility = ["//visibility:public"]
 )
 
 py_library(
     name = "client_python",
-    srcs = glob(["typedb/**/*.py"]) + [":typedb-client-ffi"],
+    srcs = glob(["typedb/**/*.py"]) + [":native-client-wrapper"],
     data = [":native-client-binary"],
     deps = ["@vaticle_typedb_driver_java//rust:typedb_client_python"],
     visibility = ["//visibility:public"]

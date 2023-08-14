@@ -27,11 +27,11 @@ from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, 
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.connection.database import _Database
 
-from typedb.typedb_client_python import databases_contains, databases_create, database_manager_new, databases_get, \
+from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
     databases_all, database_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.typedb_client_python import Connection as NativeConnection
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
 def _not_blank(name: str) -> str:

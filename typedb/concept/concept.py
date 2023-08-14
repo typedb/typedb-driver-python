@@ -25,11 +25,11 @@ from typing import TYPE_CHECKING
 
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
-from typedb.typedb_client_python import concept_to_string, concept_equals
+from typedb.native_client_wrapper import concept_to_string, concept_equals
 
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction
-    from typedb.typedb_client_python import Concept as NativeConcept, Transaction as NativeTransaction
+    from typedb.native_client_wrapper import Concept as NativeConcept, Transaction as NativeTransaction
 
 
 class _Concept(Concept, ABC):

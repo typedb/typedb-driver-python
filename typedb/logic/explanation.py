@@ -27,14 +27,14 @@ from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE, 
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
-from typedb.typedb_client_python import explanation_get_rule, explanation_get_conclusion, \
+from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
     explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
     explanation_get_mapping, explanation_to_string, explanation_equals
 
 if TYPE_CHECKING:
     from typedb.api.answer.concept_map import ConceptMap
     from typedb.api.logic.rule import Rule
-    from typedb.typedb_client_python import Explanation as NativeExplanation
+    from typedb.native_client_wrapper import Explanation as NativeExplanation
 
 
 class _Explanation(Explanation):

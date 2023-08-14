@@ -28,13 +28,13 @@ from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept import concept_factory
 
-from typedb.typedb_client_python import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
+from typedb.native_client_wrapper import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
     concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
     from typedb.api.answer.concept_map import ConceptMap
-    from typedb.typedb_client_python import ConceptMapGroup as NativeConceptMapGroup
+    from typedb.native_client_wrapper import ConceptMapGroup as NativeConceptMapGroup
 
 
 class _ConceptMapGroup(ConceptMapGroup):

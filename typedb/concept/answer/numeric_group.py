@@ -26,13 +26,13 @@ from typedb.api.answer.numeric_group import NumericGroup
 from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept import concept_factory
-from typedb.typedb_client_python import numeric_group_get_owner, \
+from typedb.native_client_wrapper import numeric_group_get_owner, \
     numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals
 
 if TYPE_CHECKING:
     from typedb.api.answer.numeric import Numeric
     from typedb.api.concept.concept import Concept
-    from typedb.typedb_client_python import NumericGroup as NativeNumericGroup
+    from typedb.native_client_wrapper import NumericGroup as NativeNumericGroup
 
 
 class _NumericGroup(NumericGroup):

@@ -25,7 +25,7 @@ def vaticle_dependencies():
     git_repository(
         name = "vaticle_dependencies",
         remote = "https://github.com/dmikhalin/dependencies",
-        commit = "e8abb6caa2de4ef1211c062cc1c3d8e7027a4e09", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_dependencies
+        commit = "296db800e73a01e9f79f8e7b427ef468416eefed", # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_dependencies
     )
 
 def vaticle_typedb_common():
@@ -64,12 +64,12 @@ def vaticle_factory_tracing():
     )
 
 def vaticle_typedb_driver_java():
-#    git_repository(
-#        name = "vaticle_typedb_driver_java",
-#        remote = "https://github.com/dmikhalin/typedb-client-java",
-#        commit = "57d3c65287a3cd7ddeb808a1812f7c344d2c1223"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
-#    )
-    native.local_repository(
+    git_repository(
         name = "vaticle_typedb_driver_java",
-        path = "/Users/dmitry/Vaticle/typedb-client-java",
+        remote = "https://github.com/dmikhalin/typedb-client-java",
+        commit = "8b3dac1e497a66a372450ac64e0be1a145ef8f27"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
     )
+#    native.local_repository(
+#        name = "vaticle_typedb_driver_java",
+#        path = "/Users/dmitry/Vaticle/typedb-client-java",
+#    )

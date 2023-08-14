@@ -28,7 +28,7 @@ from typedb.common.exception import TypeDBClientExceptionExt, VARIABLE_DOES_NOT_
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept import concept_factory
 
-from typedb.typedb_client_python import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
+from typedb.native_client_wrapper import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
     concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, concept_map_equals, \
     explainables_get_relation, explainables_get_attribute, explainables_get_ownership, \
     explainables_get_relations_keys, explainables_get_attributes_keys, explainables_get_ownerships_keys, \
@@ -37,7 +37,7 @@ from typedb.typedb_client_python import concept_map_get_variables, string_iterat
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
-    from typedb.typedb_client_python import ConceptMap as NativeConceptMap, Explainables as NativeExplainables, \
+    from typedb.native_client_wrapper import ConceptMap as NativeConceptMap, Explainables as NativeExplainables, \
         Explainable as NativeExplainable
 
 

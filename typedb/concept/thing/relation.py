@@ -28,7 +28,7 @@ from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.concept_factory import relation_type_of, role_type_of, thing_of
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.role_type import _RoleType
-from typedb.typedb_client_python import relation_get_type, relation_add_role_player, relation_remove_role_player, \
+from typedb.native_client_wrapper import relation_get_type, relation_add_role_player, relation_remove_role_player, \
     relation_get_players_by_role_type, relation_get_role_players, role_player_get_role_type, \
     role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 

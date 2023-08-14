@@ -27,7 +27,7 @@ from typedb.api.connection.options import TypeDBOptions
 from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
 from typedb.user.user_manager import _UserManager
-from typedb.typedb_client_python import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
+from typedb.native_client_wrapper import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
     connection_force_close
 
 if TYPE_CHECKING:

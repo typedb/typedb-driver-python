@@ -24,7 +24,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from typedb.typedb_client_python import Data, Schema
+from typedb.native_client_wrapper import Data, Schema
 
 if TYPE_CHECKING:
     from typedb.api.connection.options import TypeDBOptions

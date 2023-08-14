@@ -24,11 +24,11 @@ from typing import TYPE_CHECKING
 
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST, NULL_NATIVE_OBJECT
-from typedb.typedb_client_python import numeric_is_long, numeric_is_double, numeric_is_nan, \
+from typedb.native_client_wrapper import numeric_is_long, numeric_is_double, numeric_is_nan, \
     numeric_get_long, numeric_get_double, numeric_to_string
 
 if TYPE_CHECKING:
-    from typedb.typedb_client_python import Numeric as NativeNumeric
+    from typedb.native_client_wrapper import Numeric as NativeNumeric
 
 
 class _Numeric(Numeric):

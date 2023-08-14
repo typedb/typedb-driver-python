@@ -28,7 +28,7 @@ from typing import Mapping, Union
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE
 
-from typedb.typedb_client_python import Object, Boolean, Long, Double, String, DateTime
+from typedb.native_client_wrapper import Object, Boolean, Long, Double, String, DateTime
 
 
 class Value(Concept, ABC):

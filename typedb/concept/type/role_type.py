@@ -29,7 +29,7 @@ from typedb.common.transitivity import Transitivity
 from typedb.concept.concept_factory import relation_of, thing_of, relation_type_of, thing_type_of
 from typedb.concept.type.type import _Type
 
-from typedb.typedb_client_python import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
+from typedb.native_client_wrapper import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
     role_type_get_name, role_type_delete, role_type_is_deleted, role_type_set_label, role_type_get_supertype, \
     role_type_get_supertypes, role_type_get_subtypes, role_type_get_relation_instances, \
     role_type_get_player_instances, role_type_get_relation_type, role_type_get_relation_types, \
