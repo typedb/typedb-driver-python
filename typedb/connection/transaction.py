@@ -71,6 +71,8 @@ class _Transaction(TypeDBTransaction):
 
     @property
     def native_object(self):
+        if not self._native_object.thisown:
+            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         return self._native_object
 
     def is_open(self) -> bool:
@@ -91,19 +93,15 @@ class _Transaction(TypeDBTransaction):
             self._function(TypeDBException(error_code(error), error_message(error)))
 
     def commit(self):
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         self.native_object.thisown = 0
-        transaction_commit(self.native_object)
+        transaction_commit(self._native_object)
 
     def rollback(self):
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         transaction_rollback(self.native_object)
 
     def close(self):
-        if self.native_object.thisown:
-            transaction_force_close(self.native_object)
+        if self._native_object.thisown:
+            transaction_force_close(self._native_object)
 
     def __enter__(self):
         return self

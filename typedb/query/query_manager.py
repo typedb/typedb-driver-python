@@ -50,100 +50,86 @@ class _QueryManager(QueryManager):
     def __init__(self, transaction: NativeTransaction):
         self._transaction = transaction
 
-    def match(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
+    @property
+    def _native_transaction(self):
         if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
+            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+        return self._transaction
+
+    def match(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return map(_ConceptMap, IteratorWrapper(query_match(self._transaction, query, options.native_object),
+        return map(_ConceptMap, IteratorWrapper(query_match(self._native_transaction, query, options.native_object),
                                                 concept_map_iterator_next))
 
     def match_aggregate(self, query: str, options: Optional[TypeDBOptions] = None) -> Numeric:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return _Numeric(query_match_aggregate(self._transaction, query, options.native_object))
+        return _Numeric(query_match_aggregate(self._native_transaction, query, options.native_object))
 
     def match_group(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMapGroup]:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return map(_ConceptMapGroup, IteratorWrapper(query_match_group(self._transaction, query,
+        return map(_ConceptMapGroup, IteratorWrapper(query_match_group(self._native_transaction, query,
                                                                        options.native_object),
                                                      concept_map_group_iterator_next))
 
     def match_group_aggregate(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[NumericGroup]:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return map(_NumericGroup, IteratorWrapper(query_match_group_aggregate(self._transaction, query,
+        return map(_NumericGroup, IteratorWrapper(query_match_group_aggregate(self._native_transaction, query,
                                                                               options.native_object),
                                                   numeric_group_iterator_next))
 
     def insert(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return map(_ConceptMap, IteratorWrapper(query_insert(self._transaction, query, options.native_object),
+        return map(_ConceptMap, IteratorWrapper(query_insert(self._native_transaction, query, options.native_object),
                                                 concept_map_iterator_next))
 
     def delete(self, query: str, options: Optional[TypeDBOptions] = None) -> None:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return query_delete(self._transaction, query, options.native_object)
+        return query_delete(self._native_transaction, query, options.native_object)
 
     def update(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return map(_ConceptMap, IteratorWrapper(query_update(self._transaction, query, options.native_object),
+        return map(_ConceptMap, IteratorWrapper(query_update(self._native_transaction, query, options.native_object),
                                                 concept_map_iterator_next))
 
     def define(self, query: str, options: TypeDBOptions = None) -> None:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return query_define(self._transaction, query, options.native_object)
+        return query_define(self._native_transaction, query, options.native_object)
 
     def undefine(self, query: str, options: TypeDBOptions = None) -> None:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not query:
             raise TypeDBClientExceptionExt(MISSING_QUERY)
         if not options:
             options = TypeDBOptions()
-        return query_undefine(self._transaction, query, options.native_object)
+        return query_undefine(self._native_transaction, query, options.native_object)
 
     def explain(self, explainable: ConceptMap.Explainable, options: Optional[TypeDBOptions] = None
                 ) -> Iterator[Explanation]:
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt(TRANSACTION_CLOSED)
         if not options:
             options = TypeDBOptions()
-        return map(_Explanation, IteratorWrapper(query_explain(self._transaction, explainable.id(),
+        return map(_Explanation, IteratorWrapper(query_explain(self._native_transaction, explainable.id(),
                                                                options.native_object),
                                                  explanation_iterator_next))

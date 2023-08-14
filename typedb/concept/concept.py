@@ -28,8 +28,7 @@ from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
 from typedb.native_client_wrapper import concept_to_string, concept_equals
 
 if TYPE_CHECKING:
-    from typedb.connection.transaction import _Transaction
-    from typedb.native_client_wrapper import Concept as NativeConcept, Transaction as NativeTransaction
+    from typedb.native_client_wrapper import Concept as NativeConcept
 
 
 class _Concept(Concept, ABC):
@@ -38,10 +37,6 @@ class _Concept(Concept, ABC):
         if not concept:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._native_object = concept
-
-    @staticmethod
-    def native_transaction(transaction: _Transaction) -> NativeTransaction:
-        return transaction.concepts.native_transaction()
 
     @property
     def native_object(self):

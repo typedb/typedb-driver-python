@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Optional
 
 from typedb.api.logic.logic_manager import LogicManager
 from typedb.api.logic.rule import Rule
-from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, TRANSACTION_CLOSED
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.logic.rule import _Rule
 
@@ -41,6 +41,8 @@ class _LogicManager(LogicManager):
         self._transaction = transaction
 
     def native_transaction(self):
+        if not self._transaction.thisown:
+            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
         return self._transaction
 
     def get_rule(self, label: str) -> Optional[Rule]:
