@@ -71,8 +71,7 @@ TRANSACTION_CLOSED = ClientErrorMessage(1, "The transaction has been closed and 
 DATABASE_DELETED = ClientErrorMessage(2, "The database '%s' has been deleted and no further operation is allowed.")
 MISSING_DB_NAME = ClientErrorMessage(3, "Database name cannot be empty.")
 POSITIVE_VALUE_REQUIRED = ClientErrorMessage(4, "Value should be positive, was: '%d'.")
-CLUSTER_INVALID_ROOT_CA_PATH = ClientErrorMessage(5, "The provided Root CA path '%s' does not exist.")
-CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(6, "TLS disabled but the Root CA path provided.")
+CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(5, "TLS disabled but the Root CA path provided.")
 
 
 class ConceptErrorMessage(ErrorMessage):

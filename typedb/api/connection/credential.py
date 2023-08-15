@@ -19,10 +19,9 @@
 # under the License.
 #
 
-from os import path
 from typing import Optional
 
-from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_INVALID_ROOT_CA_PATH, CLUSTER_CREDENTIAL_INCONSISTENT
+from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_CREDENTIAL_INCONSISTENT
 from typedb.native_client_wrapper import credential_new
 
 
@@ -33,8 +32,6 @@ class TypeDBCredential:
         if tls_root_ca_path is not None and not tls_enabled:
             raise TypeDBClientExceptionExt.of(CLUSTER_CREDENTIAL_INCONSISTENT)
         self._native_object = credential_new(username, password, tls_root_ca_path, tls_enabled)
-        if tls_root_ca_path is not None and not path.exists(tls_root_ca_path):
-            raise TypeDBClientExceptionExt.of(CLUSTER_INVALID_ROOT_CA_PATH, tls_root_ca_path)
 
     @property
     def native_object(self):
