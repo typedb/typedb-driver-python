@@ -27,7 +27,6 @@ from hamcrest import *
 from tests.behaviour.config.parameters import parse_bool, parse_int, parse_float, parse_datetime, parse_table, \
     parse_label, parse_value_type
 from tests.behaviour.context import Context
-from typedb.api.concept.value.value import Value
 from typedb.client import *
 
 
@@ -231,16 +230,16 @@ class AttributeMatcher(ConceptMatcher, ABC):
         self.type_label, self.value_string = s
 
     def check(self, attribute: Attribute):
-        if attribute.get_value().is_boolean():
-            return ConceptMatchResult.of(parse_bool(self.value_string), attribute.get_value().as_boolean())
-        elif attribute.get_value().is_long():
-            return ConceptMatchResult.of(parse_int(self.value_string), attribute.get_value().as_long())
-        elif attribute.get_value().is_double():
-            return ConceptMatchResult.of(parse_float(self.value_string), attribute.get_value().as_double())
-        elif attribute.get_value().is_string():
-            return ConceptMatchResult.of(self.value_string, attribute.get_value().as_string())
-        elif attribute.get_value().is_datetime():
-            return ConceptMatchResult.of(parse_datetime(self.value_string), attribute.get_value().as_datetime())
+        if attribute.is_boolean():
+            return ConceptMatchResult.of(parse_bool(self.value_string), attribute.as_boolean())
+        elif attribute.is_long():
+            return ConceptMatchResult.of(parse_int(self.value_string), attribute.as_long())
+        elif attribute.is_double():
+            return ConceptMatchResult.of(parse_float(self.value_string), attribute.as_double())
+        elif attribute.is_string():
+            return ConceptMatchResult.of(self.value_string, attribute.as_string())
+        elif attribute.is_datetime():
+            return ConceptMatchResult.of(parse_datetime(self.value_string), attribute.as_datetime())
         else:
             raise ValueError("Unrecognised value type " + str(type(attribute)))
 
@@ -306,15 +305,15 @@ class ValueMatcher(ConceptMatcher):
 
     def check(self, value: Value):
         if value.is_boolean():
-            return ConceptMatchResult.of(parse_bool(self.value_string), value.get_value())
+            return ConceptMatchResult.of(parse_bool(self.value_string), value.get())
         elif value.is_long():
-            return ConceptMatchResult.of(parse_int(self.value_string), value.get_value())
+            return ConceptMatchResult.of(parse_int(self.value_string), value.get())
         elif value.is_double():
-            return ConceptMatchResult.of(parse_float(self.value_string), value.get_value())
+            return ConceptMatchResult.of(parse_float(self.value_string), value.get())
         elif value.is_string():
-            return ConceptMatchResult.of(self.value_string, value.get_value())
+            return ConceptMatchResult.of(self.value_string, value.get())
         elif value.is_datetime():
-            return ConceptMatchResult.of(parse_datetime(self.value_string), value.get_value())
+            return ConceptMatchResult.of(parse_datetime(self.value_string), value.get())
         else:
             raise ValueError("Unrecognised value type " + str(type(value)))
 

@@ -129,25 +129,25 @@ def step_impl(context: Context, var: str, type_label: str, value: datetime):
 
 @step("attribute {var:Var} has boolean value: {value:Bool}")
 def step_impl(context: Context, var: str, value: bool):
-    assert_that(context.get(var).as_attribute().get_value().as_boolean(), is_(value))
+    assert_that(context.get(var).as_attribute().as_boolean(), is_(value))
 
 
 @step("attribute {var:Var} has long value: {value:Int}")
 def step_impl(context: Context, var: str, value: int):
-    assert_that(context.get(var).as_attribute().get_value().as_long(), is_(value))
+    assert_that(context.get(var).as_attribute().as_long(), is_(value))
 
 
 @step("attribute {var:Var} has double value: {value:Float}")
 def step_impl(context: Context, var: str, value: float):
-    assert_that(context.get(var).as_attribute().get_value().as_double(), is_(value))
+    assert_that(context.get(var).as_attribute().as_double(), is_(value))
 
 
 @step("attribute {var:Var} has string value: {value}")
 def step_impl(context: Context, var: str, value: str):
-    assert_that(context.get(var).as_attribute().get_value().as_string(), is_(value))
+    assert_that(context.get(var).as_attribute().as_string(), is_(value))
 
 
 @step("attribute {var:Var} has datetime value: {value:DateTime}")
 def step_impl(context: Context, var: str, value: datetime):
-    assert_that(context.get(var).as_attribute().get_value().as_datetime(), is_(value))
+    assert_that(context.get(var).as_attribute().as_datetime(), is_(value))
 

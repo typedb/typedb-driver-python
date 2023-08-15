@@ -79,7 +79,7 @@ class _Value(Value, _Concept):
         else:
             raise TypeDBClientExceptionExt(ILLEGAL_STATE)
 
-    def get_value(self) -> Union[bool, int, float, str, datetime]:
+    def get(self) -> Union[bool, int, float, str, datetime]:
         if self.is_boolean():
             return self.as_boolean()
         elif self.is_long():
@@ -124,10 +124,10 @@ class _Value(Value, _Concept):
         return datetime.utcfromtimestamp(value_get_date_time_as_millis(self.native_object) / 1000)
 
     def __str__(self):
-        return str(self.get_value())
+        return str(self.get())
 
     def __repr__(self):
-        return f"{self.get_value_type()}({self.get_value()})"
+        return f"{self.get_value_type()}({self.get()})"
 
     def __hash__(self):
-        return hash(self.get_value())
+        return hash(self.get())

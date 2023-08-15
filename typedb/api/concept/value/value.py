@@ -38,7 +38,7 @@ class Value(Concept, ABC):
         pass
 
     @abstractmethod
-    def get_value(self) -> Union[bool, int, float, str, datetime]:
+    def get(self) -> Union[bool, int, float, str, datetime]:
         pass
 
     def is_value(self) -> bool:
@@ -47,40 +47,50 @@ class Value(Concept, ABC):
     def as_value(self) -> Value:
         return self
 
+    @abstractmethod
     def is_boolean(self) -> bool:
         pass
 
+    @abstractmethod
     def is_long(self) -> bool:
         pass
 
+    @abstractmethod
     def is_double(self) -> bool:
         pass
 
+    @abstractmethod
     def is_string(self) -> bool:
         pass
 
+    @abstractmethod
     def is_datetime(self) -> bool:
         pass
 
+    @abstractmethod
     def as_boolean(self) -> bool:
         pass
 
+    @abstractmethod
     def as_long(self) -> int:
         pass
 
+    @abstractmethod
     def as_double(self) -> float:
         pass
 
+    @abstractmethod
     def as_string(self) -> str:
         pass
 
+    @abstractmethod
     def as_datetime(self) -> datetime:
         pass
 
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "value_type": str(self.get_value_type()),
-            "value": self.get_value() if not self.is_datetime() else self.get_value().isoformat(timespec='milliseconds')
+            "value": self.get() if not self.is_datetime() else self.get().isoformat(timespec='milliseconds')
         }
 
 

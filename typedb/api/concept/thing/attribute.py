@@ -26,7 +26,8 @@ from typing import TYPE_CHECKING, Iterator, Mapping, Union, Optional
 from typedb.api.concept.thing.thing import Thing
 
 if TYPE_CHECKING:
-    from typedb.api.concept.value.value import Value
+    from datetime import datetime
+    from typedb.api.concept.value.value import ValueType
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.type.thing_type import ThingType
     from typedb.api.connection.transaction import TypeDBTransaction
@@ -39,7 +40,11 @@ class Attribute(Thing, ABC):
         pass
 
     @abstractmethod
-    def get_value(self) -> Value:
+    def get_value(self) -> Union[bool, int, float, str, datetime]:
+        pass
+
+    @abstractmethod
+    def get_value_type(self) -> ValueType:
         pass
 
     def is_attribute(self) -> bool:
@@ -48,8 +53,49 @@ class Attribute(Thing, ABC):
     def as_attribute(self) -> Attribute:
         return self
 
+    @abstractmethod
+    def is_boolean(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_long(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_double(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_string(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_datetime(self) -> bool:
+        pass
+
+    @abstractmethod
+    def as_boolean(self) -> bool:
+        pass
+
+    @abstractmethod
+    def as_long(self) -> int:
+        pass
+
+    @abstractmethod
+    def as_double(self) -> float:
+        pass
+
+    @abstractmethod
+    def as_string(self) -> str:
+        pass
+
+    @abstractmethod
+    def as_datetime(self) -> datetime:
+        pass
+
+    @abstractmethod
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-        return {"type": self.get_type().get_label().scoped_name()} | self.get_value().to_json()
+        pass
 
     @abstractmethod
     def get_owners(self, transaction: TypeDBTransaction, owner_type: Optional[ThingType] = None) -> Iterator[Thing]:

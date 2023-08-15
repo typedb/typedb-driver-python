@@ -88,6 +88,34 @@ class TestDebug(TestCase):
                 assert len(explanations2) == 3
                 print([str(e) for e in explanations])
 
+    def test_value_type(self):
+        with TypeDB.core_client(TypeDB.DEFAULT_ADDRESS) as client:
+            with client.session(TYPEDB, SCHEMA) as session, session.transaction(WRITE) as tx:
+                schema = """
+                define
+                person sub entity, owns name, owns age, plays friendship:friend, plays marriage:husband, plays marriage:wife;
+                name sub attribute, value string;
+                age sub attribute, value long;
+                friendship sub relation, relates friend;
+                marriage sub relation, relates husband, relates wife;
+                rule marriage-is-friendship: when {
+                    $x isa person; $y isa person; (husband: $x, wife: $y) isa marriage;
+                } then {
+                    (friend: $x, friend: $y) isa friendship;
+                };
+                rule everyone-is-friends: when {
+                    $x isa person; $y isa person; not { $x is $y; };
+                } then {
+                    (friend: $x, friend: $y) isa friendship;
+                };
+                """
+                tx.query.define(schema)
+                tx.commit()
+            with client.session(TYPEDB, SCHEMA) as session, session.transaction(WRITE) as tx:
+                person = tx.concepts.get_entity_type("person")
+                assert(len(list(person.get_owns(tx, value_type=ValueType.STRING))) == 1)
+                assert(len(list(person.get_owns(tx, value_type=ValueType.LONG))) == 1)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
