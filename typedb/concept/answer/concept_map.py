@@ -163,6 +163,9 @@ class _ConceptMap(ConceptMap):
         def id(self) -> int:
             return explainable_get_id(self.native_object)
 
+        def __repr__(self):
+            return f"Explainable {{ id: {self.id()}, conjunction: {self.conjunction()} }}"
+
         def __eq__(self, other):
             if other is self:
                 return True
