@@ -23,25 +23,36 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from typedb.api.user.user import User
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.native_client_wrapper import user_get_username, user_get_password_expiry_seconds, user_password_update
 
 if TYPE_CHECKING:
-    from typedb.native_client_wrapper import User as NativeUser, Connection as NativeConnection
+    from typedb.user.user_manager import _UserManager
+    from typedb.native_client_wrapper import User as NativeUser
 
 
-class _User(User):
+class _User(User, NativeObjectMixin):
 
-    def __init__(self, user: NativeUser, connection: NativeConnection):
-        self._native_user = user
-        self._native_connection = connection
+    def __init__(self, user: NativeUser, user_manager: _UserManager):
+        self.__native_object = user
+        self._user_manager = user_manager
+
+    @property
+    def _native_object(self) -> NativeUser:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def username(self) -> str:
-        return user_get_username(self._native_user)
+        return user_get_username(self.native_object)
 
     def password_expiry_seconds(self) -> Optional[int]:
-        if res := user_get_password_expiry_seconds(self._native_user) >= 0:
+        if res := user_get_password_expiry_seconds(self.native_object) >= 0:
             return res
         return None
 
     def password_update(self, password_old: str, password_new: str) -> None:
-        user_password_update(self._native_user, self._native_connection, password_old, password_new)
+        user_password_update(self.native_object, self._user_manager.native_object, password_old, password_new)

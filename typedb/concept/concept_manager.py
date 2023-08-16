@@ -25,6 +25,7 @@ from typing import Optional, TYPE_CHECKING
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.common.exception import TypeDBClientExceptionExt, TypeDBException, MISSING_LABEL, MISSING_IID, \
     TRANSACTION_CLOSED
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.thing.attribute import _Attribute
 from typedb.concept.thing.entity import _Entity
 from typedb.concept.thing.relation import _Relation
@@ -41,16 +42,22 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
-class _ConceptManager(ConceptManager):
+class _ConceptManager(ConceptManager, NativeObjectMixin):
 
     def __init__(self, transaction: NativeTransaction):
         self._transaction = transaction
 
     @property
-    def native_transaction(self):
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+    def _native_object(self) -> NativeTransaction:
         return self._transaction
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+
+    @property
+    def native_transaction(self) -> NativeTransaction:
+        return self.native_object
 
     def get_root_entity_type(self) -> _EntityType:
         return self.get_entity_type("entity")

@@ -24,6 +24,8 @@ from typing import Optional, TYPE_CHECKING
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
+from typedb.common.exception import TypeDBClientExceptionExt, CLIENT_CLOSED
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
 from typedb.user.user_manager import _UserManager
@@ -34,23 +36,36 @@ if TYPE_CHECKING:
     from typedb.api.connection.credential import TypeDBCredential
     from typedb.api.connection.session import SessionType
     from typedb.api.user.user import UserManager, User
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
-class _Client(TypeDBClient):
+class _Client(TypeDBClient, NativeObjectMixin):
 
     def __init__(self, addresses: list[str], credential: Optional[TypeDBCredential] = None):
         if credential:
-            self._connection = connection_open_encrypted(addresses, credential.native_object)
+            self.__native_connection = connection_open_encrypted(addresses, credential.native_object)
         else:
-            self._connection = connection_open_plaintext(addresses[0])
-        self._database_manager = _DatabaseManager(self._connection)
-        self._user_manager = _UserManager(self._connection)
+            self.__native_connection = connection_open_plaintext(addresses[0])
+        self._database_manager = _DatabaseManager(self.__native_connection)
+        self._user_manager = _UserManager(self.__native_connection)
+
+    @property
+    def _native_object(self) -> NativeConnection:
+        return self.__native_connection
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(CLIENT_CLOSED)
+
+    @property
+    def _native_connection(self) -> NativeConnection:
+        return self.native_object
 
     def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> _Session:
         return _Session(self.databases.get(database), session_type, options if options else TypeDBOptions())
 
     def is_open(self) -> bool:
-        return connection_is_open(self._connection)
+        return connection_is_open(self._native_connection)
 
     @property
     def databases(self) -> _DatabaseManager:
@@ -72,4 +87,4 @@ class _Client(TypeDBClient):
             return False
 
     def close(self) -> None:
-        connection_force_close(self._connection)
+        connection_force_close(self._native_connection)

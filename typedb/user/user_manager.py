@@ -23,42 +23,51 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from typedb.api.user.user import UserManager
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.user.user import _User
 from typedb.native_client_wrapper import user_manager_new, users_contains, users_create, users_delete, users_all, \
     users_get, users_set_password, users_current_user, user_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.user.user import User
-    from typedb.native_client_wrapper import Connection as NativeConnection
+    from typedb.native_client_wrapper import Connection as NativeConnection, UserManager as NativeUserManager
 
 
-class _UserManager(UserManager):
+class _UserManager(UserManager, NativeObjectMixin):
 
     def __init__(self, connection: NativeConnection):
-        self._native_user_manager = user_manager_new(connection)
-        self._native_connection = connection
+        self.__native_object = user_manager_new(connection)
+
+    @property
+    def _native_object(self) -> NativeUserManager:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def contains(self, username: str) -> bool:
-        return users_contains(self._native_user_manager, username)
+        return users_contains(self.native_object, username)
 
     def create(self, username: str, password: str) -> None:
-        users_create(self._native_user_manager, username, password)
+        users_create(self.native_object, username, password)
 
     def delete(self, username: str) -> None:
-        users_delete(self._native_user_manager, username)
+        users_delete(self.native_object, username)
 
     def all(self) -> list[User]:
-        return [_User(user, self._native_connection) for user in IteratorWrapper(users_all(self._native_user_manager),
-                                                                                 user_iterator_next)]
+        return [_User(user, self) for user in IteratorWrapper(users_all(self.native_object),
+                                                                            user_iterator_next)]
 
     def get(self, username: str) -> Optional[User]:
-        if user := users_get(self._native_user_manager, username):
-            return _User(user, self._native_connection)
+        if user := users_get(self.native_object, username):
+            return _User(user, self)
         return None
 
     def password_set(self, username: str, password: str) -> None:
-        users_set_password(self._native_user_manager, username, password)
+        users_set_password(self.native_object, username, password)
 
     def get_current_user(self) -> User:
-        return _User(users_current_user(self._native_user_manager), self._native_connection)
+        return _User(users_current_user(self.native_object), self)

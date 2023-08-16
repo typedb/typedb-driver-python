@@ -67,11 +67,13 @@ class ClientErrorMessage(ErrorMessage):
                                                  message_body=message)
 
 
-TRANSACTION_CLOSED = ClientErrorMessage(1, "The transaction has been closed and no further operation is allowed.")
-DATABASE_DELETED = ClientErrorMessage(2, "The database '%s' has been deleted and no further operation is allowed.")
-MISSING_DB_NAME = ClientErrorMessage(3, "Database name cannot be empty.")
-POSITIVE_VALUE_REQUIRED = ClientErrorMessage(4, "Value should be positive, was: '%d'.")
-CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(5, "TLS disabled but the Root CA path provided.")
+CLIENT_CLOSED = ClientErrorMessage(1, "The client has been closed and no further operation is allowed.")
+SESSION_CLOSED = ClientErrorMessage(2, "The session has been closed and no further operation is allowed.")
+TRANSACTION_CLOSED = ClientErrorMessage(3, "The transaction has been closed and no further operation is allowed.")
+DATABASE_DELETED = ClientErrorMessage(4, "The database '%s' has been deleted and no further operation is allowed.")
+MISSING_DB_NAME = ClientErrorMessage(5, "Database name cannot be empty.")
+POSITIVE_VALUE_REQUIRED = ClientErrorMessage(6, "Value should be positive, was: '%d'.")
+CLUSTER_CREDENTIAL_INCONSISTENT = ClientErrorMessage(7, "TLS disabled but the Root CA path provided.")
 
 
 class ConceptErrorMessage(ErrorMessage):

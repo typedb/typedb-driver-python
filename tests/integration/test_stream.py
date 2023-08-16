@@ -35,7 +35,7 @@ class TestStream(TestCase):
 
     def setUp(self):
         with TypeDB.core_client("127.0.0.1:1729") as client:
-            if TYPEDB not in [db.name() for db in client.databases.all()]:
+            if TYPEDB not in [db.name for db in client.databases.all()]:
                 client.databases.create(TYPEDB)
 
     def test_multiple_done_response_handling(self):

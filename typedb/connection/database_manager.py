@@ -23,15 +23,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.connection.database import DatabaseManager
-from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, MISSING_DB_NAME
+from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, ILLEGAL_STATE, MISSING_DB_NAME
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.database import _Database
 
 from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
     databases_all, database_iterator_next
 
 if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Connection as NativeConnection
+    from typedb.native_client_wrapper import Connection as NativeConnection, DatabaseManager as NativeDatabaseManager
 
 
 def _not_blank(name: str) -> str:
@@ -40,21 +41,29 @@ def _not_blank(name: str) -> str:
     return name
 
 
-class _DatabaseManager(DatabaseManager):
+class _DatabaseManager(DatabaseManager, NativeObjectMixin):
 
     def __init__(self, connection: NativeConnection):
-        self._database_manager = database_manager_new(connection)
+        self.__native_object = database_manager_new(connection)
+
+    @property
+    def _native_object(self) -> NativeDatabaseManager:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def get(self, name: str) -> _Database:
         if not self.contains(name):
             raise TypeDBClientExceptionExt.of(DATABASE_DELETED, name)
-        return _Database(databases_get(self._database_manager, name))
+        return _Database(databases_get(self.native_object, name))
 
     def contains(self, name: str) -> bool:
-        return databases_contains(self._database_manager, _not_blank(name))
+        return databases_contains(self.native_object, _not_blank(name))
 
     def create(self, name: str) -> None:
-        databases_create(self._database_manager, _not_blank(name))
+        databases_create(self.native_object, _not_blank(name))
 
     def all(self) -> list[_Database]:
-        return list(map(_Database, IteratorWrapper(databases_all(self._database_manager), database_iterator_next)))
+        return list(map(_Database, IteratorWrapper(databases_all(self.native_object), database_iterator_next)))

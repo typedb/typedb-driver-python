@@ -23,9 +23,10 @@ from __future__ import annotations
 from typing import Mapping, Iterator, TYPE_CHECKING
 
 from typedb.api.answer.concept_map import ConceptMap
-from typedb.common.exception import TypeDBClientExceptionExt, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
-    NONEXISTENT_EXPLAINABLE_OWNERSHIP, MISSING_VARIABLE, NULL_NATIVE_OBJECT
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, \
+    NONEXISTENT_EXPLAINABLE_CONCEPT, NONEXISTENT_EXPLAINABLE_OWNERSHIP, NULL_NATIVE_OBJECT, VARIABLE_DOES_NOT_EXIST
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept import concept_factory
 
 from typedb.native_client_wrapper import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
@@ -41,16 +42,20 @@ if TYPE_CHECKING:
         Explainable as NativeExplainable
 
 
-class _ConceptMap(ConceptMap):
+class _ConceptMap(ConceptMap, NativeObjectMixin):
 
     def __init__(self, concept_map: NativeConceptMap):
         if not concept_map:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self._native_object = concept_map
+        self.__native_object = concept_map
 
     @property
-    def native_object(self):
-        return self._native_object
+    def _native_object(self) -> NativeConceptMap:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def variables(self) -> Iterator[str]:
         return IteratorWrapper(concept_map_get_variables(self.native_object), string_iterator_next)
@@ -83,16 +88,20 @@ class _ConceptMap(ConceptMap):
     def __hash__(self):
         return hash((tuple(self.variables()), tuple(self.concepts())))
 
-    class Explainables(ConceptMap.Explainables):
+    class Explainables(ConceptMap.Explainables, NativeObjectMixin):
 
         def __init__(self, explainables: NativeExplainables):
             if not explainables:
                 raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-            self._native_object = explainables
+            self.__native_object = explainables
 
         @property
-        def native_object(self):
-            return self._native_object
+        def _native_object(self) -> NativeExplainables:
+            return self.__native_object
+
+        @property
+        def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+            return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
         def relation(self, variable: str) -> ConceptMap.Explainable:
             if not variable:
@@ -146,16 +155,20 @@ class _ConceptMap(ConceptMap):
         def __hash__(self):
             return hash((tuple(self.relations()), tuple(self.attributes()), tuple(self.ownerships())))
 
-    class Explainable(ConceptMap.Explainable):
+    class Explainable(ConceptMap.Explainable, NativeObjectMixin):
 
         def __init__(self, explainable: NativeExplainable):
             if not explainable:
                 raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-            self._native_object = explainable
+            self.__native_object = explainable
 
         @property
-        def native_object(self):
-            return self._native_object
+        def _native_object(self) -> NativeExplainable:
+            return self.__native_object
+
+        @property
+        def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+            return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
         def conjunction(self) -> str:
             return explainable_get_conjunction(self.native_object)

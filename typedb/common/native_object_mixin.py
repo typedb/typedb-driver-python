@@ -21,37 +21,25 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    from typedb.api.connection.transaction import TypeDBTransaction
+from typedb.common.exception import TypeDBClientExceptionExt
 
 
-class Rule(ABC):
+class NativeObjectMixin(ABC):
 
     @property
     @abstractmethod
-    def label(self) -> str:
-        pass
-
-    @abstractmethod
-    def set_label(self, transaction: TypeDBTransaction, new_label: str) -> None:
+    def _native_object(self) -> Any:
         pass
 
     @property
     @abstractmethod
-    def when(self) -> str:
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
         pass
 
     @property
-    @abstractmethod
-    def then(self) -> str:
-        pass
-
-    @abstractmethod
-    def delete(self, transaction: TypeDBTransaction) -> None:
-        pass
-
-    @abstractmethod
-    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
-        pass
+    def native_object(self) -> Any:
+        if not self._native_object.thisown:
+            raise self._native_object_not_owned_exception
+        return self._native_object

@@ -101,7 +101,7 @@ def step_impl(context: Context):
 
 
 def has_databases(context: Context, names: list[str]):
-    assert_collections_equal([db.name() for db in context.client.databases.all()], names)
+    assert_collections_equal([db.name for db in context.client.databases.all()], names)
 
 
 @step("connection has database: {name}")
@@ -115,7 +115,7 @@ def step_impl(context: Context):
 
 
 def does_not_have_databases(context: Context, names: list[str]):
-    databases = [db.name() for db in context.client.databases.all()]
+    databases = [db.name for db in context.client.databases.all()]
     for name in names:
         assert_that(name, not_(is_in(databases)))
 

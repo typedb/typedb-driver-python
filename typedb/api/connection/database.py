@@ -26,6 +26,7 @@ from typing import Optional
 
 class Database(ABC):
 
+    @property
     @abstractmethod
     def name(self) -> str:
         pass

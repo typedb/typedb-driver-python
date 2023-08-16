@@ -23,8 +23,9 @@ from __future__ import annotations
 from typing import Iterator, TYPE_CHECKING
 
 from typedb.api.answer.concept_map_group import ConceptMapGroup
-from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept import concept_factory
 
@@ -37,29 +38,37 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import ConceptMapGroup as NativeConceptMapGroup
 
 
-class _ConceptMapGroup(ConceptMapGroup):
+class _ConceptMapGroup(ConceptMapGroup, NativeObjectMixin):
 
     def __init__(self, concept_map_group: NativeConceptMapGroup):
         if not concept_map_group:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self._concept_map_group = concept_map_group
+        self.__native_object = concept_map_group
+
+    @property
+    def _native_object(self) -> NativeConceptMapGroup:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def owner(self) -> Concept:
-        return concept_factory.wrap_concept(concept_map_group_get_owner(self._concept_map_group))
+        return concept_factory.wrap_concept(concept_map_group_get_owner(self.native_object))
 
     def concept_maps(self) -> Iterator[ConceptMap]:
-        return map(_ConceptMap, IteratorWrapper(concept_map_group_get_concept_maps(self._concept_map_group),
+        return map(_ConceptMap, IteratorWrapper(concept_map_group_get_concept_maps(self.native_object),
                                                 concept_map_iterator_next))
 
     def __repr__(self):
-        return concept_map_group_to_string(self._concept_map_group)
+        return concept_map_group_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(other) != type(self):
             return False
-        return concept_map_group_equals(self._concept_map_group, other._concept_map_group)
+        return concept_map_group_equals(self.native_object, other.native_object)
 
     def __hash__(self):
         return hash((self.owner(), tuple(self.concept_maps())))

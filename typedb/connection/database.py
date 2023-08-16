@@ -22,9 +22,10 @@
 from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
-from typedb.api.connection import database
+from typedb.api.connection.database import Database, Replica
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.native_client_wrapper import database_get_name, database_schema, database_delete, database_rule_schema, \
     database_type_schema, ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, \
     replica_info_get_term, database_get_replicas_info, database_get_primary_replica_info, \
@@ -34,76 +35,67 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Database as NativeDatabase
 
 
-class _Database(database.Database):
+class _Database(Database, NativeObjectMixin):
 
     def __init__(self, database: NativeDatabase):
         if not database:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self._native_object = database
+        self.__native_object = database
         self._name = database_get_name(database)
 
     @property
-    def native_object(self):
-        return self._native_object
+    def _native_object(self) -> NativeDatabase:
+        return self.__native_object
 
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(DATABASE_DELETED)
+
+    @property
     def name(self) -> str:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
+        if not self._native_object.thisown:
+            raise self._native_object_not_owned_exception
         return self._name
 
     def schema(self) -> str:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         return database_schema(self.native_object)
 
     def rule_schema(self) -> str:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         return database_rule_schema(self.native_object)
 
     def type_schema(self) -> str:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         return database_type_schema(self.native_object)
 
     def delete(self) -> None:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         self.native_object.thisown = 0
-        database_delete(self.native_object)
+        database_delete(self._native_object)
 
     def replicas(self) -> set[Replica]:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         repl_iter = IteratorWrapper(database_get_replicas_info(self.native_object), replica_info_iterator_next)
         return set(_Database.Replica(replica_info) for replica_info in repl_iter)
 
     def primary_replica(self) -> Optional[Replica]:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         if res := database_get_primary_replica_info(self.native_object):
             return _Database.Replica(res)
         return None
 
     def preferred_replica(self) -> Optional[Replica]:
-        if not self.native_object.thisown:
-            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, self._name)
         if res := database_get_preferred_replica_info(self.native_object):
             return _Database.Replica(res)
         return None
 
     def __str__(self):
-        return self.name()
+        return self.name
 
     def __repr__(self):
         return f"Database('{str(self)}')"
 
-    class Replica(database.Replica):
+    class Replica(Replica):
 
         def __init__(self, replica_info: ReplicaInfo):
             self._info = replica_info
 
-        def database(self) -> database.Database:
+        def database(self) -> Database:
             pass
 
         def address(self) -> str:

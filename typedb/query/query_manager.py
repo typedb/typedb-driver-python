@@ -24,7 +24,8 @@ from typing import TYPE_CHECKING, Iterator, Optional
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.query_manager import QueryManager
-from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED, MISSING_QUERY
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_QUERY, TRANSACTION_CLOSED
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.answer.concept_map_group import _ConceptMapGroup
@@ -45,16 +46,22 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
-class _QueryManager(QueryManager):
+class _QueryManager(QueryManager, NativeObjectMixin):
 
     def __init__(self, transaction: NativeTransaction):
         self._transaction = transaction
 
     @property
-    def _native_transaction(self):
-        if not self._transaction.thisown:
-            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+    def _native_object(self) -> NativeTransaction:
         return self._transaction
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+
+    @property
+    def _native_transaction(self) -> NativeTransaction:
+        return self.native_object
 
     def match(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
         if not query:

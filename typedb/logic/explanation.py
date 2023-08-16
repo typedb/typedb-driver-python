@@ -23,8 +23,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.explanation import Explanation
-from typedb.common.exception import TypeDBClientExceptionExt, MISSING_VARIABLE, NULL_NATIVE_OBJECT
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
 from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
@@ -37,39 +38,47 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Explanation as NativeExplanation
 
 
-class _Explanation(Explanation):
+class _Explanation(Explanation, NativeObjectMixin):
 
     def __init__(self, explanation: NativeExplanation):
         if not explanation:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
         self._explanation = explanation
 
+    @property
+    def _native_object(self) -> NativeExplanation:
+        return self._explanation
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
+
     def rule(self) -> Rule:
-        return _Rule(explanation_get_rule(self._explanation))
+        return _Rule(explanation_get_rule(self.native_object))
 
     def conclusion(self) -> ConceptMap:
-        return _ConceptMap(explanation_get_conclusion(self._explanation))
+        return _ConceptMap(explanation_get_conclusion(self.native_object))
 
     def condition(self) -> ConceptMap:
-        return _ConceptMap(explanation_get_condition(self._explanation))
+        return _ConceptMap(explanation_get_condition(self.native_object))
 
     def query_variables(self) -> set[str]:
-        return set(IteratorWrapper(explanation_get_mapped_variables(self._explanation), string_iterator_next))
+        return set(IteratorWrapper(explanation_get_mapped_variables(self.native_object), string_iterator_next))
 
     def query_variable_mapping(self, var: str) -> set[str]:
         if not var:
             raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-        return set(IteratorWrapper(explanation_get_mapping(self._explanation, var), string_iterator_next))
+        return set(IteratorWrapper(explanation_get_mapping(self.native_object, var), string_iterator_next))
 
     def __repr__(self):
-        return explanation_to_string(self._explanation)
+        return explanation_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return explanation_equals(self._explanation, other._explanation)
+        return explanation_equals(self.native_object, other.native_object)
 
     def __hash__(self):
         return hash((self.rule(), self.condition(), self.conclusion()))

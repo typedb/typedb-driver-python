@@ -101,15 +101,15 @@ class _ValueType:
         self._is_keyable = is_keyable
         self._native_object = native_object
 
+    @property
+    def native_object(self):
+        return self._native_object
+
     def is_writable(self) -> bool:
         return self._is_writable
 
     def is_keyable(self) -> bool:
         return self._is_keyable
-
-    @property
-    def native_object(self):
-        return self._native_object
 
 
 class ValueType(Enum):

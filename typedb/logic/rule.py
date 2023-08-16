@@ -23,7 +23,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.api.logic.rule import Rule
-from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, NULL_NATIVE_OBJECT
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, NULL_NATIVE_OBJECT, ILLEGAL_STATE
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.native_client_wrapper import rule_get_when, rule_get_then, rule_get_label, rule_set_label, rule_delete, \
     rule_is_deleted, rule_to_string
 
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Rule as NativeRule
 
 
-class _Rule(Rule):
+class _Rule(Rule, NativeObjectMixin):
 
     def __init__(self, rule: NativeRule):
         if not rule:
@@ -41,35 +42,46 @@ class _Rule(Rule):
         self._when = rule_get_when(self._rule)
         self._then = rule_get_then(self._rule)
 
-    def get_label(self) -> str:
-        return rule_get_label(self._rule)
+    @property
+    def _native_object(self) -> NativeRule:
+        return self._rule
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
+
+    @property
+    def label(self) -> str:
+        return rule_get_label(self.native_object)
 
     def set_label(self, transaction: _Transaction, new_label: str) -> None:
         if not new_label:
             raise TypeDBClientExceptionExt(MISSING_LABEL)
-        rule_set_label(transaction.logic, self._rule, new_label)
+        rule_set_label(transaction.logic, self.native_object, new_label)
 
-    def get_when(self) -> str:
+    @property
+    def when(self) -> str:
         return self._when
 
-    def get_then(self) -> str:
+    @property
+    def then(self) -> str:
         return self._then
 
     def delete(self, transaction: _Transaction) -> None:
-        rule_delete(transaction.logic, self._rule)
+        rule_delete(transaction.logic, self.native_object)
 
     def is_deleted(self, transaction: _Transaction) -> bool:
-        return rule_is_deleted(transaction.logic, self._rule)
+        return rule_is_deleted(transaction.logic, self.native_object)
 
     def __repr__(self):
-        return rule_to_string(self._rule)
+        return rule_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self.get_label() == other.get_label()
+        return self.label == other.label
 
     def __hash__(self):
-        return hash(self.get_label())
+        return hash(self.label)

@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED, TypeDBException
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
@@ -34,20 +35,28 @@ from typedb.native_client_wrapper import error_code, error_message, transaction_
 if TYPE_CHECKING:
     from typedb.connection.session import _Session
     from typedb.api.connection.transaction import TransactionType
-    from typedb.native_client_wrapper import Error as NativeError
+    from typedb.native_client_wrapper import Error as NativeError, Transaction as NativeTransaction
 
 
-class _Transaction(TypeDBTransaction):
+class _Transaction(TypeDBTransaction, NativeObjectMixin):
 
     def __init__(self, session: _Session, transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions()
         self._transaction_type = transaction_type
         self._options = options
-        self._native_object = transaction_new(session.native_object, transaction_type.value, options.native_object)
+        self.__native_object = transaction_new(session.native_object, transaction_type.value, options.native_object)
         self._concept_manager = _ConceptManager(self._native_object)
         self._query_manager = _QueryManager(self._native_object)
         self._logic_manager = _LogicManager(self._native_object)
+
+    @property
+    def _native_object(self) -> NativeTransaction:
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
 
     @property
     def transaction_type(self) -> TransactionType:
@@ -68,12 +77,6 @@ class _Transaction(TypeDBTransaction):
     @property
     def query(self) -> _QueryManager:
         return self._query_manager
-
-    @property
-    def native_object(self):
-        if not self._native_object.thisown:
-            raise TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
-        return self._native_object
 
     def is_open(self) -> bool:
         if not self.native_object.thisown:

@@ -24,6 +24,8 @@ from typing import TYPE_CHECKING, Optional
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import TypeDBSession
+from typedb.common.exception import TypeDBClientExceptionExt, SESSION_CLOSED
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.transaction import _Transaction
 
 from typedb.native_client_wrapper import session_new, session_on_close, session_force_close, session_is_open, \
@@ -36,7 +38,7 @@ if TYPE_CHECKING:
     from typedb.connection.database import _Database
 
 
-class _Session(TypeDBSession):
+class _Session(TypeDBSession, NativeObjectMixin):
 
     def __init__(self, database: _Database, session_type: SessionType, options: Optional[TypeDBOptions] = None):
         if not options:
@@ -45,11 +47,15 @@ class _Session(TypeDBSession):
         self._options = options
         native_database = database.native_object
         native_database.thisown = 0
-        self._native_object = session_new(native_database, session_type.value, options.native_object)
+        self.__native_object = session_new(native_database, session_type.value, options.native_object)
 
     @property
-    def native_object(self):
-        return self._native_object
+    def _native_object(self):
+        return self.__native_object
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(SESSION_CLOSED)
 
     def is_open(self) -> bool:
         return session_is_open(self.native_object)
