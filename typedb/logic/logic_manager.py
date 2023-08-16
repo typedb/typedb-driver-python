@@ -37,6 +37,12 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
+def _not_blank_label(label: str) -> str:
+    if not label or label.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_LABEL)
+    return label
+
+
 class _LogicManager(LogicManager, NativeObjectMixin):
 
     def __init__(self, transaction: NativeTransaction):
@@ -55,9 +61,7 @@ class _LogicManager(LogicManager, NativeObjectMixin):
         return self.native_object
 
     def get_rule(self, label: str) -> Optional[Rule]:
-        if not label:
-            raise TypeDBClientExceptionExt(MISSING_LABEL)
-        if rule := logic_manager_get_rule(self._transaction, label):
+        if rule := logic_manager_get_rule(self._transaction, _not_blank_label(label)):
             return _Rule(rule)
         return None
 
@@ -65,6 +69,4 @@ class _LogicManager(LogicManager, NativeObjectMixin):
         return map(_Rule, IteratorWrapper(logic_manager_get_rules(self._transaction), rule_iterator_next))
 
     def put_rule(self, label: str, when: str, then: str):
-        if not label:
-            raise TypeDBClientExceptionExt(MISSING_LABEL)
-        return _Rule(logic_manager_put_rule(self._transaction, label, when, then))
+        return _Rule(logic_manager_put_rule(self._transaction, _not_blank_label(label), when, then))

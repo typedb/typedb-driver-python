@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 
 def _not_blank(name: str) -> str:
-    if name in [None, ""] or name.isspace():
+    if not name or name.isspace():
         raise TypeDBClientExceptionExt.of(MISSING_DB_NAME)
     return name
 

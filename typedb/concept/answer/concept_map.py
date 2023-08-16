@@ -43,6 +43,12 @@ if TYPE_CHECKING:
         Explainable as NativeExplainable
 
 
+def _not_blank_var(var: str) -> str:
+    if not var or var.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_VARIABLE)
+    return var
+
+
 class _ConceptMap(ConceptMap, NativeObjectMixin):
 
     def __init__(self, concept_map: NativeConceptMap):
@@ -66,9 +72,7 @@ class _ConceptMap(ConceptMap, NativeObjectMixin):
                                                                  concept_iterator_next))
 
     def get(self, variable: str) -> Concept:
-        if not variable:
-            raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-        concept = concept_map_get(self.native_object, variable)
+        concept = concept_map_get(self.native_object, _not_blank_var(variable))
         if not concept:
             raise TypeDBClientExceptionExt.of(VARIABLE_DOES_NOT_EXIST, variable)
         return concept_factory.wrap_concept(concept)
@@ -105,25 +109,19 @@ class _ConceptMap(ConceptMap, NativeObjectMixin):
             return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
         def relation(self, variable: str) -> ConceptMap.Explainable:
-            if not variable:
-                raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-            explainable = explainables_get_relation(self.native_object, variable)
+            explainable = explainables_get_relation(self.native_object, _not_blank_var(variable))
             if not explainable:
                 raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
             return _ConceptMap.Explainable(explainable)
 
         def attribute(self, variable: str) -> ConceptMap.Explainable:
-            if not variable:
-                raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-            explainable = explainables_get_attribute(self.native_object, variable)
+            explainable = explainables_get_attribute(self.native_object, _not_blank_var(variable))
             if not explainable:
                 raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
             return _ConceptMap.Explainable(explainable)
 
         def ownership(self, owner: str, attribute: str) -> ConceptMap.Explainable:
-            if not owner or not attribute:
-                raise TypeDBClientExceptionExt(MISSING_VARIABLE)
-            explainable = explainables_get_ownership(self.native_object, owner, attribute)
+            explainable = explainables_get_ownership(self.native_object, _not_blank_var(owner), _not_blank_var(attribute))
             if not explainable:
                 raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_OWNERSHIP, (owner, attribute))
             return _ConceptMap.Explainable(explainable)

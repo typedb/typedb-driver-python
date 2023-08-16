@@ -44,6 +44,18 @@ if TYPE_CHECKING:
     from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
+def _not_blank_label(label: str) -> str:
+    if not label or label.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_LABEL)
+    return label
+
+
+def _not_blank_iid(iid: str) -> str:
+    if not iid or iid.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_IID)
+    return iid
+
+
 class _ConceptManager(ConceptManager, NativeObjectMixin):
 
     def __init__(self, transaction: NativeTransaction):
@@ -71,59 +83,42 @@ class _ConceptManager(ConceptManager, NativeObjectMixin):
         return self.get_attribute_type("attribute")
 
     def get_entity_type(self, label: str) -> Optional[_EntityType]:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        if _type := concepts_get_entity_type(self.native_transaction, label):
+        if _type := concepts_get_entity_type(self.native_transaction, _not_blank_label(label)):
             return _EntityType(_type)
         return None
 
     def get_relation_type(self, label: str) -> Optional[_RelationType]:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        if _type := concepts_get_relation_type(self.native_transaction, label):
+        if _type := concepts_get_relation_type(self.native_transaction, _not_blank_label(label)):
             return _RelationType(_type)
         return None
 
     def get_attribute_type(self, label: str) -> Optional[_AttributeType]:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        if _type := concepts_get_attribute_type(self.native_transaction, label):
+        if _type := concepts_get_attribute_type(self.native_transaction, _not_blank_label(label)):
             return _AttributeType(_type)
         return None
 
     def put_entity_type(self, label: str) -> _EntityType:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        return _EntityType(concepts_put_entity_type(self.native_transaction, label))
+        return _EntityType(concepts_put_entity_type(self.native_transaction, _not_blank_label(label)))
 
     def put_relation_type(self, label: str) -> _RelationType:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        return _RelationType(concepts_put_relation_type(self.native_transaction, label))
+        return _RelationType(concepts_put_relation_type(self.native_transaction, _not_blank_label(label)))
 
     def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
-        if not label:
-            raise TypeDBClientExceptionExt.of(MISSING_LABEL)
-        return _AttributeType(concepts_put_attribute_type(self.native_transaction, label, value_type.native_object))
+        return _AttributeType(concepts_put_attribute_type(self.native_transaction, _not_blank_label(label),
+                                                          value_type.native_object))
 
     def get_entity(self, iid: str) -> Optional[_Entity]:
-        if not iid:
-            raise TypeDBClientExceptionExt.of(MISSING_IID)
-        if concept := concepts_get_entity(self.native_transaction, iid):
+        if concept := concepts_get_entity(self.native_transaction, _not_blank_iid(iid)):
             return _Entity(concept)
         return None
 
     def get_relation(self, iid: str) -> Optional[_Relation]:
-        if not iid:
-            raise TypeDBClientExceptionExt.of(MISSING_IID)
-        if concept := concepts_get_relation(self.native_transaction, iid):
+        if concept := concepts_get_relation(self.native_transaction, _not_blank_iid(iid)):
             return _Relation(concept)
         return None
 
     def get_attribute(self, iid: str) -> Optional[_Attribute]:
-        if not iid:
-            raise TypeDBClientExceptionExt.of(MISSING_IID)
-        if concept := concepts_get_attribute(self.native_transaction, iid):
+        if concept := concepts_get_attribute(self.native_transaction, _not_blank_iid(iid)):
             return _Attribute(concept)
         return None
 
