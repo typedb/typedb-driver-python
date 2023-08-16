@@ -67,7 +67,7 @@ def vaticle_typedb_driver_java():
     git_repository(
         name = "vaticle_typedb_driver_java",
         remote = "https://github.com/dmikhalin/typedb-client-java",
-        commit = "aed4c7dfab93c84b9e17a39c549fb880aea15ae3"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
+        commit = "be5f463890d788e6e148c7b2b39208d9e3e7469d"  # sync-marker: do not remove this comment, this is used for sync-dependencies by @vaticle_factory_tracing
     )
 #    native.local_repository(
 #        name = "vaticle_typedb_driver_java",
