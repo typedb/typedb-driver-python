@@ -20,16 +20,18 @@
 #
 
 from __future__ import annotations
+
 from abc import ABC
 from typing import TYPE_CHECKING, Iterator, Optional
+
+from typedb.native_client_wrapper import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
+    thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
 
 from typedb.api.concept.thing.thing import Thing
 from typedb.common.exception import TypeDBClientExceptionExt, GET_HAS_WITH_MULTIPLE_FILTERS
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.concept.concept_factory import wrap_attribute, wrap_relation, wrap_role_type
 from typedb.concept.concept import _Concept
-from typedb.native_client_wrapper import thing_get_iid, thing_get_is_inferred, thing_get_has, thing_get_relations, \
-    thing_get_playing, thing_set_has, thing_unset_has, thing_delete, thing_is_deleted, concept_iterator_next
+from typedb.concept.concept_factory import wrap_attribute, wrap_relation, wrap_role_type
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.annotation import Annotation

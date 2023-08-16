@@ -20,12 +20,14 @@
 #
 
 from __future__ import annotations
+
 from typing import Optional, TYPE_CHECKING
+
+from typedb.native_client_wrapper import user_get_username, user_get_password_expiry_seconds, user_password_update
 
 from typedb.api.user.user import User
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
 from typedb.common.native_object_mixin import NativeObjectMixin
-from typedb.native_client_wrapper import user_get_username, user_get_password_expiry_seconds, user_password_update
 
 if TYPE_CHECKING:
     from typedb.user.user_manager import _UserManager

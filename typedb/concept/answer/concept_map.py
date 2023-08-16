@@ -20,14 +20,8 @@
 #
 
 from __future__ import annotations
-from typing import Mapping, Iterator, TYPE_CHECKING
 
-from typedb.api.answer.concept_map import ConceptMap
-from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, \
-    NONEXISTENT_EXPLAINABLE_CONCEPT, NONEXISTENT_EXPLAINABLE_OWNERSHIP, NULL_NATIVE_OBJECT, VARIABLE_DOES_NOT_EXIST
-from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
-from typedb.concept import concept_factory
+from typing import Mapping, Iterator, TYPE_CHECKING
 
 from typedb.native_client_wrapper import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
     concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, concept_map_equals, \
@@ -35,6 +29,13 @@ from typedb.native_client_wrapper import concept_map_get_variables, string_itera
     explainables_get_relations_keys, explainables_get_attributes_keys, explainables_get_ownerships_keys, \
     string_pair_iterator_next, explainables_to_string, explainables_equals, explainable_get_conjunction, \
     explainable_get_id
+
+from typedb.api.answer.concept_map import ConceptMap
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, \
+    NONEXISTENT_EXPLAINABLE_CONCEPT, NONEXISTENT_EXPLAINABLE_OWNERSHIP, NULL_NATIVE_OBJECT, VARIABLE_DOES_NOT_EXIST
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.concept import concept_factory
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept

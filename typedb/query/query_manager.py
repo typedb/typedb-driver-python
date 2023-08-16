@@ -20,22 +20,24 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Iterator, Optional
+
+from typedb.native_client_wrapper import query_match, concept_map_iterator_next, query_match_group, \
+    concept_map_group_iterator_next, query_insert, query_update, query_explain, explanation_iterator_next, \
+    query_match_aggregate, numeric_group_iterator_next, query_match_group_aggregate, query_delete, query_define, \
+    query_undefine
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.query.query_manager import QueryManager
 from typedb.common.exception import TypeDBClientExceptionExt, MISSING_QUERY, TRANSACTION_CLOSED
-from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept.answer.concept_map_group import _ConceptMapGroup
 from typedb.concept.answer.numeric import _Numeric
 from typedb.concept.answer.numeric_group import _NumericGroup
 from typedb.logic.explanation import _Explanation
-from typedb.native_client_wrapper import query_match, concept_map_iterator_next, query_match_group, \
-    concept_map_group_iterator_next, query_insert, query_update, query_explain, explanation_iterator_next, \
-    query_match_aggregate, numeric_group_iterator_next, query_match_group_aggregate, query_delete, query_define, \
-    query_undefine
 
 if TYPE_CHECKING:
     from typedb.api.answer.concept_map import ConceptMap

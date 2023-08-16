@@ -20,17 +20,17 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
+
+from typedb.native_client_wrapper import session_new, session_on_close, session_force_close, session_is_open, \
+    session_get_database_name, SessionCallbackDirector
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.session import TypeDBSession
 from typedb.common.exception import TypeDBClientExceptionExt, SESSION_CLOSED
 from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.transaction import _Transaction
-
-from typedb.native_client_wrapper import session_new, session_on_close, session_force_close, session_is_open, \
-    session_get_database_name, SessionCallbackDirector
-
 
 if TYPE_CHECKING:
     from typedb.api.connection.session import SessionType

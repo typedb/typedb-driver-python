@@ -21,20 +21,16 @@
 
 from typing import Iterable
 
-from typedb.connection.client import _Client
-
-# Repackaging these symbols allows them to be imported from "typedb.client"
-
 from typedb.api.answer.concept_map import *  # noqa # pylint: disable=unused-import
 from typedb.api.answer.concept_map_group import *  # noqa # pylint: disable=unused-import
 from typedb.api.answer.numeric import *  # noqa # pylint: disable=unused-import
 from typedb.api.answer.numeric_group import *  # noqa # pylint: disable=unused-import
-
+from typedb.api.concept.concept import *  # noqa # pylint: disable=unused-import
+from typedb.api.concept.concept_manager import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.thing.attribute import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.thing.entity import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.thing.relation import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.thing.thing import *  # noqa # pylint: disable=unused-import
-
 from typedb.api.concept.type.annotation import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.attribute_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.entity_type import *  # noqa # pylint: disable=unused-import
@@ -42,28 +38,25 @@ from typedb.api.concept.type.relation_type import *  # noqa # pylint: disable=un
 from typedb.api.concept.type.role_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.thing_type import *  # noqa # pylint: disable=unused-import
 from typedb.api.concept.type.type import *  # noqa # pylint: disable=unused-import
-from typedb.api.concept.value import * # noqa # pylint: disable=unused-import
-
-from typedb.api.concept.concept import *  # noqa # pylint: disable=unused-import
-from typedb.api.concept.concept_manager import *  # noqa # pylint: disable=unused-import
-
+from typedb.api.concept.value import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.client import *
 from typedb.api.connection.credential import *
 from typedb.api.connection.database import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.options import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.session import *  # noqa # pylint: disable=unused-import
 from typedb.api.connection.transaction import *  # noqa # pylint: disable=unused-import
-from typedb.api.user.user import *  # noqa # pylint: disable=unused-import
-
 from typedb.api.logic.explanation import *  # noqa # pylint: disable=unused-import
 from typedb.api.logic.logic_manager import *  # noqa # pylint: disable=unused-import
 from typedb.api.logic.rule import *  # noqa # pylint: disable=unused-import
-
 from typedb.api.query.query_manager import *  # noqa # pylint: disable=unused-import
-
+from typedb.api.user.user import *  # noqa # pylint: disable=unused-import
 from typedb.common.exception import *  # noqa # pylint: disable=unused-import
 from typedb.common.label import *  # noqa # pylint: disable=unused-import
 from typedb.common.transitivity import *  # noqa # pylint: disable=unused-import
+from typedb.connection.client import _Client
+
+
+# Repackaging these symbols allows them to be imported from "typedb.client"
 
 
 class TypeDB:

@@ -20,13 +20,15 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import numeric_is_long, numeric_is_double, numeric_is_nan, \
+    numeric_get_long, numeric_get_double, numeric_to_string
 
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST, ILLEGAL_STATE, NULL_NATIVE_OBJECT
 from typedb.common.native_object_mixin import NativeObjectMixin
-from typedb.native_client_wrapper import numeric_is_long, numeric_is_double, numeric_is_nan, \
-    numeric_get_long, numeric_get_double, numeric_to_string
 
 if TYPE_CHECKING:
     from typedb.native_client_wrapper import Numeric as NativeNumeric

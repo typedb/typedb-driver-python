@@ -20,6 +20,7 @@
 #
 
 from __future__ import annotations
+
 from typing import Union, Any
 
 from typedb.native_client_wrapper import TypeDBClientException

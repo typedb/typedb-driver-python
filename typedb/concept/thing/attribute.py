@@ -23,6 +23,9 @@ from __future__ import annotations
 
 from typing import Any, Iterator, Mapping, Optional, TYPE_CHECKING, Union
 
+from typedb.native_client_wrapper import attribute_get_type, attribute_get_value, attribute_get_owners, \
+    concept_iterator_next
+
 from typedb.api.concept.thing.attribute import Attribute
 from typedb.api.concept.value.value import ValueType
 from typedb.common.iterator_wrapper import IteratorWrapper
@@ -30,8 +33,6 @@ from typedb.concept.concept_factory import wrap_attribute_type, wrap_thing, wrap
 from typedb.concept.thing.thing import _Thing
 from typedb.concept import type as type_
 from typedb.concept.value.value import _Value
-from typedb.native_client_wrapper import attribute_get_type, attribute_get_value, attribute_get_owners, \
-    concept_iterator_next
 
 if TYPE_CHECKING:
     from datetime import datetime

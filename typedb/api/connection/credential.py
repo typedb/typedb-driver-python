@@ -21,8 +21,9 @@
 
 from typing import Optional
 
-from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_CREDENTIAL_INCONSISTENT
 from typedb.native_client_wrapper import credential_new
+
+from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_CREDENTIAL_INCONSISTENT
 
 
 class TypeDBCredential:

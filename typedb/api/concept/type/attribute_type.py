@@ -20,12 +20,13 @@
 #
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, Iterator, Union
 
-from typedb.api.concept.value.value import ValueType
 from typedb.api.concept.type.thing_type import ThingType
+from typedb.api.concept.value.value import ValueType
 from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:

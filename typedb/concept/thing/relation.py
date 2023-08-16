@@ -20,7 +20,12 @@
 #
 
 from __future__ import annotations
+
 from typing import Iterator, Any, TYPE_CHECKING
+
+from typedb.native_client_wrapper import relation_get_type, relation_add_role_player, relation_remove_role_player, \
+    relation_get_players_by_role_type, relation_get_role_players, role_player_get_role_type, \
+    role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 
 from typedb.api.concept.thing.relation import Relation
 from typedb.api.concept.type.role_type import RoleType
@@ -28,9 +33,6 @@ from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.concept_factory import wrap_relation_type, wrap_role_type, wrap_thing
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.role_type import _RoleType
-from typedb.native_client_wrapper import relation_get_type, relation_add_role_player, relation_remove_role_player, \
-    relation_get_players_by_role_type, relation_get_role_players, role_player_get_role_type, \
-    role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.concept.thing.thing import Thing

@@ -20,9 +20,9 @@
 #
 
 from __future__ import annotations
+
 from typing import Optional
 
-from typedb.common.exception import TypeDBClientExceptionExt, POSITIVE_VALUE_REQUIRED
 from typedb.native_client_wrapper import options_new, options_has_infer, options_get_infer, options_set_infer, \
     options_get_trace_inference, options_has_trace_inference, options_set_trace_inference, options_get_explain, \
     options_has_explain, options_set_explain, options_has_parallel, options_get_parallel, options_set_parallel, \
@@ -33,6 +33,8 @@ from typedb.native_client_wrapper import options_new, options_has_infer, options
     options_set_transaction_timeout_millis, options_get_schema_lock_acquire_timeout_millis, \
     options_has_schema_lock_acquire_timeout_millis, options_set_schema_lock_acquire_timeout_millis, \
     options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica
+
+from typedb.common.exception import TypeDBClientExceptionExt, POSITIVE_VALUE_REQUIRED
 
 
 class TypeDBOptions:

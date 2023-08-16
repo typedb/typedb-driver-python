@@ -20,20 +20,21 @@
 #
 
 from __future__ import annotations
-from typing import Iterator, Optional, TYPE_CHECKING, Any
 
-from typedb.api.concept.type.role_type import RoleType
-from typedb.common.label import Label
-from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.transitivity import Transitivity
-from typedb.concept.concept_factory import wrap_relation, wrap_thing, wrap_relation_type, wrap_thing_type
-from typedb.concept.type.type import _Type
+from typing import Iterator, Optional, TYPE_CHECKING, Any
 
 from typedb.native_client_wrapper import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
     role_type_get_name, role_type_delete, role_type_is_deleted, role_type_set_label, role_type_get_supertype, \
     role_type_get_supertypes, role_type_get_subtypes, role_type_get_relation_instances, \
     role_type_get_player_instances, role_type_get_relation_type, role_type_get_relation_types, \
     role_type_get_player_types, concept_iterator_next
+
+from typedb.api.concept.type.role_type import RoleType
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.label import Label
+from typedb.common.transitivity import Transitivity
+from typedb.concept.concept_factory import wrap_relation, wrap_thing, wrap_relation_type, wrap_thing_type
+from typedb.concept.type.type import _Type
 
 if TYPE_CHECKING:
     from typedb.connection.transaction import _Transaction

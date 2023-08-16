@@ -20,16 +20,17 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
+    databases_all, database_iterator_next
 
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, ILLEGAL_STATE, MISSING_DB_NAME
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.database import _Database
-
-from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
-    databases_all, database_iterator_next
 
 if TYPE_CHECKING:
     from typedb.native_client_wrapper import Connection as NativeConnection, DatabaseManager as NativeDatabaseManager

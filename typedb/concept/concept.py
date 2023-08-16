@@ -20,13 +20,15 @@
 #
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import concept_to_string, concept_equals
 
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
 from typedb.common.native_object_mixin import NativeObjectMixin
-from typedb.native_client_wrapper import concept_to_string, concept_equals
 
 if TYPE_CHECKING:
     from typedb.native_client_wrapper import Concept as NativeConcept

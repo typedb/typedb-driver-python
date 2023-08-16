@@ -20,7 +20,12 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import error_code, error_message, transaction_new, transaction_commit, \
+    transaction_rollback, \
+    transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import TypeDBTransaction
@@ -29,8 +34,6 @@ from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
-from typedb.native_client_wrapper import error_code, error_message, transaction_new, transaction_commit, transaction_rollback, \
-    transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
 
 if TYPE_CHECKING:
     from typedb.connection.session import _Session

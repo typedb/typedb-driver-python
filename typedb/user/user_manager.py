@@ -20,15 +20,17 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
+
+from typedb.native_client_wrapper import user_manager_new, users_contains, users_create, users_delete, users_all, \
+    users_get, users_set_password, users_current_user, user_iterator_next
 
 from typedb.api.user.user import UserManager
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.user.user import _User
-from typedb.native_client_wrapper import user_manager_new, users_contains, users_create, users_delete, users_all, \
-    users_get, users_set_password, users_current_user, user_iterator_next
 
 if TYPE_CHECKING:
     from typedb.api.user.user import User

@@ -20,17 +20,19 @@
 #
 
 from __future__ import annotations
+
 from datetime import datetime, timezone
 from functools import singledispatchmethod
 from typing import Union
 
-from typedb.api.concept.value.value import Value, ValueType
-from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE, MISSING_VALUE
-from typedb.concept.concept import _Concept
 from typedb.native_client_wrapper import value_new_boolean, value_new_long, value_new_double, value_new_string, \
     value_new_date_time_from_millis, value_is_boolean, value_is_long, value_is_double, value_is_string, \
     value_is_date_time, value_get_boolean, value_get_long, value_get_double, value_get_string, \
     value_get_date_time_as_millis
+
+from typedb.api.concept.value.value import Value, ValueType
+from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE, ILLEGAL_STATE, MISSING_VALUE
+from typedb.concept.concept import _Concept
 
 
 class _Value(Value, _Concept):

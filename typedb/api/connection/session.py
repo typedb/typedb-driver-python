@@ -20,8 +20,9 @@
 #
 
 from __future__ import annotations
-from enum import Enum
+
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from typedb.native_client_wrapper import Data, Schema

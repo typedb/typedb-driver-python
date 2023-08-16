@@ -20,7 +20,11 @@
 #
 
 from __future__ import annotations
+
 from typing import Optional, TYPE_CHECKING
+
+from typedb.native_client_wrapper import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
+    connection_force_close
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
@@ -29,8 +33,6 @@ from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
 from typedb.user.user_manager import _UserManager
-from typedb.native_client_wrapper import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
-    connection_force_close
 
 if TYPE_CHECKING:
     from typedb.api.connection.credential import TypeDBCredential

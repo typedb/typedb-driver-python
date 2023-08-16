@@ -20,21 +20,23 @@
 #
 
 from __future__ import annotations
+
 from abc import abstractmethod, ABC
 from itertools import chain
 from typing import Optional, Iterator, TYPE_CHECKING, Any
 
-from typedb.api.concept.type.thing_type import ThingType
-from typedb.common.label import Label
-from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.transitivity import Transitivity
-from typedb.concept.concept_factory import wrap_attribute_type, wrap_role_type
-from typedb.concept.type.type import _Type
 from typedb.native_client_wrapper import thing_type_is_root, thing_type_is_abstract, \
     thing_type_get_label, thing_type_delete, thing_type_is_deleted, thing_type_set_label, thing_type_set_abstract, \
     thing_type_unset_abstract, thing_type_set_plays, thing_type_unset_plays, thing_type_set_owns, thing_type_get_owns, \
     thing_type_get_plays, thing_type_get_owns_overridden, thing_type_unset_owns, thing_type_get_syntax, \
     thing_type_get_plays_overridden, concept_iterator_next
+
+from typedb.api.concept.type.thing_type import ThingType
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.label import Label
+from typedb.common.transitivity import Transitivity
+from typedb.concept.concept_factory import wrap_attribute_type, wrap_role_type
+from typedb.concept.type.type import _Type
 
 if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType

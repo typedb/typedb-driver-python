@@ -20,7 +20,11 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
+
+from typedb.native_client_wrapper import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
+    logic_manager_put_rule
 
 from typedb.api.logic.logic_manager import LogicManager
 from typedb.api.logic.rule import Rule
@@ -28,9 +32,6 @@ from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, TRA
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.logic.rule import _Rule
-
-from typedb.native_client_wrapper import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
-    logic_manager_put_rule
 
 if TYPE_CHECKING:
     from typedb.native_client_wrapper import Transaction as NativeTransaction

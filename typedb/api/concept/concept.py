@@ -20,8 +20,9 @@
 #
 
 from __future__ import annotations
-from datetime import datetime
+
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Mapping, Union, TYPE_CHECKING
 
 from typedb.common.exception import TypeDBClientExceptionExt, INVALID_CONCEPT_CASTING

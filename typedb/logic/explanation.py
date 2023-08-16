@@ -20,7 +20,12 @@
 #
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
+    explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
+    explanation_get_mapping, explanation_to_string, explanation_equals
 
 from typedb.api.logic.explanation import Explanation
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, NULL_NATIVE_OBJECT
@@ -28,9 +33,6 @@ from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.native_object_mixin import NativeObjectMixin
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
-from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
-    explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
-    explanation_get_mapping, explanation_to_string, explanation_equals
 
 if TYPE_CHECKING:
     from typedb.api.answer.concept_map import ConceptMap

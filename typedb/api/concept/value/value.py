@@ -20,15 +20,16 @@
 #
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from typing import Mapping, Union
 
+from typedb.native_client_wrapper import Object, Boolean, Long, Double, String, DateTime
+
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE
-
-from typedb.native_client_wrapper import Object, Boolean, Long, Double, String, DateTime
 
 
 class Value(Concept, ABC):

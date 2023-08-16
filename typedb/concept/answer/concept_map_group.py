@@ -20,17 +20,18 @@
 #
 
 from __future__ import annotations
+
 from typing import Iterator, TYPE_CHECKING
+
+from typedb.native_client_wrapper import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
+    concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
 
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.native_object_mixin import NativeObjectMixin
-from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.concept import concept_factory
-
-from typedb.native_client_wrapper import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
-    concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
+from typedb.concept.answer.concept_map import _ConceptMap
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept

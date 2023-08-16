@@ -20,7 +20,13 @@
 #
 
 from __future__ import annotations
+
 from typing import Optional, TYPE_CHECKING
+
+from typedb.native_client_wrapper import concepts_get_entity_type, concepts_get_relation_type, \
+    concepts_get_attribute_type, concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, \
+    concepts_get_entity, concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, \
+    schema_exception_message, schema_exception_code
 
 from typedb.api.concept.concept_manager import ConceptManager
 from typedb.common.exception import TypeDBClientExceptionExt, TypeDBException, MISSING_LABEL, MISSING_IID, \
@@ -32,10 +38,6 @@ from typedb.concept.thing.relation import _Relation
 from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
-from typedb.native_client_wrapper import concepts_get_entity_type, concepts_get_relation_type, \
-    concepts_get_attribute_type, concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, \
-    concepts_get_entity, concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, \
-    schema_exception_message, schema_exception_code
 
 if TYPE_CHECKING:
     from typedb.api.concept.value.value import ValueType
