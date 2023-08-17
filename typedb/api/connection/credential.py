@@ -21,19 +21,20 @@
 
 from typing import Optional
 
-from typedb.native_client_wrapper import credential_new
+from typedb.native_client_wrapper import credential_new, Credential as NativeCredential
 
-from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_CREDENTIAL_INCONSISTENT
+from typedb.common.exception import TypeDBClientExceptionExt, CLUSTER_CREDENTIAL_INCONSISTENT, ILLEGAL_STATE
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class TypeDBCredential:
+class TypeDBCredential(NativeWrapper[NativeCredential]):
 
     def __init__(self, username: str, password: str, *, tls_root_ca_path: Optional[str] = None,
                  tls_enabled: bool = True):
         if tls_root_ca_path is not None and not tls_enabled:
             raise TypeDBClientExceptionExt.of(CLUSTER_CREDENTIAL_INCONSISTENT)
-        self._native_object = credential_new(username, password, tls_root_ca_path, tls_enabled)
+        super().__init__(credential_new(username, password, tls_root_ca_path, tls_enabled))
 
     @property
-    def native_object(self):
-        return self._native_object
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)

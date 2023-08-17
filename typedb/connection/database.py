@@ -21,33 +21,26 @@
 
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from typedb.native_client_wrapper import database_get_name, database_schema, database_delete, database_rule_schema, \
     database_type_schema, ReplicaInfo, replica_info_get_address, replica_info_is_primary, replica_info_is_preferred, \
     replica_info_get_term, database_get_replicas_info, database_get_primary_replica_info, \
-    database_get_preferred_replica_info, replica_info_iterator_next
+    database_get_preferred_replica_info, replica_info_iterator_next, Database as NativeDatabase
 
 from typedb.api.connection.database import Database, Replica
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
-
-if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Database as NativeDatabase
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class _Database(Database, NativeObjectMixin):
+class _Database(Database, NativeWrapper[NativeDatabase]):
 
     def __init__(self, database: NativeDatabase):
         if not database:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = database
+        super().__init__(database)
         self._name = database_get_name(database)
-
-    @property
-    def _native_object(self) -> NativeDatabase:
-        return self.__native_object
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

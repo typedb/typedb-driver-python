@@ -24,12 +24,12 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 
 from typedb.native_client_wrapper import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
-    connection_force_close
+    connection_force_close, Connection as NativeConnection
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
 from typedb.common.exception import TypeDBClientExceptionExt, CLIENT_CLOSED
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.connection.database_manager import _DatabaseManager
 from typedb.connection.session import _Session
 from typedb.user.user_manager import _UserManager
@@ -38,22 +38,18 @@ if TYPE_CHECKING:
     from typedb.api.connection.credential import TypeDBCredential
     from typedb.api.connection.session import SessionType
     from typedb.api.user.user import UserManager, User
-    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
-class _Client(TypeDBClient, NativeObjectMixin):
+class _Client(TypeDBClient, NativeWrapper[NativeConnection]):
 
     def __init__(self, addresses: list[str], credential: Optional[TypeDBCredential] = None):
         if credential:
-            self.__native_connection = connection_open_encrypted(addresses, credential.native_object)
+            native_connection = connection_open_encrypted(addresses, credential.native_object)
         else:
-            self.__native_connection = connection_open_plaintext(addresses[0])
-        self._database_manager = _DatabaseManager(self.__native_connection)
-        self._user_manager = _UserManager(self.__native_connection)
-
-    @property
-    def _native_object(self) -> NativeConnection:
-        return self.__native_connection
+            native_connection = connection_open_plaintext(addresses[0])
+        super().__init__(native_connection)
+        self._database_manager = _DatabaseManager(native_connection)
+        self._user_manager = _UserManager(native_connection)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

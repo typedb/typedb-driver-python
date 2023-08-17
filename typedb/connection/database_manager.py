@@ -24,16 +24,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
-    databases_all, database_iterator_next
+    databases_all, database_iterator_next, DatabaseManager as NativeDatabaseManager
 
 from typedb.api.connection.database import DatabaseManager
 from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, ILLEGAL_STATE, MISSING_DB_NAME
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.connection.database import _Database
 
 if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Connection as NativeConnection, DatabaseManager as NativeDatabaseManager
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
 def _not_blank(name: str) -> str:
@@ -42,14 +42,10 @@ def _not_blank(name: str) -> str:
     return name
 
 
-class _DatabaseManager(DatabaseManager, NativeObjectMixin):
+class _DatabaseManager(DatabaseManager, NativeWrapper[NativeDatabaseManager]):
 
     def __init__(self, connection: NativeConnection):
-        self.__native_object = database_manager_new(connection)
-
-    @property
-    def _native_object(self) -> NativeDatabaseManager:
-        return self.__native_object
+        super().__init__(database_manager_new(connection))
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

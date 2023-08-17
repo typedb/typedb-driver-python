@@ -24,13 +24,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from typedb.native_client_wrapper import error_code, error_message, transaction_new, transaction_commit, \
-    transaction_rollback, \
-    transaction_is_open, transaction_on_close, transaction_force_close, TransactionCallbackDirector
+    transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, \
+    Transaction as NativeTransaction, TransactionCallbackDirector
 
 from typedb.api.connection.options import TypeDBOptions
 from typedb.api.connection.transaction import TypeDBTransaction
 from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED, TypeDBException
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
@@ -38,24 +38,20 @@ from typedb.query.query_manager import _QueryManager
 if TYPE_CHECKING:
     from typedb.connection.session import _Session
     from typedb.api.connection.transaction import TransactionType
-    from typedb.native_client_wrapper import Error as NativeError, Transaction as NativeTransaction
+    from typedb.native_client_wrapper import Error as NativeError
 
 
-class _Transaction(TypeDBTransaction, NativeObjectMixin):
+class _Transaction(TypeDBTransaction, NativeWrapper[NativeTransaction]):
 
     def __init__(self, session: _Session, transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
             options = TypeDBOptions()
         self._transaction_type = transaction_type
         self._options = options
-        self.__native_object = transaction_new(session.native_object, transaction_type.value, options.native_object)
+        super().__init__(transaction_new(session.native_object, transaction_type.value, options.native_object))
         self._concept_manager = _ConceptManager(self._native_object)
         self._query_manager = _QueryManager(self._native_object)
         self._logic_manager = _LogicManager(self._native_object)
-
-    @property
-    def _native_object(self) -> NativeTransaction:
-        return self.__native_object
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

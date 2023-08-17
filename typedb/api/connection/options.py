@@ -32,12 +32,13 @@ from typedb.native_client_wrapper import options_new, options_has_infer, options
     options_has_transaction_timeout_millis, options_get_transaction_timeout_millis, \
     options_set_transaction_timeout_millis, options_get_schema_lock_acquire_timeout_millis, \
     options_has_schema_lock_acquire_timeout_millis, options_set_schema_lock_acquire_timeout_millis, \
-    options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica
+    options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica, Options as NativeOptions
 
-from typedb.common.exception import TypeDBClientExceptionExt, POSITIVE_VALUE_REQUIRED
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, POSITIVE_VALUE_REQUIRED
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class TypeDBOptions:
+class TypeDBOptions(NativeWrapper[NativeOptions]):
 
     def __init__(self, *,
                  infer: Optional[bool] = None,
@@ -51,7 +52,7 @@ class TypeDBOptions:
                  schema_lock_acquire_timeout_millis: Optional[int] = None,
                  read_any_replica: Optional[bool] = None,
                  ):
-        self._native_object = options_new()
+        super().__init__(options_new())
         if infer is not None:
             self.infer = infer
         if trace_inference is not None:
@@ -74,8 +75,8 @@ class TypeDBOptions:
             self.read_any_replica = read_any_replica
 
     @property
-    def native_object(self):
-        return self._native_object
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     @property
     def infer(self) -> Optional[bool]:

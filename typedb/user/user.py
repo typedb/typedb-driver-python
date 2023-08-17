@@ -23,26 +23,22 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-from typedb.native_client_wrapper import user_get_username, user_get_password_expiry_seconds, user_password_update
+from typedb.native_client_wrapper import user_get_username, user_get_password_expiry_seconds, user_password_update, \
+    User as NativeUser
 
 from typedb.api.user.user import User
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 
 if TYPE_CHECKING:
     from typedb.user.user_manager import _UserManager
-    from typedb.native_client_wrapper import User as NativeUser
 
 
-class _User(User, NativeObjectMixin):
+class _User(User, NativeWrapper[NativeUser]):
 
     def __init__(self, user: NativeUser, user_manager: _UserManager):
-        self.__native_object = user
+        super().__init__(user)
         self._user_manager = user_manager
-
-    @property
-    def _native_object(self) -> NativeUser:
-        return self.__native_object
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

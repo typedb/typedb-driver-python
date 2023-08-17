@@ -22,17 +22,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from typedb.common.exception import TypeDBClientExceptionExt
 
 
-class NativeObjectMixin(ABC):
+T = TypeVar("T")
 
-    @property
-    @abstractmethod
-    def _native_object(self) -> Any:
-        pass
+
+class NativeWrapper(ABC, Generic[T]):
+
+    def __init__(self, native_object: T):
+        self._native_object = native_object
 
     @property
     @abstractmethod

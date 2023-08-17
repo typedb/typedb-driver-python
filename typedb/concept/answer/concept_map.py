@@ -28,19 +28,18 @@ from typedb.native_client_wrapper import concept_map_get_variables, string_itera
     explainables_get_relation, explainables_get_attribute, explainables_get_ownership, \
     explainables_get_relations_keys, explainables_get_attributes_keys, explainables_get_ownerships_keys, \
     string_pair_iterator_next, explainables_to_string, explainables_equals, explainable_get_conjunction, \
-    explainable_get_id
+    explainable_get_id, ConceptMap as NativeConceptMap, Explainables as NativeExplainables, \
+    Explainable as NativeExplainable
 
 from typedb.api.answer.concept_map import ConceptMap
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, \
     NONEXISTENT_EXPLAINABLE_CONCEPT, NONEXISTENT_EXPLAINABLE_OWNERSHIP, NULL_NATIVE_OBJECT, VARIABLE_DOES_NOT_EXIST
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept import concept_factory
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
-    from typedb.native_client_wrapper import ConceptMap as NativeConceptMap, Explainables as NativeExplainables, \
-        Explainable as NativeExplainable
 
 
 def _not_blank_var(var: str) -> str:
@@ -49,16 +48,12 @@ def _not_blank_var(var: str) -> str:
     return var
 
 
-class _ConceptMap(ConceptMap, NativeObjectMixin):
+class _ConceptMap(ConceptMap, NativeWrapper[NativeConceptMap]):
 
     def __init__(self, concept_map: NativeConceptMap):
         if not concept_map:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = concept_map
-
-    @property
-    def _native_object(self) -> NativeConceptMap:
-        return self.__native_object
+        super().__init__(concept_map)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
@@ -93,16 +88,12 @@ class _ConceptMap(ConceptMap, NativeObjectMixin):
     def __hash__(self):
         return hash((tuple(self.variables()), tuple(self.concepts())))
 
-    class Explainables(ConceptMap.Explainables, NativeObjectMixin):
+    class Explainables(ConceptMap.Explainables, NativeWrapper[NativeExplainables]):
 
         def __init__(self, explainables: NativeExplainables):
             if not explainables:
                 raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-            self.__native_object = explainables
-
-        @property
-        def _native_object(self) -> NativeExplainables:
-            return self.__native_object
+            super().__init__(explainables)
 
         @property
         def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
@@ -154,16 +145,12 @@ class _ConceptMap(ConceptMap, NativeObjectMixin):
         def __hash__(self):
             return hash((tuple(self.relations()), tuple(self.attributes()), tuple(self.ownerships())))
 
-    class Explainable(ConceptMap.Explainable, NativeObjectMixin):
+    class Explainable(ConceptMap.Explainable, NativeWrapper[NativeExplainable]):
 
         def __init__(self, explainable: NativeExplainable):
             if not explainable:
                 raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-            self.__native_object = explainable
-
-        @property
-        def _native_object(self) -> NativeExplainable:
-            return self.__native_object
+            super().__init__(explainable)
 
         @property
         def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

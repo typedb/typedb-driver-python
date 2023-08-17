@@ -21,29 +21,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from typedb.native_client_wrapper import numeric_is_long, numeric_is_double, numeric_is_nan, \
-    numeric_get_long, numeric_get_double, numeric_to_string
+    numeric_get_long, numeric_get_double, numeric_to_string, Numeric as NativeNumeric
 
 from typedb.api.answer.numeric import Numeric
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_CAST, ILLEGAL_STATE, NULL_NATIVE_OBJECT
-from typedb.common.native_object_mixin import NativeObjectMixin
-
-if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Numeric as NativeNumeric
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class _Numeric(Numeric, NativeObjectMixin):
+class _Numeric(Numeric, NativeWrapper[NativeNumeric]):
 
     def __init__(self, numeric: NativeNumeric):
         if not numeric:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = numeric
-
-    @property
-    def _native_object(self) -> NativeNumeric:
-        return self.__native_object
+        super().__init__(numeric)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

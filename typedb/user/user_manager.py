@@ -24,27 +24,23 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from typedb.native_client_wrapper import user_manager_new, users_contains, users_create, users_delete, users_all, \
-    users_get, users_set_password, users_current_user, user_iterator_next
+    users_get, users_set_password, users_current_user, user_iterator_next, UserManager as NativeUserManager
 
 from typedb.api.user.user import UserManager
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.user.user import _User
 
 if TYPE_CHECKING:
     from typedb.api.user.user import User
-    from typedb.native_client_wrapper import Connection as NativeConnection, UserManager as NativeUserManager
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
-class _UserManager(UserManager, NativeObjectMixin):
+class _UserManager(UserManager, NativeWrapper[NativeUserManager]):
 
     def __init__(self, connection: NativeConnection):
-        self.__native_object = user_manager_new(connection)
-
-    @property
-    def _native_object(self) -> NativeUserManager:
-        return self.__native_object
+        super().__init__(user_manager_new(connection))
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

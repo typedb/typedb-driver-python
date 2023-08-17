@@ -22,28 +22,20 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-from typedb.native_client_wrapper import concept_to_string, concept_equals
+from typedb.native_client_wrapper import concept_to_string, concept_equals, Concept as NativeConcept
 
 from typedb.api.concept.concept import Concept
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
-from typedb.common.native_object_mixin import NativeObjectMixin
-
-if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Concept as NativeConcept
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class _Concept(Concept, NativeObjectMixin, ABC):
+class _Concept(Concept, NativeWrapper[NativeConcept], ABC):
 
     def __init__(self, concept: NativeConcept):
         if not concept:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = concept
-
-    @property
-    def _native_object(self) -> NativeConcept:
-        return self.__native_object
+        super().__init__(concept)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

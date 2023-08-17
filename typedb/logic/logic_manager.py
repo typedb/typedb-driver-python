@@ -21,20 +21,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from typedb.native_client_wrapper import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
-    logic_manager_put_rule
+    logic_manager_put_rule, Transaction as NativeTransaction
 
 from typedb.api.logic.logic_manager import LogicManager
 from typedb.api.logic.rule import Rule
 from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, TRANSACTION_CLOSED
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.logic.rule import _Rule
-
-if TYPE_CHECKING:
-    from typedb.native_client_wrapper import Transaction as NativeTransaction
 
 
 def _not_blank_label(label: str) -> str:
@@ -43,14 +40,10 @@ def _not_blank_label(label: str) -> str:
     return label
 
 
-class _LogicManager(LogicManager, NativeObjectMixin):
+class _LogicManager(LogicManager, NativeWrapper[NativeTransaction]):
 
     def __init__(self, transaction: NativeTransaction):
-        self._transaction = transaction
-
-    @property
-    def _native_object(self) -> NativeTransaction:
-        return self._transaction
+        super().__init__(transaction)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
@@ -61,12 +54,12 @@ class _LogicManager(LogicManager, NativeObjectMixin):
         return self.native_object
 
     def get_rule(self, label: str) -> Optional[Rule]:
-        if rule := logic_manager_get_rule(self._transaction, _not_blank_label(label)):
+        if rule := logic_manager_get_rule(self._native_transaction, _not_blank_label(label)):
             return _Rule(rule)
         return None
 
     def get_rules(self):
-        return map(_Rule, IteratorWrapper(logic_manager_get_rules(self._transaction), rule_iterator_next))
+        return map(_Rule, IteratorWrapper(logic_manager_get_rules(self._native_transaction), rule_iterator_next))
 
     def put_rule(self, label: str, when: str, then: str):
-        return _Rule(logic_manager_put_rule(self._transaction, _not_blank_label(label), when, then))
+        return _Rule(logic_manager_put_rule(self._native_transaction, _not_blank_label(label), when, then))

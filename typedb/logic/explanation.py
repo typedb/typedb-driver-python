@@ -25,31 +25,26 @@ from typing import TYPE_CHECKING
 
 from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
     explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
-    explanation_get_mapping, explanation_to_string, explanation_equals
+    explanation_get_mapping, explanation_to_string, explanation_equals, Explanation as NativeExplanation
 
 from typedb.api.logic.explanation import Explanation
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
 
 if TYPE_CHECKING:
     from typedb.api.answer.concept_map import ConceptMap
     from typedb.api.logic.rule import Rule
-    from typedb.native_client_wrapper import Explanation as NativeExplanation
 
 
-class _Explanation(Explanation, NativeObjectMixin):
+class _Explanation(Explanation, NativeWrapper[NativeExplanation]):
 
     def __init__(self, explanation: NativeExplanation):
         if not explanation:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self._explanation = explanation
-
-    @property
-    def _native_object(self) -> NativeExplanation:
-        return self._explanation
+        super().__init__(explanation)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

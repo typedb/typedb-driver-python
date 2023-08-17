@@ -24,31 +24,27 @@ from __future__ import annotations
 from typing import Iterator, TYPE_CHECKING
 
 from typedb.native_client_wrapper import concept_map_group_get_owner, concept_map_group_get_concept_maps, \
-    concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals
+    concept_map_iterator_next, concept_map_group_to_string, concept_map_group_equals, \
+    ConceptMapGroup as NativeConceptMapGroup
 
 from typedb.api.answer.concept_map_group import ConceptMapGroup
 from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
 from typedb.common.iterator_wrapper import IteratorWrapper
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept import concept_factory
 from typedb.concept.answer.concept_map import _ConceptMap
 
 if TYPE_CHECKING:
     from typedb.api.concept.concept import Concept
     from typedb.api.answer.concept_map import ConceptMap
-    from typedb.native_client_wrapper import ConceptMapGroup as NativeConceptMapGroup
 
 
-class _ConceptMapGroup(ConceptMapGroup, NativeObjectMixin):
+class _ConceptMapGroup(ConceptMapGroup, NativeWrapper[NativeConceptMapGroup]):
 
     def __init__(self, concept_map_group: NativeConceptMapGroup):
         if not concept_map_group:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = concept_map_group
-
-    @property
-    def _native_object(self) -> NativeConceptMapGroup:
-        return self.__native_object
+        super().__init__(concept_map_group)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:

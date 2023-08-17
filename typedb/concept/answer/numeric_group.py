@@ -23,31 +23,26 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from typedb.native_client_wrapper import numeric_group_get_owner, \
-    numeric_group_get_numeric, numeric_group_to_string, numeric_group_equals
+from typedb.native_client_wrapper import numeric_group_get_owner, numeric_group_get_numeric, \
+    numeric_group_to_string, numeric_group_equals, NumericGroup as NativeNumericGroup
 
 from typedb.api.answer.numeric_group import NumericGroup
 from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT, ILLEGAL_STATE
-from typedb.common.native_object_mixin import NativeObjectMixin
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept import concept_factory
 from typedb.concept.answer.numeric import _Numeric
 
 if TYPE_CHECKING:
     from typedb.api.answer.numeric import Numeric
     from typedb.api.concept.concept import Concept
-    from typedb.native_client_wrapper import NumericGroup as NativeNumericGroup
 
 
-class _NumericGroup(NumericGroup, NativeObjectMixin):
+class _NumericGroup(NumericGroup, NativeWrapper[NativeNumericGroup]):
 
     def __init__(self, numeric_group: NativeNumericGroup):
         if not numeric_group:
             raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
-        self.__native_object = numeric_group
-
-    @property
-    def _native_object(self) -> NativeNumericGroup:
-        return self.__native_object
+        super().__init__(numeric_group)
 
     @property
     def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
