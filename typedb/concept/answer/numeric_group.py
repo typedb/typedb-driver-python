@@ -19,25 +19,47 @@
 # under the License.
 #
 
-import typedb_protocol.common.answer_pb2 as answer_proto
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import numeric_group_get_owner, numeric_group_get_numeric, \
+    numeric_group_to_string, numeric_group_equals, NumericGroup as NativeNumericGroup
 
 from typedb.api.answer.numeric_group import NumericGroup
+from typedb.common.exception import TypeDBClientExceptionExt, NULL_NATIVE_OBJECT, ILLEGAL_STATE
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.concept import concept_factory
 from typedb.concept.answer.numeric import _Numeric
-from typedb.concept.proto import concept_proto_reader
+
+if TYPE_CHECKING:
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.concept.concept import Concept
 
 
-class _NumericGroup(NumericGroup):
+class _NumericGroup(NumericGroup, NativeWrapper[NativeNumericGroup]):
 
-    def __init__(self, owner, numeric):
-        self._owner = owner
-        self._numeric = numeric
+    def __init__(self, numeric_group: NativeNumericGroup):
+        if not numeric_group:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+        super().__init__(numeric_group)
 
-    @staticmethod
-    def of(numeric_group_proto: answer_proto.NumericGroup):
-        return _NumericGroup(concept_proto_reader.concept(numeric_group_proto.owner), _Numeric.of(numeric_group_proto.number))
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-    def owner(self):
-        return self._owner
+    def owner(self) -> Concept:
+        return concept_factory.wrap_concept(numeric_group_get_owner(self.native_object))
 
-    def numeric(self):
-        return self._numeric
+    def numeric(self) -> Numeric:
+        return _Numeric(numeric_group_get_numeric(self.native_object))
+
+    def __repr__(self):
+        return numeric_group_to_string(self.native_object)
+
+    def __eq__(self, other):
+        return other and isinstance(other, NumericGroup) and \
+            numeric_group_equals(self.native_object, self.native_object)
+
+    def __hash__(self):
+        return hash((self.owner(), self.numeric()))

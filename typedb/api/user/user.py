@@ -20,7 +20,7 @@
 #
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Optional
 
 
 class User(ABC):
@@ -53,11 +53,11 @@ class UserManager(ABC):
         pass
 
     @abstractmethod
-    def get(self, username: str) -> User:
+    def get(self, username: str) -> Optional[User]:
         pass
 
     @abstractmethod
-    def all(self) -> List[User]:
+    def all(self) -> list[User]:
         pass
 
     @abstractmethod

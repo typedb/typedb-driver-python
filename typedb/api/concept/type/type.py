@@ -18,13 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Iterator, Mapping, TYPE_CHECKING
 
-from typedb.api.concept.concept import Concept, RemoteConcept
-from typedb.common.label import Label
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Iterator, Mapping, Optional, TYPE_CHECKING
+
+from typedb.api.concept.concept import Concept
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.common.label import Label
     from typedb.api.connection.transaction import TypeDBTransaction
 
 
@@ -32,6 +36,10 @@ class Type(Concept, ABC):
 
     @abstractmethod
     def get_label(self) -> Label:
+        pass
+
+    @abstractmethod
+    def set_label(self, transaction: TypeDBTransaction, new_label: Label) -> None:
         pass
 
     @abstractmethod
@@ -45,32 +53,22 @@ class Type(Concept, ABC):
     def is_type(self) -> bool:
         return True
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteType":
-        pass
-
     def to_json(self) -> Mapping[str, str]:
         return {"label": self.get_label().scoped_name()}
 
-
-class RemoteType(RemoteConcept, Type, ABC):
-
     @abstractmethod
-    def set_label(self, new_label: str) -> None:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[Type]:
         pass
 
     @abstractmethod
-    def is_abstract(self) -> bool:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[Type]:
         pass
 
     @abstractmethod
-    def get_supertype(self) -> Type:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[Type]:
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Iterator[Type]:
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[Type]:
+    def delete(self, transaction: TypeDBTransaction) -> None:
         pass

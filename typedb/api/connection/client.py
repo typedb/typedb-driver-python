@@ -18,12 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
 
-from typedb.api.connection.database import DatabaseManager, ClusterDatabaseManager
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.session import TypeDBSession, SessionType
-from typedb.api.connection.user import UserManager, User
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.connection.database import DatabaseManager
+    from typedb.api.connection.options import TypeDBOptions
+    from typedb.api.connection.session import TypeDBSession, SessionType
+    from typedb.api.user.user import UserManager, User
 
 
 class TypeDBClient(ABC):
@@ -32,20 +37,27 @@ class TypeDBClient(ABC):
     def is_open(self) -> bool:
         pass
 
+    @property
     @abstractmethod
     def databases(self) -> DatabaseManager:
         pass
 
     @abstractmethod
-    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> TypeDBSession:
-        pass
-
-    @abstractmethod
-    def is_cluster(self) -> bool:
+    def session(self, database: str, session_type: SessionType, options: Optional[TypeDBOptions] = None
+                ) -> TypeDBSession:
         pass
 
     @abstractmethod
     def close(self) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def users(self) -> UserManager:
+        pass
+
+    @abstractmethod
+    def user(self) -> User:
         pass
 
     @abstractmethod
@@ -54,19 +66,4 @@ class TypeDBClient(ABC):
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-
-class TypeDBClusterClient(TypeDBClient):
-
-    @abstractmethod
-    def databases(self) -> ClusterDatabaseManager:
-        pass
-
-    @abstractmethod
-    def users(self) -> UserManager:
-        pass
-
-    @abstractmethod
-    def user(self) -> User:
         pass

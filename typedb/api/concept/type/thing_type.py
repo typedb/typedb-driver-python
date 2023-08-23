@@ -18,17 +18,20 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from enum import Enum
-from typing import TYPE_CHECKING, Iterator, Optional, Set
 
-from typedb.api.concept.concept import ValueType
-from typedb.api.concept.thing.thing import Thing
-from typedb.api.concept.type.role_type import RoleType
-from typedb.api.concept.type.type import Type, RemoteType
-from typedb.common.exception import TypeDBClientException, BAD_ANNOTATION
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Iterator, Optional
+
+from typedb.api.concept.type.type import Type
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.api.concept.type.annotation import Annotation
+    from typedb.api.concept.thing.thing import Thing
+    from typedb.api.concept.type.role_type import RoleType
+    from typedb.api.concept.value.value import ValueType
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.connection.transaction import TypeDBTransaction
 
@@ -39,106 +42,70 @@ class ThingType(Type, ABC):
         return True
 
     @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteThingType":
-        pass
-
-
-class Annotation(object):
-
-    def __init__(self, name):
-        self._name = name
-
-    def name(self):
-        return self._name
-
-    def __repr__(self):
-        return self._name
-
-
-class Annotations(Annotation, Enum):
-    KEY = "key"
-    UNIQUE = "unique"
-
-    def __str__(self):
-        return "[annotation: " + self._name + "]"
-
-    @staticmethod
-    def parse_annotation(text) -> Annotation:
-        for annotation in Annotations:
-            if text == annotation.name():
-                return annotation
-        raise TypeDBClientException.of(BAD_ANNOTATION, text)
-
-
-class RemoteThingType(RemoteType, ThingType, ABC):
-
-    @abstractmethod
-    def get_supertype(self) -> ThingType:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[ThingType]:
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Iterator[ThingType]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Iterator[ThingType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_instances(self) -> Iterator["Thing"]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def set_abstract(self) -> None:
+    def set_abstract(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def unset_abstract(self) -> None:
+    def unset_abstract(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def set_plays(self, role_type: RoleType, overridden_type: RoleType = None) -> None:
+    def set_plays(self, transaction: TypeDBTransaction, role_type: RoleType,
+                  overriden_type: Optional[RoleType] = None) -> None:
         pass
 
     @abstractmethod
-    def set_owns(self, attribute_type: "AttributeType", overridden_type: "AttributeType" = None,
-                 annotations: Set["Annotation"] = frozenset()) -> None:
+    def unset_plays(self, transaction: TypeDBTransaction, role_type: RoleType) -> None:
         pass
 
     @abstractmethod
-    def get_plays(self) -> Iterator["RoleType"]:
+    def set_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType,
+                 overridden_type: Optional[AttributeType] = None,
+                 annotations: Optional[set[Annotation]] = None) -> None:
         pass
 
     @abstractmethod
-    def get_plays_explicit(self) -> Iterator["RoleType"]:
+    def unset_owns(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_plays_overridden(self, role_type: "RoleType") -> Optional["RoleType"]:
+    @abstractmethod
+    def get_plays(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                  ) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_owns(self, value_type: "ValueType" = None,
-                 annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
+    def get_plays_overridden(self, transaction: TypeDBTransaction, role_type: RoleType) -> Optional[RoleType]:
+        pass
+
+    def get_owns(self, transaction: TypeDBTransaction, value_type: Optional[ValueType] = None,
+                 transitivity: Transitivity = Transitivity.TRANSITIVE, annotations: Optional[set[Annotation]] = None
+                 ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_owns_explicit(self, value_type: "ValueType" = None,
-                          annotations: Set["Annotation"] = frozenset()) -> Iterator["AttributeType"]:
+    def get_owns_overridden(self, transaction: TypeDBTransaction, attribute_type: AttributeType
+                            ) -> Optional[AttributeType]:
         pass
 
     @abstractmethod
-    def get_owns_overridden(self, attribute_type: "AttributeType") -> Optional["AttributeType"]:
-        pass
-
-    @abstractmethod
-    def unset_plays(self, role_type: "RoleType") -> None:
-        pass
-
-    @abstractmethod
-    def unset_owns(self, attribute_type: "AttributeType") -> None:
-        pass
-
-    @abstractmethod
-    def get_syntax(self) -> str:
+    def get_syntax(self, transaction: TypeDBTransaction) -> str:
         pass

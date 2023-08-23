@@ -19,66 +19,104 @@
 # under the License.
 #
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
+from __future__ import annotations
 
-from typedb.api.concept.concept import ValueType
+from typing import Optional, TYPE_CHECKING
+
+from typedb.native_client_wrapper import concepts_get_entity_type, concepts_get_relation_type, \
+    concepts_get_attribute_type, concepts_put_entity_type, concepts_put_relation_type, concepts_put_attribute_type, \
+    concepts_get_entity, concepts_get_relation, concepts_get_attribute, concepts_get_schema_exceptions, \
+    schema_exception_message, schema_exception_code, Transaction as NativeTransaction
+
 from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.connection.transaction import _TypeDBTransactionExtended
-from typedb.common.rpc.request_builder import concept_manager_put_entity_type_req, \
-    concept_manager_put_relation_type_req, \
-    concept_manager_put_attribute_type_req, concept_manager_get_thing_type_req, concept_manager_get_thing_req
-from typedb.concept.proto import concept_proto_reader
+from typedb.common.exception import TypeDBClientExceptionExt, TypeDBException, MISSING_LABEL, MISSING_IID, \
+    TRANSACTION_CLOSED
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.concept.thing.attribute import _Attribute
+from typedb.concept.thing.entity import _Entity
+from typedb.concept.thing.relation import _Relation
+from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.type.entity_type import _EntityType
 from typedb.concept.type.relation_type import _RelationType
 
+if TYPE_CHECKING:
+    from typedb.api.concept.value.value import ValueType
 
-class _ConceptManager(ConceptManager):
 
-    def __init__(self, transaction_ext: _TypeDBTransactionExtended):
-        self._transaction_ext = transaction_ext
+def _not_blank_label(label: str) -> str:
+    if not label or label.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_LABEL)
+    return label
 
-    def get_root_thing_type(self):
-        return self.get_thing_type("thing")
 
-    def get_root_entity_type(self):
+def _not_blank_iid(iid: str) -> str:
+    if not iid or iid.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_IID)
+    return iid
+
+
+class _ConceptManager(ConceptManager, NativeWrapper[NativeTransaction]):
+
+    def __init__(self, transaction: NativeTransaction):
+        super().__init__(transaction)
+
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+
+    @property
+    def native_transaction(self) -> NativeTransaction:
+        return self.native_object
+
+    def get_root_entity_type(self) -> _EntityType:
         return self.get_entity_type("entity")
 
-    def get_root_relation_type(self):
+    def get_root_relation_type(self) -> _RelationType:
         return self.get_relation_type("relation")
 
-    def get_root_attribute_type(self):
+    def get_root_attribute_type(self) -> _AttributeType:
         return self.get_attribute_type("attribute")
 
-    def put_entity_type(self, label: str):
-        return _EntityType.of(self.execute(concept_manager_put_entity_type_req(label)).put_entity_type_res.entity_type)
+    def get_entity_type(self, label: str) -> Optional[_EntityType]:
+        if _type := concepts_get_entity_type(self.native_transaction, _not_blank_label(label)):
+            return _EntityType(_type)
+        return None
 
-    def get_entity_type(self, label: str):
-        _type = self.get_thing_type(label)
-        return _type if _type and _type.is_entity_type() else None
+    def get_relation_type(self, label: str) -> Optional[_RelationType]:
+        if _type := concepts_get_relation_type(self.native_transaction, _not_blank_label(label)):
+            return _RelationType(_type)
+        return None
 
-    def put_relation_type(self, label: str):
-        res = self.execute(concept_manager_put_relation_type_req(label))
-        return _RelationType.of(res.put_relation_type_res.relation_type)
+    def get_attribute_type(self, label: str) -> Optional[_AttributeType]:
+        if _type := concepts_get_attribute_type(self.native_transaction, _not_blank_label(label)):
+            return _AttributeType(_type)
+        return None
 
-    def get_relation_type(self, label: str):
-        _type = self.get_thing_type(label)
-        return _type if _type and _type.is_relation_type() else None
+    def put_entity_type(self, label: str) -> _EntityType:
+        return _EntityType(concepts_put_entity_type(self.native_transaction, _not_blank_label(label)))
 
-    def put_attribute_type(self, label: str, value_type: ValueType):
-        res = self.execute(concept_manager_put_attribute_type_req(label, value_type.proto()))
-        return concept_proto_reader.attribute_type(res.put_attribute_type_res.attribute_type)
+    def put_relation_type(self, label: str) -> _RelationType:
+        return _RelationType(concepts_put_relation_type(self.native_transaction, _not_blank_label(label)))
 
-    def get_attribute_type(self, label: str):
-        _type = self.get_thing_type(label)
-        return _type if _type and _type.is_attribute_type() else None
+    def put_attribute_type(self, label: str, value_type: ValueType) -> _AttributeType:
+        return _AttributeType(concepts_put_attribute_type(self.native_transaction, _not_blank_label(label),
+                                                          value_type.native_object))
 
-    def get_thing_type(self, label: str):
-        res = self.execute(concept_manager_get_thing_type_req(label))
-        return concept_proto_reader.thing_type(res.get_thing_type_res.thing_type) if res.get_thing_type_res.WhichOneof("res") == "thing_type" else None
+    def get_entity(self, iid: str) -> Optional[_Entity]:
+        if concept := concepts_get_entity(self.native_transaction, _not_blank_iid(iid)):
+            return _Entity(concept)
+        return None
 
-    def get_thing(self, iid: str):
-        res = self.execute(concept_manager_get_thing_req(iid))
-        return concept_proto_reader.thing(res.get_thing_res.thing) if res.get_thing_res.WhichOneof("res") == "thing" else None
+    def get_relation(self, iid: str) -> Optional[_Relation]:
+        if concept := concepts_get_relation(self.native_transaction, _not_blank_iid(iid)):
+            return _Relation(concept)
+        return None
 
-    def execute(self, req: transaction_proto.Transaction.Req):
-        return self._transaction_ext.execute(req).concept_manager_res
+    def get_attribute(self, iid: str) -> Optional[_Attribute]:
+        if concept := concepts_get_attribute(self.native_transaction, _not_blank_iid(iid)):
+            return _Attribute(concept)
+        return None
+
+    def get_schema_exception(self) -> list[TypeDBException]:
+        return [TypeDBException(schema_exception_code(e), schema_exception_message(e))
+                for e in concepts_get_schema_exceptions(self.native_transaction)]

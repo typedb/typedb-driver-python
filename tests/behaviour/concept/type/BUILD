@@ -18,28 +18,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Callable
 
-T = TypeVar('T')
-U = TypeVar('U')
+package(default_visibility = ["//tests/behaviour:__subpackages__"])
+load("@vaticle_dependencies//tool/checkstyle:rules.bzl", "checkstyle_test")
 
+py_library(
+    name = "steps",
+    srcs = ["thing_type_steps.py"],
+    deps = [],
+)
 
-class QueryFuture(Generic[T], ABC):
-
-    @abstractmethod
-    def get(self) -> T:
-        pass
-
-    def map(self, function: Callable[[T], U]) -> "QueryFuture[U]":
-        return _MappedQueryFuture(self, function)
-
-
-class _MappedQueryFuture(Generic[T, U], QueryFuture[U]):
-
-    def __init__(self, query_future: QueryFuture[T], function: Callable[[T], U]):
-        self._query_future = query_future
-        self._function = function
-
-    def get(self) -> U:
-        return self._function(self._query_future.get())
+checkstyle_test(
+    name = "checkstyle",
+    include = glob(["*"]),
+    license_type = "apache-header",
+    size = "small",
+)

@@ -35,7 +35,8 @@ DATA = SessionType.DATA
 
 def open_sessions_for_databases(context: Context, names: list, session_type):
     for name in names:
-        context.sessions.append(context.client.session(name, session_type, context.session_options))
+        sess = context.client.session(name, session_type, context.session_options)
+        context.sessions.append(sess)
 
 
 @step("connection open schema session for database: {database_name}")
@@ -118,11 +119,11 @@ def step_impl(context: Context, is_open):
         assert_that(future_session.result().is_open(), is_(is_open))
 
 
-def sessions_have_databases(context: Context, names: List[str]):
+def sessions_have_databases(context: Context, names: list[str]):
     assert_that(context.sessions, has_length(equal_to(len(names))))
     session_iter = iter(context.sessions)
     for name in names:
-        assert_that(next(session_iter).database().name(), is_(name))
+        assert_that(next(session_iter).database_name(), is_(name))
 
 
 @step("session has database: {database_name}")
@@ -144,15 +145,15 @@ def step_impl(context: Context):
     assert_that(context.sessions_parallel, has_length(equal_to(len(database_names))))
     future_session_iter = iter(context.sessions_parallel)
     for name in database_names:
-        assert_that(next(future_session_iter).result().database().name(), is_(name))
+        assert_that(next(future_session_iter).result().database_name(), is_(name))
+
 
 ######################################
 # session configuration              #
 ######################################
 
-@step("set session option {option} to: {value}")
-def step_impl(context: Context, option: str, value: str):
+@step("set session option {option} to: {value:Int}")
+def step_impl(context: Context, option: str, value: int):
     if option not in context.option_setters:
         raise Exception("Unrecognised option: " + option)
     context.option_setters[option](context.session_options, value)
-

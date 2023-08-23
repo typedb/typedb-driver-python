@@ -31,7 +31,8 @@ IGNORE_TAGS = ["ignore", "ignore-client-python", "ignore-typedb-client-python", 
 def before_all(context: Context):
     environment_base.before_all(context)
     context.credential_root_ca_path = os.environ["ROOT_CA"]
-    context.setup_context_client_fn = lambda user="admin", password="password": setup_context_client(context, user, password)
+    context.setup_context_client_fn = lambda user="admin", password="password": \
+        setup_context_client(context, user, password)
 
 
 def before_scenario(context: Context, scenario):
@@ -43,10 +44,11 @@ def before_scenario(context: Context, scenario):
 
 
 def setup_context_client(context, username, password):
-    credential = TypeDBCredential(username, password, context.credential_root_ca_path)
-    context.client = TypeDB.cluster_client(addresses=["127.0.0.1:" + context.config.userdata["port"]], credential=credential)
-    context.session_options = TypeDBOptions.cluster().set_infer(True)
-    context.transaction_options = TypeDBOptions.cluster().set_infer(True)
+    credential = TypeDBCredential(username, password, tls_root_ca_path=context.credential_root_ca_path)
+    context.client = TypeDB.cluster_client(addresses=["localhost:" + context.config.userdata["port"]],
+                                           credential=credential)
+    context.session_options = TypeDBOptions(infer=True)
+    context.transaction_options = TypeDBOptions(infer=True)
 
 
 def after_scenario(context: Context, scenario):
@@ -54,12 +56,12 @@ def after_scenario(context: Context, scenario):
 
     # TODO: reset the database through the TypeDB runner once it exists
     context.setup_context_client_fn()
-    for database in context.client.databases().all():
+    for database in context.client.databases.all():
         database.delete()
 
-    for user in context.client.users().all():
+    for user in context.client.users.all():
         if user.username() != "admin":
-            context.client.users().delete(user.username())
+            context.client.users.delete(user.username())
     context.client.close()
 
 

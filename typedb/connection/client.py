@@ -18,72 +18,63 @@
 #   specific language governing permissions and limitations
 #   under the License.
 #
-from threading import Lock
-from typing import Dict
 
-from grpc import Channel
+from __future__ import annotations
+
+from typing import Optional, TYPE_CHECKING
+
+from typedb.native_client_wrapper import connection_open_plaintext, connection_open_encrypted, connection_is_open, \
+    connection_force_close, Connection as NativeConnection
 
 from typedb.api.connection.client import TypeDBClient
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.session import SessionType
-from typedb.common.concurrent.scheduled_executor import ScheduledExecutor
-from typedb.common.exception import CLIENT_NOT_OPEN, TypeDBClientException
-from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.database_manager import _TypeDBDatabaseManagerImpl
-from typedb.connection.session import _TypeDBSessionImpl
-from typedb.stream.request_transmitter import RequestTransmitter
+from typedb.common.exception import TypeDBClientExceptionExt, CLIENT_CLOSED
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.connection.database_manager import _DatabaseManager
+from typedb.connection.session import _Session
+from typedb.user.user_manager import _UserManager
+
+if TYPE_CHECKING:
+    from typedb.api.connection.credential import TypeDBCredential
+    from typedb.api.connection.session import SessionType
+    from typedb.api.user.user import UserManager, User
 
 
-class _TypeDBClientImpl(TypeDBClient):
-    _PULSE_INTERVAL_SECONDS = 5
+class _Client(TypeDBClient, NativeWrapper[NativeConnection]):
 
-    # TODO: Detect number of available CPUs
-    def __init__(self, address: str, parallelisation: int = 2):
-        self._address = address
-        self._transmitter = RequestTransmitter(parallelisation)
-        self._sessions: Dict[bytes, _TypeDBSessionImpl] = {}
-        self._sessions_lock = Lock()
-        self._pulse_executor = ScheduledExecutor()
-        self._pulse_executor.schedule_at_fixed_rate(interval=self._PULSE_INTERVAL_SECONDS, action=self._transmit_pulses)
+    def __init__(self, addresses: list[str], credential: Optional[TypeDBCredential] = None):
+        if credential:
+            native_connection = connection_open_encrypted(addresses, credential.native_object)
+        else:
+            native_connection = connection_open_plaintext(addresses[0])
+        super().__init__(native_connection)
+        self._database_manager = _DatabaseManager(native_connection)
+        self._user_manager = _UserManager(native_connection)
 
-    def session(self, database: str, session_type: SessionType, options=None) -> _TypeDBSessionImpl:
-        if not self.is_open():
-            raise TypeDBClientException.of(CLIENT_NOT_OPEN)
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(CLIENT_CLOSED)
 
-        if not options:
-            options = TypeDBOptions.core()
-        session = _TypeDBSessionImpl(self, database, session_type, options)
-        with self._sessions_lock:
-            self._sessions[session.session_id()] = session
-        return session
+    @property
+    def _native_connection(self) -> NativeConnection:
+        return self.native_object
 
-    def remove_session(self, session: _TypeDBSessionImpl) -> None:
-        with self._sessions_lock:
-            del self._sessions[session.session_id()]
-
-    def databases(self) -> _TypeDBDatabaseManagerImpl:
-        pass
+    def session(self, database: str, session_type: SessionType, options: TypeDBOptions = None) -> _Session:
+        return _Session(self.databases.get(database), session_type, options if options else TypeDBOptions())
 
     def is_open(self) -> bool:
-        return self._is_open
+        return connection_is_open(self._native_connection)
 
-    def address(self) -> str:
-        return self._address
+    @property
+    def databases(self) -> _DatabaseManager:
+        return self._database_manager
 
-    def channel(self) -> Channel:
-        pass
+    @property
+    def users(self) -> UserManager:
+        return self._user_manager
 
-    def stub(self) -> TypeDBStub:
-        pass
-
-    def new_channel_and_stub(self) -> (Channel, TypeDBStub):
-        pass
-
-    def transmitter(self) -> RequestTransmitter:
-        return self._transmitter
-
-    def is_cluster(self) -> bool:
-        return False
+    def user(self) -> User:
+        return self._user_manager.get_current_user()
 
     def __enter__(self):
         return self
@@ -94,17 +85,4 @@ class _TypeDBClientImpl(TypeDBClient):
             return False
 
     def close(self) -> None:
-        self._is_open = False
-        with self._sessions_lock:
-            sessions = self._sessions.copy()
-        for session in sessions.values():
-            session.close()
-        self._pulse_executor.shutdown()
-
-    def _transmit_pulses(self) -> None:
-        if not self.is_open():
-            return
-        with self._sessions_lock:
-            sessions = self._sessions.copy()
-        for session in sessions.values():
-            session.transmit_pulse()
+        connection_force_close(self._native_connection)

@@ -18,7 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import re
+
+from __future__ import annotations
+
+from enum import Enum
 
 import parse
 from behave import register_type
@@ -50,16 +53,16 @@ register_type(Float=parse_float)
 
 
 @parse.with_pattern("[\w_-]+")
-def parseWords(text):
+def parse_words(text):
     return text
 
 
-register_type(Words=parseWords)
+register_type(Words=parse_words)
 
 
 @parse.with_pattern(r"\d\d\d\d-\d\d-\d\d(?: \d\d:\d\d:\d\d)?")
 def parse_datetime_pattern(text: str) -> datetime:
-    return parse_datetime(str)
+    return parse_datetime(text)
 
 
 def parse_datetime(text: str) -> datetime:
@@ -116,12 +119,11 @@ register_type(Label=parse_label)
 
 
 @parse.with_pattern(r"(\s*([\w\-_]+,\s*)*[\w\-_]*\s*)")
-def parse_annotations(text: str) -> Set["Annotation"]:
-    split = text.split(",")
-    annotations = set()
-    for annotation in split:
-        annotations.add(Annotations.parse_annotation(annotation.strip()))
-    return annotations
+def parse_annotations(text: str) -> set[Annotation]:
+    try:
+        return {{"key": Annotation.key(), "unique": Annotation.unique()}[anno.strip()] for anno in text.split(",")}
+    except KeyError:
+        raise TypeDBClientException(UNRECOGNISED_ANNOTATION)
 
 
 register_type(Annotations=parse_annotations)
@@ -158,20 +160,20 @@ def parse_transaction_type(value: str) -> TransactionType:
 register_type(TransactionType=parse_transaction_type)
 
 
-def parse_list(table: Table) -> List[str]:
+def parse_list(table: Table) -> list[str]:
     return [table.headings[0]] + list(map(lambda row: row[0], table.rows))
 
 
-def parse_dict(table: Table) -> Dict[str, str]:
+def parse_dict(table: Table) -> dict[str, str]:
     result = {table.headings[0]: table.headings[1]}
     for row in table.rows:
         result[row[0]] = row[1]
     return result
 
 
-def parse_table(table: Table) -> List[List[Tuple[str, str]]]:
+def parse_table(table: Table) -> list[list[tuple[str, str]]]:
     """
-    Extracts the rows of a Table as lists of Tuples, where each Tuple contains the column header and the cell value.
+    Extracts the rows of a Table as lists of Tuples, where each tuple contains the column header and the cell value.
 
     For example, the table::
 

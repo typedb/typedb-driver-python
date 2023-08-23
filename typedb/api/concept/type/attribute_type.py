@@ -18,294 +18,87 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import enum
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING, Iterator, Set
+from typing import Optional, TYPE_CHECKING, Iterator, Union
 
-from typedb.api.concept.concept import ValueType
-from typedb.api.concept.thing.attribute import BooleanAttribute, LongAttribute, DoubleAttribute, StringAttribute, \
-    DateTimeAttribute, Attribute
-from typedb.api.concept.type.thing_type import ThingType, RemoteThingType, Annotation
+from typedb.api.concept.type.thing_type import ThingType
+from typedb.api.concept.value.value import ValueType
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.api.concept.value.value import Value
+    from typedb.api.concept.type.annotation import Annotation
+    from typedb.api.concept.thing.attribute import Attribute
     from typedb.api.connection.transaction import TypeDBTransaction
 
 
 class AttributeType(ThingType, ABC):
 
-    def get_value_type(self) -> "ValueType":
+    def get_value_type(self) -> ValueType:
         return ValueType.OBJECT
+
+    def as_attribute_type(self) -> AttributeType:
+        return self
 
     def is_attribute_type(self) -> bool:
         return True
 
     def is_boolean(self) -> bool:
-        return False
+        return self.get_value_type() == ValueType.BOOLEAN
 
     def is_long(self) -> bool:
-        return False
+        return self.get_value_type() == ValueType.LONG
 
     def is_double(self) -> bool:
-        return False
+        return self.get_value_type() == ValueType.DOUBLE
 
     def is_string(self) -> bool:
-        return False
+        return self.get_value_type() == ValueType.STRING
 
     def is_datetime(self) -> bool:
-        return False
+        return self.get_value_type() == ValueType.DATETIME
 
     @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteAttributeType":
+    def put(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]) -> Attribute:
         pass
 
     @abstractmethod
-    def as_boolean(self) -> "BooleanAttributeType":
+    def get(self, transaction: TypeDBTransaction, value: Union[Value, bool, int, float, str, datetime]
+            ) -> Optional[Attribute]:
         pass
 
     @abstractmethod
-    def as_long(self) -> "LongAttributeType":
+    def get_regex(self, transaction: TypeDBTransaction) -> str:
         pass
 
     @abstractmethod
-    def as_double(self) -> "DoubleAttributeType":
+    def set_regex(self, transaction: TypeDBTransaction, regex: str) -> None:
         pass
 
     @abstractmethod
-    def as_string(self) -> "StringAttributeType":
+    def unset_regex(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def as_datetime(self) -> "DateTimeAttributeType":
-        pass
-
-
-class RemoteAttributeType(RemoteThingType, AttributeType, ABC):
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: AttributeType) -> None:
+    def set_supertype(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> None:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Iterator[AttributeType]:
+    def get_subtypes_with_value_type(self, transaction: TypeDBTransaction, value_type: ValueType,
+                                     transitivity: Transitivity = Transitivity.TRANSITIVE
+                                     ) -> Iterator[AttributeType]:
         pass
 
     @abstractmethod
-    def get_instances(self) -> Iterator["Attribute"]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Attribute]:
         pass
 
     @abstractmethod
-    def get_owners(self, annotations: Set["Annotation"] = frozenset()) -> Iterator[ThingType]:
-        pass
-
-    @abstractmethod
-    def get_owners_explicit(self, annotations: Set["Annotation"] = frozenset()) -> Iterator[ThingType]:
-        pass
-
-    @abstractmethod
-    def as_boolean(self) -> "RemoteBooleanAttributeType":
-        pass
-
-    @abstractmethod
-    def as_long(self) -> "RemoteLongAttributeType":
-        pass
-
-    @abstractmethod
-    def as_double(self) -> "RemoteDoubleAttributeType":
-        pass
-
-    @abstractmethod
-    def as_string(self) -> "RemoteStringAttributeType":
-        pass
-
-    @abstractmethod
-    def as_datetime(self) -> "RemoteDateTimeAttributeType":
-        pass
-
-
-class BooleanAttributeType(AttributeType, ABC):
-
-    def get_value_type(self) -> ValueType:
-        return ValueType.BOOLEAN
-
-    def is_boolean(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteBooleanAttributeType":
-        pass
-
-
-class RemoteBooleanAttributeType(RemoteAttributeType, BooleanAttributeType, ABC):
-
-    @abstractmethod
-    def put(self, value: bool) -> "BooleanAttribute":
-        pass
-
-    @abstractmethod
-    def get(self, value: bool) -> "BooleanAttribute":
-        pass
-
-    @abstractmethod
-    def get_instances(self) -> Iterator["BooleanAttribute"]:
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[BooleanAttributeType]:
-        pass
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: BooleanAttributeType) -> None:
-        pass
-
-
-class LongAttributeType(AttributeType, ABC):
-
-    def get_value_type(self) -> ValueType:
-        return ValueType.LONG
-
-    def is_long(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteLongAttributeType":
-        pass
-
-
-class RemoteLongAttributeType(RemoteAttributeType, LongAttributeType, ABC):
-
-    @abstractmethod
-    def put(self, value: int) -> "LongAttribute":
-        pass
-
-    @abstractmethod
-    def get(self, value: int) -> "LongAttribute":
-        pass
-
-    @abstractmethod
-    def get_instances(self) -> Iterator["LongAttribute"]:
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[LongAttributeType]:
-        pass
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: LongAttributeType) -> None:
-        pass
-
-
-class DoubleAttributeType(AttributeType, ABC):
-
-    def get_value_type(self) -> ValueType:
-        return ValueType.DOUBLE
-
-    def is_double(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDoubleAttributeType":
-        pass
-
-
-class RemoteDoubleAttributeType(RemoteAttributeType, DoubleAttributeType, ABC):
-
-    @abstractmethod
-    def put(self, value: float) -> "DoubleAttribute":
-        pass
-
-    @abstractmethod
-    def get(self, value: float) -> "DoubleAttribute":
-        pass
-
-    @abstractmethod
-    def get_instances(self) -> Iterator["DoubleAttribute"]:
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[DoubleAttributeType]:
-        pass
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: DoubleAttributeType) -> None:
-        pass
-
-
-class StringAttributeType(AttributeType, ABC):
-
-    def get_value_type(self) -> ValueType:
-        return ValueType.STRING
-
-    def is_string(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteStringAttributeType":
-        pass
-
-
-class RemoteStringAttributeType(RemoteAttributeType, StringAttributeType, ABC):
-
-    @abstractmethod
-    def put(self, value: str) -> "StringAttribute":
-        pass
-
-    @abstractmethod
-    def get(self, value: str) -> "StringAttribute":
-        pass
-
-    @abstractmethod
-    def get_instances(self) -> Iterator["StringAttribute"]:
-        pass
-
-    @abstractmethod
-    def get_regex(self) -> Optional[str]:
-        pass
-
-    @abstractmethod
-    def set_regex(self, regex: Optional[str]):
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[StringAttributeType]:
-        pass
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: StringAttributeType) -> None:
-        pass
-
-
-class DateTimeAttributeType(AttributeType, ABC):
-
-    def get_value_type(self) -> ValueType:
-        return ValueType.DATETIME
-
-    def is_datetime(self) -> bool:
-        return True
-
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteDateTimeAttributeType":
-        pass
-
-
-class RemoteDateTimeAttributeType(RemoteAttributeType, DateTimeAttributeType, ABC):
-
-    @abstractmethod
-    def put(self, value: datetime) -> "DateTimeAttribute":
-        pass
-
-    @abstractmethod
-    def get(self, value: datetime) -> "DateTimeAttribute":
-        pass
-
-    @abstractmethod
-    def get_instances(self) -> Iterator["DateTimeAttribute"]:
-        pass
-
-    @abstractmethod
-    def get_subtypes(self) -> Iterator[DateTimeAttributeType]:
-        pass
-
-    @abstractmethod
-    def set_supertype(self, attribute_type: DateTimeAttributeType) -> None:
+    def get_owners(self, transaction: TypeDBTransaction, annotations: Optional[set[Annotation]] = None,
+                   transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[ThingType]:
         pass

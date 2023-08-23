@@ -19,138 +19,159 @@
 # under the License.
 #
 
-from typing import Mapping, Dict, Tuple
+from __future__ import annotations
 
-import typedb_protocol.common.answer_pb2 as answer_proto
+from typing import Mapping, Iterator, TYPE_CHECKING
+
+from typedb.native_client_wrapper import concept_map_get_variables, string_iterator_next, concept_map_get_values, \
+    concept_iterator_next, concept_map_get, concept_map_get_explainables, concept_map_to_string, concept_map_equals, \
+    explainables_get_relation, explainables_get_attribute, explainables_get_ownership, \
+    explainables_get_relations_keys, explainables_get_attributes_keys, explainables_get_ownerships_keys, \
+    string_pair_iterator_next, explainables_to_string, explainables_equals, explainable_get_conjunction, \
+    explainable_get_id, ConceptMap as NativeConceptMap, Explainables as NativeExplainables, \
+    Explainable as NativeExplainable
 
 from typedb.api.answer.concept_map import ConceptMap
-from typedb.api.concept.concept import Concept
-from typedb.common.exception import TypeDBClientException, VARIABLE_DOES_NOT_EXIST, NONEXISTENT_EXPLAINABLE_CONCEPT, \
-    NONEXISTENT_EXPLAINABLE_OWNERSHIP
-from typedb.concept.proto import concept_proto_reader
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, \
+    NONEXISTENT_EXPLAINABLE_CONCEPT, NONEXISTENT_EXPLAINABLE_OWNERSHIP, NULL_NATIVE_OBJECT, VARIABLE_DOES_NOT_EXIST
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.concept import concept_factory
+
+if TYPE_CHECKING:
+    from typedb.api.concept.concept import Concept
 
 
-class _ConceptMap(ConceptMap):
+def _not_blank_var(var: str) -> str:
+    if not var or var.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_VARIABLE)
+    return var
 
-    def __init__(self, mapping: Mapping[str, Concept], explainables: ConceptMap.Explainables = None):
-        self._map = mapping
-        self._explainables = explainables
 
-    @staticmethod
-    def of(res: answer_proto.ConceptMap) -> "_ConceptMap":
-        variable_map = {}
-        for res_var in res.map:
-            variable_map[res_var] = concept_proto_reader.concept(res.map[res_var])
-        return _ConceptMap(variable_map, _ConceptMap.Explainables.of(res.explainables))
+class _ConceptMap(ConceptMap, NativeWrapper[NativeConceptMap]):
 
-    def map(self):
-        return self._map
+    def __init__(self, concept_map: NativeConceptMap):
+        if not concept_map:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+        super().__init__(concept_map)
 
-    def concepts(self):
-        return self._map.values()
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-    def get(self, variable: str):
-        concept = self._map[variable]
+    def variables(self) -> Iterator[str]:
+        return IteratorWrapper(concept_map_get_variables(self.native_object), string_iterator_next)
+
+    def concepts(self) -> Iterator[Concept]:
+        return map(concept_factory.wrap_concept, IteratorWrapper(concept_map_get_values(self.native_object),
+                                                                 concept_iterator_next))
+
+    def get(self, variable: str) -> Concept:
+        concept = concept_map_get(self.native_object, _not_blank_var(variable))
         if not concept:
-            raise TypeDBClientException.of(VARIABLE_DOES_NOT_EXIST, variable)
-        return concept
+            raise TypeDBClientExceptionExt.of(VARIABLE_DOES_NOT_EXIST, variable)
+        return concept_factory.wrap_concept(concept)
 
     def explainables(self) -> ConceptMap.Explainables:
-        return self._explainables
+        return _ConceptMap.Explainables(concept_map_get_explainables(self.native_object))
 
-    def __str__(self):
-        return "".join(map(lambda var: "[" + var + "/" + str(self._map[var]) + "]", sorted(self._map.keys())))
+    def __repr__(self):
+        return concept_map_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(other) != type(self):
             return False
-        return other._map == self._map
+        return concept_map_equals(self.native_object, other.native_object)
 
     def __hash__(self):
-        return hash(self._map)
+        return hash((tuple(self.variables()), tuple(self.concepts())))
 
-    class Explainables(ConceptMap.Explainables):
+    class Explainables(ConceptMap.Explainables, NativeWrapper[NativeExplainables]):
 
-        def __init__(self, relations: Mapping[str, ConceptMap.Explainable] = None, attributes: Mapping[str, ConceptMap.Explainable] = None, ownerships: Mapping[Tuple[str, str], ConceptMap.Explainable] = None):
-            self._relations = relations
-            self._attributes = attributes
-            self._ownerships = ownerships
+        def __init__(self, explainables: NativeExplainables):
+            if not explainables:
+                raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+            super().__init__(explainables)
 
-        @staticmethod
-        def of(explainables: answer_proto.Explainables):
-            relations: Dict[str, ConceptMap.Explainable] = {}
-            for [var, explainable] in explainables.relations.items():
-                relations[var] = _ConceptMap.Explainable.of(explainable)
-            attributes: Dict[str, ConceptMap.Explainable] = {}
-            for [var, explainable] in explainables.attributes.items():
-                attributes[var] = _ConceptMap.Explainable.of(explainable)
-            ownerships: Dict[Tuple[str, str], ConceptMap.Explainable] = {}
-            for [var, owned_map] in explainables.ownerships.items():
-                for [owned, explainable] in owned_map.owned.items():
-                    ownerships[(var, owned)] = _ConceptMap.Explainable.of(explainable)
-            return _ConceptMap.Explainables(relations, attributes, ownerships)
+        @property
+        def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+            return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-        def relation(self, variable: str) -> "ConceptMap.Explainable":
-            explainable = self._relations.get(variable)
+        def relation(self, variable: str) -> ConceptMap.Explainable:
+            explainable = explainables_get_relation(self.native_object, _not_blank_var(variable))
             if not explainable:
-                raise TypeDBClientException.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
-            return explainable
+                raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
+            return _ConceptMap.Explainable(explainable)
 
-        def attribute(self, variable: str) -> "ConceptMap.Explainable":
-            explainable = self._attributes.get(variable)
+        def attribute(self, variable: str) -> ConceptMap.Explainable:
+            explainable = explainables_get_attribute(self.native_object, _not_blank_var(variable))
             if not explainable:
-                raise TypeDBClientException.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
-            return explainable
+                raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_CONCEPT, variable)
+            return _ConceptMap.Explainable(explainable)
 
-        def ownership(self, owner: str, attribute: str) -> "ConceptMap.Explainable":
-            explainable = self._ownerships.get((owner, attribute))
+        def ownership(self, owner: str, attribute: str) -> ConceptMap.Explainable:
+            explainable = explainables_get_ownership(self.native_object, _not_blank_var(owner),
+                                                     _not_blank_var(attribute))
             if not explainable:
-                raise TypeDBClientException.of(NONEXISTENT_EXPLAINABLE_OWNERSHIP, (owner, attribute))
-            return explainable
+                raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_OWNERSHIP, (owner, attribute))
+            return _ConceptMap.Explainable(explainable)
 
-        def relations(self) -> Mapping[str, "ConceptMap.Explainable"]:
-            return self._relations
+        def relations(self) -> Mapping[str, ConceptMap.Explainable]:
+            return {key: self.relation(key)
+                    for key in IteratorWrapper(explainables_get_relations_keys(self.native_object),
+                                               string_iterator_next)}
 
-        def attributes(self) -> Mapping[str, "ConceptMap.Explainable"]:
-            return self._attributes
+        def attributes(self) -> Mapping[str, ConceptMap.Explainable]:
+            return {key: self.attribute(key)
+                    for key in IteratorWrapper(explainables_get_attributes_keys(self.native_object),
+                                               string_iterator_next)}
 
-        def ownerships(self) -> Mapping[Tuple[str, str], "ConceptMap.Explainable"]:
-            return self._ownerships
+        def ownerships(self) -> Mapping[tuple[str, str], ConceptMap.Explainable]:
+            return {key: self.ownership(*key)
+                    for key in IteratorWrapper(explainables_get_ownerships_keys(self.native_object),
+                                               string_pair_iterator_next)}
+
+        def __repr__(self):
+            return explainables_to_string(self.native_object)
 
         def __eq__(self, other):
             if other is self:
                 return True
             if not other or type(other) != type(self):
                 return False
-            return self._relations == other._relations and self._attributes == other._attributes and self._ownerships == other._ownerships
+            return explainables_equals(self.native_object, other.native_object)
 
         def __hash__(self):
-            return hash((self._relations, self._attributes, self._ownerships))
+            return hash((tuple(self.relations()), tuple(self.attributes()), tuple(self.ownerships())))
 
-    class Explainable(ConceptMap.Explainable):
+    class Explainable(ConceptMap.Explainable, NativeWrapper[NativeExplainable]):
 
-        def __init__(self, conjunction: str, explainable_id: int):
-            self._conjunction = conjunction
-            self._explainable_id = explainable_id
+        def __init__(self, explainable: NativeExplainable):
+            if not explainable:
+                raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+            super().__init__(explainable)
 
-        @staticmethod
-        def of(explainable: answer_proto.Explainable):
-            return _ConceptMap.Explainable(explainable.conjunction, explainable.id)
+        @property
+        def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+            return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
         def conjunction(self) -> str:
-            return self._conjunction
+            return explainable_get_conjunction(self.native_object)
 
-        def explainable_id(self) -> int:
-            return self._explainable_id
+        def id(self) -> int:
+            return explainable_get_id(self.native_object)
+
+        def __repr__(self):
+            return f"Explainable {{ id: {self.id()}, conjunction: {self.conjunction()} }}"
 
         def __eq__(self, other):
             if other is self:
                 return True
             if not other or type(other) != type(self):
                 return False
-            return self._explainable_id
+            return self.id() == other.id()
 
         def __hash__(self):
-            return hash(self._explainable_id)
+            return hash(self.id())

@@ -19,22 +19,11 @@
 # under the License.
 #
 
-from __future__ import annotations
+from enum import Enum
 
-from abc import ABC, abstractmethod
-from typing import Iterator, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typedb.api.answer.concept_map import ConceptMap
-    from typedb.api.concept.concept import Concept
+from typedb.native_client_wrapper import Transitive, Explicit
 
 
-class ConceptMapGroup(ABC):
-
-    @abstractmethod
-    def owner(self) -> Concept:
-        pass
-
-    @abstractmethod
-    def concept_maps(self) -> Iterator[ConceptMap]:
-        pass
+class Transitivity(Enum):
+    TRANSITIVE = Transitive
+    EXPLICIT = Explicit

@@ -18,143 +18,155 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from typing import Optional
 
-import typedb_protocol.common.options_pb2 as options_proto
+from typedb.native_client_wrapper import options_new, options_has_infer, options_get_infer, options_set_infer, \
+    options_get_trace_inference, options_has_trace_inference, options_set_trace_inference, options_get_explain, \
+    options_has_explain, options_set_explain, options_has_parallel, options_get_parallel, options_set_parallel, \
+    options_get_prefetch, options_has_prefetch, options_set_prefetch, options_has_prefetch_size, \
+    options_get_prefetch_size, options_set_prefetch_size, options_get_session_idle_timeout_millis, \
+    options_has_session_idle_timeout_millis, options_set_session_idle_timeout_millis, \
+    options_has_transaction_timeout_millis, options_get_transaction_timeout_millis, \
+    options_set_transaction_timeout_millis, options_get_schema_lock_acquire_timeout_millis, \
+    options_has_schema_lock_acquire_timeout_millis, options_set_schema_lock_acquire_timeout_millis, \
+    options_set_read_any_replica, options_get_read_any_replica, options_has_read_any_replica, Options as NativeOptions
+
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, POSITIVE_VALUE_REQUIRED
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class TypeDBOptions:
+class TypeDBOptions(NativeWrapper[NativeOptions]):
 
-    def __init__(self):
-        self.infer: Optional[bool] = None
-        self.trace_inference: Optional[bool] = None
-        self.explain: Optional[bool] = None
-        self.parallel: Optional[bool] = None
-        self.prefetch_size: Optional[int] = None
-        self.prefetch: Optional[bool] = None
-        self.session_idle_timeout_millis: Optional[int] = None
-        self.transaction_timeout_millis: Optional[int] = None
-        self.schema_lock_acquire_timeout_millis: Optional[int] = None
+    def __init__(self, *,
+                 infer: Optional[bool] = None,
+                 trace_inference: Optional[bool] = None,
+                 explain: Optional[bool] = None,
+                 parallel: Optional[bool] = None,
+                 prefetch: Optional[bool] = None,
+                 prefetch_size: Optional[int] = None,
+                 session_idle_timeout_millis: Optional[int] = None,
+                 transaction_timeout_millis: Optional[int] = None,
+                 schema_lock_acquire_timeout_millis: Optional[int] = None,
+                 read_any_replica: Optional[bool] = None,
+                 ):
+        super().__init__(options_new())
+        if infer is not None:
+            self.infer = infer
+        if trace_inference is not None:
+            self.trace_inference = trace_inference
+        if explain is not None:
+            self.explain = explain
+        if parallel is not None:
+            self.parallel = parallel
+        if prefetch is not None:
+            self.prefetch = prefetch
+        if prefetch_size is not None:
+            self.prefetch_size = prefetch_size
+        if session_idle_timeout_millis is not None:
+            self.session_idle_timeout_millis = session_idle_timeout_millis
+        if transaction_timeout_millis is not None:
+            self.transaction_timeout_millis = transaction_timeout_millis
+        if schema_lock_acquire_timeout_millis is not None:
+            self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
+        if read_any_replica is not None:
+            self.read_any_replica = read_any_replica
 
-    @staticmethod
-    def core() -> "TypeDBOptions":
-        return TypeDBOptions()
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-    @staticmethod
-    def cluster() -> "TypeDBClusterOptions":
-        return TypeDBClusterOptions()
+    @property
+    def infer(self) -> Optional[bool]:
+        return options_get_infer(self.native_object) if options_has_infer(self.native_object) else None
 
-    def is_cluster(self) -> bool:
-        return False
+    @infer.setter
+    def infer(self, infer: bool):
+        options_set_infer(self.native_object, infer)
 
-    def get_infer(self) -> Optional[bool]:
-        return self.infer
+    @property
+    def trace_inference(self) -> Optional[bool]:
+        return options_get_trace_inference(self.native_object) if options_has_trace_inference(self.native_object) \
+            else None
 
-    def set_infer(self, infer: bool):
-        self.infer = infer
-        return self
+    @trace_inference.setter
+    def trace_inference(self, trace_inference: bool):
+        options_set_trace_inference(self.native_object, trace_inference)
 
-    def get_trace_inference(self) -> Optional[bool]:
-        return self.trace_inference
+    @property
+    def explain(self) -> Optional[bool]:
+        return options_get_explain(self.native_object) if options_has_explain(self.native_object) else None
 
-    def set_trace_inference(self, trace_inference: bool):
-        self.trace_inference = trace_inference
-        return self
+    @explain.setter
+    def explain(self, explain: bool):
+        options_set_explain(self.native_object, explain)
 
-    def get_explain(self) -> Optional[bool]:
-        return self.explain
+    @property
+    def parallel(self) -> Optional[bool]:
+        return options_get_parallel(self.native_object) if options_has_parallel(self.native_object) else None
 
-    def set_explain(self, explain: bool):
-        self.explain = explain
-        return self
+    @parallel.setter
+    def parallel(self, parallel: bool):
+        options_set_parallel(self.native_object, parallel)
 
-    def get_parallel(self) -> Optional[bool]:
-        return self.parallel
+    @property
+    def prefetch(self) -> Optional[bool]:
+        return options_get_prefetch(self.native_object) if options_has_prefetch(self.native_object) else None
 
-    def set_parallel(self, parallel: bool):
-        self.parallel = parallel
-        return self
+    @prefetch.setter
+    def prefetch(self, prefetch: bool):
+        options_set_prefetch(self.native_object, prefetch)
 
-    def get_prefetch_size(self) -> Optional[int]:
-        return self.prefetch_size
+    @property
+    def prefetch_size(self) -> Optional[int]:
+        return options_get_prefetch_size(self.native_object) if options_has_prefetch_size(self.native_object) else None
 
-    def set_prefetch_size(self, prefetch_size: int):
-        self.prefetch_size = prefetch_size
-        return self
+    @prefetch_size.setter
+    def prefetch_size(self, prefetch_size: int):
+        if prefetch_size < 1:
+            raise TypeDBClientExceptionExt.of(POSITIVE_VALUE_REQUIRED, prefetch_size)
+        options_set_prefetch_size(self.native_object, prefetch_size)
 
-    def get_prefetch(self) -> Optional[bool]:
-        return self.prefetch
+    @property
+    def session_idle_timeout_millis(self) -> Optional[int]:
+        return options_get_session_idle_timeout_millis(self.native_object) \
+            if options_has_session_idle_timeout_millis(self.native_object) else None
 
-    def set_prefetch(self, prefetch: bool):
-        self.prefetch = prefetch
-        return self
+    @session_idle_timeout_millis.setter
+    def session_idle_timeout_millis(self, session_idle_timeout_millis: int):
+        if session_idle_timeout_millis < 1:
+            raise TypeDBClientExceptionExt.of(POSITIVE_VALUE_REQUIRED, session_idle_timeout_millis)
+        options_set_session_idle_timeout_millis(self.native_object, session_idle_timeout_millis)
 
-    def get_session_idle_timeout_millis(self) -> Optional[int]:
-        return self.session_idle_timeout_millis
+    @property
+    def transaction_timeout_millis(self) -> Optional[int]:
+        return options_get_transaction_timeout_millis(self.native_object) \
+            if options_has_transaction_timeout_millis(self.native_object) else None
 
-    def set_session_idle_timeout_millis(self, session_idle_timeout_millis: int):
-        self.session_idle_timeout_millis = session_idle_timeout_millis
-        return self
+    @transaction_timeout_millis.setter
+    def transaction_timeout_millis(self, transaction_timeout_millis: int):
+        if transaction_timeout_millis < 1:
+            raise TypeDBClientExceptionExt.of(POSITIVE_VALUE_REQUIRED, transaction_timeout_millis)
+        options_set_transaction_timeout_millis(self.native_object, transaction_timeout_millis)
 
-    def get_transaction_timeout_millis(self) -> Optional[int]:
-        return self.transaction_timeout_millis
+    @property
+    def schema_lock_acquire_timeout_millis(self) -> Optional[int]:
+        return options_get_schema_lock_acquire_timeout_millis(self.native_object) \
+            if options_has_schema_lock_acquire_timeout_millis(self.native_object) else None
 
-    def set_transaction_timeout_millis(self, transaction_timeout_millis: int):
-        self.transaction_timeout_millis = transaction_timeout_millis
-        return self
+    @schema_lock_acquire_timeout_millis.setter
+    def schema_lock_acquire_timeout_millis(self, schema_lock_acquire_timeout_millis: int):
+        if schema_lock_acquire_timeout_millis < 1:
+            raise TypeDBClientExceptionExt.of(POSITIVE_VALUE_REQUIRED, schema_lock_acquire_timeout_millis)
+        options_set_schema_lock_acquire_timeout_millis(self.native_object, schema_lock_acquire_timeout_millis)
 
-    def get_schema_lock_acquire_timeout_millis(self) -> Optional[int]:
-        return self.schema_lock_acquire_timeout_millis
+    @property
+    def read_any_replica(self) -> Optional[bool]:
+        return options_get_read_any_replica(self.native_object) if options_has_read_any_replica(self.native_object) \
+            else None
 
-    def set_schema_lock_acquire_timeout_millis(self, schema_lock_acquire_timeout_millis: int):
-        self.schema_lock_acquire_timeout_millis = schema_lock_acquire_timeout_millis
-        return self
-
-    def proto(self) -> options_proto.Options:
-        proto_options = options_proto.Options()
-
-        if self.infer is not None:
-            proto_options.infer = self.infer
-        if self.trace_inference is not None:
-            proto_options.trace_inference = self.trace_inference
-        if self.explain is not None:
-            proto_options.explain = self.explain
-        if self.parallel is not None:
-            proto_options.parallel = self.parallel
-        if self.prefetch_size is not None:
-            proto_options.prefetch_size = self.prefetch_size
-        if self.prefetch is not None:
-            proto_options.prefetch = self.prefetch
-        if self.session_idle_timeout_millis is not None:
-            proto_options.session_idle_timeout_millis = self.session_idle_timeout_millis
-        if self.transaction_timeout_millis is not None:
-            proto_options.transaction_timeout_millis = self.transaction_timeout_millis
-        if self.schema_lock_acquire_timeout_millis is not None:
-            proto_options.schema_lock_acquire_timeout_millis = self.schema_lock_acquire_timeout_millis
-
-        return proto_options
-
-
-class TypeDBClusterOptions(TypeDBOptions):
-
-    def __init__(self):
-        super().__init__()
-        self.read_any_replica: Optional[bool] = None
-
-    def is_cluster(self) -> bool:
-        return True
-
-    def get_read_any_replica(self) -> Optional[bool]:
-        return self.read_any_replica
-
-    def set_read_any_replica(self, read_any_replica: bool):
-        self.read_any_replica = read_any_replica
-        return self
-
-    def proto(self) -> options_proto.Options:
-        proto_options = super(TypeDBClusterOptions, self).proto()
-
-        if self.read_any_replica is not None:
-            proto_options.read_any_replica = self.read_any_replica
-
-        return proto_options
+    @read_any_replica.setter
+    def read_any_replica(self, read_any_replice: bool):
+        options_set_read_any_replica(self.native_object, read_any_replice)

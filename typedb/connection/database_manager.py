@@ -19,42 +19,48 @@
 #   under the License.
 #
 
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import databases_contains, databases_create, database_manager_new, databases_get, \
+    databases_all, database_iterator_next, DatabaseManager as NativeDatabaseManager
 
 from typedb.api.connection.database import DatabaseManager
-from typedb.common.exception import TypeDBClientException, DB_DOES_NOT_EXIST, MISSING_DB_NAME
-from typedb.common.rpc.request_builder import core_database_manager_contains_req, core_database_manager_create_req, \
-    core_database_manager_all_req
-from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.database import _TypeDBDatabaseImpl
+from typedb.common.exception import TypeDBClientExceptionExt, DATABASE_DELETED, ILLEGAL_STATE, MISSING_DB_NAME
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.connection.database import _Database
+
+if TYPE_CHECKING:
+    from typedb.native_client_wrapper import Connection as NativeConnection
 
 
 def _not_blank(name: str) -> str:
-    if name in [None, ""] or name.isspace():
-        raise TypeDBClientException.of(MISSING_DB_NAME)
+    if not name or name.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_DB_NAME)
     return name
 
 
-class _TypeDBDatabaseManagerImpl(DatabaseManager):
+class _DatabaseManager(DatabaseManager, NativeWrapper[NativeDatabaseManager]):
 
-    def __init__(self, stub: TypeDBStub):
-        self._stub = stub
+    def __init__(self, connection: NativeConnection):
+        super().__init__(database_manager_new(connection))
 
-    def get(self, name: str) -> _TypeDBDatabaseImpl:
-        if self.contains(name):
-            return _TypeDBDatabaseImpl(self._stub, name)
-        else:
-            raise TypeDBClientException.of(DB_DOES_NOT_EXIST, name)
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
+
+    def get(self, name: str) -> _Database:
+        if not self.contains(name):
+            raise TypeDBClientExceptionExt.of(DATABASE_DELETED, name)
+        return _Database(databases_get(self.native_object, name))
 
     def contains(self, name: str) -> bool:
-        return self._stub.databases_contains(core_database_manager_contains_req(_not_blank(name))).contains
+        return databases_contains(self.native_object, _not_blank(name))
 
     def create(self, name: str) -> None:
-        self._stub.databases_create(core_database_manager_create_req(_not_blank(name)))
+        databases_create(self.native_object, _not_blank(name))
 
-    def all(self) -> List[_TypeDBDatabaseImpl]:
-        databases: List[str] = self._stub.databases_all(core_database_manager_all_req()).names
-        return [_TypeDBDatabaseImpl(self._stub, name) for name in databases]
-
-    def stub(self) -> TypeDBStub:
-        return self._stub
+    def all(self) -> list[_Database]:
+        return list(map(_Database, IteratorWrapper(databases_all(self.native_object), database_iterator_next)))

@@ -19,17 +19,17 @@
 # under the License.
 #
 
+from __future__ import annotations
+
 import enum
 from abc import ABC, abstractmethod
-from typing import Iterator
+from typing import TYPE_CHECKING
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
-
-from typedb.api.concept.concept_manager import ConceptManager
-from typedb.api.logic.logic_manager import LogicManager
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.query.future import QueryFuture
-from typedb.api.query.query_manager import QueryManager
+if TYPE_CHECKING:
+    from typedb.api.concept.concept_manager import ConceptManager
+    from typedb.api.logic.logic_manager import LogicManager
+    from typedb.api.connection.options import TypeDBOptions
+    from typedb.api.query.query_manager import QueryManager
 
 
 class TransactionType(enum.Enum):
@@ -42,9 +42,6 @@ class TransactionType(enum.Enum):
     def is_write(self):
         return self is TransactionType.WRITE
 
-    def proto(self):
-        return transaction_proto.Transaction.Type.Value(self.name)
-
 
 class TypeDBTransaction(ABC):
 
@@ -52,22 +49,27 @@ class TypeDBTransaction(ABC):
     def is_open(self) -> bool:
         pass
 
+    @property
     @abstractmethod
     def transaction_type(self) -> TransactionType:
         pass
 
+    @property
     @abstractmethod
     def options(self) -> TypeDBOptions:
         pass
 
+    @property
     @abstractmethod
     def concepts(self) -> ConceptManager:
         pass
 
+    @property
     @abstractmethod
     def logic(self) -> LogicManager:
         pass
 
+    @property
     @abstractmethod
     def query(self) -> QueryManager:
         pass
@@ -81,6 +83,10 @@ class TypeDBTransaction(ABC):
         pass
 
     @abstractmethod
+    def on_close(self, function: callable):
+        pass
+
+    @abstractmethod
     def close(self) -> None:
         pass
 
@@ -90,19 +96,4 @@ class TypeDBTransaction(ABC):
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-
-class _TypeDBTransactionExtended(TypeDBTransaction, ABC):
-
-    @abstractmethod
-    def execute(self, request: transaction_proto.Transaction.Req) -> transaction_proto.Transaction.Res:
-        pass
-
-    @abstractmethod
-    def run_query(self, request: transaction_proto.Transaction.Req) -> QueryFuture[transaction_proto.Transaction.Res]:
-        pass
-
-    @abstractmethod
-    def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
         pass

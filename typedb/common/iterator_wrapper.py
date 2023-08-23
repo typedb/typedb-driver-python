@@ -19,22 +19,19 @@
 # under the License.
 #
 
-from __future__ import annotations
-
-from abc import ABC, abstractmethod
-from typing import Iterator, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typedb.api.answer.concept_map import ConceptMap
-    from typedb.api.concept.concept import Concept
+from typing import Callable
 
 
-class ConceptMapGroup(ABC):
+class IteratorWrapper:
 
-    @abstractmethod
-    def owner(self) -> Concept:
-        pass
+    def __init__(self, native_iterator: object, native_next: Callable):
+        self._iterator = native_iterator
+        self._next = native_next
 
-    @abstractmethod
-    def concept_maps(self) -> Iterator[ConceptMap]:
-        pass
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if next_item := self._next(self._iterator):
+            return next_item
+        raise StopIteration

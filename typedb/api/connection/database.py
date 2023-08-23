@@ -18,12 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Set, Optional, List
+from typing import Optional
 
 
 class Database(ABC):
 
+    @property
     @abstractmethod
     def name(self) -> str:
         pass
@@ -32,45 +36,49 @@ class Database(ABC):
     def schema(self) -> str:
         pass
 
+    def rule_schema(self) -> str:
+        pass
+
+    def type_schema(self) -> str:
+        pass
+
     @abstractmethod
     def delete(self) -> None:
         pass
 
-    class Replica(ABC):
-
-        @abstractmethod
-        def database(self) -> "ClusterDatabase":
-            pass
-
-        @abstractmethod
-        def address(self) -> str:
-            pass
-
-        @abstractmethod
-        def is_primary(self) -> bool:
-            pass
-
-        @abstractmethod
-        def is_preferred(self) -> bool:
-            pass
-
-        @abstractmethod
-        def term(self) -> int:
-            pass
-
-
-class ClusterDatabase(Database, ABC):
-
     @abstractmethod
-    def replicas(self) -> Set[Database.Replica]:
+    def replicas(self) -> set[Replica]:
         pass
 
     @abstractmethod
-    def primary_replica(self) -> Optional[Database.Replica]:
+    def primary_replica(self) -> Optional[Replica]:
         pass
 
     @abstractmethod
-    def preferred_replica(self) -> Database.Replica:
+    def preferred_replica(self) -> Optional[Replica]:
+        pass
+
+
+class Replica(ABC):
+
+    @abstractmethod
+    def database(self) -> Database:
+        pass
+
+    @abstractmethod
+    def address(self) -> str:
+        pass
+
+    @abstractmethod
+    def is_primary(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_preferred(self) -> bool:
+        pass
+
+    @abstractmethod
+    def term(self) -> int:
         pass
 
 
@@ -89,16 +97,5 @@ class DatabaseManager(ABC):
         pass
 
     @abstractmethod
-    def all(self) -> List[Database]:
-        pass
-
-
-class ClusterDatabaseManager(DatabaseManager, ABC):
-
-    @abstractmethod
-    def get(self, name: str) -> ClusterDatabase:
-        pass
-
-    @abstractmethod
-    def all(self) -> List[ClusterDatabase]:
+    def all(self) -> list[Database]:
         pass

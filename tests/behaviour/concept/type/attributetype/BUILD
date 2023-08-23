@@ -37,7 +37,7 @@ typedb_behaviour_py_test(
     steps = [
         ":steps",
         "//tests/behaviour/concept/thing/attribute:steps",
-        "//tests/behaviour/concept/type/thingtype:steps",
+        "//tests/behaviour/concept/type:steps",
         "//tests/behaviour/connection:steps",
         "//tests/behaviour/connection/database:steps",
         "//tests/behaviour/connection/session:steps",
@@ -49,6 +49,7 @@ typedb_behaviour_py_test(
         "//tests/behaviour/util:util",
         "//tests/behaviour/config:parameters",
         "//tests/behaviour/background",
+        "//:native-client-binary",
     ],
     native_typedb_artifact = "//tests:native-typedb-artifact",
     native_typedb_cluster_artifact = "//tests:native-typedb-cluster-artifact",

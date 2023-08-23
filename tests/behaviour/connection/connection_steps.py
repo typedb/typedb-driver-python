@@ -40,7 +40,7 @@ def step_impl(context):
 @step(u'connection opens with default authentication')
 def step_impl(context):
     context.setup_context_client_fn()
-    for database in context.client.databases().all():
+    for database in context.client.databases.all():
         database.delete()
 
 
@@ -76,4 +76,4 @@ def step_impl(context: Context):
 
 @step("connection does not have any database")
 def step_impl(context: Context):
-    assert len(context.client.databases().all()) == 0
+    assert len(context.client.databases.all()) == 0

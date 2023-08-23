@@ -18,16 +18,20 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Iterator
 
-from typedb.api.logic.rule import Rule
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Iterator, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.logic.rule import Rule
 
 
 class LogicManager(ABC):
 
     @abstractmethod
-    def get_rule(self, label: str) -> Rule:
+    def get_rule(self, label: str) -> Optional[Rule]:
         pass
 
     @abstractmethod

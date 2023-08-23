@@ -31,7 +31,7 @@ from tests.behaviour.config.parameters import parse_transaction_type, parse_list
 from tests.behaviour.context import Context
 
 
-def for_each_session_open_transaction_of_type(context: Context, transaction_types: List[TransactionType]):
+def for_each_session_open_transaction_of_type(context: Context, transaction_types: list[TransactionType]):
     for session in context.sessions:
         transactions = []
         for transaction_type in transaction_types:
@@ -55,7 +55,7 @@ def step_impl(context: Context):
     for_each_session_open_transaction_of_type(context, transaction_types)
 
 
-def open_transactions_of_type_throws_exception(context: Context, transaction_types: List[TransactionType]):
+def open_transactions_of_type_throws_exception(context: Context, transaction_types: list[TransactionType]):
     for session in context.sessions:
         for transaction_type in transaction_types:
             try:
@@ -67,7 +67,6 @@ def open_transactions_of_type_throws_exception(context: Context, transaction_typ
 
 @step("session open transaction of type; throws exception: {transaction_type}")
 def step_impl(context: Context, transaction_type):
-    print("Running step: session open transaction of type; throws exception")
     transaction_type = parse_transaction_type(transaction_type)
     open_transactions_of_type_throws_exception(context, [transaction_type])
 
@@ -166,7 +165,7 @@ def for_each_session_transaction_has_type(context: Context, transaction_types: l
         assert_that(transactions, has_length(len(transaction_types)))
         transactions_iterator = iter(transactions)
         for transaction_type in transaction_types:
-            assert_that(next(transactions_iterator).transaction_type(), is_(transaction_type))
+            assert_that(next(transactions_iterator).transaction_type, is_(transaction_type))
 
 
 # NOTE: behave ignores trailing colons in feature files
@@ -227,7 +226,7 @@ def step_impl(context: Context):
         assert_that(future_transactions, has_length(len(types)))
         future_transactions_iter = iter(future_transactions)
         for type_ in types:
-            assert_that(next(future_transactions_iter).result().transaction_type(), is_(type_))
+            assert_that(next(future_transactions_iter).result().transaction_type, is_(type_))
 
 
 ############################################
@@ -256,8 +255,8 @@ def step_impl(context: Context, is_open):
 # transaction configuration          #
 ######################################
 
-@step("set transaction option {option} to: {value}")
-def step_impl(context: Context, option: str, value: str):
+@step("set transaction option {option} to: {value:Int}")
+def step_impl(context: Context, option: str, value: int):
     if option not in context.option_setters:
         raise Exception("Unrecognised option: " + option)
     context.option_setters[option](context.transaction_options, value)
@@ -272,7 +271,7 @@ def step_impl(context: Context, exception: str):
     for session in context.sessions:
         for transaction in context.sessions_to_transactions[session]:
             try:
-                transaction.query().define(context.text).get()
+                transaction.query.define(context.text)
                 assert False
             except TypeDBClientException as e:
                 assert_that(exception, is_in(str(e)))

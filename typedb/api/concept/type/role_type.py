@@ -18,14 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Optional
 
-from typedb.api.concept.type.type import Type, RemoteType
-
-from typedb.api.concept.thing.thing import Thing
+from typedb.api.concept.type.type import Type
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.api.concept.thing.thing import Thing
     from typedb.api.concept.thing.relation import Relation
     from typedb.api.concept.type.relation_type import RelationType
     from typedb.api.concept.type.thing_type import ThingType
@@ -37,53 +40,41 @@ class RoleType(Type, ABC):
     def is_role_type(self) -> bool:
         return True
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteRoleType":
-        pass
-
-
-class RemoteRoleType(RemoteType, RoleType, ABC):
+    def as_role_type(self) -> RoleType:
+        return self
 
     @abstractmethod
-    def get_supertype(self) -> RoleType:
+    def get_supertype(self, transaction: TypeDBTransaction) -> Optional[RoleType]:
         pass
 
     @abstractmethod
-    def get_supertypes(self) -> Iterator[RoleType]:
+    def get_supertypes(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Iterator[RoleType]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[RoleType]:
         pass
 
     @abstractmethod
-    def get_relation_type(self) -> "RelationType":
+    def get_relation_type(self, transaction: TypeDBTransaction) -> RelationType:
         pass
 
     @abstractmethod
-    def get_relation_types(self) -> Iterator["RelationType"]:
+    def get_relation_types(self, transaction: TypeDBTransaction) -> Iterator[RelationType]:
         pass
 
     @abstractmethod
-    def get_player_types(self) -> Iterator["ThingType"]:
+    def get_player_types(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                         ) -> Iterator[ThingType]:
         pass
 
     @abstractmethod
-    def get_player_types_explicit(self) -> Iterator["ThingType"]:
+    def get_relation_instances(self, transaction: TypeDBTransaction,
+                               transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[Relation]:
         pass
 
     @abstractmethod
-    def get_relation_instances(self) -> Iterator["Relation"]:
-        pass
-
-    @abstractmethod
-    def get_relation_instances_explicit(self) -> Iterator["Relation"]:
-        pass
-
-    @abstractmethod
-    def get_player_instances(self) -> Iterator["Thing"]:
-        pass
-
-    @abstractmethod
-    def get_player_instances_explicit(self) -> Iterator["Thing"]:
+    def get_player_instances(self, transaction: TypeDBTransaction,
+                             transitivity: Transitivity = Transitivity.TRANSITIVE) -> Iterator[Thing]:
         pass

@@ -38,18 +38,18 @@ def _rule_implementation(ctx):
             function server_start() {
               ./${1}/typedb cluster \
                 --storage.data=server/data \
-                --server.address=127.0.0.1:${1}1729 \
-                --server.internal-address.zeromq=127.0.0.1:${1}1730 \
-                --server.internal-address.grpc=127.0.0.1:${1}1731 \
-                --server.peers.peer-1.address=127.0.0.1:11729 \
-                --server.peers.peer-1.internal-address.zeromq=127.0.0.1:11730 \
-                --server.peers.peer-1.internal-address.grpc=127.0.0.1:11731 \
-                --server.peers.peer-2.address=127.0.0.1:21729 \
-                --server.peers.peer-2.internal-address.zeromq=127.0.0.1:21730 \
-                --server.peers.peer-2.internal-address.grpc=127.0.0.1:21731 \
-                --server.peers.peer-3.address=127.0.0.1:31729 \
-                --server.peers.peer-3.internal-address.zeromq=127.0.0.1:31730 \
-                --server.peers.peer-3.internal-address.grpc=127.0.0.1:31731 \
+                --server.address=localhost:${1}1729 \
+                --server.internal-address.zeromq=localhost:${1}1730 \
+                --server.internal-address.grpc=localhost:${1}1731 \
+                --server.peers.peer-1.address=localhost:11729 \
+                --server.peers.peer-1.internal-address.zeromq=localhost:11730 \
+                --server.peers.peer-1.internal-address.grpc=localhost:11731 \
+                --server.peers.peer-2.address=localhost:21729 \
+                --server.peers.peer-2.internal-address.zeromq=localhost:21730 \
+                --server.peers.peer-2.internal-address.grpc=localhost:21731 \
+                --server.peers.peer-3.address=localhost:31729 \
+                --server.peers.peer-3.internal-address.zeromq=localhost:31730 \
+                --server.peers.peer-3.internal-address.grpc=localhost:31731 \
                 --server.encryption.enable=true
             }
             if test -d typedb_distribution; then

@@ -19,88 +19,91 @@
 # under the License.
 #
 
-from typing import TYPE_CHECKING, Iterator
+from __future__ import annotations
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
-from grpc import RpcError
+from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import error_code, error_message, transaction_new, transaction_commit, \
+    transaction_rollback, transaction_is_open, transaction_on_close, transaction_force_close, \
+    Transaction as NativeTransaction, TransactionCallbackDirector
+
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.transaction import _TypeDBTransactionExtended, TransactionType
-from typedb.api.query.future import QueryFuture
-from typedb.common.exception import TypeDBClientException, TRANSACTION_CLOSED, TRANSACTION_CLOSED_WITH_ERRORS
-from typedb.common.rpc.request_builder import transaction_commit_req, transaction_rollback_req, transaction_open_req
+from typedb.api.connection.transaction import TypeDBTransaction
+from typedb.common.exception import TypeDBClientExceptionExt, TRANSACTION_CLOSED, TypeDBException
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept.concept_manager import _ConceptManager
 from typedb.logic.logic_manager import _LogicManager
 from typedb.query.query_manager import _QueryManager
-from typedb.stream.bidirectional_stream import BidirectionalStream
 
 if TYPE_CHECKING:
-    from typedb.connection.session import _TypeDBSessionImpl
+    from typedb.connection.session import _Session
+    from typedb.api.connection.transaction import TransactionType
+    from typedb.native_client_wrapper import Error as NativeError
 
 
-class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
+class _Transaction(TypeDBTransaction, NativeWrapper[NativeTransaction]):
 
-    def __init__(self, session: "_TypeDBSessionImpl", transaction_type: TransactionType, options: TypeDBOptions = None):
+    def __init__(self, session: _Session, transaction_type: TransactionType, options: TypeDBOptions = None):
         if not options:
-            options = TypeDBOptions.core()
+            options = TypeDBOptions()
         self._transaction_type = transaction_type
         self._options = options
-        self._concept_manager = _ConceptManager(self)
-        self._query_manager = _QueryManager(self)
-        self._logic_manager = _LogicManager(self)
+        super().__init__(transaction_new(session.native_object, transaction_type.value, options.native_object))
+        self._concept_manager = _ConceptManager(self._native_object)
+        self._query_manager = _QueryManager(self._native_object)
+        self._logic_manager = _LogicManager(self._native_object)
 
-        try:
-            self._channel, stub = session.client().new_channel_and_stub()
-            self._bidirectional_stream = BidirectionalStream(stub, session.transmitter())
-            req = transaction_open_req(session.session_id(), transaction_type.proto(), options.proto(),
-                                       session.network_latency_millis())
-            self.execute(request=req, batch=False)
-        except RpcError as e:
-            raise TypeDBClientException.of_rpc(e)
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
 
+    @property
     def transaction_type(self) -> TransactionType:
         return self._transaction_type
 
+    @property
     def options(self) -> TypeDBOptions:
         return self._options
 
-    def is_open(self) -> bool:
-        return self._bidirectional_stream.is_open()
-
+    @property
     def concepts(self) -> _ConceptManager:
         return self._concept_manager
 
+    @property
     def logic(self) -> _LogicManager:
         return self._logic_manager
 
+    @property
     def query(self) -> _QueryManager:
         return self._query_manager
 
-    def execute(self, request: transaction_proto.Transaction.Req,
-                batch: bool = True) -> transaction_proto.Transaction.Res:
-        return self.run_query(request, batch).get()
+    def is_open(self) -> bool:
+        if not self.native_object.thisown:
+            return False
+        return transaction_is_open(self.native_object)
 
-    def run_query(self, request: transaction_proto.Transaction.Req, batch: bool = True) -> QueryFuture[
-        transaction_proto.Transaction.Res]:
-        if not self.is_open():
-            self._raise_transaction_closed()
-        return self._bidirectional_stream.single(request, batch)
+    def on_close(self, function: callable):
+        transaction_on_close(self.native_object, _Transaction.TransactionOnClose(function).__disown__())
 
-    def stream(self, request: transaction_proto.Transaction.Req) -> Iterator[transaction_proto.Transaction.ResPart]:
-        if not self.is_open():
-            self._raise_transaction_closed()
-        return self._bidirectional_stream.stream(request)
+    class TransactionOnClose(TransactionCallbackDirector):
+
+        def __init__(self, function: callable):
+            super().__init__()
+            self._function = function
+
+        def callback(self, error: NativeError) -> None:
+            self._function(TypeDBException(error_code(error), error_message(error)))
 
     def commit(self):
-        try:
-            self.execute(transaction_commit_req())
-        finally:
-            self.close()
+        self.native_object.thisown = 0
+        transaction_commit(self._native_object)
 
     def rollback(self):
-        self.execute(transaction_rollback_req())
+        transaction_rollback(self.native_object)
 
     def close(self):
-        self._bidirectional_stream.close()
+        if self._native_object.thisown:
+            transaction_force_close(self._native_object)
 
     def __enter__(self):
         return self
@@ -109,10 +112,3 @@ class _TypeDBTransactionImpl(_TypeDBTransactionExtended):
         self.close()
         if exc_tb is not None:
             return False
-
-    def _raise_transaction_closed(self):
-        error = self._bidirectional_stream.get_error()
-        if error is None:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED)
-        else:
-            raise TypeDBClientException.of(TRANSACTION_CLOSED_WITH_ERRORS, error)

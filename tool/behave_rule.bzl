@@ -83,9 +83,9 @@ def _rule_implementation(ctx):
              ./typedb_distribution/"$DIRECTORY"/typedb server --server.address 0.0.0.0:$PORT --storage.data typedb_test &
             else
             ./typedb_distribution/"$DIRECTORY"/typedb cluster \
-                --server.address=127.0.0.1:$PORT \
-                --server.internal-address.zeromq=127.0.0.1:$(($PORT+1)) \
-                --server.internal-address.grpc=127.0.0.1:$(($PORT+2)) \
+                --server.address=localhost:$PORT \
+                --server.internal-address.zeromq=localhost:$(($PORT+1)) \
+                --server.internal-address.grpc=localhost:$(($PORT+2)) \
                 --storage.data=typedb_test \
                 --server.encryption.enable=true &
              ROOT_CA=`realpath ./typedb_distribution/"$DIRECTORY"/server/conf/encryption/ext-root-ca.pem`
@@ -174,23 +174,26 @@ py_behave_test = rule(
 
 
 def typedb_behaviour_py_test(
+        *,
         name,
-        background_core,
-        background_cluster,
+        background_core = None,
+        background_cluster = None,
         native_typedb_artifact,
         native_typedb_cluster_artifact,
         **kwargs):
 
-    py_behave_test(
-        name = name + "-core",
-        background = background_core,
-        native_typedb_artifact = native_typedb_artifact,
-        **kwargs,
-    )
+    if background_core:
+        py_behave_test(
+            name = name + "-core",
+            background = background_core,
+            native_typedb_artifact = native_typedb_artifact,
+            **kwargs,
+        )
 
-    py_behave_test(
-        name = name + "-cluster",
-        background = background_cluster,
-        native_typedb_artifact = native_typedb_cluster_artifact,
-        **kwargs,
-    )
+    if background_cluster:
+        py_behave_test(
+            name = name + "-cluster",
+            background = background_cluster,
+            native_typedb_artifact = native_typedb_cluster_artifact,
+            **kwargs,
+        )

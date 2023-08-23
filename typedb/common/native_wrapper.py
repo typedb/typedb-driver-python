@@ -22,19 +22,26 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterator, TYPE_CHECKING
+from typing import Any, Generic, TypeVar
 
-if TYPE_CHECKING:
-    from typedb.api.answer.concept_map import ConceptMap
-    from typedb.api.concept.concept import Concept
+from typedb.common.exception import TypeDBClientExceptionExt
 
 
-class ConceptMapGroup(ABC):
+T = TypeVar("T")
 
+
+class NativeWrapper(ABC, Generic[T]):
+
+    def __init__(self, native_object: T):
+        self._native_object = native_object
+
+    @property
     @abstractmethod
-    def owner(self) -> Concept:
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
         pass
 
-    @abstractmethod
-    def concept_maps(self) -> Iterator[ConceptMap]:
-        pass
+    @property
+    def native_object(self) -> Any:
+        if not self._native_object.thisown:
+            raise self._native_object_not_owned_exception
+        return self._native_object

@@ -19,69 +19,90 @@
 # under the License.
 #
 
-import typedb_protocol.common.concept_pb2 as concept_proto
+from __future__ import annotations
 
-from typedb.api.concept.type.role_type import RoleType, RemoteRoleType
+from typing import Iterator, Optional, TYPE_CHECKING, Any
+
+from typedb.native_client_wrapper import role_type_is_root, role_type_is_abstract, role_type_get_scope, \
+    role_type_get_name, role_type_delete, role_type_is_deleted, role_type_set_label, role_type_get_supertype, \
+    role_type_get_supertypes, role_type_get_subtypes, role_type_get_relation_instances, \
+    role_type_get_player_instances, role_type_get_relation_type, role_type_get_relation_types, \
+    role_type_get_player_types, concept_iterator_next
+
+from typedb.api.concept.type.role_type import RoleType
+from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.common.label import Label
-from typedb.common.rpc.request_builder import role_type_get_relation_types_req, role_type_get_player_types_req, \
-    role_type_get_player_types_explicit_req, role_type_get_relation_instances_req, \
-    role_type_get_relation_instances_explicit_req, role_type_get_player_instances_req, \
-    role_type_get_player_instances_explicit_req
-from typedb.concept.proto import concept_proto_reader
-from typedb.concept.type.type import _Type, _RemoteType
+from typedb.common.transitivity import Transitivity
+from typedb.concept.concept_factory import wrap_relation, wrap_thing, wrap_relation_type, wrap_thing_type
+from typedb.concept.type.type import _Type
+
+if TYPE_CHECKING:
+    from typedb.connection.transaction import _Transaction
+    from typedb.concept.thing.relation import _Relation
+    from typedb.concept.thing.thing import _Thing
+    from typedb.concept.type.relation_type import _RelationType
 
 
 class _RoleType(_Type, RoleType):
 
-    @staticmethod
-    def of(type_proto: concept_proto.Type):
-        return _RoleType(Label.of(type_proto.scope, type_proto.label), type_proto.is_root, type_proto.is_abstract)
+    def is_root(self) -> bool:
+        return role_type_is_root(self.native_object)
 
-    def as_remote(self, transaction):
-        return _RemoteRoleType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    def is_abstract(self) -> bool:
+        return role_type_is_abstract(self.native_object)
 
-    def as_role_type(self) -> "RoleType":
-        return self
+    def get_label(self) -> Label:
+        return Label.of(role_type_get_scope(self.native_object), role_type_get_name(self.native_object))
 
+    def delete(self, transaction: _Transaction) -> None:
+        role_type_delete(transaction.native_object, self.native_object)
 
-class _RemoteRoleType(_RemoteType, RemoteRoleType):
+    def is_deleted(self, transaction: _Transaction) -> bool:
+        return role_type_is_deleted(transaction.native_object, self.native_object)
 
-    def as_remote(self, transaction):
-        return _RemoteRoleType(transaction, self.get_label(), self.is_root(), self.is_abstract())
+    def set_label(self, transaction: _Transaction, new_label: Label) -> None:
+        role_type_set_label(transaction.native_object, self.native_object, new_label)
 
-    def as_role_type(self) -> "RemoteRoleType":
-        return self
+    def get_supertype(self, transaction: _Transaction) -> Optional[_RoleType]:
+        if res := role_type_get_supertype(transaction.native_object, self.native_object):
+            return _RoleType(res)
+        return None
 
-    def is_deleted(self) -> bool:
-        return self.get_relation_type() is not None and self.get_relation_type().as_remote(self._transaction_ext).get_relates(self.get_label().name()) is not None
+    def get_supertypes(self, transaction: _Transaction) -> Iterator[_RoleType]:
+        return map(_RoleType, IteratorWrapper(role_type_get_supertypes(transaction.native_object, self.native_object),
+                                              concept_iterator_next))
 
-    def get_relation_type(self):
-        return self._transaction_ext.concepts().get_relation_type(self.get_label().scope())
+    def get_subtypes(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[_RoleType]:
+        return map(_RoleType, IteratorWrapper(role_type_get_subtypes(transaction.native_object, self.native_object,
+                                                                     transitivity.value),
+                                              concept_iterator_next))
 
-    def get_relation_types(self):
-        return (concept_proto_reader.type_(rt) for rp in self.stream(role_type_get_relation_types_req(self.get_label()))
-                for rt in rp.role_type_get_relation_types_res_part.relation_types)
+    def get_relation_type(self, transaction: _Transaction) -> _RelationType:
+        return wrap_relation_type(role_type_get_relation_type(transaction.native_object, self.native_object))
 
-    def get_player_types(self):
-        return (concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_player_types_req(self.get_label()))
-                for tt in rp.role_type_get_player_types_res_part.thing_types)
+    def get_relation_types(self, transaction: _Transaction) -> Iterator[_RelationType]:
+        return map(wrap_relation_type,
+                   IteratorWrapper(role_type_get_relation_types(transaction.native_object, self.native_object),
+                                   concept_iterator_next))
 
-    def get_player_types_explicit(self):
-        return (concept_proto_reader.thing_type(tt) for rp in self.stream(role_type_get_player_types_explicit_req(self.get_label()))
-                for tt in rp.role_type_get_player_types_explicit_res_part.thing_types)
+    def get_player_types(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                         ) -> Iterator[Any]:
+        return map(wrap_thing_type,
+                   IteratorWrapper(role_type_get_player_types(transaction.native_object, self.native_object,
+                                                              transitivity.value),
+                                   concept_iterator_next))
 
-    def get_relation_instances(self):
-        return (concept_proto_reader.thing(t) for res in self.stream(role_type_get_relation_instances_req(self.get_label()))
-                for t in res.role_type_get_relation_instances_res_part.relations)
+    def get_relation_instances(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                               ) -> Iterator[_Relation]:
+        return map(wrap_relation,
+                   IteratorWrapper(role_type_get_relation_instances(transaction.native_object,
+                                                                    self.native_object, transitivity.value),
+                                   concept_iterator_next))
 
-    def get_relation_instances_explicit(self):
-        return (concept_proto_reader.thing(t) for res in self.stream(role_type_get_relation_instances_explicit_req(self.get_label()))
-                for t in res.role_type_get_relation_instances_explicit_res_part.relations)
-
-    def get_player_instances(self):
-        return (concept_proto_reader.thing(t) for res in self.stream(role_type_get_player_instances_req(self.get_label()))
-                for t in res.role_type_get_player_instances_res_part.things)
-
-    def get_player_instances_explicit(self):
-        return (concept_proto_reader.thing(t) for res in self.stream(role_type_get_player_instances_explicit_req(self.get_label()))
-                for t in res.role_type_get_player_instances_explicit_res_part.things)
+    def get_player_instances(self, transaction: _Transaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                             ) -> Iterator[_Thing]:
+        return map(wrap_thing, IteratorWrapper(role_type_get_player_instances(transaction.native_object,
+                                                                              self.native_object,
+                                                                              transitivity.value),
+                                               concept_iterator_next))

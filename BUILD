@@ -34,14 +34,27 @@ load("@vaticle_dependencies//distribution:deployment.bzl", "deployment")
 load(":deployment.bzl", github_deployment = "deployment")
 
 
+genrule(
+    name = "native-client-wrapper",
+    outs = ["typedb/native_client_wrapper.py"],
+    srcs = ["@vaticle_typedb_driver_java//rust:native_client_python_wrapper"],
+    cmd = "cp $< $@",
+    visibility = ["//visibility:public"]
+)
+
+genrule(
+    name = "native-client-binary",
+    outs = ["typedb/native_client_python.so"],
+    srcs = ["@vaticle_typedb_driver_java//rust:native_client_python"],
+    cmd = "cp $< $@",
+    visibility = ["//visibility:public"]
+)
+
 py_library(
     name = "client_python",
-    srcs = glob(["typedb/**/*.py"]),
-    deps = [
-        vaticle_typedb_client_python_requirement("typedb-protocol"),
-        vaticle_typedb_client_python_requirement("protobuf"),
-        vaticle_typedb_client_python_requirement("grpcio"),
-    ],
+    srcs = glob(["typedb/**/*.py"]) + [":native-client-wrapper"],
+    data = [":native-client-binary"],
+    deps = ["@vaticle_typedb_driver_java//rust:native_client_python_wrapper"],
     visibility = ["//visibility:public"]
 )
 
@@ -80,7 +93,7 @@ assemble_pip(
         "Environment :: Console",
         "Topic :: Database :: Front-Ends"
     ],
-    url = "https://github.com/vaticle/typedb-client-python/",
+    url = "https://github.com/vaticle/typedb-driver-python/",
     author = "Vaticle",
     author_email = "community@vaticle.com",
     license = "Apache-2.0",

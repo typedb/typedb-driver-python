@@ -18,56 +18,60 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import Iterator
 
-from typedb.api.answer.concept_map import ConceptMap
-from typedb.api.answer.concept_map_group import ConceptMapGroup
-from typedb.api.answer.numeric import Numeric
-from typedb.api.answer.numeric_group import NumericGroup
-from typedb.api.connection.options import TypeDBOptions
-from typedb.api.logic.explanation import Explanation
-from typedb.api.query.future import QueryFuture
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import Iterator, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.api.answer.concept_map_group import ConceptMapGroup
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.answer.numeric_group import NumericGroup
+    from typedb.api.connection.options import TypeDBOptions
+    from typedb.api.logic.explanation import Explanation
 
 
 class QueryManager(ABC):
 
     @abstractmethod
-    def match(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def match(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod
-    def match_aggregate(self, query: str, options: TypeDBOptions = None) -> QueryFuture[Numeric]:
+    def match_aggregate(self, query: str, options: Optional[TypeDBOptions] = None) -> Numeric:
         pass
 
     @abstractmethod
-    def match_group(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMapGroup]:
+    def match_group(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMapGroup]:
         pass
 
     @abstractmethod
-    def match_group_aggregate(self, query: str, options: TypeDBOptions = None) -> Iterator[NumericGroup]:
+    def match_group_aggregate(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[NumericGroup]:
         pass
 
     @abstractmethod
-    def insert(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def insert(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod
-    def delete(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def delete(self, query: str, options: Optional[TypeDBOptions] = None) -> None:
         pass
 
     @abstractmethod
-    def update(self, query: str, options: TypeDBOptions = None) -> Iterator[ConceptMap]:
+    def define(self, query: str, options: TypeDBOptions = None) -> None:
         pass
 
     @abstractmethod
-    def explain(self, explainable: ConceptMap.Explainable, options: TypeDBOptions = None) -> Iterator[Explanation]:
+    def undefine(self, query: str, options: TypeDBOptions = None) -> None:
         pass
 
     @abstractmethod
-    def define(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def update(self, query: str, options: Optional[TypeDBOptions] = None) -> Iterator[ConceptMap]:
         pass
 
     @abstractmethod
-    def undefine(self, query: str, options: TypeDBOptions = None) -> QueryFuture:
+    def explain(self, explainable: ConceptMap.Explainable, options: Optional[TypeDBOptions] = None
+                ) -> Iterator[Explanation]:
         pass

@@ -44,8 +44,8 @@ def setup_context_client(context, username=None, password=None):
     if username is not None or password is not None:
         raise Exception("Core client does not support authentication")
     context.client = TypeDB.core_client(address="localhost:%d" % int(context.config.userdata["port"]))
-    context.session_options = TypeDBOptions.core().set_infer(True)
-    context.transaction_options = TypeDBOptions.core().set_infer(True)
+    context.session_options = TypeDBOptions(infer=True)
+    context.transaction_options = TypeDBOptions(infer=True)
 
 
 def after_scenario(context: Context, scenario):
@@ -53,9 +53,10 @@ def after_scenario(context: Context, scenario):
 
     # TODO: reset the database through the TypeDB runner once it exists
     context.setup_context_client_fn()
-    for database in context.client.databases().all():
+    for database in context.client.databases.all():
         database.delete()
     context.client.close()
+
 
 def after_all(context: Context):
     environment_base.after_all(context)

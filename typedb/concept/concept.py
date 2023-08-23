@@ -18,18 +18,35 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC
 
-from typedb.api.concept.concept import Concept, RemoteConcept
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+from typedb.native_client_wrapper import concept_to_string, concept_equals, Concept as NativeConcept
+
+from typedb.api.concept.concept import Concept
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, NULL_NATIVE_OBJECT
+from typedb.common.native_wrapper import NativeWrapper
 
 
-class _Concept(Concept, ABC):
+class _Concept(Concept, NativeWrapper[NativeConcept], ABC):
 
-    def is_remote(self):
-        return False
+    def __init__(self, concept: NativeConcept):
+        if not concept:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+        super().__init__(concept)
 
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-class _RemoteConcept(RemoteConcept, ABC):
+    def __repr__(self):
+        return concept_to_string(self.native_object)
 
-    def is_remote(self):
-        return True
+    def __eq__(self, other):
+        return other and isinstance(other, _Concept) and concept_equals(self.native_object, other.native_object)
+
+    @abstractmethod
+    def __hash__(self):
+        pass

@@ -18,105 +18,68 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import TYPE_CHECKING, Union
 
-import typedb_protocol.common.logic_pb2 as logic_proto
+from __future__ import annotations
 
-from typedb.api.logic.rule import Rule, RemoteRule
-from typedb.common.exception import TypeDBClientException, MISSING_LABEL, MISSING_TRANSACTION
-from typedb.common.rpc.request_builder import rule_set_label_req, rule_delete_req
+from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import rule_get_when, rule_get_then, rule_get_label, rule_set_label, rule_delete, \
+    rule_is_deleted, rule_to_string, Rule as NativeRule
+
+from typedb.api.logic.rule import Rule
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, NULL_NATIVE_OBJECT, ILLEGAL_STATE
+from typedb.common.native_wrapper import NativeWrapper
 
 if TYPE_CHECKING:
-    from typedb.api.connection.transaction import _TypeDBTransactionExtended, TypeDBTransaction
+    from typedb.connection.transaction import _Transaction
 
 
-class _Rule(Rule):
+class _Rule(Rule, NativeWrapper[NativeRule]):
 
-    def __init__(self, label: str, when: str, then: str):
-        if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
-        self._label = label
-        self._when = when
-        self._then = then
-        self._hash = hash(label)
+    def __init__(self, rule: NativeRule):
+        if not rule:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+        super().__init__(rule)
+        self._rule = rule
+        self._when = rule_get_when(self._rule)
+        self._then = rule_get_then(self._rule)
 
-    @staticmethod
-    def of(rule_proto: logic_proto.Rule):
-        return _Rule(rule_proto.label, rule_proto.when, rule_proto.then)
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
-    def get_label(self):
-        return self._label
+    @property
+    def label(self) -> str:
+        return rule_get_label(self.native_object)
 
-    def get_when(self):
+    def set_label(self, transaction: _Transaction, new_label: str) -> None:
+        if not new_label:
+            raise TypeDBClientExceptionExt(MISSING_LABEL)
+        rule_set_label(transaction.logic, self.native_object, new_label)
+
+    @property
+    def when(self) -> str:
         return self._when
 
-    def get_then(self):
+    @property
+    def then(self) -> str:
         return self._then
 
-    def as_remote(self, transaction):
-        return _RemoteRule(transaction, self.get_label(), self.get_when(), self.get_then())
+    def delete(self, transaction: _Transaction) -> None:
+        rule_delete(transaction.logic, self.native_object)
 
-    def is_remote(self):
-        return False
+    def is_deleted(self, transaction: _Transaction) -> bool:
+        return rule_is_deleted(transaction.logic, self.native_object)
 
-    def __str__(self):
-        return type(self).__name__ + "[label: %s]" % self.get_label()
+    def __repr__(self):
+        return rule_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self.get_label() == other.get_label()
+        return self.label == other.label
 
     def __hash__(self):
-        return self._hash
-
-
-class _RemoteRule(RemoteRule):
-
-    def __init__(self, transaction_ext: Union["_TypeDBTransactionExtended", "TypeDBTransaction"], label: str, when: str, then: str):
-        if not transaction_ext:
-            raise TypeDBClientException.of(MISSING_TRANSACTION)
-        if not label:
-            raise TypeDBClientException.of(MISSING_LABEL)
-        self._transaction_ext = transaction_ext
-        self._label = label
-        self._when = when
-        self._then = then
-        self._hash = hash((transaction_ext, label))
-
-    def get_label(self):
-        return self._label
-
-    def get_when(self):
-        return self._when
-
-    def get_then(self):
-        return self._then
-
-    def set_label(self, new_label: str):
-        self._transaction_ext.execute(rule_set_label_req(self._label, new_label))
-        self._label = new_label
-
-    def delete(self):
-        self._transaction_ext.execute(rule_delete_req(self._label))
-
-    def is_deleted(self):
-        return not self._transaction_ext.logic().get_rule(self.get_label())
-
-    def as_remote(self, transaction):
-        return _RemoteRule(transaction, self.get_label(), self.get_when(), self.get_then())
-
-    def is_remote(self):
-        return True
-
-    def __eq__(self, other):
-        if other is self:
-            return True
-        if not other or type(self) != type(other):
-            return False
-        return self._transaction_ext is other._transaction_ext and self.get_label() == other.get_label()
-
-    def __hash__(self):
-        return super(RemoteRule, self).__hash__()
+        return hash(self.label)

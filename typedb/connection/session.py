@@ -18,110 +18,72 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-import time
-from typing import TYPE_CHECKING
 
-import typedb_protocol.common.session_pb2 as session_proto
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
+from typedb.native_client_wrapper import session_new, session_on_close, session_force_close, session_is_open, \
+    session_get_database_name, SessionCallbackDirector, Session as NativeSession
 
 from typedb.api.connection.options import TypeDBOptions
-from typedb.api.connection.session import TypeDBSession, SessionType
-from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
-from typedb.common.concurrent.atomic import AtomicBoolean
-from typedb.common.concurrent.lock import ReadWriteLock
-from typedb.common.rpc.request_builder import session_open_req
-from typedb.common.rpc.stub import TypeDBStub
-from typedb.connection.database import _TypeDBDatabaseImpl
-from typedb.connection.transaction import _TypeDBTransactionImpl
-from typedb.stream.request_transmitter import RequestTransmitter
-
-from typedb.common.exception import TypeDBClientException
+from typedb.api.connection.session import TypeDBSession
+from typedb.common.exception import TypeDBClientExceptionExt, SESSION_CLOSED
+from typedb.common.native_wrapper import NativeWrapper
+from typedb.connection.transaction import _Transaction
 
 if TYPE_CHECKING:
-    from typedb.connection.client import _TypeDBClientImpl
+    from typedb.api.connection.session import SessionType
+    from typedb.api.connection.transaction import TypeDBTransaction, TransactionType
+    from typedb.connection.database import _Database
 
 
-class _TypeDBSessionImpl(TypeDBSession):
-    def __init__(self, client: "_TypeDBClientImpl", database: str, session_type: SessionType, options: TypeDBOptions = None):
+class _Session(TypeDBSession, NativeWrapper[NativeSession]):
+
+    def __init__(self, database: _Database, session_type: SessionType, options: Optional[TypeDBOptions] = None):
         if not options:
-            options = TypeDBOptions.core()
-        self._client = client
-        self._address = client.address()
-        self._session_type = session_type
+            options = TypeDBOptions()
+        self._type = session_type
         self._options = options
-        self._rw_lock = ReadWriteLock()
-        self._database = _TypeDBDatabaseImpl(stub=self._stub(), name=database)
+        native_database = database.native_object
+        native_database.thisown = 0
+        super().__init__(session_new(native_database, session_type.value, options.native_object))
 
-        start_time = time.time() * 1000.0
-        res = self._stub().session_open(session_open_req(database, session_type.proto(), options.proto()))
-        end_time = time.time() * 1000.0
-        self._network_latency_millis = max(int(end_time - start_time - res.server_duration_millis), 1)
-        self._session_id = res.session_id
-        self._is_open = AtomicBoolean(True)
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(SESSION_CLOSED)
 
     def is_open(self) -> bool:
-        return self._is_open.get()
+        return session_is_open(self.native_object)
 
-    def session_type(self) -> SessionType:
-        return self._session_type
+    @property
+    def type(self) -> SessionType:
+        return self._type
 
-    def database(self) -> _TypeDBDatabaseImpl:
-        return self._database
+    def database_name(self) -> str:
+        return session_get_database_name(self.native_object)
 
+    @property
     def options(self) -> TypeDBOptions:
         return self._options
 
     def transaction(self, transaction_type: TransactionType, options: TypeDBOptions = None) -> TypeDBTransaction:
-        if not options:
-            options = TypeDBOptions.core()
-        try:
-            self._rw_lock.acquire_read()
-            return _TypeDBTransactionImpl(self, transaction_type, options)
-        finally:
-            self._rw_lock.release_read()
-
-    def session_id(self) -> bytes:
-        return self._session_id
-
-    def address(self) -> str:
-        return self._client.address()
-
-    def transmitter(self) -> RequestTransmitter:
-        return self._client.transmitter()
-
-    def network_latency_millis(self) -> int:
-        return self._network_latency_millis
+        return _Transaction(self, transaction_type, options)
 
     def close(self) -> None:
-        try:
-            self._rw_lock.acquire_write()
-            if self._is_open.compare_and_set(True, False):
-                self._client.remove_session(self)
-                req = session_proto.Session.Close.Req()
-                req.session_id = self._session_id
-                try:
-                    self._stub().session_close(req)
-                except TypeDBClientException:  # This generally means the session is already closed.
-                    pass
-        finally:
-            self._rw_lock.release_write()
+        session_force_close(self.native_object)
 
-    def client(self) -> "_TypeDBClientImpl":
-        return self._client
+    def on_close(self, function: callable):
+        session_on_close(self.native_object, _Session.Callback(function).__disown__())
 
-    def transmit_pulse(self):
-        if not self.is_open():
-            return
-        pulse_req = session_proto.Session.Pulse.Req()
-        pulse_req.session_id = self._session_id
-        try:
-            alive = self._stub().session_pulse(pulse_req).alive
-        except TypeDBClientException:
-            alive = False
-        if not alive:
-            self._is_open.set(False)
+    class Callback(SessionCallbackDirector):
 
-    def _stub(self) -> TypeDBStub:
-        return self._client.stub()
+        def __init__(self, function: callable):
+            super().__init__()
+            self._function = function
+
+        def callback(self) -> None:
+            self._function()
 
     def __enter__(self):
         return self

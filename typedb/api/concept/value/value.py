@@ -18,105 +18,122 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Mapping, Union
+from enum import Enum
+from typing import Mapping, Union
 
-from typedb.api.concept.concept import Concept, ValueType
-from typedb.api.connection.transaction import TypeDBTransaction
-from typedb.common.exception import TypeDBClientException, VALUE_HAS_NO_REMOTE
+from typedb.native_client_wrapper import Object, Boolean, Long, Double, String, DateTime
 
+from typedb.api.concept.concept import Concept
+from typedb.common.exception import TypeDBClientExceptionExt, UNEXPECTED_NATIVE_VALUE
 
 
 class Value(Concept, ABC):
 
     @abstractmethod
-    def get_value_type(self) -> "ValueType":
+    def get_value_type(self) -> ValueType:
         pass
 
     @abstractmethod
-    def get_value(self) -> Union[bool, int, float, str, datetime]:
+    def get(self) -> Union[bool, int, float, str, datetime]:
         pass
 
-    def is_value(self):
+    def is_value(self) -> bool:
         return True
 
-    def is_boolean(self):
-        return False
+    def as_value(self) -> Value:
+        return self
 
-    def is_long(self):
-        return False
-
-    def is_double(self):
-        return False
-
-    def is_string(self):
-        return False
-
-    def is_datetime(self):
-        return False
-
-    def as_remote(self, transaction: "TypeDBTransaction"):
-        raise TypeDBClientException.of(VALUE_HAS_NO_REMOTE)
-
-    def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
-        return {
-            "value_type": str(self.get_value_type()),
-            "value": self.get_value(),
-        }
-
-
-class BooleanValue(Value, ABC):
-
+    @abstractmethod
     def is_boolean(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> bool:
         pass
 
-
-class LongValue(Value, ABC):
-
+    @abstractmethod
     def is_long(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> int:
         pass
 
-
-class DoubleValue(Value, ABC):
-
+    @abstractmethod
     def is_double(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> float:
         pass
 
-
-class StringValue(Value, ABC):
-
+    @abstractmethod
     def is_string(self) -> bool:
-        return True
-
-    @abstractmethod
-    def get_value(self) -> str:
         pass
 
-
-class DateTimeValue(Value, ABC):
-
+    @abstractmethod
     def is_datetime(self) -> bool:
-        return True
+        pass
 
     @abstractmethod
-    def get_value(self) -> datetime:
+    def as_boolean(self) -> bool:
+        pass
+
+    @abstractmethod
+    def as_long(self) -> int:
+        pass
+
+    @abstractmethod
+    def as_double(self) -> float:
+        pass
+
+    @abstractmethod
+    def as_string(self) -> str:
+        pass
+
+    @abstractmethod
+    def as_datetime(self) -> datetime:
         pass
 
     def to_json(self) -> Mapping[str, Union[str, int, float, bool]]:
         return {
             "value_type": str(self.get_value_type()),
-            "value": self.get_value().isoformat(timespec='milliseconds')
+            "value": self.get() if not self.is_datetime() else self.get().isoformat(timespec='milliseconds')
         }
+
+
+class _ValueType:
+
+    def __init__(self, is_writable: bool, is_keyable: bool, native_object):
+        self._is_writable = is_writable
+        self._is_keyable = is_keyable
+        self._native_object = native_object
+
+    @property
+    def native_object(self):
+        return self._native_object
+
+    def is_writable(self) -> bool:
+        return self._is_writable
+
+    def is_keyable(self) -> bool:
+        return self._is_keyable
+
+
+class ValueType(Enum):
+    OBJECT = _ValueType(False, False, Object)
+    BOOLEAN = _ValueType(True, False, Boolean)
+    LONG = _ValueType(True, True, Long)
+    DOUBLE = _ValueType(True, False, Double)
+    STRING = _ValueType(True, True, String)
+    DATETIME = _ValueType(True, True, DateTime)
+
+    @property
+    def native_object(self):
+        return self.value.native_object
+
+    def __str__(self):
+        return self.name.lower()
+
+    def __repr__(self):
+        return str(self)
+
+    @staticmethod
+    def of(value_type: Union[Object, Boolean, Long, Double, String, DateTime]) -> ValueType:
+        for type_ in ValueType:
+            if type_.native_object == value_type:
+                return type_
+        raise TypeDBClientExceptionExt(UNEXPECTED_NATIVE_VALUE)

@@ -18,13 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional, Dict, Iterator
 
-from typedb.api.concept.thing.thing import Thing, RemoteThing
-from typedb.api.concept.type.role_type import RoleType
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Iterator
+
+from typedb.api.concept.thing.thing import Thing
 
 if TYPE_CHECKING:
+    from typedb.api.concept.type.role_type import RoleType
     from typedb.api.concept.type.relation_type import RelationType
     from typedb.api.connection.transaction import TypeDBTransaction
 
@@ -34,33 +37,29 @@ class Relation(Thing, ABC):
     def is_relation(self) -> bool:
         return True
 
+    def as_relation(self) -> Relation:
+        return self
+
     @abstractmethod
-    def get_type(self) -> "RelationType":
+    def get_type(self) -> RelationType:
         pass
 
     @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteRelation":
-        pass
-
-
-class RemoteRelation(RemoteThing, Relation, ABC):
-
-    @abstractmethod
-    def add_player(self, role_type: "RoleType", player: Thing) -> None:
+    def add_player(self, transaction: TypeDBTransaction, role_type: RoleType, player: Thing) -> None:
         pass
 
     @abstractmethod
-    def remove_player(self, role_type: "RoleType", player: Thing) -> None:
+    def remove_player(self, transaction: TypeDBTransaction, role_type: RoleType, player: Thing) -> None:
         pass
 
     @abstractmethod
-    def get_players(self, role_types: Optional[List["RoleType"]] = None) -> Iterator[Thing]:
+    def get_players_by_role_type(self, transaction: TypeDBTransaction, *role_types: RoleType) -> Iterator[Thing]:
         pass
 
     @abstractmethod
-    def get_players_by_role_type(self) -> Dict["RoleType", List[Thing]]:
+    def get_players(self, transaction: TypeDBTransaction) -> dict[RoleType, list[Thing]]:
         pass
 
     @abstractmethod
-    def get_relating(self) -> Iterator["RoleType"]:
+    def get_relating(self, transaction: TypeDBTransaction) -> Iterator[RoleType]:
         pass

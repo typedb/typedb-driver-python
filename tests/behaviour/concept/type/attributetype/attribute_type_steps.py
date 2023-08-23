@@ -19,55 +19,38 @@
 # under the License.
 #
 
+from __future__ import annotations
 from behave import *
 from hamcrest import *
 
-from tests.behaviour.config.parameters import parse_value_type, parse_list, parse_label
+from tests.behaviour.config.parameters import parse_list, parse_label
 from tests.behaviour.context import Context
 from typedb.client import *
 
 
 @step("put attribute type: {type_label}, with value type: {value_type:ValueType}")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
-    context.tx().concepts().put_attribute_type(type_label, value_type)
+    context.tx().concepts.put_attribute_type(type_label, value_type)
 
 
 @step("attribute({type_label}) get value type: {value_type:ValueType}")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
-    assert_that(context.tx().concepts().get_attribute_type(type_label).get_value_type(),
+    assert_that(context.tx().concepts.get_attribute_type(type_label).get_value_type(),
                 is_(value_type))
 
 
 @step("attribute({type_label}) get supertype value type: {value_type:ValueType}")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
-    supertype = context.tx().concepts().get_attribute_type(type_label).as_remote(
-        context.tx()).get_supertype().as_attribute_type()
+    supertype = context.tx().concepts.get_attribute_type(type_label).get_supertype(context.tx()).as_attribute_type()
     assert_that(supertype.get_value_type(), is_(value_type))
-
-
-def attribute_type_as_value_type(context: Context, type_label: str, value_type: ValueType):
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
-    if value_type is ValueType.OBJECT:
-        return attribute_type
-    elif value_type is ValueType.BOOLEAN:
-        return attribute_type.as_boolean()
-    elif value_type is ValueType.LONG:
-        return attribute_type.as_long()
-    elif value_type is ValueType.DOUBLE:
-        return attribute_type.as_double()
-    elif value_type is ValueType.STRING:
-        return attribute_type.as_string()
-    elif value_type is ValueType.DATETIME:
-        return attribute_type.as_datetime()
-    else:
-        raise ValueError("Unrecognised value type: " + str(value_type))
 
 
 @step("attribute({type_label}) as({value_type:ValueType}) get subtypes contain")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(),
+                                                                                              value_type)))
     for sub_label in sub_labels:
         assert_that(sub_label, is_in(actuals))
 
@@ -75,8 +58,9 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 @step("attribute({type_label}) as({value_type:ValueType}) get subtypes do not contain")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_subtypes()))
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(),
+                                                                                              value_type)))
     for sub_label in sub_labels:
         assert_that(sub_label, not_(is_in(actuals)))
 
@@ -84,42 +68,42 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 @step("attribute({type_label}) as({value_type:ValueType}) set regex: {regex}")
 def step_impl(context: Context, type_label: str, value_type: ValueType, regex: str):
     assert_that(value_type, is_(ValueType.STRING))
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    attribute_type.as_remote(context.tx()).set_regex(regex)
+    attribute_type = context.tx().concepts.put_attribute_type(type_label, value_type)
+    attribute_type.set_regex(context.tx(), regex)
 
 
 @step("attribute({type_label}) as({value_type:ValueType}) unset regex")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     assert_that(value_type, is_(ValueType.STRING))
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    attribute_type.as_remote(context.tx()).set_regex(None)
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
+    attribute_type.unset_regex(context.tx())
 
 
 @step("attribute({type_label}) as({value_type:ValueType}) get regex: {regex}")
 def step_impl(context: Context, type_label: str, value_type: ValueType, regex: str):
     assert_that(value_type, is_(ValueType.STRING))
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    assert_that(attribute_type.as_remote(context.tx()).get_regex(), is_(regex))
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
+    assert_that(attribute_type.get_regex(context.tx()), is_(regex))
 
 
 @step("attribute({type_label}) as({value_type:ValueType}) does not have any regex")
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     assert_that(value_type, is_(ValueType.STRING))
-    attribute_type = attribute_type_as_value_type(context, type_label, value_type)
-    assert_that(attribute_type.as_remote(context.tx()).get_regex(), is_(None))
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
+    assert_that(attribute_type.get_regex(context.tx()), is_(None))
 
 
-def attribute_get_owners_with_annotations_contain(context: Context, type_label: str, annotations: Set["Annotation"]):
+def attribute_get_owners_with_annotations_contain(context: Context, type_label: str, annotations: set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
-        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(annotations=annotations)))
+        map(lambda tt: tt.get_label(), attribute_type.get_owners(context.tx(), annotations=annotations)))
     for owner_label in owner_labels:
         assert_that(actuals, has_item(owner_label))
 
 
 @step("attribute({type_label}) get owners, with annotations: {annotations:Annotations}; contain")
-def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
+def step_impl(context: Context, type_label: str, annotations: set[Annotation]):
     attribute_get_owners_with_annotations_contain(context, type_label, annotations)
 
 
@@ -129,17 +113,17 @@ def step_impl(context: Context, type_label: str):
 
 
 def attribute_get_owners_with_annotations_do_not_contain(context: Context, type_label: str,
-                                                         annotations: Set["Annotation"]):
+                                                         annotations: set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
-        map(lambda tt: tt.get_label(), attribute_type.as_remote(context.tx()).get_owners(annotations=annotations)))
+        map(lambda tt: tt.get_label(), attribute_type.get_owners(context.tx(), annotations=annotations)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
 
 
 @step("attribute({type_label}) get owners, with annotations: {annotations:Annotations}; do not contain")
-def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
+def step_impl(context: Context, type_label: str, annotations: set[Annotation]):
     attribute_get_owners_with_annotations_do_not_contain(context, type_label, annotations)
 
 
@@ -149,18 +133,18 @@ def step_impl(context: Context, type_label: str):
 
 
 def attribute_get_owners_explicit_with_annotations_contain(context: Context, type_label: str,
-                                                           annotations: Set["Annotation"]):
+                                                           annotations: set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(),
-            attribute_type.as_remote(context.tx()).get_owners_explicit(annotations=annotations)))
+            attribute_type.get_owners(context.tx(), annotations=annotations, transitivity=Transitivity.EXPLICIT)))
     for owner_label in owner_labels:
         assert_that(actuals, has_item(owner_label))
 
 
 @step("attribute({type_label}) get owners explicit, with annotations: {annotations:Annotations}; contain")
-def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
+def step_impl(context: Context, type_label: str, annotations: set[Annotation]):
     attribute_get_owners_explicit_with_annotations_contain(context, type_label, annotations)
 
 
@@ -170,18 +154,18 @@ def step_impl(context: Context, type_label: str):
 
 
 def attribute_get_owners_explicit_with_annotations_do_not_contain(context: Context, type_label: str,
-                                                                  annotations: Set["Annotation"]):
+                                                                  annotations: set[Annotation]):
     owner_labels = [parse_label(s) for s in parse_list(context.table)]
-    attribute_type = context.tx().concepts().get_attribute_type(type_label)
+    attribute_type = context.tx().concepts.get_attribute_type(type_label)
     actuals = list(
         map(lambda tt: tt.get_label(),
-            attribute_type.as_remote(context.tx()).get_owners_explicit(annotations=annotations)))
+            attribute_type.get_owners(context.tx(), annotations=annotations, transitivity=Transitivity.EXPLICIT)))
     for owner_label in owner_labels:
         assert_that(actuals, not_(has_item(owner_label)))
 
 
 @step("attribute({type_label}) get owners explicit, with annotations: {annotations:Annotations}; do not contain")
-def step_impl(context: Context, type_label: str, annotations: Set["Annotation"]):
+def step_impl(context: Context, type_label: str, annotations: set[Annotation]):
     attribute_get_owners_explicit_with_annotations_do_not_contain(context, type_label, annotations)
 
 

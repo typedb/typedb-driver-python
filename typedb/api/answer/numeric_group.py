@@ -18,10 +18,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from abc import ABC, abstractmethod
 
-from typedb.api.answer.numeric import Numeric
-from typedb.api.concept.concept import Concept
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typedb.api.answer.numeric import Numeric
+    from typedb.api.concept.concept import Concept
 
 
 class NumericGroup(ABC):

@@ -18,59 +18,64 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import Mapping, Set
 
-import typedb_protocol.common.logic_pb2 as logic_proto
+from __future__ import annotations
 
-from typedb.api.answer.concept_map import ConceptMap
+from typing import TYPE_CHECKING
+
+from typedb.native_client_wrapper import explanation_get_rule, explanation_get_conclusion, \
+    explanation_get_mapped_variables, explanation_get_condition, string_iterator_next, \
+    explanation_get_mapping, explanation_to_string, explanation_equals, Explanation as NativeExplanation
+
 from typedb.api.logic.explanation import Explanation
-from typedb.api.logic.rule import Rule
+from typedb.common.exception import TypeDBClientExceptionExt, ILLEGAL_STATE, MISSING_VARIABLE, NULL_NATIVE_OBJECT
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.concept.answer.concept_map import _ConceptMap
 from typedb.logic.rule import _Rule
 
-
-def _var_mapping_of(var_mapping: Mapping[str, logic_proto.Explanation.VarList]):
-    mapping = {}
-    for from_ in var_mapping:
-        tos = var_mapping[from_]
-        mapping[from_] = set(tos.vars)
-    return mapping
+if TYPE_CHECKING:
+    from typedb.api.answer.concept_map import ConceptMap
+    from typedb.api.logic.rule import Rule
 
 
-class _Explanation(Explanation):
+class _Explanation(Explanation, NativeWrapper[NativeExplanation]):
 
-    def __init__(self, rule: Rule, variable_mapping: Mapping[str, Set[str]], conclusion: ConceptMap, condition: ConceptMap):
-        self._rule = rule
-        self._variable_mapping = variable_mapping
-        self._conclusion = conclusion
-        self._condition = condition
+    def __init__(self, explanation: NativeExplanation):
+        if not explanation:
+            raise TypeDBClientExceptionExt(NULL_NATIVE_OBJECT)
+        super().__init__(explanation)
 
-    @staticmethod
-    def of(explanation: logic_proto.Explanation):
-        return _Explanation(_Rule.of(explanation.rule), _var_mapping_of(explanation.var_mapping),
-                            _ConceptMap.of(explanation.conclusion), _ConceptMap.of(explanation.condition))
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(ILLEGAL_STATE)
 
     def rule(self) -> Rule:
-        return self._rule
-
-    def variable_mapping(self) -> Mapping[str, Set[str]]:
-        return self._variable_mapping
+        return _Rule(explanation_get_rule(self.native_object))
 
     def conclusion(self) -> ConceptMap:
-        return self._conclusion
+        return _ConceptMap(explanation_get_conclusion(self.native_object))
 
     def condition(self) -> ConceptMap:
-        return self._condition
+        return _ConceptMap(explanation_get_condition(self.native_object))
 
-    def __str__(self):
-        return "Explanation[rule: %s, variable_mapping: %s, then_answer: %s, when_answer: %s]" % (self._rule, self._variable_mapping, self._conclusion, self._condition)
+    def query_variables(self) -> set[str]:
+        return set(IteratorWrapper(explanation_get_mapped_variables(self.native_object), string_iterator_next))
+
+    def query_variable_mapping(self, var: str) -> set[str]:
+        if not var:
+            raise TypeDBClientExceptionExt(MISSING_VARIABLE)
+        return set(IteratorWrapper(explanation_get_mapping(self.native_object, var), string_iterator_next))
+
+    def __repr__(self):
+        return explanation_to_string(self.native_object)
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._rule == other._rule and self._variable_mapping == other._variable_mapping and self._conclusion == other._conclusion and self._condition == other._condition
+        return explanation_equals(self.native_object, other.native_object)
 
     def __hash__(self):
-        return hash((self._rule, self._variable_mapping, self._conclusion, self._condition))
+        return hash((self.rule(), self.condition(), self.conclusion()))

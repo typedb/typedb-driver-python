@@ -18,36 +18,48 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-from typing import TYPE_CHECKING
 
-import typedb_protocol.common.transaction_pb2 as transaction_proto
+from __future__ import annotations
+
+from typing import Optional
+
+from typedb.native_client_wrapper import logic_manager_get_rule, logic_manager_get_rules, rule_iterator_next, \
+    logic_manager_put_rule, Transaction as NativeTransaction
 
 from typedb.api.logic.logic_manager import LogicManager
-from typedb.common.rpc.request_builder import logic_manager_get_rule_req, logic_manager_get_rules_req, \
-    logic_manager_put_rule_req
+from typedb.api.logic.rule import Rule
+from typedb.common.exception import TypeDBClientExceptionExt, MISSING_LABEL, TRANSACTION_CLOSED
+from typedb.common.iterator_wrapper import IteratorWrapper
+from typedb.common.native_wrapper import NativeWrapper
 from typedb.logic.rule import _Rule
 
-if TYPE_CHECKING:
-    from typedb.api.connection.transaction import _TypeDBTransactionExtended
+
+def _not_blank_label(label: str) -> str:
+    if not label or label.isspace():
+        raise TypeDBClientExceptionExt.of(MISSING_LABEL)
+    return label
 
 
-class _LogicManager(LogicManager):
+class _LogicManager(LogicManager, NativeWrapper[NativeTransaction]):
 
-    def __init__(self, transaction_ext: "_TypeDBTransactionExtended"):
-        self._transaction_ext = transaction_ext
+    def __init__(self, transaction: NativeTransaction):
+        super().__init__(transaction)
 
-    def get_rule(self, label: str):
-        res = self.execute(logic_manager_get_rule_req(label))
-        return _Rule.of(res.get_rule_res.rule) if res.get_rule_res.WhichOneof("res") == "rule" else None
+    @property
+    def _native_object_not_owned_exception(self) -> TypeDBClientExceptionExt:
+        return TypeDBClientExceptionExt.of(TRANSACTION_CLOSED)
+
+    @property
+    def _native_transaction(self) -> NativeTransaction:
+        return self.native_object
+
+    def get_rule(self, label: str) -> Optional[Rule]:
+        if rule := logic_manager_get_rule(self._native_transaction, _not_blank_label(label)):
+            return _Rule(rule)
+        return None
 
     def get_rules(self):
-        return (_Rule.of(r) for rp in self.stream(logic_manager_get_rules_req()) for r in rp.get_rules_res_part.rules)
+        return map(_Rule, IteratorWrapper(logic_manager_get_rules(self._native_transaction), rule_iterator_next))
 
     def put_rule(self, label: str, when: str, then: str):
-        return _Rule.of(self.execute(logic_manager_put_rule_req(label, when, then)).put_rule_res.rule)
-
-    def execute(self, req: transaction_proto.Transaction.Req):
-        return self._transaction_ext.execute(req).logic_manager_res
-
-    def stream(self, req: transaction_proto.Transaction.Req):
-        return map(lambda rp: rp.logic_manager_res_part, self._transaction_ext.stream(req))
+        return _Rule(logic_manager_put_rule(self._native_transaction, _not_blank_label(label), when, then))

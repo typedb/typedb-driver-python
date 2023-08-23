@@ -18,13 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterator
 
-from typedb.api.concept.thing.entity import Entity
-from typedb.api.concept.type.thing_type import ThingType, RemoteThingType
+from typedb.api.concept.type.thing_type import ThingType
+from typedb.common.transitivity import Transitivity
 
 if TYPE_CHECKING:
+    from typedb.api.concept.thing.entity import Entity
     from typedb.api.connection.transaction import TypeDBTransaction
 
 
@@ -33,25 +37,23 @@ class EntityType(ThingType, ABC):
     def is_entity_type(self):
         return True
 
-    @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteEntityType":
-        pass
-
-
-class RemoteEntityType(RemoteThingType, EntityType, ABC):
+    def as_entity_type(self) -> EntityType:
+        return self
 
     @abstractmethod
-    def create(self) -> "Entity":
+    def create(self, transaction: TypeDBTransaction) -> Entity:
         pass
 
     @abstractmethod
-    def get_instances(self) -> Iterator["Entity"]:
+    def get_subtypes(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                     ) -> Iterator[EntityType]:
         pass
 
     @abstractmethod
-    def get_subtypes(self) -> Iterator[EntityType]:
+    def get_instances(self, transaction: TypeDBTransaction, transitivity: Transitivity = Transitivity.TRANSITIVE
+                      ) -> Iterator[Entity]:
         pass
 
     @abstractmethod
-    def set_supertype(self, entity_type: EntityType) -> None:
+    def set_supertype(self, transaction: TypeDBTransaction, super_entity_type: EntityType):
         pass

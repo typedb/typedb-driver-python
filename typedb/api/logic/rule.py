@@ -18,6 +18,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -27,37 +30,29 @@ if TYPE_CHECKING:
 
 class Rule(ABC):
 
+    @property
     @abstractmethod
-    def get_label(self) -> str:
+    def label(self) -> str:
         pass
 
     @abstractmethod
-    def get_when(self) -> str:
+    def set_label(self, transaction: TypeDBTransaction, new_label: str) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def when(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def then(self) -> str:
         pass
 
     @abstractmethod
-    def get_then(self) -> str:
+    def delete(self, transaction: TypeDBTransaction) -> None:
         pass
 
     @abstractmethod
-    def as_remote(self, transaction: "TypeDBTransaction") -> "RemoteRule":
-        pass
-
-    @abstractmethod
-    def is_remote(self) -> bool:
-        pass
-
-
-class RemoteRule(Rule, ABC):
-
-    @abstractmethod
-    def set_label(self, label: str) -> None:
-        pass
-
-    @abstractmethod
-    def delete(self) -> None:
-        pass
-
-    @abstractmethod
-    def is_deleted(self) -> bool:
+    def is_deleted(self, transaction: TypeDBTransaction) -> bool:
         pass
