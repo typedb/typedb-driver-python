@@ -160,7 +160,7 @@ def step_impl(context: Context, var1: str, type_label: str, var2: str):
 def step_impl(context: Context, var1: str, label: Label, var2: str):
     assert_that(context.get(var1).get_relations(
         context.tx(),
-        context.tx().concepts.get_relation_type(label.scope()).get_relates(context.tx(), label.name())),
+        context.tx().concepts.get_relation_type(label.scope).get_relates(context.tx(), label.name)),
         has_item(context.get(var2)))
 
 
@@ -177,7 +177,7 @@ def step_impl(context: Context, var1: str, var2: str):
 def step_impl(context: Context, var1: str, label: Label, var2: str):
     assert_that(context.get(var1).get_relations(
         context.tx(),
-        context.tx().concepts.get_relation_type(label.scope()).get_relates(context.tx(), label.name())),
+        context.tx().concepts.get_relation_type(label.scope).get_relates(context.tx(), label.name)),
         not_(has_item(context.get(var2))))
 
 

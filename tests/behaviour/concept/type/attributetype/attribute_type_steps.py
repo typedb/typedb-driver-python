@@ -49,7 +49,8 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(), value_type)))
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(),
+                                                                                              value_type)))
     for sub_label in sub_labels:
         assert_that(sub_label, is_in(actuals))
 
@@ -58,7 +59,8 @@ def step_impl(context: Context, type_label: str, value_type: ValueType):
 def step_impl(context: Context, type_label: str, value_type: ValueType):
     sub_labels = [parse_label(s) for s in parse_list(context.table)]
     attribute_type = context.tx().concepts.get_attribute_type(type_label)
-    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(), value_type)))
+    actuals = list(map(lambda tt: tt.get_label(), attribute_type.get_subtypes_with_value_type(context.tx(),
+                                                                                              value_type)))
     for sub_label in sub_labels:
         assert_that(sub_label, not_(is_in(actuals)))
 

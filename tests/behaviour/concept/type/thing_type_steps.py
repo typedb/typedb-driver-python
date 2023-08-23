@@ -54,7 +54,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 @step("{root_label:RootLabel}({type_label:Label}) is null: {is_null}")
 def step_impl(context: Context, root_label: RootLabel, type_label: Label, is_null):
     is_null = parse_bool(is_null)
-    assert_that(context.get_thing_type(root_label, type_label.name()) is None, is_(is_null))
+    assert_that(context.get_thing_type(root_label, type_label.name) is None, is_(is_null))
 
 
 @step("{root_label:RootLabel}({type_label}) set label: {new_label}")
@@ -64,7 +64,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, new_labe
 
 @step("{root_label:RootLabel}({type_label:Label}) get label: {get_label}")
 def step_impl(context: Context, root_label: RootLabel, type_label: Label, get_label: str):
-    assert_that(context.get_thing_type(root_label, type_label.name()).get_label().name(), is_(get_label))
+    assert_that(context.get_thing_type(root_label, type_label.name).get_label().name, is_(get_label))
 
 
 @step("{root_label:RootLabel}({type_label}) set abstract: {is_abstract}; throws exception")
@@ -343,19 +343,19 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str):
 def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, is_null):
     is_null = parse_bool(is_null)
     attribute_type = context.tx().concepts.get_attribute_type(attr_type_label)
-    assert_that(context.get_thing_type(root_label, type_label.name()).get_owns_overridden(context.tx(), attribute_type) is None, is_(is_null))
+    assert_that(context.get_thing_type(root_label, type_label.name).get_owns_overridden(context.tx(), attribute_type) is None, is_(is_null))
 
 
 @step("{root_label:RootLabel}({type_label:Label}) get owns overridden attribute({attr_type_label}) get label: {label}")
 def step_impl(context: Context, root_label: RootLabel, type_label: Label, attr_type_label: str, label: str):
     attribute_type = context.tx().concepts.get_attribute_type(attr_type_label)
-    assert_that(context.get_thing_type(root_label, type_label.name()).get_owns_overridden(context.tx(), attribute_type).get_label().name(), is_(label))
+    assert_that(context.get_thing_type(root_label, type_label.name).get_owns_overridden(context.tx(), attribute_type).get_label().name, is_(label))
 
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label, overridden_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
-    overridden_type = context.tx().concepts.get_relation_type(overridden_label.scope()).get_relates(context.tx(), overridden_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
+    overridden_type = context.tx().concepts.get_relation_type(overridden_label.scope).get_relates(context.tx(), overridden_label.name)
     try:
         context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type, overridden_type)
         assert False
@@ -365,14 +365,14 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel} as {overridden_label:ScopedLabel}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label, overridden_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
-    overridden_type = context.tx().concepts.get_relation_type(overridden_label.scope()).get_relates(context.tx(), overridden_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
+    overridden_type = context.tx().concepts.get_relation_type(overridden_label.scope).get_relates(context.tx(), overridden_label.name)
     context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type, overridden_type)
 
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
     try:
         context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type)
         assert False
@@ -382,13 +382,13 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
 
 @step("{root_label:RootLabel}({type_label}) set plays role: {role_label:ScopedLabel}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
     context.get_thing_type(root_label, type_label).set_plays(context.tx(), role_type)
 
 
 @step("{root_label:RootLabel}({type_label}) unset plays role: {role_label:ScopedLabel}; throws exception")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
     try:
         context.get_thing_type(root_label, type_label).unset_plays(context.tx(), role_type)
         assert False
@@ -398,7 +398,7 @@ def step_impl(context: Context, root_label: RootLabel, type_label: str, role_lab
 
 @step("{root_label:RootLabel}({type_label}) unset plays role: {role_label:ScopedLabel}")
 def step_impl(context: Context, root_label: RootLabel, type_label: str, role_label: Label):
-    role_type = context.tx().concepts.get_relation_type(role_label.scope()).get_relates(context.tx(), role_label.name())
+    role_type = context.tx().concepts.get_relation_type(role_label.scope).get_relates(context.tx(), role_label.name)
     context.get_thing_type(root_label, type_label).unset_plays(context.tx(), role_type)
 
 

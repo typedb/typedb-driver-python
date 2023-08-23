@@ -28,14 +28,12 @@ from typedb.native_client_wrapper import relation_get_type, relation_add_role_pl
     role_player_get_player, relation_get_relating, concept_iterator_next, role_player_iterator_next
 
 from typedb.api.concept.thing.relation import Relation
-from typedb.api.concept.type.role_type import RoleType
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.concept_factory import wrap_relation_type, wrap_role_type, wrap_thing
 from typedb.concept.thing.thing import _Thing
 from typedb.concept.type.role_type import _RoleType
 
 if TYPE_CHECKING:
-    from typedb.api.concept.thing.thing import Thing
     from typedb.concept.type.relation_type import _RelationType
     from typedb.connection.transaction import _Transaction
 

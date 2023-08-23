@@ -93,12 +93,12 @@ def step_impl(context: Context, relation_label: str, role_label: str, new_label:
 
 @step("relation({relation_label}) get role({role_label}) get label: {get_label}")
 def step_impl(context: Context, relation_label: str, role_label: str, get_label: str):
-    assert_that(context.tx().concepts.get_relation_type(relation_label).get_relates(context.tx(), role_label).get_label().name(), is_(get_label))
+    assert_that(context.tx().concepts.get_relation_type(relation_label).get_relates(context.tx(), role_label).get_label().name, is_(get_label))
 
 
 @step("relation({relation_label}) get overridden role({role_label}) get label: {get_label}")
 def step_impl(context: Context, relation_label: str, role_label: str, get_label: str):
-    assert_that(context.tx().concepts.get_relation_type(relation_label).get_relates_overridden(context.tx(), role_label).get_label().name(), is_(get_label))
+    assert_that(context.tx().concepts.get_relation_type(relation_label).get_relates_overridden(context.tx(), role_label).get_label().name, is_(get_label))
 
 
 @step("relation({relation_label}) get role({role_label}) is abstract: {is_abstract}")
@@ -151,7 +151,7 @@ def step_impl(context: Context, relation_label: str):
 
 @step("relation({relation_label}) get role({role_label}) get supertype: {super_label:ScopedLabel}")
 def step_impl(context: Context, relation_label: str, role_label: str, super_label: Label):
-    supertype = context.tx().concepts.get_relation_type(super_label.scope()).get_relates(context.tx(), super_label.name())
+    supertype = context.tx().concepts.get_relation_type(super_label.scope).get_relates(context.tx(), super_label.name)
     assert_that(supertype, is_(context.tx().concepts.get_relation_type(relation_label).get_relates(context.tx(), role_label).get_supertype(context.tx())))
 
 

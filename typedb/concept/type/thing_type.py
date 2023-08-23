@@ -42,7 +42,6 @@ if TYPE_CHECKING:
     from typedb.api.concept.type.attribute_type import AttributeType
     from typedb.api.concept.value.value import ValueType
     from typedb.api.concept.type.annotation import Annotation
-    from typedb.concept.thing.thing import _Thing
     from typedb.concept.type.attribute_type import _AttributeType
     from typedb.concept.type.role_type import _RoleType
     from typedb.connection.transaction import _Transaction

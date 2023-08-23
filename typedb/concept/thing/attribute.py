@@ -31,7 +31,7 @@ from typedb.api.concept.value.value import ValueType
 from typedb.common.iterator_wrapper import IteratorWrapper
 from typedb.concept.concept_factory import wrap_attribute_type, wrap_thing, wrap_value
 from typedb.concept.thing.thing import _Thing
-from typedb.concept import type as type_
+from typedb.concept.type.attribute_type import _AttributeType
 from typedb.concept.value.value import _Value
 
 if TYPE_CHECKING:

@@ -254,7 +254,7 @@ class AttributeValueMatcher(AttributeMatcher):
 
         attribute = concept.as_attribute()
 
-        if self.type_label != attribute.get_type().get_label().name():
+        if self.type_label != attribute.get_type().get_label().name:
             return ConceptMatchResult.of_error(self.type_and_value,
                                                "%s was matched by Attribute Value expecting type label [%s], but its actual type is %s." % (
                                                    attribute, self.type_label, attribute.get_type()))
@@ -272,7 +272,7 @@ class ThingKeyMatcher(AttributeMatcher):
         keys = [key for key in concept.as_thing().get_has(context.tx(), annotations={Annotation.key()})]
 
         for key in keys:
-            if key.get_type().get_label().name() == self.type_label:
+            if key.get_type().get_label().name == self.type_label:
                 return self.check(key)
 
         return ConceptMatchResult.of_error(self.type_and_value,

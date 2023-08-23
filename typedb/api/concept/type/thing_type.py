@@ -102,7 +102,8 @@ class ThingType(Type, ABC):
         pass
 
     @abstractmethod
-    def get_owns_overridden(self, transaction: TypeDBTransaction, attribute_type: AttributeType) -> Optional[AttributeType]:
+    def get_owns_overridden(self, transaction: TypeDBTransaction, attribute_type: AttributeType
+                            ) -> Optional[AttributeType]:
         pass
 
     @abstractmethod

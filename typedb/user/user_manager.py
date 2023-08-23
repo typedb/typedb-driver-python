@@ -56,8 +56,7 @@ class _UserManager(UserManager, NativeWrapper[NativeUserManager]):
         users_delete(self.native_object, username)
 
     def all(self) -> list[User]:
-        return [_User(user, self) for user in IteratorWrapper(users_all(self.native_object),
-                                                                            user_iterator_next)]
+        return [_User(user, self) for user in IteratorWrapper(users_all(self.native_object), user_iterator_next)]
 
     def get(self, username: str) -> Optional[User]:
         if user := users_get(self.native_object, username):

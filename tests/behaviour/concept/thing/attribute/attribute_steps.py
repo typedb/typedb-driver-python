@@ -28,12 +28,14 @@ from tests.behaviour.context import Context
 
 @step("attribute({type_label}) get instances contain: {var:Var}")
 def step_impl(context: Context, type_label: str, var: str):
-    assert_that(context.get(var), is_in(context.tx().concepts.get_attribute_type(type_label).get_instances(context.tx())))
+    assert_that(context.get(var),
+                is_in(context.tx().concepts.get_attribute_type(type_label).get_instances(context.tx())))
 
 
 @step("attribute({type_label}) get instances is empty")
 def step_impl(context: Context, type_label: str):
-    assert_that(calling(next).with_args(context.tx().concepts.get_attribute_type(type_label).get_instances(context.tx())), raises(StopIteration))
+    assert_that(calling(next).with_args(context.tx().concepts.get_attribute_type(type_label)
+                                        .get_instances(context.tx())), raises(StopIteration))
 
 
 @step("attribute {var1:Var} get owners contain: {var2:Var}")
@@ -53,7 +55,8 @@ def step_impl(context: Context, var: str, value_type: ValueType):
 
 @step("attribute({type_label}) as(boolean) put: {value:Bool}; throws exception")
 def step_impl(context: Context, type_label: str, value: bool):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value),
+                raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(boolean) put: {value:Bool}")
@@ -63,7 +66,8 @@ def step_impl(context: Context, var: str, type_label: str, value: bool):
 
 @step("attribute({type_label}) as(long) put: {value:Int}; throws exception")
 def step_impl(context: Context, type_label: str, value: int):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value),
+                raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(long) put: {value:Int}")
@@ -73,7 +77,8 @@ def step_impl(context: Context, var: str, type_label: str, value: int):
 
 @step("attribute({type_label}) as(double) put: {value:Float}; throws exception")
 def step_impl(context: Context, type_label: str, value: float):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value),
+                raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(double) put: {value:Float}")
@@ -83,7 +88,8 @@ def step_impl(context: Context, var: str, type_label: str, value: float):
 
 @step("attribute({type_label}) as(string) put: {value}; throws exception")
 def step_impl(context: Context, type_label: str, value: str):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value),
+                raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(string) put: {value}")
@@ -93,7 +99,8 @@ def step_impl(context: Context, var: str, type_label: str, value: str):
 
 @step("attribute({type_label}) as(datetime) put: {value:DateTime}; throws exception")
 def step_impl(context: Context, type_label: str, value: datetime):
-    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value), raises(TypeDBClientException))
+    assert_that(calling(context.tx().concepts.get_attribute_type(type_label).put).with_args(context.tx(), value),
+                raises(TypeDBClientException))
 
 
 @step("{var:Var} = attribute({type_label}) as(datetime) put: {value:DateTime}")

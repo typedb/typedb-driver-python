@@ -112,7 +112,8 @@ class _ConceptMap(ConceptMap, NativeWrapper[NativeConceptMap]):
             return _ConceptMap.Explainable(explainable)
 
         def ownership(self, owner: str, attribute: str) -> ConceptMap.Explainable:
-            explainable = explainables_get_ownership(self.native_object, _not_blank_var(owner), _not_blank_var(attribute))
+            explainable = explainables_get_ownership(self.native_object, _not_blank_var(owner),
+                                                     _not_blank_var(attribute))
             if not explainable:
                 raise TypeDBClientExceptionExt.of(NONEXISTENT_EXPLAINABLE_OWNERSHIP, (owner, attribute))
             return _ConceptMap.Explainable(explainable)

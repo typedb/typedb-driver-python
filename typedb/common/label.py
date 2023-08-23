@@ -45,14 +45,16 @@ class Label:
         """
         return Label(scope=args[0], name=args[1]) if len(args) == 2 else Label(scope=None, name=args[0])
 
+    @property
     def scope(self) -> Optional[str]:
         return self._scope
 
+    @property
     def name(self) -> str:
         return self._name
 
     def scoped_name(self) -> str:
-        return "%s:%s" % (self._scope, self._name) if self._scope else self._name
+        return "%s:%s" % (self.scope, self.name) if self.scope else self.name
 
     def __str__(self):
         return self.scoped_name()
@@ -61,11 +63,11 @@ class Label:
         return f"Label('{str(self)}')"
 
     def __hash__(self):
-        return hash((self._name, self._scope))
+        return hash((self.name, self.scope))
 
     def __eq__(self, other):
         if other is self:
             return True
         if not other or type(self) != type(other):
             return False
-        return self._scope == other._scope and self._name == other._name
+        return self.scope == other.scope and self.name == other.name

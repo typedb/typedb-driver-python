@@ -86,12 +86,10 @@ class Concept(ABC):
         raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "EntityType"))
 
     def as_attribute_type(self) -> AttributeType:
-        raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__,
-                                                                 "AttributeType"))
+        raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "AttributeType"))
 
     def as_relation_type(self) -> RelationType:
-        raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__,
-                                                                 "RelationType"))
+        raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RelationType"))
 
     def as_role_type(self) -> RoleType:
         raise TypeDBClientExceptionExt.of(INVALID_CONCEPT_CASTING, (self.__class__.__name__, "RoleType"))

@@ -71,7 +71,7 @@ class TestClientPython(TestCase):
             with session.transaction(WRITE) as tx:
                 tx.query.define("define lionfight sub relation, relates victor, relates loser;")
                 lionfight_type = tx.concepts.get_relation_type("lionfight")
-                print("define: " + lionfight_type.get_label().name())
+                print("define: " + lionfight_type.get_label().name)
                 tx.query.undefine("undefine lionfight sub relation;")
                 tx.commit()
 

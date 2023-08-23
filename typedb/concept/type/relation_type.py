@@ -65,7 +65,7 @@ class _RelationType(RelationType, _ThingType):
                                                                              transitivity.value),
                                                    concept_iterator_next))
 
-    def get_relates_overridden(self, transaction: _Transaction, role_label: str) -> Optional[type_.role_type._RoleType]:
+    def get_relates_overridden(self, transaction: _Transaction, role_label: str) -> Optional[_RoleType]:
         if res := relation_type_get_relates_overridden(transaction.native_object, self.native_object, role_label):
             return wrap_role_type(res)
         return None

@@ -91,7 +91,7 @@ class TestClusterFailover(TestCase):
             with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
                 person = tx.concepts.get_entity_type("person")
                 print("Retrieved entity type with label '%s' from primary replica." % person.get_label())
-                assert person.get_label().name() == "person"
+                assert person.get_label().name == "person"
             iteration = 0
             while iteration < 10:
                 iteration += 1
@@ -107,7 +107,7 @@ class TestClusterFailover(TestCase):
                 with client.session("typedb", SCHEMA) as session, session.transaction(READ) as tx:
                     person = tx.concepts.get_entity_type("person")
                     print("Retrieved entity type with label '%s' from new primary replica." % person.get_label())
-                    assert person.get_label().name() == "person"
+                    assert person.get_label().name == "person"
                 idx = str(primary_replica.address())[10]
                 self.server_start(idx)
                 lsof = None

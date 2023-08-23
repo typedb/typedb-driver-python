@@ -91,10 +91,10 @@ MISSING_VARIABLE = ConceptErrorMessage(4, "Variable name cannot be null or empty
 MISSING_VALUE = ConceptErrorMessage(5, "Value cannot be null or empty.")
 NONEXISTENT_EXPLAINABLE_CONCEPT = ConceptErrorMessage(6, "The concept identified by '%s' is not explainable.")
 NONEXISTENT_EXPLAINABLE_OWNERSHIP = ConceptErrorMessage(7, "The ownership by owner '%s' of attribute '%s' "
-                                                            "is not explainable.")
+                                                        "is not explainable.")
 GET_HAS_WITH_MULTIPLE_FILTERS = ConceptErrorMessage(8, "Only one filter can be applied at a time to get_has. "
-                                                        "The possible filters are: [attribute_type, attribute_types, "
-                                                        "annotations]")
+                                                    "The possible filters are: [attribute_type, attribute_types, "
+                                                    "annotations]")
 UNRECOGNISED_ANNOTATION = ConceptErrorMessage(9, "The annotation '%s' is not recognised.")
 
 
