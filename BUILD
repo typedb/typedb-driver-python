@@ -101,6 +101,7 @@ assemble_pip(
     keywords = ["typedb", "database", "graph", "knowledgebase", "knowledge-engineering"],
     description = "TypeDB Client for Python",
     long_description_file = "//:README.md",
+    distribution_tag = "py3-none-macosx_11_0_arm64",
 )
 
 deploy_pip(
