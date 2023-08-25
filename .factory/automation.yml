@@ -223,9 +223,9 @@ build:
         test-behaviour-definable-core, test-behaviour-definable-cluster,
         test-failover-cluster
       ]
-      filter:
-        owner: vaticle
-        branch: master
+#      filter:
+#        owner: vaticle
+#        branch: master
       type: foreground
       command: |
         export PYENV_ROOT="/opt/pyenv"
@@ -240,9 +240,9 @@ build:
     test-deployment-pip:
       image: vaticle-ubuntu-20.04
       dependencies: [deploy-pip-snapshot]
-      filter:
-        owner: vaticle
-        branch: master
+#      filter:
+#        owner: vaticle
+#        branch: master
       type: foreground
       command: |
         export PYENV_ROOT="/opt/pyenv"
