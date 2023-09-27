@@ -1,3 +1,7 @@
+# THIS REPOSITORY HAS BEEN ARCHIVED. Please visit: [@vaticle/typedb-driver/python](https://github.com/vaticle/typedb-driver/tree/development/python)
+
+---
+
 # TypeDB Client for Python
 
 [![Factory](https://factory.vaticle.com/api/status/vaticle/typedb-client-python/badge.svg)](https://factory.vaticle.com/vaticle/typedb-client-python)
